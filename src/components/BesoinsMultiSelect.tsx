@@ -29,7 +29,14 @@ const besoinOptions: BesoinOption[] = [
   // Stratégie
   { value: "clarifier_positionnement", label: "Clarifier mon positionnement", category: "Stratégie" },
   { value: "professionnaliser_projet", label: "Professionnaliser mon projet", category: "Stratégie" },
+  // Légitimité & Posture
+  { value: "renforcer_credibilite", label: "Renforcer ma crédibilité", category: "Légitimité & Posture" },
+  { value: "se_sentir_legitime", label: "Me sentir plus légitime au micro", category: "Légitimité & Posture" },
+  { value: "clarifier_posture", label: "Clarifier ma posture / identité", category: "Légitimité & Posture" },
+  { value: "developper_signature", label: "Développer ma signature / style", category: "Légitimité & Posture" },
 ];
+
+const MAX_SELECTIONS = 3;
 
 interface BesoinsMultiSelectProps {
   selected: string[];
@@ -39,14 +46,13 @@ interface BesoinsMultiSelectProps {
 
 const BesoinsMultiSelect = ({ selected, onChange, labelClass = "" }: BesoinsMultiSelectProps) => {
   const toggle = (value: string) => {
-    onChange(
-      selected.includes(value)
-        ? selected.filter((v) => v !== value)
-        : [...selected, value]
-    );
+    if (selected.includes(value)) {
+      onChange(selected.filter((v) => v !== value));
+    } else if (selected.length < MAX_SELECTIONS) {
+      onChange([...selected, value]);
+    }
   };
 
-  // Group by category
   const categories = besoinOptions.reduce<Record<string, BesoinOption[]>>((acc, opt) => {
     (acc[opt.category] ??= []).push(opt);
     return acc;
@@ -56,7 +62,7 @@ const BesoinsMultiSelect = ({ selected, onChange, labelClass = "" }: BesoinsMult
     <div>
       <label className={labelClass}>Vos besoins</label>
       <p className="text-xs text-muted-foreground mb-4">
-        Sélectionnez autant de besoins que vous le souhaitez.
+        Sélectionnez jusqu'à 3 besoins principaux.
       </p>
       <div className="space-y-4">
         {Object.entries(categories).map(([category, options]) => (
@@ -67,17 +73,21 @@ const BesoinsMultiSelect = ({ selected, onChange, labelClass = "" }: BesoinsMult
             <div className="flex flex-wrap gap-2">
               {options.map((opt) => {
                 const isActive = selected.includes(opt.value);
+                const isDisabled = !isActive && selected.length >= MAX_SELECTIONS;
                 return (
                   <button
                     key={opt.value}
                     type="button"
                     onClick={() => toggle(opt.value)}
+                    disabled={isDisabled}
                     className={`
                       inline-flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm font-medium
-                      border transition-all duration-200 cursor-pointer select-none
+                      border transition-all duration-200 select-none
                       ${isActive
-                        ? "bg-primary/10 border-primary/40 text-primary"
-                        : "bg-card border-border text-muted-foreground hover:border-primary/20 hover:text-foreground"
+                        ? "bg-primary/10 border-primary/40 text-primary cursor-pointer"
+                        : isDisabled
+                          ? "bg-muted/50 border-border text-muted-foreground/40 cursor-not-allowed"
+                          : "bg-card border-border text-muted-foreground hover:border-primary/20 hover:text-foreground cursor-pointer"
                       }
                     `}
                   >
@@ -90,6 +100,9 @@ const BesoinsMultiSelect = ({ selected, onChange, labelClass = "" }: BesoinsMult
           </div>
         ))}
       </div>
+      {selected.length === MAX_SELECTIONS && (
+        <p className="text-xs text-muted-foreground mt-3">Maximum atteint — désélectionnez un besoin pour en choisir un autre.</p>
+      )}
     </div>
   );
 };
