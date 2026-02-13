@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import { ArrowRight } from "lucide-react";
+import { ArrowRight, Users } from "lucide-react";
 
 const CommunauteSection = () => {
   return (
@@ -29,13 +29,24 @@ const CommunauteSection = () => {
               Podcasteurs, studios, partenaires, acteurs de l'audio ou curieux du média :
               contribuez à la vitalité de l'écosystème podcast régional.
             </p>
-            <a
-              href="mailto:contact@podcasteusesdusud.fr"
-              className="group inline-flex items-center gap-3 bg-accent text-accent-foreground px-8 py-4 rounded-xl font-semibold hover:brightness-110 transition-all duration-300 shadow-[0_8px_30px_-6px_hsl(42_80%_55%_/_0.35)]"
-            >
-              Prendre contact
-              <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-            </a>
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
+              <a
+                href="mailto:contact@podcasteusesdusud.fr"
+                className="group inline-flex items-center gap-3 bg-accent text-accent-foreground px-8 py-4 rounded-xl font-semibold hover:brightness-110 transition-all duration-300 shadow-[0_8px_30px_-6px_hsl(42_80%_55%_/_0.35)]"
+              >
+                Prendre contact
+                <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+              </a>
+              <a
+                href="https://www.helloasso.com/associations/les-podcasteur-euses-du-sud/adhesions/rejoindre-les-podcasteureuses-du-sud"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="group inline-flex items-center gap-3 bg-white/10 text-white border border-white/15 px-8 py-4 rounded-xl font-semibold hover:bg-white/15 transition-all duration-300 backdrop-blur-sm"
+              >
+                <Users className="w-4 h-4" />
+                Adhérer à l'association
+              </a>
+            </div>
           </div>
         </motion.div>
       </div>
