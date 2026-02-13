@@ -1,4 +1,5 @@
 import { Mic2 } from "lucide-react";
+import { Link } from "react-router-dom";
 
 const Footer = () => {
   return (
@@ -19,17 +20,25 @@ const Footer = () => {
             </div>
           </div>
 
-          <div className="flex items-center gap-6 text-sm text-muted-foreground">
+          <div className="flex flex-wrap items-center gap-x-6 gap-y-2 text-sm text-muted-foreground">
             <a
               href="mailto:contact@podcasteusesdusud.fr"
               className="hover:text-foreground transition-colors"
             >
               Contact
             </a>
-            <span className="w-1 h-1 rounded-full bg-border" />
-            <a href="#" className="hover:text-foreground transition-colors">
+            <span className="w-1 h-1 rounded-full bg-border hidden sm:block" />
+            <Link to="/mentions-legales" className="hover:text-foreground transition-colors">
               Mentions légales
-            </a>
+            </Link>
+            <span className="w-1 h-1 rounded-full bg-border hidden sm:block" />
+            <Link to="/politique-de-confidentialite" className="hover:text-foreground transition-colors">
+              Confidentialité
+            </Link>
+            <span className="w-1 h-1 rounded-full bg-border hidden sm:block" />
+            <Link to="/conditions-utilisation" className="hover:text-foreground transition-colors">
+              CGU
+            </Link>
           </div>
         </div>
       </div>
