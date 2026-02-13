@@ -3,6 +3,7 @@ import { motion } from "framer-motion";
 import { toast } from "sonner";
 import { Send, Upload, X, Image } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
+import CityAutocomplete, { type CityResult } from "./CityAutocomplete";
 
 const thematiques = [
   "Culture & Arts", "Société & Politique", "Économie & Entrepreneuriat",
@@ -11,28 +12,14 @@ const thematiques = [
   "Environnement", "Autre",
 ];
 
-const villesParDepartement: Record<string, string[]> = {
-  "Alpes-de-Haute-Provence (04)": [
-    "Digne-les-Bains", "Manosque", "Sisteron", "Forcalquier", "Château-Arnoux-Saint-Auban", "Oraison", "Barcelonnette", "Castellane", "Valensole", "Riez",
-  ],
-  "Hautes-Alpes (05)": [
-    "Gap", "Briançon", "Embrun", "Laragne-Montéglin", "Veynes", "L'Argentière-la-Bessée", "Guillestre", "Chorges", "Tallard", "Saint-Bonnet-en-Champsaur",
-  ],
-  "Alpes-Maritimes (06)": [
-    "Nice", "Cannes", "Antibes", "Grasse", "Menton", "Mougins", "Vallauris", "Vence", "Cagnes-sur-Mer", "Saint-Laurent-du-Var", "Mandelieu-la-Napoule", "Villefranche-sur-Mer", "Sophia Antipolis",
-  ],
-  "Bouches-du-Rhône (13)": [
-    "Marseille", "Aix-en-Provence", "Arles", "Martigues", "Aubagne", "Salon-de-Provence", "Istres", "La Ciotat", "Vitrolles", "Marignane", "Gardanne", "Les Pennes-Mirabeau", "Miramas",
-  ],
-  "Var (83)": [
-    "Toulon", "Fréjus", "Hyères", "Draguignan", "Saint-Raphaël", "La Seyne-sur-Mer", "Six-Fours-les-Plages", "Brignoles", "La Garde", "Sainte-Maxime", "Saint-Tropez", "Bandol",
-  ],
-  "Vaucluse (84)": [
-    "Avignon", "Carpentras", "Orange", "Cavaillon", "L'Isle-sur-la-Sorgue", "Pertuis", "Apt", "Bollène", "Sorgues", "Le Pontet", "Vaison-la-Romaine",
-  ],
-};
-
-const departements = Object.keys(villesParDepartement);
+const departements = [
+  { code: "04", label: "04 — Alpes-de-Haute-Provence" },
+  { code: "05", label: "05 — Hautes-Alpes" },
+  { code: "06", label: "06 — Alpes-Maritimes" },
+  { code: "13", label: "13 — Bouches-du-Rhône" },
+  { code: "83", label: "83 — Var" },
+  { code: "84", label: "84 — Vaucluse" },
+];
 
 const besoins = [
   "Gagner en visibilité", "Trouver des collaborations",
@@ -42,9 +29,11 @@ const besoins = [
 const FormSection = () => {
   const [formData, setFormData] = useState({
     nomPodcast: "", lienEcoute: "", description: "", thematique: "",
-    departement: "", ville: "", typePodcast: "", monetise: "", besoin: "",
+    departementCode: "", typePodcast: "", monetise: "", besoin: "",
     prenom: "", nom: "", structure: "", email: "",
   });
+  const [selectedCity, setSelectedCity] = useState<CityResult | null>(null);
+  const [cityError, setCityError] = useState("");
   const [vignette, setVignette] = useState<File | null>(null);
   const [vignettePreview, setVignettePreview] = useState<string | null>(null);
   const [uploading, setUploading] = useState(false);
@@ -76,8 +65,12 @@ const FormSection = () => {
     setFormData((prev) => ({
       ...prev,
       [name]: value,
-      ...(name === "departement" ? { ville: "" } : {}),
     }));
+    // Reset city when department changes
+    if (name === "departementCode") {
+      setSelectedCity(null);
+      setCityError("");
+    }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -86,12 +79,23 @@ const FormSection = () => {
       toast.error("Veuillez remplir tous les champs obligatoires.");
       return;
     }
+    if (!formData.departementCode) {
+      toast.error("Veuillez sélectionner un département.");
+      return;
+    }
+    if (!selectedCity || !selectedCity.city_insee_code) {
+      setCityError("Veuillez sélectionner une ville dans la liste.");
+      toast.error("Veuillez sélectionner une ville dans la liste.");
+      return;
+    }
     try {
       new URL(formData.lienEcoute);
     } catch {
       toast.error("Veuillez entrer un lien d'écoute valide (ex: https://...)");
       return;
     }
+
+    const dept = departements.find((d) => d.code === formData.departementCode);
 
     let vignetteUrl = "";
     if (vignette) {
@@ -119,7 +123,12 @@ const FormSection = () => {
       lien_ecoute: formData.lienEcoute,
       description: formData.description,
       thematique: formData.thematique || null,
-      ville: [formData.ville, formData.departement].filter(Boolean).join(', ') || null,
+      ville: `${selectedCity.city_name}, ${dept?.label || formData.departementCode}`,
+      department_code: formData.departementCode,
+      department_label: dept?.label || null,
+      city_name: selectedCity.city_name,
+      city_insee_code: selectedCity.city_insee_code,
+      city_postcode: selectedCity.city_postcode,
       type_podcast: formData.typePodcast || null,
       monetise: formData.monetise || null,
       besoin: formData.besoin || null,
@@ -140,9 +149,11 @@ const FormSection = () => {
     toast.success("Merci ! Votre podcast a bien été référencé.");
     setFormData({
       nomPodcast: "", lienEcoute: "", description: "", thematique: "",
-      departement: "", ville: "", typePodcast: "", monetise: "", besoin: "",
+      departementCode: "", typePodcast: "", monetise: "", besoin: "",
       prenom: "", nom: "", structure: "", email: "",
     });
+    setSelectedCity(null);
+    setCityError("");
     removeVignette();
   };
 
@@ -251,33 +262,37 @@ const FormSection = () => {
               />
             </div>
 
-            <div className="grid sm:grid-cols-2 gap-4">
-              <div>
-                <label className={labelClass}>Thématique</label>
-                <select name="thematique" value={formData.thematique} onChange={handleChange} className={selectClass}>
-                  <option value="">Sélectionner</option>
-                  {thematiques.map((t) => <option key={t} value={t}>{t}</option>)}
-                </select>
-              </div>
-              <div>
-                <label className={labelClass}>Département</label>
-                <select name="departement" value={formData.departement} onChange={handleChange} className={selectClass}>
-                  <option value="">Sélectionner</option>
-                  {departements.map((d) => <option key={d} value={d}>{d}</option>)}
-                </select>
-              </div>
-            </div>
-
             <div>
-              <label className={labelClass}>Ville de production</label>
-              <select name="ville" value={formData.ville} onChange={handleChange} className={selectClass} disabled={!formData.departement}>
-                <option value="">{formData.departement ? "Sélectionner une ville" : "Choisir d'abord un département"}</option>
-                {formData.departement && villesParDepartement[formData.departement]?.map((v) => (
-                  <option key={v} value={v}>{v}</option>
-                ))}
-                {formData.departement && <option value="Autre">Autre</option>}
+              <label className={labelClass}>Thématique</label>
+              <select name="thematique" value={formData.thematique} onChange={handleChange} className={selectClass}>
+                <option value="">Sélectionner</option>
+                {thematiques.map((t) => <option key={t} value={t}>{t}</option>)}
               </select>
             </div>
+
+            {/* Département + Ville */}
+            <div>
+              <label className={labelClass}>Département <span className="text-primary">*</span></label>
+              <select name="departementCode" value={formData.departementCode} onChange={handleChange} className={selectClass} required>
+                <option value="">Sélectionner un département</option>
+                {departements.map((d) => (
+                  <option key={d.code} value={d.code}>{d.label}</option>
+                ))}
+              </select>
+            </div>
+
+            <CityAutocomplete
+              departmentCode={formData.departementCode}
+              value={selectedCity}
+              onChange={(city) => {
+                setSelectedCity(city);
+                setCityError("");
+              }}
+              inputClass={inputClass}
+              labelClass={labelClass}
+              required
+              error={cityError}
+            />
 
             <div className="grid sm:grid-cols-2 gap-4">
               <div>
