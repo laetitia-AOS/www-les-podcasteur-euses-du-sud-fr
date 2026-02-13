@@ -4,9 +4,9 @@ import { Eye, Users, Layers, ArrowRightLeft, Rocket } from "lucide-react";
 const objectifs = [
   { icon: Eye, text: "Rendre visibles les podcasts et créateurs du territoire" },
   { icon: Users, text: "Faciliter les connexions et collaborations" },
-  { icon: Layers, text: "Structurer une scène podcast régionale" },
+  { icon: Layers, text: "Structurer une scène podcast régionale identifiable" },
   { icon: ArrowRightLeft, text: "Créer des passerelles entre acteurs de l'audio" },
-  { icon: Rocket, text: "Soutenir le développement des formats" },
+  { icon: Rocket, text: "Soutenir la diversité des formats et des voix" },
 ];
 
 const ObjectifsSection = () => {

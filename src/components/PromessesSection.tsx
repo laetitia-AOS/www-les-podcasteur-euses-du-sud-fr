@@ -2,11 +2,11 @@ import { motion } from "framer-motion";
 import { Search, Handshake, Sparkles, Building2, HeartHandshake } from "lucide-react";
 
 const promesses = [
-  { icon: Search, text: "Découvrir les podcasts locaux" },
+  { icon: Search, text: "Découvrir les podcasts ancrés localement" },
   { icon: Handshake, text: "Favoriser collaborations et invitations croisées" },
-  { icon: Sparkles, text: "Mettre en lumière les créateurs" },
-  { icon: Building2, text: "Offrir un point d'entrée aux partenaires et studios" },
-  { icon: HeartHandshake, text: "Nourrir une dynamique collective" },
+  { icon: Sparkles, text: "Mettre en lumière les créateurs et productions" },
+  { icon: Building2, text: "Offrir un point d'entrée aux studios et partenaires" },
+  { icon: HeartHandshake, text: "Nourrir une dynamique collective autour du podcast" },
 ];
 
 const PromessesSection = () => {
@@ -20,7 +20,7 @@ const PromessesSection = () => {
           transition={{ duration: 0.7 }}
           className="font-serif text-3xl sm:text-4xl md:text-5xl text-center mb-14"
         >
-          Ce que Podcasteur·euses du Sud permet
+          Ce que l'initiative permet
         </motion.h2>
 
         <div className="grid sm:grid-cols-2 gap-5">

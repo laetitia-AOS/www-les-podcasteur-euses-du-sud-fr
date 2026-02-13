@@ -103,7 +103,7 @@ const FormSection = () => {
             Référencer son podcast dans l'écosystème du Sud
           </h2>
           <p className="text-lg text-muted-foreground leading-relaxed max-w-xl mx-auto">
-            Votre podcast participe à la vitalité du territoire.
+            Votre podcast participe à la vitalité créative et éditoriale du territoire.
             Intégrez la cartographie des voix et talents audio de la Région Sud.
           </p>
           <p className="mt-3 text-sm font-medium text-primary">Référencement gratuit.</p>
