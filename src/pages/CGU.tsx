@@ -1,7 +1,9 @@
+import { useEffect } from "react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 
 const CGU = () => {
+  useEffect(() => { document.title = "CGU — Les Podcasteur·euses du Sud"; }, []);
   return (
     <>
       <Navbar />

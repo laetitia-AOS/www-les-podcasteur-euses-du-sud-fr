@@ -1,7 +1,9 @@
+import { useEffect } from "react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 
 const PolitiqueConfidentialite = () => {
+  useEffect(() => { document.title = "Politique de confidentialité — Les Podcasteur·euses du Sud"; }, []);
   return (
     <>
       <Navbar />
