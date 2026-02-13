@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import HeroSection from "@/components/HeroSection";
 import Navbar from "@/components/Navbar";
 import VisionSection from "@/components/VisionSection";
@@ -10,6 +11,10 @@ import FormSection from "@/components/FormSection";
 import Footer from "@/components/Footer";
 
 const Index = () => {
+  useEffect(() => {
+    document.title = "Les Podcasteur·euses du Sud — Écosystème podcast Région Sud";
+  }, []);
+
   return (
     <>
       <Navbar />

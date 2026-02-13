@@ -1,7 +1,9 @@
+import { useEffect } from "react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 
 const MentionsLegales = () => {
+  useEffect(() => { document.title = "Mentions légales — Les Podcasteur·euses du Sud"; }, []);
   return (
     <>
       <Navbar />

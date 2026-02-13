@@ -16,10 +16,10 @@ const CommunauteSection = () => {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, margin: "-80px" }}
           transition={{ duration: 0.7 }}
-          className="bg-gradient-to-br from-[hsl(220,50%,18%)] via-[hsl(220,45%,22%)] to-[hsl(225,40%,16%)] rounded-3xl p-10 sm:p-14 text-center relative overflow-hidden"
+          className="bg-gradient-to-br from-primary via-[hsl(220,60%,38%)] to-primary rounded-3xl p-10 sm:p-14 text-center relative overflow-hidden"
         >
-          <div className="absolute inset-0 opacity-30" style={{
-            backgroundImage: `radial-gradient(ellipse at 50% 100%, hsl(42 95% 52% / 0.4) 0%, transparent 60%)`
+          <div className="absolute inset-0 opacity-25" style={{
+            backgroundImage: `radial-gradient(ellipse at 50% 100%, hsl(42 95% 52% / 0.5) 0%, transparent 60%)`
           }} />
 
           <div className="relative">
@@ -33,7 +33,7 @@ const CommunauteSection = () => {
             <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
               <button
                 onClick={() => navigate("/contact")}
-                className="group inline-flex items-center gap-3 bg-accent text-accent-foreground px-8 py-4 rounded-xl font-semibold hover:brightness-110 transition-all duration-300 shadow-[0_8px_30px_-6px_hsl(42_80%_55%_/_0.35)]"
+                className="group inline-flex items-center gap-3 bg-secondary text-secondary-foreground px-8 py-4 rounded-xl font-semibold hover:brightness-110 transition-all duration-300 shadow-[0_8px_30px_-6px_hsl(42_95%_52%_/_0.4)]"
               >
                 Prendre contact
                 <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
