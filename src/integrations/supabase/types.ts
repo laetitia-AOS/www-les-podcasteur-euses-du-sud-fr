@@ -76,6 +76,11 @@ export type Database = {
           nom_podcast: string
           prenom: string | null
           priorite_actuelle: string | null
+          score_dynamique: number
+          score_fiche: number
+          score_global: number
+          score_opportunite: number
+          segment_pds: string
           structure: string | null
           telephone: string | null
           thematique: string | null
@@ -106,6 +111,11 @@ export type Database = {
           nom_podcast: string
           prenom?: string | null
           priorite_actuelle?: string | null
+          score_dynamique?: number
+          score_fiche?: number
+          score_global?: number
+          score_opportunite?: number
+          segment_pds?: string
           structure?: string | null
           telephone?: string | null
           thematique?: string | null
@@ -136,6 +146,11 @@ export type Database = {
           nom_podcast?: string
           prenom?: string | null
           priorite_actuelle?: string | null
+          score_dynamique?: number
+          score_fiche?: number
+          score_global?: number
+          score_opportunite?: number
+          segment_pds?: string
           structure?: string | null
           telephone?: string | null
           thematique?: string | null
