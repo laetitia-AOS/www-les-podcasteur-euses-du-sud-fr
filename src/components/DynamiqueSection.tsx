@@ -150,7 +150,7 @@ const DynamiqueSection = () => {
               href="#formulaire"
               className="inline-flex items-center gap-2 mt-6 text-sm font-medium text-primary hover:text-primary/80 transition-colors"
             >
-              Référencer mon podcast
+              Référencer mon podcast gratuitement
               <ArrowUpRight className="w-3.5 h-3.5" />
             </a>
           </motion.div>

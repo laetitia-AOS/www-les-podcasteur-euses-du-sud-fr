@@ -60,9 +60,10 @@ const HeroSection = () => {
                 onClick={scrollToForm}
                 className="group flex items-center gap-3 bg-primary text-primary-foreground px-8 py-4 rounded-xl text-base font-semibold hover:brightness-110 transition-all duration-300 shadow-md hover:shadow-lg hover:-translate-y-0.5"
               >
-                Référencer mon podcast
+                Référencer mon podcast gratuitement
                 <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
               </button>
+              <p className="text-xs text-muted-foreground/70 -mt-2 ml-1">Ouvert à tous les podcasts de la région Sud</p>
               <button
                 onClick={() => document.getElementById("vision")?.scrollIntoView({ behavior: "smooth" })}
                 className="group flex items-center gap-2 text-muted-foreground hover:text-foreground px-5 py-4 text-sm font-medium transition-colors"
