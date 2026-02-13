@@ -56,7 +56,7 @@ const Navbar = () => {
           }`}
         >
           <Mic2 className="w-5 h-5" />
-          <span className="hidden sm:inline">Podcasteur·euses du Sud</span>
+          <span className="hidden sm:inline">Les Podcasteur·euses du Sud</span>
         </button>
 
         {/* Desktop */}
