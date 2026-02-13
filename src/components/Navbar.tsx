@@ -7,6 +7,7 @@ const links = [
   { label: "Objectifs", href: "#objectifs" },
   { label: "Promesses", href: "#promesses" },
   { label: "Dynamique", href: "#dynamique" },
+  { label: "Participer", href: "#communaute" },
   { label: "Référencer", href: "#formulaire" },
 ];
 
