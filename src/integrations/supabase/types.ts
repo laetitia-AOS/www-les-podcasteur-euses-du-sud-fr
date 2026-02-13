@@ -14,7 +14,63 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      podcasts: {
+        Row: {
+          besoin: string | null
+          created_at: string
+          description: string
+          email: string
+          id: string
+          lien_ecoute: string
+          monetise: string | null
+          nom: string | null
+          nom_podcast: string
+          prenom: string | null
+          structure: string | null
+          thematique: string | null
+          type_podcast: string | null
+          valide: boolean
+          vignette_url: string | null
+          ville: string | null
+        }
+        Insert: {
+          besoin?: string | null
+          created_at?: string
+          description: string
+          email: string
+          id?: string
+          lien_ecoute: string
+          monetise?: string | null
+          nom?: string | null
+          nom_podcast: string
+          prenom?: string | null
+          structure?: string | null
+          thematique?: string | null
+          type_podcast?: string | null
+          valide?: boolean
+          vignette_url?: string | null
+          ville?: string | null
+        }
+        Update: {
+          besoin?: string | null
+          created_at?: string
+          description?: string
+          email?: string
+          id?: string
+          lien_ecoute?: string
+          monetise?: string | null
+          nom?: string | null
+          nom_podcast?: string
+          prenom?: string | null
+          structure?: string | null
+          thematique?: string | null
+          type_podcast?: string | null
+          valide?: boolean
+          vignette_url?: string | null
+          ville?: string | null
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
