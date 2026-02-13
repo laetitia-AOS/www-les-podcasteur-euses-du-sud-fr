@@ -21,12 +21,9 @@ const Footer = () => {
           </div>
 
           <div className="flex flex-wrap items-center gap-x-6 gap-y-2 text-sm text-muted-foreground">
-            <a
-              href="mailto:contact@podcasteusesdusud.fr"
-              className="hover:text-foreground transition-colors"
-            >
+            <Link to="/contact" className="hover:text-foreground transition-colors">
               Contact
-            </a>
+            </Link>
             <span className="w-1 h-1 rounded-full bg-border hidden sm:block" />
             <Link to="/mentions-legales" className="hover:text-foreground transition-colors">
               Mentions légales
