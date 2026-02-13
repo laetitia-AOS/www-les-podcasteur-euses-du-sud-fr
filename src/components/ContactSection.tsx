@@ -99,7 +99,7 @@ const ContactSection = () => {
           </h2>
           <p className="text-muted-foreground leading-relaxed max-w-lg mx-auto">
             Vous développez un projet, une idée ou une initiative en lien avec le podcast
-            ou la création audio ? Podcasteur·euses du Sud facilite les connexions, échanges
+            ou la création audio ? Les Podcasteur·euses du Sud facilite les connexions, échanges
             et opportunités entre acteurs de l'audio et du territoire.
           </p>
         </motion.div>
