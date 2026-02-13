@@ -11,34 +11,41 @@ const objectifs = [
 
 const ObjectifsSection = () => {
   return (
-    <section className="py-20 md:py-28 bg-warm-glow">
-      <div className="container mx-auto px-6 max-w-4xl">
-        <motion.h2
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, margin: "-80px" }}
-          transition={{ duration: 0.7 }}
-          className="font-serif text-3xl sm:text-4xl md:text-5xl text-center mb-14"
-        >
-          Pourquoi Podcasteur·euses du Sud existe
-        </motion.h2>
+    <section id="objectifs" className="py-16 md:py-24 bg-warm-glow">
+      <div className="container mx-auto px-6 max-w-5xl">
+        <div className="grid md:grid-cols-[1fr_1.4fr] gap-10 md:gap-16 items-start">
+          {/* Left: title */}
+          <motion.div
+            initial={{ opacity: 0, x: -20 }}
+            whileInView={{ opacity: 1, x: 0 }}
+            viewport={{ once: true, margin: "-80px" }}
+            transition={{ duration: 0.7 }}
+            className="md:sticky md:top-28"
+          >
+            <h2 className="font-serif text-3xl sm:text-4xl md:text-[2.6rem] leading-tight">
+              Pourquoi Podcasteur·euses du Sud existe
+            </h2>
+            <div className="section-divider w-12 mt-5" />
+          </motion.div>
 
-        <div className="grid sm:grid-cols-2 gap-5">
-          {objectifs.map((o, i) => (
-            <motion.div
-              key={i}
-              initial={{ opacity: 0, y: 25 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true, margin: "-60px" }}
-              transition={{ duration: 0.6, delay: i * 0.08 }}
-              className="flex items-start gap-4 bg-background rounded-lg p-6 shadow-sm border border-border"
-            >
-              <div className="shrink-0 w-11 h-11 rounded-full bg-primary/10 flex items-center justify-center">
-                <o.icon className="w-5 h-5 text-primary" />
-              </div>
-              <p className="text-lg text-foreground leading-relaxed">{o.text}</p>
-            </motion.div>
-          ))}
+          {/* Right: list */}
+          <div className="space-y-4">
+            {objectifs.map((o, i) => (
+              <motion.div
+                key={i}
+                initial={{ opacity: 0, x: 20 }}
+                whileInView={{ opacity: 1, x: 0 }}
+                viewport={{ once: true, margin: "-40px" }}
+                transition={{ duration: 0.5, delay: i * 0.07 }}
+                className="flex items-center gap-4 bg-background rounded-lg px-5 py-4 border border-border"
+              >
+                <div className="shrink-0 w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
+                  <o.icon className="w-5 h-5 text-primary" />
+                </div>
+                <p className="text-foreground leading-snug">{o.text}</p>
+              </motion.div>
+            ))}
+          </div>
         </div>
       </div>
     </section>
