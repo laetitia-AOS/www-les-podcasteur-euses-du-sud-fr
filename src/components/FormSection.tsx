@@ -1,7 +1,8 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { motion } from "framer-motion";
 import { toast } from "sonner";
-import { Send } from "lucide-react";
+import { Send, Upload, X, Image } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
 
 const thematiques = [
   "Culture & Arts", "Société & Politique", "Économie & Entrepreneuriat",
@@ -26,23 +27,71 @@ const FormSection = () => {
     ville: "", typePodcast: "", monetise: "", besoin: "",
     prenom: "", nom: "", structure: "", email: "",
   });
+  const [vignette, setVignette] = useState<File | null>(null);
+  const [vignettePreview, setVignettePreview] = useState<string | null>(null);
+  const [uploading, setUploading] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    if (!file.type.startsWith("image/")) {
+      toast.error("Veuillez sélectionner une image (JPG, PNG, WebP).");
+      return;
+    }
+    if (file.size > 5 * 1024 * 1024) {
+      toast.error("L'image ne doit pas dépasser 5 Mo.");
+      return;
+    }
+    setVignette(file);
+    setVignettePreview(URL.createObjectURL(file));
+  };
+
+  const removeVignette = () => {
+    setVignette(null);
+    setVignettePreview(null);
+    if (fileInputRef.current) fileInputRef.current.value = "";
+  };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     setFormData((prev) => ({ ...prev, [e.target.name]: e.target.value }));
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!formData.nomPodcast || !formData.lienEcoute || !formData.description || !formData.email) {
       toast.error("Veuillez remplir tous les champs obligatoires.");
       return;
     }
+
+    let vignetteUrl = "";
+    if (vignette) {
+      setUploading(true);
+      const ext = vignette.name.split(".").pop();
+      const fileName = `${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`;
+      const { error } = await supabase.storage
+        .from("podcast-thumbnails")
+        .upload(fileName, vignette, { contentType: vignette.type });
+      setUploading(false);
+      if (error) {
+        toast.error("Erreur lors de l'envoi de la vignette.");
+        console.error(error);
+        return;
+      }
+      const { data: urlData } = supabase.storage
+        .from("podcast-thumbnails")
+        .getPublicUrl(fileName);
+      vignetteUrl = urlData.publicUrl;
+    }
+
+    console.log("Form submitted with vignette:", vignetteUrl);
     toast.success("Merci ! Votre podcast a bien été référencé.");
     setFormData({
       nomPodcast: "", lienEcoute: "", description: "", thematique: "",
       ville: "", typePodcast: "", monetise: "", besoin: "",
       prenom: "", nom: "", structure: "", email: "",
     });
+    removeVignette();
   };
 
   const inputClass =
@@ -106,6 +155,48 @@ const FormSection = () => {
             <div>
               <label className={labelClass}>Description courte <span className="text-primary">*</span></label>
               <textarea name="description" value={formData.description} onChange={handleChange} className={inputClass + " min-h-[100px] resize-y"} placeholder="En quelques lignes, de quoi parle votre podcast ?" required />
+            </div>
+
+            {/* Vignette upload */}
+            <div>
+              <label className={labelClass}>Vignette du podcast</label>
+              <p className="text-xs text-muted-foreground mb-3">
+                Format carré recommandé (1400×1400 px). JPG, PNG ou WebP, 5 Mo max.
+              </p>
+              {vignettePreview ? (
+                <div className="relative inline-block">
+                  <img
+                    src={vignettePreview}
+                    alt="Aperçu vignette"
+                    className="w-32 h-32 object-cover rounded-xl border border-border shadow-sm"
+                  />
+                  <button
+                    type="button"
+                    onClick={removeVignette}
+                    className="absolute -top-2 -right-2 w-6 h-6 bg-destructive text-destructive-foreground rounded-full flex items-center justify-center shadow-md hover:brightness-110 transition-all"
+                  >
+                    <X className="w-3.5 h-3.5" />
+                  </button>
+                </div>
+              ) : (
+                <button
+                  type="button"
+                  onClick={() => fileInputRef.current?.click()}
+                  className="flex items-center gap-3 px-5 py-4 rounded-xl border-2 border-dashed border-border hover:border-primary/40 bg-card hover:bg-primary/5 transition-all text-muted-foreground hover:text-foreground w-full"
+                >
+                  <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center">
+                    <Image className="w-5 h-5 text-primary" />
+                  </div>
+                  <span className="text-sm">Ajouter la vignette de votre podcast</span>
+                </button>
+              )}
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept="image/jpeg,image/png,image/webp"
+                onChange={handleFileChange}
+                className="hidden"
+              />
             </div>
 
             <div className="grid sm:grid-cols-2 gap-4">
@@ -188,10 +279,11 @@ const FormSection = () => {
 
           <button
             type="submit"
-            className="group w-full flex items-center justify-center gap-3 bg-primary text-primary-foreground py-4 rounded-xl text-base font-semibold hover:brightness-110 transition-all duration-300 shadow-md hover:shadow-lg mt-2"
+            disabled={uploading}
+            className="group w-full flex items-center justify-center gap-3 bg-primary text-primary-foreground py-4 rounded-xl text-base font-semibold hover:brightness-110 transition-all duration-300 shadow-md hover:shadow-lg mt-2 disabled:opacity-60 disabled:cursor-not-allowed"
           >
-            Je référence mon podcast
-            <Send className="w-4 h-4 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
+            {uploading ? "Envoi en cours…" : "Je référence mon podcast"}
+            {!uploading && <Send className="w-4 h-4 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />}
           </button>
         </motion.form>
       </div>
