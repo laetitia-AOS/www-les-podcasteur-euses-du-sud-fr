@@ -301,8 +301,10 @@ const FormSection = () => {
                   <option value="">Sélectionner</option>
                   <option value="Indépendant">Indépendant</option>
                   <option value="Média">Média</option>
-                  <option value="Institution">Institution</option>
-                  <option value="Marque">Marque</option>
+                  <option value="Marque / Entreprise">Marque / Entreprise</option>
+                  <option value="Académique / Éducatif">Académique / Éducatif</option>
+                  <option value="Narratif / Créatif">Narratif / Créatif</option>
+                  <option value="Expert / Autorité">Expert / Autorité</option>
                 </select>
               </div>
               <div>
