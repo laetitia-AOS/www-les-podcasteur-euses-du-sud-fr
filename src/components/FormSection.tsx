@@ -11,14 +11,28 @@ const thematiques = [
   "Environnement", "Autre",
 ];
 
-const departements = [
-  "Alpes-de-Haute-Provence (04)",
-  "Hautes-Alpes (05)",
-  "Alpes-Maritimes (06)",
-  "Bouches-du-Rhône (13)",
-  "Var (83)",
-  "Vaucluse (84)",
-];
+const villesParDepartement: Record<string, string[]> = {
+  "Alpes-de-Haute-Provence (04)": [
+    "Digne-les-Bains", "Manosque", "Sisteron", "Forcalquier", "Château-Arnoux-Saint-Auban", "Oraison", "Barcelonnette", "Castellane", "Valensole", "Riez",
+  ],
+  "Hautes-Alpes (05)": [
+    "Gap", "Briançon", "Embrun", "Laragne-Montéglin", "Veynes", "L'Argentière-la-Bessée", "Guillestre", "Chorges", "Tallard", "Saint-Bonnet-en-Champsaur",
+  ],
+  "Alpes-Maritimes (06)": [
+    "Nice", "Cannes", "Antibes", "Grasse", "Menton", "Mougins", "Vallauris", "Vence", "Cagnes-sur-Mer", "Saint-Laurent-du-Var", "Mandelieu-la-Napoule", "Villefranche-sur-Mer", "Sophia Antipolis",
+  ],
+  "Bouches-du-Rhône (13)": [
+    "Marseille", "Aix-en-Provence", "Arles", "Martigues", "Aubagne", "Salon-de-Provence", "Istres", "La Ciotat", "Vitrolles", "Marignane", "Gardanne", "Les Pennes-Mirabeau", "Miramas",
+  ],
+  "Var (83)": [
+    "Toulon", "Fréjus", "Hyères", "Draguignan", "Saint-Raphaël", "La Seyne-sur-Mer", "Six-Fours-les-Plages", "Brignoles", "La Garde", "Sainte-Maxime", "Saint-Tropez", "Bandol",
+  ],
+  "Vaucluse (84)": [
+    "Avignon", "Carpentras", "Orange", "Cavaillon", "L'Isle-sur-la-Sorgue", "Pertuis", "Apt", "Bollène", "Sorgues", "Le Pontet", "Vaison-la-Romaine",
+  ],
+};
+
+const departements = Object.keys(villesParDepartement);
 
 const besoins = [
   "Gagner en visibilité", "Trouver des collaborations",
@@ -58,7 +72,12 @@ const FormSection = () => {
   };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
-    setFormData((prev) => ({ ...prev, [e.target.name]: e.target.value }));
+    const { name, value } = e.target;
+    setFormData((prev) => ({
+      ...prev,
+      [name]: value,
+      ...(name === "departement" ? { ville: "" } : {}),
+    }));
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -251,7 +270,13 @@ const FormSection = () => {
 
             <div>
               <label className={labelClass}>Ville de production</label>
-              <input name="ville" value={formData.ville} onChange={handleChange} className={inputClass} placeholder="Ex : Marseille, Aix-en-Provence…" />
+              <select name="ville" value={formData.ville} onChange={handleChange} className={selectClass} disabled={!formData.departement}>
+                <option value="">{formData.departement ? "Sélectionner une ville" : "Choisir d'abord un département"}</option>
+                {formData.departement && villesParDepartement[formData.departement]?.map((v) => (
+                  <option key={v} value={v}>{v}</option>
+                ))}
+                {formData.departement && <option value="Autre">Autre</option>}
+              </select>
             </div>
 
             <div className="grid sm:grid-cols-2 gap-4">
