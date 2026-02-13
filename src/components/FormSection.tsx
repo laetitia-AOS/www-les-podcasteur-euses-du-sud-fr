@@ -11,9 +11,13 @@ const thematiques = [
   "Environnement", "Autre",
 ];
 
-const villes = [
-  "Marseille", "Nice", "Toulon", "Aix-en-Provence", "Avignon",
-  "Montpellier", "Cannes", "Arles", "Gap", "Digne-les-Bains", "Autre",
+const departements = [
+  "Alpes-de-Haute-Provence (04)",
+  "Hautes-Alpes (05)",
+  "Alpes-Maritimes (06)",
+  "Bouches-du-Rhône (13)",
+  "Var (83)",
+  "Vaucluse (84)",
 ];
 
 const besoins = [
@@ -24,7 +28,7 @@ const besoins = [
 const FormSection = () => {
   const [formData, setFormData] = useState({
     nomPodcast: "", lienEcoute: "", description: "", thematique: "",
-    ville: "", typePodcast: "", monetise: "", besoin: "",
+    departement: "", ville: "", typePodcast: "", monetise: "", besoin: "",
     prenom: "", nom: "", structure: "", email: "",
   });
   const [vignette, setVignette] = useState<File | null>(null);
@@ -96,7 +100,7 @@ const FormSection = () => {
       lien_ecoute: formData.lienEcoute,
       description: formData.description,
       thematique: formData.thematique || null,
-      ville: formData.ville || null,
+      ville: [formData.ville, formData.departement].filter(Boolean).join(', ') || null,
       type_podcast: formData.typePodcast || null,
       monetise: formData.monetise || null,
       besoin: formData.besoin || null,
@@ -117,7 +121,7 @@ const FormSection = () => {
     toast.success("Merci ! Votre podcast a bien été référencé.");
     setFormData({
       nomPodcast: "", lienEcoute: "", description: "", thematique: "",
-      ville: "", typePodcast: "", monetise: "", besoin: "",
+      departement: "", ville: "", typePodcast: "", monetise: "", besoin: "",
       prenom: "", nom: "", structure: "", email: "",
     });
     removeVignette();
@@ -237,12 +241,17 @@ const FormSection = () => {
                 </select>
               </div>
               <div>
-                <label className={labelClass}>Ville de production</label>
-                <select name="ville" value={formData.ville} onChange={handleChange} className={selectClass}>
+                <label className={labelClass}>Département</label>
+                <select name="departement" value={formData.departement} onChange={handleChange} className={selectClass}>
                   <option value="">Sélectionner</option>
-                  {villes.map((v) => <option key={v} value={v}>{v}</option>)}
+                  {departements.map((d) => <option key={d} value={d}>{d}</option>)}
                 </select>
               </div>
+            </div>
+
+            <div>
+              <label className={labelClass}>Ville de production</label>
+              <input name="ville" value={formData.ville} onChange={handleChange} className={inputClass} placeholder="Ex : Marseille, Aix-en-Provence…" />
             </div>
 
             <div className="grid sm:grid-cols-2 gap-4">
