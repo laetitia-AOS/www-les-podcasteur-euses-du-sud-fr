@@ -15,15 +15,17 @@ const Index = () => {
       <Navbar />
       <main className="min-h-screen">
         <HeroSection />
-        <VisionSection />
-        <ObjectifsSection />
-        <PromessesSection />
+        <article>
+          <VisionSection />
+          <ObjectifsSection />
+          <PromessesSection />
+        </article>
         <DynamiqueSection />
         <CommunauteSection />
         <ContactSection />
         <FormSection />
-        <Footer />
       </main>
+      <Footer />
     </>
   );
 };
