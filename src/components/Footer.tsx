@@ -11,7 +11,7 @@ const Footer = () => {
             </div>
             <div>
               <span className="font-serif text-lg text-foreground block leading-tight">
-                Podcasteur·euses du Sud
+                Les Podcasteur·euses du Sud
               </span>
               <span className="text-xs text-muted-foreground">
                 Écosystème podcast · Région Sud

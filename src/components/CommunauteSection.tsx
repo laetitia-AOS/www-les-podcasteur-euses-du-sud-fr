@@ -1,7 +1,9 @@
 import { motion } from "framer-motion";
 import { ArrowRight, Users } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 const CommunauteSection = () => {
+  const navigate = useNavigate();
   return (
     <section id="communaute" className="py-20 md:py-32 bg-background relative overflow-hidden">
       <div className="absolute inset-0 opacity-[0.02]" style={{
@@ -30,7 +32,7 @@ const CommunauteSection = () => {
             </p>
             <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
               <button
-                onClick={() => document.getElementById("contact")?.scrollIntoView({ behavior: "smooth" })}
+                onClick={() => navigate("/contact")}
                 className="group inline-flex items-center gap-3 bg-accent text-accent-foreground px-8 py-4 rounded-xl font-semibold hover:brightness-110 transition-all duration-300 shadow-[0_8px_30px_-6px_hsl(42_80%_55%_/_0.35)]"
               >
                 Prendre contact

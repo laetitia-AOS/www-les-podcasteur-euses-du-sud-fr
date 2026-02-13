@@ -4,19 +4,15 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Mic2, Menu, X } from "lucide-react";
 
 const links = [
-  { label: "Vision", href: "#vision" },
-  { label: "Objectifs", href: "#objectifs" },
-  { label: "Promesses", href: "#promesses" },
-  { label: "Dynamique", href: "#dynamique" },
+  { label: "Découvrir", href: "#dynamique" },
+  { label: "Référencer", href: "#formulaire" },
   { label: "Participer", href: "#communaute" },
   { label: "Contact", href: "/contact" },
-  { label: "Référencer", href: "#formulaire" },
 ];
 
 const Navbar = () => {
   const [scrolled, setScrolled] = useState(false);
   const [open, setOpen] = useState(false);
-
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -51,7 +47,7 @@ const Navbar = () => {
       <div className="container mx-auto px-6 max-w-6xl flex items-center justify-between h-16">
         <button
           onClick={() => handleClick("#hero")}
-          className={`flex items-center gap-2 font-serif text-lg transition-colors text-foreground`}
+          className="flex items-center gap-2 font-serif text-lg transition-colors text-foreground"
         >
           <Mic2 className="w-5 h-5" />
           <span className="hidden sm:inline">Les Podcasteur·euses du Sud</span>
