@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
-import { Mic2, ArrowUpRight, MapPin, Loader2 } from "lucide-react";
+import { Mic2, ArrowUpRight, MapPin, Loader2, ChevronDown } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 
 interface Podcast {
@@ -14,17 +14,20 @@ interface Podcast {
   created_at: string;
 }
 
+const INITIAL_COUNT = 6;
+const LOAD_MORE_COUNT = 6;
+
 const DynamiqueSection = () => {
   const [podcasts, setPodcasts] = useState<Podcast[]>([]);
   const [loading, setLoading] = useState(true);
+  const [visible, setVisible] = useState(INITIAL_COUNT);
 
   useEffect(() => {
     const fetchPodcasts = async () => {
       const { data, error } = await supabase
         .from("podcasts")
         .select("id, nom_podcast, description, ville, thematique, lien_ecoute, vignette_url, created_at")
-        .order("created_at", { ascending: false })
-        .limit(8);
+        .order("created_at", { ascending: false });
 
       if (!error && data) setPodcasts(data);
       setLoading(false);
@@ -33,6 +36,7 @@ const DynamiqueSection = () => {
   }, []);
 
   const hasContent = podcasts.length > 0;
+  const hasMore = visible < podcasts.length;
 
   return (
     <section id="dynamique" className="py-20 md:py-32 bg-card">
@@ -65,70 +69,83 @@ const DynamiqueSection = () => {
             <Loader2 className="w-6 h-6 text-primary animate-spin" />
           </div>
         ) : hasContent ? (
-          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
-            {podcasts.map((p, i) => (
-              <motion.article
-                key={p.id}
-                initial={{ opacity: 0, y: 25 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true, margin: "-40px" }}
-                transition={{ duration: 0.5, delay: i * 0.06 }}
-                className="group bg-background rounded-2xl border border-border overflow-hidden hover:border-primary/20 hover:shadow-lg transition-all duration-300 flex flex-col"
-              >
-                {/* Vignette */}
-                <div className="aspect-square bg-muted relative overflow-hidden">
-                  {p.vignette_url ? (
-                    <img
-                      src={p.vignette_url}
-                      alt={`Vignette de ${p.nom_podcast}`}
-                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                      loading="lazy"
-                    />
-                  ) : (
-                    <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-primary/10 to-primary/5">
-                      <Mic2 className="w-12 h-12 text-primary/30" />
-                    </div>
-                  )}
-                </div>
+          <>
+            <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
+              {podcasts.slice(0, visible).map((p, i) => (
+                <motion.article
+                  key={p.id}
+                  initial={{ opacity: 0, y: 25 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true, margin: "-40px" }}
+                  transition={{ duration: 0.5, delay: (i % LOAD_MORE_COUNT) * 0.06 }}
+                  className="group bg-background rounded-2xl border border-border overflow-hidden hover:border-primary/20 hover:shadow-lg transition-all duration-300 flex flex-col"
+                >
+                  {/* Vignette */}
+                  <div className="aspect-square bg-muted relative overflow-hidden">
+                    {p.vignette_url ? (
+                      <img
+                        src={p.vignette_url}
+                        alt={`Vignette de ${p.nom_podcast}`}
+                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                        loading="lazy"
+                      />
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-primary/10 to-primary/5">
+                        <Mic2 className="w-12 h-12 text-primary/30" />
+                      </div>
+                    )}
+                  </div>
 
-                {/* Content */}
-                <div className="p-5 flex flex-col flex-1">
-                  <h3 className="font-serif text-lg text-foreground mb-1 line-clamp-1">
-                    {p.nom_podcast}
-                  </h3>
+                  {/* Content */}
+                  <div className="p-5 flex flex-col flex-1">
+                    <h3 className="font-serif text-lg text-foreground mb-1 line-clamp-1">
+                      {p.nom_podcast}
+                    </h3>
 
-                  {(p.ville || p.thematique) && (
-                    <div className="flex items-center gap-1.5 text-xs text-muted-foreground mb-3">
-                      {p.ville && (
-                        <span className="flex items-center gap-1">
-                          <MapPin className="w-3 h-3" />
-                          {p.ville}
-                        </span>
-                      )}
-                      {p.ville && p.thematique && <span>—</span>}
-                      {p.thematique && <span>{p.thematique}</span>}
-                    </div>
-                  )}
+                    {(p.ville || p.thematique) && (
+                      <div className="flex items-center gap-1.5 text-xs text-muted-foreground mb-3">
+                        {p.ville && (
+                          <span className="flex items-center gap-1">
+                            <MapPin className="w-3 h-3" />
+                            {p.ville}
+                          </span>
+                        )}
+                        {p.ville && p.thematique && <span>—</span>}
+                        {p.thematique && <span>{p.thematique}</span>}
+                      </div>
+                    )}
 
-                  <p className="text-muted-foreground text-sm leading-relaxed line-clamp-2 flex-1 mb-4">
-                    {p.description}
-                  </p>
+                    <p className="text-muted-foreground text-sm leading-relaxed line-clamp-2 flex-1 mb-4">
+                      {p.description}
+                    </p>
 
-                  <a
-                    href={p.lien_ecoute}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="inline-flex items-center gap-1.5 text-sm font-medium text-primary hover:text-primary/80 transition-colors"
-                  >
-                    Écouter le podcast
-                    <ArrowUpRight className="w-3.5 h-3.5 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
-                  </a>
-                </div>
-              </motion.article>
-            ))}
-          </div>
+                    <a
+                      href={p.lien_ecoute}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-1.5 text-sm font-medium text-primary hover:text-primary/80 transition-colors"
+                    >
+                      Écouter le podcast
+                      <ArrowUpRight className="w-3.5 h-3.5 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
+                    </a>
+                  </div>
+                </motion.article>
+              ))}
+            </div>
+
+            {hasMore && (
+              <div className="flex justify-center mt-10">
+                <button
+                  onClick={() => setVisible((v) => v + LOAD_MORE_COUNT)}
+                  className="group inline-flex items-center gap-2 px-6 py-3 rounded-xl border border-border bg-background text-sm font-medium text-muted-foreground hover:text-foreground hover:border-primary/20 hover:shadow-md transition-all duration-300"
+                >
+                  Voir plus de podcasts ({podcasts.length - visible} restants)
+                  <ChevronDown className="w-4 h-4 group-hover:translate-y-0.5 transition-transform" />
+                </button>
+              </div>
+            )}
+          </>
         ) : (
-          /* Empty state — teasing */
           <motion.div
             initial={{ opacity: 0 }}
             whileInView={{ opacity: 1 }}
