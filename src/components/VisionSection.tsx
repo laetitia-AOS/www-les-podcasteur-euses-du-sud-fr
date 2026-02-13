@@ -34,7 +34,7 @@ const VisionSection = () => {
 
           <div className="pt-4">
             <p className="text-foreground font-serif text-xl sm:text-2xl text-center italic">
-              Podcasteur·euses du Sud est né de cette réalité.
+              Les Podcasteur·euses du Sud est né de cette réalité.
             </p>
           </div>
         </motion.div>
