@@ -84,7 +84,30 @@ const FormSection = () => {
       vignetteUrl = urlData.publicUrl;
     }
 
-    console.log("Form submitted with vignette:", vignetteUrl);
+    setUploading(true);
+    const { error: dbError } = await supabase.from("podcasts").insert({
+      nom_podcast: formData.nomPodcast,
+      lien_ecoute: formData.lienEcoute,
+      description: formData.description,
+      thematique: formData.thematique || null,
+      ville: formData.ville || null,
+      type_podcast: formData.typePodcast || null,
+      monetise: formData.monetise || null,
+      besoin: formData.besoin || null,
+      prenom: formData.prenom || null,
+      nom: formData.nom || null,
+      structure: formData.structure || null,
+      email: formData.email,
+      vignette_url: vignetteUrl || null,
+    });
+    setUploading(false);
+
+    if (dbError) {
+      toast.error("Erreur lors de l'enregistrement. Veuillez réessayer.");
+      console.error(dbError);
+      return;
+    }
+
     toast.success("Merci ! Votre podcast a bien été référencé.");
     setFormData({
       nomPodcast: "", lienEcoute: "", description: "", thematique: "",
