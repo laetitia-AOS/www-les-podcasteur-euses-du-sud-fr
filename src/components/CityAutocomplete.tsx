@@ -98,7 +98,7 @@ const CityAutocomplete = ({
 
       setLoading(true);
       try {
-        const url = `https://geo.api.gouv.fr/departements/${departmentCode}/communes?nom=${encodeURIComponent(search)}&fields=nom,code,codesPostaux&boost=population&limit=20`;
+        const url = `https://geo.api.gouv.fr/communes?codeDepartement=${departmentCode}&nom=${encodeURIComponent(search)}&fields=nom,code,codesPostaux&boost=population&limit=20`;
         const res = await fetch(url, { signal: controller.signal });
         if (!res.ok) throw new Error("API error");
         const data: GeoApiCommune[] = await res.json();
