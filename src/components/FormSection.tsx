@@ -1,7 +1,7 @@
 import { useState, useRef } from "react";
 import { motion } from "framer-motion";
 import { toast } from "sonner";
-import { Send, X, Image } from "lucide-react";
+import { Send, X, Image, Check, Users, Sun, ArrowRight } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import CityAutocomplete, { type CityResult } from "./CityAutocomplete";
 import BesoinsMultiSelect from "./BesoinsMultiSelect";
@@ -38,6 +38,7 @@ const SectionHeader = ({ number, title }: { number: number; title: string }) => 
 );
 
 const FormSection = () => {
+  const [submitted, setSubmitted] = useState(false);
   const [formData, setFormData] = useState({
     prenom: "", nom: "", email: "", telephone: "",
     nomPodcast: "", lienEcoute: "", description: "",
@@ -174,21 +175,8 @@ const FormSection = () => {
       return;
     }
 
-    toast.success("Merci ! Votre podcast a bien été référencé.");
-    setFormData({
-      prenom: "", nom: "", email: "", telephone: "",
-      nomPodcast: "", lienEcoute: "", description: "",
-      thematique: "", departementCode: "",
-      typePodcast: "", niveauAvancement: "", frequencePublication: "", monetise: "",
-    });
-    setSelectedBesoins([]);
-    setPrioriteActuelle("");
-    setConsentContact(false);
-    setConsentMiseEnRelation(false);
-    setConsentError("");
-    setSelectedCity(null);
-    setCityError("");
-    removeVignette();
+    setSubmitted(true);
+    window.scrollTo({ top: document.getElementById("formulaire")?.offsetTop || 0, behavior: "smooth" });
   };
 
   const inputClass =
@@ -200,260 +188,342 @@ const FormSection = () => {
   return (
     <section id="formulaire" className="py-20 md:py-32 bg-card">
       <div className="container mx-auto px-6 max-w-2xl">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, margin: "-80px" }}
-          transition={{ duration: 0.7 }}
-          className="text-center mb-14"
-        >
-          <div className="flex items-center gap-3 justify-center mb-4">
-            <div className="h-px w-8 bg-primary/30" />
-            <span className="text-xs font-semibold uppercase tracking-[0.2em] text-primary/70">Référencement</span>
-            <div className="h-px w-8 bg-primary/30" />
-          </div>
-          <h2 className="font-serif text-3xl sm:text-4xl md:text-5xl mb-5">
-            Référencer mon podcast
-          </h2>
-          <p className="text-muted-foreground leading-relaxed max-w-lg mx-auto">
-            Votre podcast participe à la vitalité créative du territoire.
-            Intégrez la cartographie des voix audio de la Région Sud.
-          </p>
-          <span className="inline-block mt-4 text-xs font-semibold uppercase tracking-wider text-primary bg-primary/10 px-3 py-1 rounded-full">
-            Gratuit
-          </span>
-        </motion.div>
-
-        <motion.form
-          onSubmit={handleSubmit}
-          initial={{ opacity: 0, y: 30 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, margin: "-60px" }}
-          transition={{ duration: 0.8, delay: 0.15 }}
-          className="bg-background border border-border rounded-3xl p-7 sm:p-10 space-y-8"
-        >
-          {/* SECTION 1 — Coordonnées */}
-          <div className="space-y-5">
-            <SectionHeader number={1} title="Vos coordonnées" />
-            <div className="grid sm:grid-cols-2 gap-4">
-              <div>
-                <label className={labelClass}>Prénom <span className="text-primary">*</span></label>
-                <input name="prenom" value={formData.prenom} onChange={handleChange} className={inputClass} placeholder="Votre prénom" required />
-              </div>
-              <div>
-                <label className={labelClass}>Nom <span className="text-primary">*</span></label>
-                <input name="nom" value={formData.nom} onChange={handleChange} className={inputClass} placeholder="Votre nom" required />
-              </div>
-            </div>
-            <div>
-              <label className={labelClass}>Email <span className="text-primary">*</span></label>
-              <input name="email" type="email" value={formData.email} onChange={handleChange} className={inputClass} placeholder="vous@exemple.com" required />
-            </div>
-            <div>
-              <label className={labelClass}>Téléphone / WhatsApp</label>
-              <p className="text-xs text-muted-foreground mb-2">Utile si vous souhaitez être contacté(e) rapidement</p>
-              <input name="telephone" value={formData.telephone} onChange={handleChange} className={inputClass} placeholder="06 00 00 00 00" />
-            </div>
-          </div>
-
-          <div className="h-px bg-border" />
-
-          {/* SECTION 2 — Podcast */}
-          <div className="space-y-5">
-            <SectionHeader number={2} title="Votre podcast" />
-            <div>
-              <label className={labelClass}>Nom du podcast <span className="text-primary">*</span></label>
-              <input name="nomPodcast" value={formData.nomPodcast} onChange={handleChange} className={inputClass} placeholder="Ex : Les Voix de la Canebière" required />
-            </div>
-            <div>
-              <label className={labelClass}>Lien d'écoute principal <span className="text-primary">*</span></label>
-              <p className="text-xs text-muted-foreground mb-2">Spotify, Apple Podcasts, site, etc.</p>
-              <input name="lienEcoute" value={formData.lienEcoute} onChange={handleChange} className={inputClass} placeholder="https://..." required />
-            </div>
-            <div>
-              <label className={labelClass}>Description courte <span className="text-primary">*</span></label>
-              <textarea name="description" value={formData.description} onChange={handleChange} className={inputClass + " min-h-[100px] resize-y"} placeholder="En 1 ou 2 phrases, de quoi parle votre podcast ?" required />
-            </div>
-            <div>
-              <label className={labelClass}>Vignette du podcast</label>
-              <p className="text-xs text-muted-foreground mb-1">Format carré recommandé (1400×1400 px). JPG, PNG ou WebP.</p>
-              <p className="text-xs text-muted-foreground/70 mb-3">Optionnel — vous pourrez l'ajouter plus tard</p>
-              {vignettePreview ? (
-                <div className="relative inline-block">
-                  <img src={vignettePreview} alt="Aperçu vignette" className="w-32 h-32 object-cover rounded-xl border border-border shadow-sm" />
-                  <button type="button" onClick={removeVignette} className="absolute -top-2 -right-2 w-6 h-6 bg-destructive text-destructive-foreground rounded-full flex items-center justify-center shadow-md hover:brightness-110 transition-all">
-                    <X className="w-3.5 h-3.5" />
-                  </button>
-                </div>
-              ) : (
-                <button type="button" onClick={() => fileInputRef.current?.click()} className="flex items-center gap-3 px-5 py-4 rounded-xl border-2 border-dashed border-border hover:border-primary/40 bg-card hover:bg-primary/5 transition-all text-muted-foreground hover:text-foreground w-full">
-                  <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center">
-                    <Image className="w-5 h-5 text-primary" />
-                  </div>
-                  <span className="text-sm">Ajouter la vignette de votre podcast</span>
-                </button>
-              )}
-              <input ref={fileInputRef} type="file" accept="image/jpeg,image/png,image/webp" onChange={handleFileChange} className="hidden" />
-            </div>
-          </div>
-
-          <div className="h-px bg-border" />
-
-          {/* SECTION 3 — Ligne éditoriale */}
-          <div className="space-y-5">
-            <SectionHeader number={3} title="Ligne éditoriale" />
-            <div>
-              <label className={labelClass}>Thématique principale</label>
-              <select name="thematique" value={formData.thematique} onChange={handleChange} className={selectClass}>
-                <option value="">Sélectionner</option>
-                {thematiques.map((t) => <option key={t} value={t}>{t}</option>)}
-              </select>
-            </div>
-          </div>
-
-          <div className="h-px bg-border" />
-
-          {/* SECTION 4 — Localisation */}
-          <div className="space-y-5">
-            <SectionHeader number={4} title="Localisation" />
-            <div>
-              <label className={labelClass}>Département <span className="text-primary">*</span></label>
-              <select name="departementCode" value={formData.departementCode} onChange={handleChange} className={selectClass} required>
-                <option value="">Sélectionner un département</option>
-                {departements.map((d) => <option key={d.code} value={d.code}>{d.label}</option>)}
-              </select>
-            </div>
-            <CityAutocomplete
-              departmentCode={formData.departementCode}
-              value={selectedCity}
-              onChange={(city) => { setSelectedCity(city); setCityError(""); }}
-              inputClass={inputClass}
-              labelClass={labelClass}
-              required
-              error={cityError}
-            />
-          </div>
-
-          <div className="h-px bg-border" />
-
-          {/* SECTION 5 — Profil du podcast */}
-          <div className="space-y-5">
-            <SectionHeader number={5} title="Profil du podcast" />
-            <div>
-              <label className={labelClass}>Type de podcast</label>
-              <select name="typePodcast" value={formData.typePodcast} onChange={handleChange} className={selectClass}>
-                <option value="">Sélectionner</option>
-                <option value="Indépendant">Indépendant</option>
-                <option value="Média">Média</option>
-                <option value="Marque / Entreprise">Marque / Entreprise</option>
-                <option value="Éducatif / Académique">Éducatif / Académique</option>
-                <option value="Narratif / Créatif">Narratif / Créatif</option>
-                <option value="Expert / Personal brand">Expert / Personal brand</option>
-              </select>
-            </div>
-          </div>
-
-          <div className="h-px bg-border" />
-
-          {/* SECTION 6 — Structuration du projet */}
-          <div className="space-y-5">
-            <SectionHeader number={6} title="Structuration du projet" />
-            <div className="grid sm:grid-cols-2 gap-4">
-              <div>
-                <label className={labelClass}>Niveau d'avancement</label>
-                <select name="niveauAvancement" value={formData.niveauAvancement} onChange={handleChange} className={selectClass}>
-                  <option value="">Sélectionner</option>
-                  <option value="lancement">Lancement (0–10 épisodes)</option>
-                  <option value="croissance">En croissance (10–50)</option>
-                  <option value="installe">Installé (50+)</option>
-                </select>
-              </div>
-              <div>
-                <label className={labelClass}>Fréquence de publication</label>
-                <select name="frequencePublication" value={formData.frequencePublication} onChange={handleChange} className={selectClass}>
-                  <option value="">Sélectionner</option>
-                  <option value="hebdomadaire">Hebdomadaire</option>
-                  <option value="bimensuel">Deux fois par mois</option>
-                  <option value="mensuel">Mensuel</option>
-                  <option value="irregulier">Irrégulier</option>
-                </select>
-              </div>
-            </div>
-            <div>
-              <label className={labelClass}>Podcast monétisé ?</label>
-              <select name="monetise" value={formData.monetise} onChange={handleChange} className={selectClass}>
-                <option value="">Sélectionner</option>
-                <option value="Oui">Oui</option>
-                <option value="Non">Non</option>
-                <option value="En cours">En cours / expérimentation</option>
-              </select>
-            </div>
-          </div>
-
-          <div className="h-px bg-border" />
-
-          {/* SECTION 7 — Besoins */}
-          <div className="space-y-5">
-            <SectionHeader number={7} title="Vos besoins" />
-            <BesoinsMultiSelect
-              selected={selectedBesoins}
-              onChange={setSelectedBesoins}
-              labelClass="sr-only"
-            />
-          </div>
-
-          <div className="h-px bg-border" />
-
-          {/* SECTION 8 — Priorité actuelle */}
-          <div className="space-y-5">
-            <SectionHeader number={8} title="Priorité actuelle" />
-            <PrioriteSelect
-              value={prioriteActuelle}
-              onChange={setPrioriteActuelle}
-              labelClass="sr-only"
-            />
-          </div>
-
-          <div className="h-px bg-border" />
-
-          {/* SECTION 9 — Consentement */}
-          <div className="space-y-4">
-            <SectionHeader number={9} title="Consentement" />
-            <label className="flex items-start gap-3 cursor-pointer group">
-              <input
-                type="checkbox"
-                checked={consentContact}
-                onChange={(e) => { setConsentContact(e.target.checked); if (e.target.checked) setConsentError(""); }}
-                className="mt-1 h-4 w-4 rounded border-border text-primary accent-primary focus:ring-primary/30"
-              />
-              <span className="text-sm text-foreground group-hover:text-foreground/80 transition-colors">
-                J'accepte d'être contacté(e) par Les Podcasteur·euses du Sud <span className="text-primary">*</span>
-              </span>
-            </label>
-            {consentError && <p className="text-xs text-destructive ml-7">{consentError}</p>}
-
-            <label className="flex items-start gap-3 cursor-pointer group">
-              <input
-                type="checkbox"
-                checked={consentMiseEnRelation}
-                onChange={(e) => setConsentMiseEnRelation(e.target.checked)}
-                className="mt-1 h-4 w-4 rounded border-border text-primary accent-primary focus:ring-primary/30"
-              />
-              <span className="text-sm text-foreground group-hover:text-foreground/80 transition-colors">
-                J'accepte d'être mis(e) en relation avec d'autres créateurs / studios
-              </span>
-            </label>
-          </div>
-
-          <button
-            type="submit"
-            disabled={uploading}
-            className="group w-full flex items-center justify-center gap-3 bg-primary text-primary-foreground py-4 rounded-xl text-base font-semibold hover:brightness-110 transition-all duration-300 shadow-md hover:shadow-lg mt-2 disabled:opacity-60 disabled:cursor-not-allowed"
+        {submitted ? (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.7 }}
+            className="bg-background border border-border rounded-3xl p-7 sm:p-10 space-y-8"
           >
-            {uploading ? "Envoi en cours…" : "Référencer mon podcast"}
-            {!uploading && <Send className="w-4 h-4 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />}
-          </button>
-        </motion.form>
+            {/* Header */}
+            <div className="text-center space-y-3">
+              <div className="w-14 h-14 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-2">
+                <Check className="w-7 h-7 text-primary" />
+              </div>
+              <h2 className="font-serif text-3xl sm:text-4xl">🎙 Merci pour votre inscription</h2>
+              <p className="text-muted-foreground leading-relaxed max-w-lg mx-auto">
+                Votre podcast a bien été enregistré dans notre base de données.
+              </p>
+              <p className="text-muted-foreground leading-relaxed max-w-lg mx-auto">
+                Il fait désormais partie du répertoire des podcasts et créateurs audio référencés par <span className="text-foreground font-medium">Les podcasteur·euses du Sud</span>.
+              </p>
+            </div>
+
+            <div className="h-px bg-border" />
+
+            {/* Visibilité */}
+            <div className="space-y-4">
+              <h3 className="font-serif text-xl text-foreground">✨ À propos de la visibilité sur le flux</h3>
+              <p className="text-muted-foreground leading-relaxed text-sm">
+                La mise en avant éditoriale et la diffusion sur le flux du site sont réservées aux membres de l'association <span className="text-foreground font-medium">Les podcasteur·euses du Sud</span>.
+              </p>
+              <p className="text-muted-foreground text-sm">Cette logique permet de :</p>
+              <ul className="space-y-2 text-sm text-muted-foreground">
+                <li className="flex items-start gap-2"><Check className="w-4 h-4 text-primary mt-0.5 shrink-0" /> préserver une ligne éditoriale cohérente</li>
+                <li className="flex items-start gap-2"><Check className="w-4 h-4 text-primary mt-0.5 shrink-0" /> valoriser les créateurs engagés dans la dynamique collective</li>
+                <li className="flex items-start gap-2"><Check className="w-4 h-4 text-primary mt-0.5 shrink-0" /> soutenir le développement de l'écosystème podcast en Région Sud</li>
+              </ul>
+            </div>
+
+            <div className="h-px bg-border" />
+
+            {/* Rejoindre */}
+            <div className="space-y-4">
+              <h3 className="font-serif text-xl text-foreground flex items-center gap-2">
+                <Users className="w-5 h-5 text-primary" /> Rejoindre Les podcasteur·euses du Sud
+              </h3>
+              <p className="text-muted-foreground text-sm leading-relaxed">En devenant membre, vous pouvez notamment :</p>
+              <ul className="space-y-2 text-sm text-muted-foreground">
+                <li className="flex items-start gap-2"><Check className="w-4 h-4 text-primary mt-0.5 shrink-0" /> bénéficier d'une visibilité sur le flux</li>
+                <li className="flex items-start gap-2"><Check className="w-4 h-4 text-primary mt-0.5 shrink-0" /> intégrer un réseau de créateurs et d'acteurs audio</li>
+                <li className="flex items-start gap-2"><Check className="w-4 h-4 text-primary mt-0.5 shrink-0" /> accéder aux rencontres et initiatives du collectif</li>
+                <li className="flex items-start gap-2"><Check className="w-4 h-4 text-primary mt-0.5 shrink-0" /> contribuer à la dynamique régionale</li>
+              </ul>
+              <a
+                href="https://www.helloasso.com/associations/les-podcasteur-euses-du-sud/adhesions/rejoindre-les-podcasteureuses-du-sud"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="group inline-flex items-center gap-3 bg-primary text-primary-foreground px-8 py-4 rounded-xl font-semibold hover:brightness-110 transition-all duration-300 shadow-md hover:shadow-lg"
+              >
+                👉 Adhérer via HelloAsso
+                <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+              </a>
+            </div>
+
+            <div className="h-px bg-border" />
+
+            {/* Dynamique */}
+            <div className="space-y-3 text-center">
+              <h3 className="font-serif text-xl text-foreground flex items-center gap-2 justify-center">
+                <Sun className="w-5 h-5 text-accent" /> Une dynamique construite par ses membres
+              </h3>
+              <p className="text-muted-foreground text-sm leading-relaxed max-w-lg mx-auto">
+                Les podcasteur·euses du Sud est un espace vivant de connexions, de circulation des voix et de collaborations.
+              </p>
+              <p className="text-muted-foreground text-sm leading-relaxed max-w-lg mx-auto">
+                Chaque nouvelle adhésion renforce cette énergie.
+              </p>
+              <p className="text-foreground font-medium mt-4">À très bientôt.</p>
+            </div>
+          </motion.div>
+        ) : (
+          <>
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, margin: "-80px" }}
+              transition={{ duration: 0.7 }}
+              className="text-center mb-14"
+            >
+              <div className="flex items-center gap-3 justify-center mb-4">
+                <div className="h-px w-8 bg-primary/30" />
+                <span className="text-xs font-semibold uppercase tracking-[0.2em] text-primary/70">Référencement</span>
+                <div className="h-px w-8 bg-primary/30" />
+              </div>
+              <h2 className="font-serif text-3xl sm:text-4xl md:text-5xl mb-5">
+                Référencer mon podcast
+              </h2>
+              <p className="text-muted-foreground leading-relaxed max-w-lg mx-auto">
+                Votre podcast participe à la vitalité créative du territoire.
+                Intégrez la cartographie des voix audio de la Région Sud.
+              </p>
+              <span className="inline-block mt-4 text-xs font-semibold uppercase tracking-wider text-primary bg-primary/10 px-3 py-1 rounded-full">
+                Gratuit
+              </span>
+            </motion.div>
+
+            <motion.form
+              onSubmit={handleSubmit}
+              initial={{ opacity: 0, y: 30 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, margin: "-60px" }}
+              transition={{ duration: 0.8, delay: 0.15 }}
+              className="bg-background border border-border rounded-3xl p-7 sm:p-10 space-y-8"
+            >
+              {/* SECTION 1 — Coordonnées */}
+              <div className="space-y-5">
+                <SectionHeader number={1} title="Vos coordonnées" />
+                <div className="grid sm:grid-cols-2 gap-4">
+                  <div>
+                    <label className={labelClass}>Prénom <span className="text-primary">*</span></label>
+                    <input name="prenom" value={formData.prenom} onChange={handleChange} className={inputClass} placeholder="Votre prénom" required />
+                  </div>
+                  <div>
+                    <label className={labelClass}>Nom <span className="text-primary">*</span></label>
+                    <input name="nom" value={formData.nom} onChange={handleChange} className={inputClass} placeholder="Votre nom" required />
+                  </div>
+                </div>
+                <div>
+                  <label className={labelClass}>Email <span className="text-primary">*</span></label>
+                  <input name="email" type="email" value={formData.email} onChange={handleChange} className={inputClass} placeholder="vous@exemple.com" required />
+                </div>
+                <div>
+                  <label className={labelClass}>Téléphone / WhatsApp</label>
+                  <p className="text-xs text-muted-foreground mb-2">Utile si vous souhaitez être contacté(e) rapidement</p>
+                  <input name="telephone" value={formData.telephone} onChange={handleChange} className={inputClass} placeholder="06 00 00 00 00" />
+                </div>
+              </div>
+
+              <div className="h-px bg-border" />
+
+              {/* SECTION 2 — Podcast */}
+              <div className="space-y-5">
+                <SectionHeader number={2} title="Votre podcast" />
+                <div>
+                  <label className={labelClass}>Nom du podcast <span className="text-primary">*</span></label>
+                  <input name="nomPodcast" value={formData.nomPodcast} onChange={handleChange} className={inputClass} placeholder="Ex : Les Voix de la Canebière" required />
+                </div>
+                <div>
+                  <label className={labelClass}>Lien d'écoute principal <span className="text-primary">*</span></label>
+                  <p className="text-xs text-muted-foreground mb-2">Spotify, Apple Podcasts, site, etc.</p>
+                  <input name="lienEcoute" value={formData.lienEcoute} onChange={handleChange} className={inputClass} placeholder="https://..." required />
+                </div>
+                <div>
+                  <label className={labelClass}>Description courte <span className="text-primary">*</span></label>
+                  <textarea name="description" value={formData.description} onChange={handleChange} className={inputClass + " min-h-[100px] resize-y"} placeholder="En 1 ou 2 phrases, de quoi parle votre podcast ?" required />
+                </div>
+                <div>
+                  <label className={labelClass}>Vignette du podcast</label>
+                  <p className="text-xs text-muted-foreground mb-1">Format carré recommandé (1400×1400 px). JPG, PNG ou WebP.</p>
+                  <p className="text-xs text-muted-foreground/70 mb-3">Optionnel — vous pourrez l'ajouter plus tard</p>
+                  {vignettePreview ? (
+                    <div className="relative inline-block">
+                      <img src={vignettePreview} alt="Aperçu vignette" className="w-32 h-32 object-cover rounded-xl border border-border shadow-sm" />
+                      <button type="button" onClick={removeVignette} className="absolute -top-2 -right-2 w-6 h-6 bg-destructive text-destructive-foreground rounded-full flex items-center justify-center shadow-md hover:brightness-110 transition-all">
+                        <X className="w-3.5 h-3.5" />
+                      </button>
+                    </div>
+                  ) : (
+                    <button type="button" onClick={() => fileInputRef.current?.click()} className="flex items-center gap-3 px-5 py-4 rounded-xl border-2 border-dashed border-border hover:border-primary/40 bg-card hover:bg-primary/5 transition-all text-muted-foreground hover:text-foreground w-full">
+                      <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center">
+                        <Image className="w-5 h-5 text-primary" />
+                      </div>
+                      <span className="text-sm">Ajouter la vignette de votre podcast</span>
+                    </button>
+                  )}
+                  <input ref={fileInputRef} type="file" accept="image/jpeg,image/png,image/webp" onChange={handleFileChange} className="hidden" />
+                </div>
+              </div>
+
+              <div className="h-px bg-border" />
+
+              {/* SECTION 3 — Ligne éditoriale */}
+              <div className="space-y-5">
+                <SectionHeader number={3} title="Ligne éditoriale" />
+                <div>
+                  <label className={labelClass}>Thématique principale</label>
+                  <select name="thematique" value={formData.thematique} onChange={handleChange} className={selectClass}>
+                    <option value="">Sélectionner</option>
+                    {thematiques.map((t) => <option key={t} value={t}>{t}</option>)}
+                  </select>
+                </div>
+              </div>
+
+              <div className="h-px bg-border" />
+
+              {/* SECTION 4 — Localisation */}
+              <div className="space-y-5">
+                <SectionHeader number={4} title="Localisation" />
+                <div>
+                  <label className={labelClass}>Département <span className="text-primary">*</span></label>
+                  <select name="departementCode" value={formData.departementCode} onChange={handleChange} className={selectClass} required>
+                    <option value="">Sélectionner un département</option>
+                    {departements.map((d) => <option key={d.code} value={d.code}>{d.label}</option>)}
+                  </select>
+                </div>
+                <CityAutocomplete
+                  departmentCode={formData.departementCode}
+                  value={selectedCity}
+                  onChange={(city) => { setSelectedCity(city); setCityError(""); }}
+                  inputClass={inputClass}
+                  labelClass={labelClass}
+                  required
+                  error={cityError}
+                />
+              </div>
+
+              <div className="h-px bg-border" />
+
+              {/* SECTION 5 — Profil du podcast */}
+              <div className="space-y-5">
+                <SectionHeader number={5} title="Profil du podcast" />
+                <div>
+                  <label className={labelClass}>Type de podcast</label>
+                  <select name="typePodcast" value={formData.typePodcast} onChange={handleChange} className={selectClass}>
+                    <option value="">Sélectionner</option>
+                    <option value="Indépendant">Indépendant</option>
+                    <option value="Média">Média</option>
+                    <option value="Marque / Entreprise">Marque / Entreprise</option>
+                    <option value="Éducatif / Académique">Éducatif / Académique</option>
+                    <option value="Narratif / Créatif">Narratif / Créatif</option>
+                    <option value="Expert / Personal brand">Expert / Personal brand</option>
+                  </select>
+                </div>
+              </div>
+
+              <div className="h-px bg-border" />
+
+              {/* SECTION 6 — Structuration du projet */}
+              <div className="space-y-5">
+                <SectionHeader number={6} title="Structuration du projet" />
+                <div className="grid sm:grid-cols-2 gap-4">
+                  <div>
+                    <label className={labelClass}>Niveau d'avancement</label>
+                    <select name="niveauAvancement" value={formData.niveauAvancement} onChange={handleChange} className={selectClass}>
+                      <option value="">Sélectionner</option>
+                      <option value="lancement">Lancement (0–10 épisodes)</option>
+                      <option value="croissance">En croissance (10–50)</option>
+                      <option value="installe">Installé (50+)</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label className={labelClass}>Fréquence de publication</label>
+                    <select name="frequencePublication" value={formData.frequencePublication} onChange={handleChange} className={selectClass}>
+                      <option value="">Sélectionner</option>
+                      <option value="hebdomadaire">Hebdomadaire</option>
+                      <option value="bimensuel">Deux fois par mois</option>
+                      <option value="mensuel">Mensuel</option>
+                      <option value="irregulier">Irrégulier</option>
+                    </select>
+                  </div>
+                </div>
+                <div>
+                  <label className={labelClass}>Podcast monétisé ?</label>
+                  <select name="monetise" value={formData.monetise} onChange={handleChange} className={selectClass}>
+                    <option value="">Sélectionner</option>
+                    <option value="Oui">Oui</option>
+                    <option value="Non">Non</option>
+                    <option value="En cours">En cours / expérimentation</option>
+                  </select>
+                </div>
+              </div>
+
+              <div className="h-px bg-border" />
+
+              {/* SECTION 7 — Besoins */}
+              <div className="space-y-5">
+                <SectionHeader number={7} title="Vos besoins" />
+                <BesoinsMultiSelect
+                  selected={selectedBesoins}
+                  onChange={setSelectedBesoins}
+                  labelClass="sr-only"
+                />
+              </div>
+
+              <div className="h-px bg-border" />
+
+              {/* SECTION 8 — Priorité actuelle */}
+              <div className="space-y-5">
+                <SectionHeader number={8} title="Priorité actuelle" />
+                <PrioriteSelect
+                  value={prioriteActuelle}
+                  onChange={setPrioriteActuelle}
+                  labelClass="sr-only"
+                />
+              </div>
+
+              <div className="h-px bg-border" />
+
+              {/* SECTION 9 — Consentement */}
+              <div className="space-y-4">
+                <SectionHeader number={9} title="Consentement" />
+                <label className="flex items-start gap-3 cursor-pointer group">
+                  <input
+                    type="checkbox"
+                    checked={consentContact}
+                    onChange={(e) => { setConsentContact(e.target.checked); if (e.target.checked) setConsentError(""); }}
+                    className="mt-1 h-4 w-4 rounded border-border text-primary accent-primary focus:ring-primary/30"
+                  />
+                  <span className="text-sm text-foreground group-hover:text-foreground/80 transition-colors">
+                    J'accepte d'être contacté(e) par Les Podcasteur·euses du Sud <span className="text-primary">*</span>
+                  </span>
+                </label>
+                {consentError && <p className="text-xs text-destructive ml-7">{consentError}</p>}
+
+                <label className="flex items-start gap-3 cursor-pointer group">
+                  <input
+                    type="checkbox"
+                    checked={consentMiseEnRelation}
+                    onChange={(e) => setConsentMiseEnRelation(e.target.checked)}
+                    className="mt-1 h-4 w-4 rounded border-border text-primary accent-primary focus:ring-primary/30"
+                  />
+                  <span className="text-sm text-foreground group-hover:text-foreground/80 transition-colors">
+                    J'accepte d'être mis(e) en relation avec d'autres créateurs / studios
+                  </span>
+                </label>
+              </div>
+
+              <button
+                type="submit"
+                disabled={uploading}
+                className="group w-full flex items-center justify-center gap-3 bg-primary text-primary-foreground py-4 rounded-xl text-base font-semibold hover:brightness-110 transition-all duration-300 shadow-md hover:shadow-lg mt-2 disabled:opacity-60 disabled:cursor-not-allowed"
+              >
+                {uploading ? "Envoi en cours…" : "Référencer mon podcast"}
+                {!uploading && <Send className="w-4 h-4 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />}
+              </button>
+            </motion.form>
+          </>
+        )}
       </div>
     </section>
   );
