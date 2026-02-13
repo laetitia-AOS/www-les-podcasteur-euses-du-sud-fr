@@ -10,7 +10,7 @@ const HeroSection = () => {
   return (
     <section
       id="hero"
-      className="relative min-h-[100vh] flex items-center overflow-hidden bg-background"
+      className="relative min-h-[100vh] flex items-center overflow-hidden bg-background bg-sunny-gradient"
     >
       <div className="relative z-10 container mx-auto px-6 max-w-6xl pt-24 pb-16">
         <div className="grid lg:grid-cols-2 gap-12 lg:gap-16 items-center">
@@ -117,8 +117,8 @@ const HeroSection = () => {
               />
               <div className="absolute inset-0 bg-gradient-to-t from-background/20 via-transparent to-transparent" />
             </div>
-            <div className="absolute -bottom-4 -left-4 w-24 h-24 rounded-2xl bg-primary/10 -z-10" />
-            <div className="absolute -top-4 -right-4 w-16 h-16 rounded-2xl bg-accent/20 -z-10" />
+            <div className="absolute -bottom-4 -left-4 w-24 h-24 rounded-2xl bg-secondary/20 -z-10" />
+            <div className="absolute -top-4 -right-4 w-16 h-16 rounded-2xl bg-primary/15 -z-10" />
           </motion.div>
         </div>
       </div>

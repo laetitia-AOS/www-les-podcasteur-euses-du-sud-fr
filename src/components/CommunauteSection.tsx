@@ -6,8 +6,8 @@ const CommunauteSection = () => {
   const navigate = useNavigate();
   return (
     <section id="communaute" className="py-20 md:py-32 bg-background relative overflow-hidden">
-      <div className="absolute inset-0 opacity-[0.02]" style={{
-        backgroundImage: `radial-gradient(circle at 70% 50%, hsl(14 65% 55%) 0%, transparent 60%)`
+      <div className="absolute inset-0 opacity-[0.04]" style={{
+        backgroundImage: `radial-gradient(circle at 70% 50%, hsl(42 95% 52%) 0%, transparent 60%)`
       }} />
 
       <div className="relative container mx-auto px-6 max-w-4xl">
@@ -16,7 +16,7 @@ const CommunauteSection = () => {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, margin: "-80px" }}
           transition={{ duration: 0.7 }}
-          className="bg-gradient-to-br from-[hsl(20,25%,14%)] via-[hsl(14,30%,20%)] to-[hsl(190,25%,18%)] rounded-3xl p-10 sm:p-14 text-center relative overflow-hidden"
+          className="bg-gradient-to-br from-[hsl(220,50%,18%)] via-[hsl(220,45%,22%)] to-[hsl(225,40%,16%)] rounded-3xl p-10 sm:p-14 text-center relative overflow-hidden"
         >
           <div className="absolute inset-0 opacity-20" style={{
             backgroundImage: `radial-gradient(ellipse at 50% 100%, hsl(42 80% 55% / 0.3) 0%, transparent 60%)`

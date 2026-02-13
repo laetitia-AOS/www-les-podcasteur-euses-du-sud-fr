@@ -13,8 +13,8 @@ const PromessesSection = () => {
   return (
     <section id="promesses" className="py-20 md:py-32 bg-background relative overflow-hidden">
       {/* Decorative element */}
-      <div className="absolute top-0 right-0 w-96 h-96 opacity-[0.03]" style={{
-        backgroundImage: `radial-gradient(circle, hsl(14 65% 55%) 0%, transparent 70%)`
+      <div className="absolute top-0 right-0 w-96 h-96 opacity-[0.06]" style={{
+        backgroundImage: `radial-gradient(circle, hsl(42 95% 52%) 0%, transparent 70%)`
       }} />
 
       <div className="container mx-auto px-6 max-w-5xl relative">
