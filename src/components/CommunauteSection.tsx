@@ -3,7 +3,7 @@ import { ArrowRight, Users } from "lucide-react";
 
 const CommunauteSection = () => {
   return (
-    <section className="py-20 md:py-32 bg-background relative overflow-hidden">
+    <section id="communaute" className="py-20 md:py-32 bg-background relative overflow-hidden">
       <div className="absolute inset-0 opacity-[0.02]" style={{
         backgroundImage: `radial-gradient(circle at 70% 50%, hsl(14 65% 55%) 0%, transparent 60%)`
       }} />
