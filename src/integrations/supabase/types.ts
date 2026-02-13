@@ -56,6 +56,7 @@ export type Database = {
       podcasts: {
         Row: {
           besoin: string | null
+          besoins_podcast: string[] | null
           city_insee_code: string | null
           city_name: string | null
           city_postcode: string | null
@@ -79,6 +80,7 @@ export type Database = {
         }
         Insert: {
           besoin?: string | null
+          besoins_podcast?: string[] | null
           city_insee_code?: string | null
           city_name?: string | null
           city_postcode?: string | null
@@ -102,6 +104,7 @@ export type Database = {
         }
         Update: {
           besoin?: string | null
+          besoins_podcast?: string[] | null
           city_insee_code?: string | null
           city_name?: string | null
           city_postcode?: string | null

@@ -4,6 +4,7 @@ import { toast } from "sonner";
 import { Send, Upload, X, Image } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import CityAutocomplete, { type CityResult } from "./CityAutocomplete";
+import BesoinsMultiSelect from "./BesoinsMultiSelect";
 
 const thematiques = [
   "Culture & Arts", "Société & Politique", "Économie & Entrepreneuriat",
@@ -21,17 +22,15 @@ const departements = [
   { code: "84", label: "84 — Vaucluse" },
 ];
 
-const besoins = [
-  "Gagner en visibilité", "Trouver des collaborations",
-  "Monétiser mon podcast", "Me former / progresser", "Trouver un studio", "Autre",
-];
+// besoins handled by BesoinsMultiSelect component
 
 const FormSection = () => {
   const [formData, setFormData] = useState({
     nomPodcast: "", lienEcoute: "", description: "", thematique: "",
-    departementCode: "", typePodcast: "", monetise: "", besoin: "",
+    departementCode: "", typePodcast: "", monetise: "",
     prenom: "", nom: "", structure: "", email: "",
   });
+  const [selectedBesoins, setSelectedBesoins] = useState<string[]>([]);
   const [selectedCity, setSelectedCity] = useState<CityResult | null>(null);
   const [cityError, setCityError] = useState("");
   const [vignette, setVignette] = useState<File | null>(null);
@@ -131,7 +130,8 @@ const FormSection = () => {
       city_postcode: selectedCity.city_postcode,
       type_podcast: formData.typePodcast || null,
       monetise: formData.monetise || null,
-      besoin: formData.besoin || null,
+      besoin: selectedBesoins.length > 0 ? selectedBesoins.join(", ") : "non_specifié",
+      besoins_podcast: selectedBesoins.length > 0 ? selectedBesoins : ["non_specifie"],
       prenom: formData.prenom || null,
       nom: formData.nom || null,
       structure: formData.structure || null,
@@ -149,9 +149,10 @@ const FormSection = () => {
     toast.success("Merci ! Votre podcast a bien été référencé.");
     setFormData({
       nomPodcast: "", lienEcoute: "", description: "", thematique: "",
-      departementCode: "", typePodcast: "", monetise: "", besoin: "",
+      departementCode: "", typePodcast: "", monetise: "",
       prenom: "", nom: "", structure: "", email: "",
     });
+    setSelectedBesoins([]);
     setSelectedCity(null);
     setCityError("");
     removeVignette();
@@ -317,13 +318,11 @@ const FormSection = () => {
               </div>
             </div>
 
-            <div>
-              <label className={labelClass}>Besoin principal</label>
-              <select name="besoin" value={formData.besoin} onChange={handleChange} className={selectClass}>
-                <option value="">Sélectionner</option>
-                {besoins.map((b) => <option key={b} value={b}>{b}</option>)}
-              </select>
-            </div>
+            <BesoinsMultiSelect
+              selected={selectedBesoins}
+              onChange={setSelectedBesoins}
+              labelClass={labelClass}
+            />
           </div>
 
           <div className="h-px bg-border" />
