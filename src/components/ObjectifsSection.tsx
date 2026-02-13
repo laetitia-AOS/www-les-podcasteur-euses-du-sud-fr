@@ -1,26 +1,15 @@
 import { motion } from "framer-motion";
-import { MapPin, Users, Eye, Radio } from "lucide-react";
+import { Eye, Users, Layers, ArrowRightLeft, Rocket } from "lucide-react";
 
-const benefits = [
-  {
-    icon: MapPin,
-    text: "Identifier votre podcast dans l'écosystème régional",
-  },
-  {
-    icon: Users,
-    text: "Faciliter les collaborations et rencontres",
-  },
-  {
-    icon: Eye,
-    text: "Développer votre visibilité locale",
-  },
-  {
-    icon: Radio,
-    text: "Rejoindre une dynamique collective autour de l'audio",
-  },
+const objectifs = [
+  { icon: Eye, text: "Rendre visibles les podcasts et créateurs du territoire" },
+  { icon: Users, text: "Faciliter les connexions et collaborations" },
+  { icon: Layers, text: "Structurer une scène podcast régionale" },
+  { icon: ArrowRightLeft, text: "Créer des passerelles entre acteurs de l'audio" },
+  { icon: Rocket, text: "Soutenir le développement des formats" },
 ];
 
-const BenefitsSection = () => {
+const ObjectifsSection = () => {
   return (
     <section className="py-20 md:py-28 bg-warm-glow">
       <div className="container mx-auto px-6 max-w-4xl">
@@ -31,23 +20,23 @@ const BenefitsSection = () => {
           transition={{ duration: 0.7 }}
           className="font-serif text-3xl sm:text-4xl md:text-5xl text-center mb-14"
         >
-          Pourquoi référencer son podcast ?
+          Pourquoi Podcasteur·euses du Sud existe
         </motion.h2>
 
-        <div className="grid sm:grid-cols-2 gap-6">
-          {benefits.map((b, i) => (
+        <div className="grid sm:grid-cols-2 gap-5">
+          {objectifs.map((o, i) => (
             <motion.div
               key={i}
               initial={{ opacity: 0, y: 25 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true, margin: "-60px" }}
-              transition={{ duration: 0.6, delay: i * 0.1 }}
+              transition={{ duration: 0.6, delay: i * 0.08 }}
               className="flex items-start gap-4 bg-background rounded-lg p-6 shadow-sm border border-border"
             >
               <div className="shrink-0 w-11 h-11 rounded-full bg-primary/10 flex items-center justify-center">
-                <b.icon className="w-5 h-5 text-primary" />
+                <o.icon className="w-5 h-5 text-primary" />
               </div>
-              <p className="text-lg text-foreground leading-relaxed">{b.text}</p>
+              <p className="text-lg text-foreground leading-relaxed">{o.text}</p>
             </motion.div>
           ))}
         </div>
@@ -56,4 +45,4 @@ const BenefitsSection = () => {
   );
 };
 
-export default BenefitsSection;
+export default ObjectifsSection;

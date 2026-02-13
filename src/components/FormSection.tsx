@@ -90,7 +90,7 @@ const FormSection = () => {
   const labelClass = "block text-sm font-medium text-foreground mb-1.5";
 
   return (
-    <section id="formulaire" className="py-20 md:py-28 bg-background">
+    <section id="formulaire" className="py-20 md:py-28 bg-warm-glow">
       <div className="container mx-auto px-6 max-w-2xl">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -103,9 +103,10 @@ const FormSection = () => {
             Référencer son podcast dans l'écosystème du Sud
           </h2>
           <p className="text-lg text-muted-foreground leading-relaxed max-w-xl mx-auto">
-            Votre podcast contribue à faire vivre le territoire.
+            Votre podcast participe à la vitalité du territoire.
             Intégrez la cartographie des voix et talents audio de la Région Sud.
           </p>
+          <p className="mt-3 text-sm font-medium text-primary">Référencement gratuit.</p>
         </motion.div>
 
         <motion.form
@@ -114,27 +115,23 @@ const FormSection = () => {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, margin: "-60px" }}
           transition={{ duration: 0.8, delay: 0.15 }}
-          className="bg-card border border-border rounded-2xl p-6 sm:p-10 shadow-sm space-y-5"
+          className="bg-background border border-border rounded-2xl p-6 sm:p-10 shadow-sm space-y-5"
         >
-          {/* Nom du podcast */}
           <div>
             <label className={labelClass}>Nom du podcast *</label>
             <input name="nomPodcast" value={formData.nomPodcast} onChange={handleChange} className={inputClass} placeholder="Ex : Les Voix de la Canebière" required />
           </div>
 
-          {/* Lien */}
           <div>
             <label className={labelClass}>Lien d'écoute principal *</label>
             <input name="lienEcoute" value={formData.lienEcoute} onChange={handleChange} className={inputClass} placeholder="https://..." required />
           </div>
 
-          {/* Description */}
           <div>
             <label className={labelClass}>Description courte *</label>
             <textarea name="description" value={formData.description} onChange={handleChange} className={inputClass + " min-h-[100px] resize-y"} placeholder="En quelques lignes, de quoi parle votre podcast ?" required />
           </div>
 
-          {/* Thématique & Ville */}
           <div className="grid sm:grid-cols-2 gap-5">
             <div>
               <label className={labelClass}>Thématique</label>
@@ -152,7 +149,6 @@ const FormSection = () => {
             </div>
           </div>
 
-          {/* Type & Monétisé */}
           <div className="grid sm:grid-cols-2 gap-5">
             <div>
               <label className={labelClass}>Type de podcast</label>
@@ -174,7 +170,6 @@ const FormSection = () => {
             </div>
           </div>
 
-          {/* Besoin */}
           <div>
             <label className={labelClass}>Besoin principal</label>
             <select name="besoin" value={formData.besoin} onChange={handleChange} className={selectClass}>
@@ -185,7 +180,6 @@ const FormSection = () => {
 
           <div className="section-divider my-2" />
 
-          {/* Prénom & Nom */}
           <div className="grid sm:grid-cols-2 gap-5">
             <div>
               <label className={labelClass}>Prénom</label>
@@ -197,13 +191,11 @@ const FormSection = () => {
             </div>
           </div>
 
-          {/* Structure */}
           <div>
             <label className={labelClass}>Structure / Studio</label>
             <input name="structure" value={formData.structure} onChange={handleChange} className={inputClass} placeholder="Si applicable" />
           </div>
 
-          {/* Email */}
           <div>
             <label className={labelClass}>Email *</label>
             <input name="email" type="email" value={formData.email} onChange={handleChange} className={inputClass} placeholder="vous@exemple.com" required />

@@ -32,7 +32,7 @@ const HeroSection = () => {
           transition={{ duration: 0.9, delay: 0.2, ease: "easeOut" }}
           className="text-lg sm:text-xl text-primary-foreground/85 max-w-2xl mx-auto mb-10 leading-relaxed"
         >
-          Podcasteur·euses du Sud met en lumière les podcasts, studios et créateurs audio ancrés en Région Sud.
+          Podcasteur·euses du Sud fédère, rend visibles et connecte les créateurs et productions audio ancrés en Région Sud.
         </motion.p>
         
         <motion.div
