@@ -16,7 +16,6 @@ const CommunauteSection = () => {
           transition={{ duration: 0.7 }}
           className="bg-gradient-to-br from-[hsl(20,25%,14%)] via-[hsl(14,30%,20%)] to-[hsl(190,25%,18%)] rounded-3xl p-10 sm:p-14 text-center relative overflow-hidden"
         >
-          {/* Inner glow */}
           <div className="absolute inset-0 opacity-20" style={{
             backgroundImage: `radial-gradient(ellipse at 50% 100%, hsl(42 80% 55% / 0.3) 0%, transparent 60%)`
           }} />
@@ -30,13 +29,13 @@ const CommunauteSection = () => {
               contribuez à la vitalité de l'écosystème podcast régional.
             </p>
             <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-              <a
-                href="mailto:contact@podcasteusesdusud.fr"
+              <button
+                onClick={() => document.getElementById("contact")?.scrollIntoView({ behavior: "smooth" })}
                 className="group inline-flex items-center gap-3 bg-accent text-accent-foreground px-8 py-4 rounded-xl font-semibold hover:brightness-110 transition-all duration-300 shadow-[0_8px_30px_-6px_hsl(42_80%_55%_/_0.35)]"
               >
                 Prendre contact
                 <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-              </a>
+              </button>
               <a
                 href="https://www.helloasso.com/associations/les-podcasteur-euses-du-sud/adhesions/rejoindre-les-podcasteureuses-du-sud"
                 target="_blank"
