@@ -5,7 +5,7 @@ import ObjectifsSection from "@/components/ObjectifsSection";
 import PromessesSection from "@/components/PromessesSection";
 import DynamiqueSection from "@/components/DynamiqueSection";
 import CommunauteSection from "@/components/CommunauteSection";
-import ContactSection from "@/components/ContactSection";
+import ContactCTA from "@/components/ContactCTA";
 import FormSection from "@/components/FormSection";
 import Footer from "@/components/Footer";
 
@@ -22,7 +22,7 @@ const Index = () => {
         </article>
         <DynamiqueSection />
         <CommunauteSection />
-        <ContactSection />
+        <ContactCTA />
         <FormSection />
       </main>
       <Footer />
