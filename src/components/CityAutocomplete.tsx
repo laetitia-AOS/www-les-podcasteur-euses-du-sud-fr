@@ -80,7 +80,7 @@ const CityAutocomplete = ({
 
   const fetchCities = useCallback(
     async (search: string) => {
-      if (!departmentCode || search.length < 2) {
+      if (!departmentCode || search.length < 1) {
         setSuggestions([]);
         return;
       }
@@ -98,7 +98,7 @@ const CityAutocomplete = ({
 
       setLoading(true);
       try {
-        const url = `https://geo.api.gouv.fr/departements/${departmentCode}/communes?nom=${encodeURIComponent(search)}&fields=nom,code,codesPostaux&limit=10`;
+        const url = `https://geo.api.gouv.fr/departements/${departmentCode}/communes?nom=${encodeURIComponent(search)}&fields=nom,code,codesPostaux&boost=population&limit=20`;
         const res = await fetch(url, { signal: controller.signal });
         if (!res.ok) throw new Error("API error");
         const data: GeoApiCommune[] = await res.json();
@@ -145,7 +145,7 @@ const CityAutocomplete = ({
         Ville <span className="text-primary">*</span>
       </label>
       <p className="text-xs text-muted-foreground mb-2">
-        Commencez à taper puis choisissez votre ville.
+        Tapez le début du nom de votre ville pour voir les suggestions.
       </p>
       <div className="relative">
         <input
