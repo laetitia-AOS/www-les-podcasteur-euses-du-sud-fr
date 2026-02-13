@@ -13,10 +13,19 @@ const MentionsLegales = () => {
             <section>
               <h2 className="font-serif text-xl text-foreground">1. Éditeur du site</h2>
               <p>
-                Le site <strong>Les Podcasteur·euses du Sud</strong> est édité par l'association loi 1901
-                « Les Podcasteur·euses du Sud », dont le siège social est situé en Région Sud – Provence-Alpes-Côte d'Azur, France.
+                Le site <strong>Les Podcasteur·euses du Sud</strong> est édité par :
               </p>
-              <p>
+              <ul className="list-none pl-0 space-y-1 mt-2">
+                <li><strong>Dénomination :</strong> LES PODCASTEUR·EUSES DU SUD</li>
+                <li><strong>Forme juridique :</strong> Association déclarée (loi 1901)</li>
+                <li><strong>SIREN :</strong> 935 024 661</li>
+                <li><strong>SIRET (siège) :</strong> 935 024 661 00016</li>
+                <li><strong>Code NAF/APE :</strong> 94.12Z — Activités des organisations professionnelles</li>
+                <li><strong>Siège social :</strong> 18 rue Saint Suffren, 13006 Marseille</li>
+                <li><strong>Date de création :</strong> 18 avril 2024</li>
+                <li><strong>Label :</strong> ESS — Économie Sociale et Solidaire</li>
+              </ul>
+              <p className="mt-3">
                 Email de contact : <a href="mailto:contact@podcasteusesdusud.fr" className="text-primary hover:underline">contact@podcasteusesdusud.fr</a>
               </p>
               <p>Directeur de la publication : le ou la président(e) de l'association.</p>
