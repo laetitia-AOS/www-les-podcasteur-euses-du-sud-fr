@@ -12,7 +12,6 @@ const HeroSection = () => {
       id="hero"
       className="relative min-h-[100vh] flex items-center overflow-hidden bg-background"
     >
-      {/* Two-column layout */}
       <div className="relative z-10 container mx-auto px-6 max-w-6xl pt-24 pb-16">
         <div className="grid lg:grid-cols-2 gap-12 lg:gap-16 items-center">
           {/* Left — Text content */}
@@ -54,7 +53,7 @@ const HeroSection = () => {
               initial={{ opacity: 0, y: 15 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6, delay: 0.4 }}
-              className="flex flex-col sm:flex-row items-start gap-4"
+              className="flex flex-col items-start gap-3"
             >
               <button
                 onClick={scrollToForm}
@@ -63,13 +62,23 @@ const HeroSection = () => {
                 Référencer mon podcast gratuitement
                 <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
               </button>
-              <p className="text-xs text-muted-foreground/70 -mt-2 ml-1">Ouvert à tous les podcasts de la région Sud</p>
+              <p className="text-xs text-muted-foreground/70 ml-1">
+                Ouvert à tous les podcasts de la Région Sud · 100% gratuit
+              </p>
+            </motion.div>
+
+            <motion.div
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: 0.55 }}
+              className="mt-4"
+            >
               <button
-                onClick={() => document.getElementById("vision")?.scrollIntoView({ behavior: "smooth" })}
-                className="group flex items-center gap-2 text-muted-foreground hover:text-foreground px-5 py-4 text-sm font-medium transition-colors"
+                onClick={() => document.getElementById("dynamique")?.scrollIntoView({ behavior: "smooth" })}
+                className="group flex items-center gap-2 text-muted-foreground hover:text-foreground text-sm font-medium transition-colors"
               >
                 <Play className="w-4 h-4" />
-                Découvrir l'initiative
+                Découvrir les podcasts
               </button>
             </motion.div>
 
@@ -103,13 +112,11 @@ const HeroSection = () => {
             <div className="relative rounded-3xl overflow-hidden shadow-2xl aspect-[4/5]">
               <img
                 src={heroPodcast}
-                alt="Créatrice de podcast enregistrant dans un studio lumineux et chaleureux"
+                alt="Créatrice de podcast enregistrant dans un studio lumineux en Région Sud"
                 className="w-full h-full object-cover"
               />
-              {/* Soft overlay for warmth */}
               <div className="absolute inset-0 bg-gradient-to-t from-background/20 via-transparent to-transparent" />
             </div>
-            {/* Decorative accent */}
             <div className="absolute -bottom-4 -left-4 w-24 h-24 rounded-2xl bg-primary/10 -z-10" />
             <div className="absolute -top-4 -right-4 w-16 h-16 rounded-2xl bg-accent/20 -z-10" />
           </motion.div>

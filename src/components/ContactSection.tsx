@@ -2,6 +2,7 @@ import { useState } from "react";
 import { motion } from "framer-motion";
 import { toast } from "sonner";
 import { Send } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
 
 const profils = [
   "Podcasteur / Podcasteuse",
@@ -33,6 +34,7 @@ const ContactSection = () => {
     structure: "",
     email: "",
   });
+  const [submitting, setSubmitting] = useState(false);
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
@@ -40,12 +42,31 @@ const ContactSection = () => {
     setFormData((prev) => ({ ...prev, [e.target.name]: e.target.value }));
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!formData.profil || !formData.objet || !formData.message || !formData.prenom || !formData.nom || !formData.email) {
       toast.error("Veuillez remplir tous les champs obligatoires.");
       return;
     }
+
+    setSubmitting(true);
+    const { error } = await supabase.from("contacts").insert({
+      profil: formData.profil,
+      objet: formData.objet,
+      message: formData.message,
+      prenom: formData.prenom,
+      nom: formData.nom,
+      structure: formData.structure || null,
+      email: formData.email,
+    });
+    setSubmitting(false);
+
+    if (error) {
+      toast.error("Erreur lors de l'envoi. Veuillez réessayer.");
+      console.error(error);
+      return;
+    }
+
     toast.success("Merci ! Votre demande a bien été envoyée.");
     setFormData({ profil: "", objet: "", message: "", prenom: "", nom: "", structure: "", email: "" });
   };
@@ -102,13 +123,7 @@ const ContactSection = () => {
               <label className={labelClass}>
                 Vous êtes <span className="text-primary">*</span>
               </label>
-              <select
-                name="profil"
-                value={formData.profil}
-                onChange={handleChange}
-                className={selectClass}
-                required
-              >
+              <select name="profil" value={formData.profil} onChange={handleChange} className={selectClass} required>
                 <option value="">Sélectionner votre profil</option>
                 {profils.map((p) => (
                   <option key={p} value={p}>{p}</option>
@@ -120,13 +135,7 @@ const ContactSection = () => {
               <label className={labelClass}>
                 Objet de la prise de contact <span className="text-primary">*</span>
               </label>
-              <select
-                name="objet"
-                value={formData.objet}
-                onChange={handleChange}
-                className={selectClass}
-                required
-              >
+              <select name="objet" value={formData.objet} onChange={handleChange} className={selectClass} required>
                 <option value="">Sélectionner l'objet</option>
                 {objets.map((o) => (
                   <option key={o} value={o}>{o}</option>
@@ -160,66 +169,33 @@ const ContactSection = () => {
 
             <div className="grid sm:grid-cols-2 gap-4">
               <div>
-                <label className={labelClass}>
-                  Prénom <span className="text-primary">*</span>
-                </label>
-                <input
-                  name="prenom"
-                  value={formData.prenom}
-                  onChange={handleChange}
-                  className={inputClass}
-                  placeholder="Votre prénom"
-                  required
-                />
+                <label className={labelClass}>Prénom <span className="text-primary">*</span></label>
+                <input name="prenom" value={formData.prenom} onChange={handleChange} className={inputClass} placeholder="Votre prénom" required />
               </div>
               <div>
-                <label className={labelClass}>
-                  Nom <span className="text-primary">*</span>
-                </label>
-                <input
-                  name="nom"
-                  value={formData.nom}
-                  onChange={handleChange}
-                  className={inputClass}
-                  placeholder="Votre nom"
-                  required
-                />
+                <label className={labelClass}>Nom <span className="text-primary">*</span></label>
+                <input name="nom" value={formData.nom} onChange={handleChange} className={inputClass} placeholder="Votre nom" required />
               </div>
             </div>
 
             <div>
               <label className={labelClass}>Structure / Projet</label>
-              <input
-                name="structure"
-                value={formData.structure}
-                onChange={handleChange}
-                className={inputClass}
-                placeholder="Si applicable"
-              />
+              <input name="structure" value={formData.structure} onChange={handleChange} className={inputClass} placeholder="Si applicable" />
             </div>
 
             <div>
-              <label className={labelClass}>
-                Email <span className="text-primary">*</span>
-              </label>
-              <input
-                name="email"
-                type="email"
-                value={formData.email}
-                onChange={handleChange}
-                className={inputClass}
-                placeholder="vous@exemple.com"
-                required
-              />
+              <label className={labelClass}>Email <span className="text-primary">*</span></label>
+              <input name="email" type="email" value={formData.email} onChange={handleChange} className={inputClass} placeholder="vous@exemple.com" required />
             </div>
           </div>
 
           <button
             type="submit"
-            className="group w-full flex items-center justify-center gap-3 bg-secondary text-secondary-foreground py-4 rounded-xl text-base font-semibold hover:brightness-110 transition-all duration-300 shadow-md hover:shadow-lg mt-2"
+            disabled={submitting}
+            className="group w-full flex items-center justify-center gap-3 bg-secondary text-secondary-foreground py-4 rounded-xl text-base font-semibold hover:brightness-110 transition-all duration-300 shadow-md hover:shadow-lg mt-2 disabled:opacity-60 disabled:cursor-not-allowed"
           >
-            Envoyer la demande
-            <Send className="w-4 h-4 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
+            {submitting ? "Envoi en cours…" : "Envoyer la demande"}
+            {!submitting && <Send className="w-4 h-4 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />}
           </button>
         </motion.form>
       </div>

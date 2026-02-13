@@ -63,6 +63,12 @@ const FormSection = () => {
       toast.error("Veuillez remplir tous les champs obligatoires.");
       return;
     }
+    try {
+      new URL(formData.lienEcoute);
+    } catch {
+      toast.error("Veuillez entrer un lien d'écoute valide (ex: https://...)");
+      return;
+    }
 
     let vignetteUrl = "";
     if (vignette) {
