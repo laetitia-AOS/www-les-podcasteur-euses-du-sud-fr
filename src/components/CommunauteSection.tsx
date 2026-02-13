@@ -18,8 +18,8 @@ const CommunauteSection = () => {
           transition={{ duration: 0.7 }}
           className="bg-gradient-to-br from-[hsl(220,50%,18%)] via-[hsl(220,45%,22%)] to-[hsl(225,40%,16%)] rounded-3xl p-10 sm:p-14 text-center relative overflow-hidden"
         >
-          <div className="absolute inset-0 opacity-20" style={{
-            backgroundImage: `radial-gradient(ellipse at 50% 100%, hsl(42 80% 55% / 0.3) 0%, transparent 60%)`
+          <div className="absolute inset-0 opacity-30" style={{
+            backgroundImage: `radial-gradient(ellipse at 50% 100%, hsl(42 95% 52% / 0.4) 0%, transparent 60%)`
           }} />
 
           <div className="relative">
