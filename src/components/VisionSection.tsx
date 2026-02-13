@@ -2,22 +2,28 @@ import { motion } from "framer-motion";
 
 const VisionSection = () => {
   return (
-    <section id="vision" className="py-16 md:py-24 bg-background">
+    <section id="vision" className="py-20 md:py-32 bg-background">
       <div className="container mx-auto px-6 max-w-3xl">
         <motion.div
           initial={{ opacity: 0, y: 25 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, margin: "-80px" }}
           transition={{ duration: 0.7 }}
-          className="space-y-6"
+          className="space-y-8"
         >
-          <h2 className="font-serif text-3xl sm:text-4xl md:text-5xl text-center mb-2">
-            Le podcast transforme les territoires
+          <div className="flex items-center gap-3 justify-center mb-2">
+            <div className="h-px w-8 bg-primary/30" />
+            <span className="text-xs font-semibold uppercase tracking-[0.2em] text-primary/70">Vision</span>
+            <div className="h-px w-8 bg-primary/30" />
+          </div>
+
+          <h2 className="font-serif text-3xl sm:text-4xl md:text-5xl text-center leading-snug">
+            Le podcast transforme<br />les territoires
           </h2>
-          <div className="section-divider w-16 mx-auto" />
-          <div className="space-y-4 text-lg text-muted-foreground leading-relaxed text-center">
+
+          <div className="space-y-5 text-lg text-muted-foreground leading-relaxed text-center">
             <p>
-              Le podcast est devenu un média à part entière, un espace d'expression,
+              Le podcast est devenu un média à part entière — un espace d'expression,
               de création et de transmission.
             </p>
             <p>
@@ -25,9 +31,12 @@ const VisionSection = () => {
               souvent dispersée et encore peu visible.
             </p>
           </div>
-          <p className="text-foreground font-serif text-xl sm:text-2xl text-center pt-2">
-            Podcasteur·euses du Sud est né de cette réalité.
-          </p>
+
+          <div className="pt-4">
+            <p className="text-foreground font-serif text-xl sm:text-2xl text-center italic">
+              Podcasteur·euses du Sud est né de cette réalité.
+            </p>
+          </div>
         </motion.div>
       </div>
     </section>

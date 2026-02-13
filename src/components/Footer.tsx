@@ -2,29 +2,32 @@ import { Mic2 } from "lucide-react";
 
 const Footer = () => {
   return (
-    <footer className="py-14 border-t border-border bg-background">
-      <div className="container mx-auto px-6 max-w-4xl">
-        <div className="flex flex-col items-center text-center gap-4">
-          <div className="flex items-center gap-2.5">
-            <Mic2 className="w-5 h-5 text-primary" />
-            <span className="font-serif text-xl text-foreground">
-              Podcasteur·euses du Sud
-            </span>
+    <footer className="py-16 border-t border-border bg-background">
+      <div className="container mx-auto px-6 max-w-5xl">
+        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-8">
+          <div className="flex items-center gap-3">
+            <div className="w-9 h-9 rounded-xl bg-primary/10 flex items-center justify-center">
+              <Mic2 className="w-4 h-4 text-primary" />
+            </div>
+            <div>
+              <span className="font-serif text-lg text-foreground block leading-tight">
+                Podcasteur·euses du Sud
+              </span>
+              <span className="text-xs text-muted-foreground">
+                Écosystème podcast · Région Sud
+              </span>
+            </div>
           </div>
-          <p className="text-muted-foreground text-sm max-w-md leading-relaxed">
-            Initiative dédiée à la visibilité et à la structuration
-            de la scène podcast en Région Sud.
-          </p>
-          <div className="section-divider w-24 my-2" />
+
           <div className="flex items-center gap-6 text-sm text-muted-foreground">
             <a
               href="mailto:contact@podcasteusesdusud.fr"
-              className="hover:text-primary transition-colors"
+              className="hover:text-foreground transition-colors"
             >
               Contact
             </a>
-            <span className="text-border">·</span>
-            <a href="#" className="hover:text-primary transition-colors">
+            <span className="w-1 h-1 rounded-full bg-border" />
+            <a href="#" className="hover:text-foreground transition-colors">
               Mentions légales
             </a>
           </div>
