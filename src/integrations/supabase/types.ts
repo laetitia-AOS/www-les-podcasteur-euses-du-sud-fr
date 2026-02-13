@@ -60,18 +60,24 @@ export type Database = {
           city_insee_code: string | null
           city_name: string | null
           city_postcode: string | null
+          consent_contact: boolean
+          consent_mise_en_relation: boolean
           created_at: string
           department_code: string | null
           department_label: string | null
           description: string
           email: string
+          frequence_publication: string | null
           id: string
           lien_ecoute: string
           monetise: string | null
+          niveau_avancement: string | null
           nom: string | null
           nom_podcast: string
           prenom: string | null
+          priorite_actuelle: string | null
           structure: string | null
+          telephone: string | null
           thematique: string | null
           type_podcast: string | null
           valide: boolean
@@ -84,18 +90,24 @@ export type Database = {
           city_insee_code?: string | null
           city_name?: string | null
           city_postcode?: string | null
+          consent_contact?: boolean
+          consent_mise_en_relation?: boolean
           created_at?: string
           department_code?: string | null
           department_label?: string | null
           description: string
           email: string
+          frequence_publication?: string | null
           id?: string
           lien_ecoute: string
           monetise?: string | null
+          niveau_avancement?: string | null
           nom?: string | null
           nom_podcast: string
           prenom?: string | null
+          priorite_actuelle?: string | null
           structure?: string | null
+          telephone?: string | null
           thematique?: string | null
           type_podcast?: string | null
           valide?: boolean
@@ -108,18 +120,24 @@ export type Database = {
           city_insee_code?: string | null
           city_name?: string | null
           city_postcode?: string | null
+          consent_contact?: boolean
+          consent_mise_en_relation?: boolean
           created_at?: string
           department_code?: string | null
           department_label?: string | null
           description?: string
           email?: string
+          frequence_publication?: string | null
           id?: string
           lien_ecoute?: string
           monetise?: string | null
+          niveau_avancement?: string | null
           nom?: string | null
           nom_podcast?: string
           prenom?: string | null
+          priorite_actuelle?: string | null
           structure?: string | null
+          telephone?: string | null
           thematique?: string | null
           type_podcast?: string | null
           valide?: boolean
