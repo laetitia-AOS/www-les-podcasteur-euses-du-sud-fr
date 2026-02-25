@@ -5,12 +5,11 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
-import { Lock, CalendarDays, ArrowLeft, Plus, Pencil, Trash2, X } from "lucide-react";
+import { CalendarDays, ArrowLeft, Plus, Pencil, Trash2, X, LogOut, Loader2 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-
-const ADMIN_PASSWORD = "pds-admin-2025";
+import { useAdminAuth } from "@/hooks/useAdminAuth";
 
 type EventForm = {
   titre: string;
@@ -37,14 +36,12 @@ const emptyForm: EventForm = {
 };
 
 const AdminEvenements = () => {
-  const [password, setPassword] = useState("");
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [error, setError] = useState("");
   const [showForm, setShowForm] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [form, setForm] = useState<EventForm>(emptyForm);
   const navigate = useNavigate();
   const queryClient = useQueryClient();
+  const { user, isAdmin, loading: authLoading, signOut } = useAdminAuth();
 
   const { data: evenements, isLoading } = useQuery({
     queryKey: ["admin-evenements"],
@@ -56,7 +53,7 @@ const AdminEvenements = () => {
       if (error) throw error;
       return data;
     },
-    enabled: isAuthenticated,
+    enabled: isAdmin,
   });
 
   const saveMutation = useMutation({
@@ -142,40 +139,17 @@ const AdminEvenements = () => {
     saveMutation.mutate(form);
   };
 
-  const handleLogin = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (password === ADMIN_PASSWORD) {
-      setIsAuthenticated(true);
-      setError("");
-    } else {
-      setError("Mot de passe incorrect");
-    }
-  };
-
-  if (!isAuthenticated) {
+  if (authLoading) {
     return (
-      <div className="min-h-screen bg-background flex items-center justify-center px-4">
-        <form onSubmit={handleLogin} className="w-full max-w-sm space-y-6">
-          <div className="text-center">
-            <div className="mx-auto w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center mb-4">
-              <Lock className="w-6 h-6 text-primary" />
-            </div>
-            <h1 className="font-serif text-2xl text-foreground">Espace admin</h1>
-            <p className="text-muted-foreground mt-1">Gestion des événements</p>
-          </div>
-          <div className="space-y-3">
-            <Input
-              type="password"
-              placeholder="Mot de passe"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-            />
-            {error && <p className="text-sm text-destructive">{error}</p>}
-            <Button type="submit" className="w-full">Accéder</Button>
-          </div>
-        </form>
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <Loader2 className="w-6 h-6 animate-spin text-primary" />
       </div>
     );
+  }
+
+  if (!user || !isAdmin) {
+    navigate("/admin/login");
+    return null;
   }
 
   return (
@@ -196,9 +170,14 @@ const AdminEvenements = () => {
               </p>
             </div>
           </div>
-          <Button onClick={() => { resetForm(); setShowForm(true); }}>
-            <Plus className="w-4 h-4 mr-2" /> Ajouter
-          </Button>
+          <div className="flex gap-2">
+            <Button onClick={() => { resetForm(); setShowForm(true); }}>
+              <Plus className="w-4 h-4 mr-2" /> Ajouter
+            </Button>
+            <Button variant="outline" size="sm" onClick={signOut}>
+              <LogOut className="w-4 h-4 mr-2" /> Déconnexion
+            </Button>
+          </div>
         </div>
 
         {/* Form */}

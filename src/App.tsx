@@ -11,6 +11,7 @@ import PolitiqueConfidentialite from "./pages/PolitiqueConfidentialite";
 import CGU from "./pages/CGU";
 import AdminAdhesions from "./pages/AdminAdhesions";
 import AdminEvenements from "./pages/AdminEvenements";
+import AdminLogin from "./pages/AdminLogin";
 import Evenements from "./pages/Evenements";
 import NotFound from "./pages/NotFound";
 
@@ -30,6 +31,7 @@ const App = () => (
           <Route path="/politique-de-confidentialite" element={<PolitiqueConfidentialite />} />
           <Route path="/conditions-utilisation" element={<CGU />} />
           <Route path="/evenements" element={<Evenements />} />
+          <Route path="/admin/login" element={<AdminLogin />} />
           <Route path="/admin/adhesions" element={<AdminAdhesions />} />
           <Route path="/admin/evenements" element={<AdminEvenements />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
