@@ -1,16 +1,41 @@
-import { useQuery } from "@tanstack/react-query";
+import { useState } from "react";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
-import { Users, ArrowLeft, LogOut, Loader2, Download } from "lucide-react";
+import { Users, ArrowLeft, LogOut, Loader2, Download, RefreshCw } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useAdminAuth } from "@/hooks/useAdminAuth";
 import AddAdhesionDialog from "@/components/AddAdhesionDialog";
+import { toast } from "sonner";
 
 const AdminAdhesions = () => {
   const navigate = useNavigate();
   const { user, isAdmin, loading: authLoading, signOut } = useAdminAuth();
+  const [importing, setImporting] = useState(false);
+  const queryClient = useQueryClient();
+
+  const importFromHelloAsso = async () => {
+    setImporting(true);
+    try {
+      const { data: sessionData } = await supabase.auth.getSession();
+      const token = sessionData.session?.access_token;
+      if (!token) throw new Error("Non authentifié");
+
+      const { data, error } = await supabase.functions.invoke("helloasso-import", {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+
+      if (error) throw error;
+      toast.success(`Import terminé : ${data.imported} ajoutée(s), ${data.skipped} déjà présente(s)`);
+      queryClient.invalidateQueries({ queryKey: ["adhesions"] });
+    } catch (err: any) {
+      toast.error("Erreur d'import : " + (err.message || "Erreur inconnue"));
+    } finally {
+      setImporting(false);
+    }
+  };
 
   const exportCSV = () => {
     if (!adhesions?.length) return;
@@ -80,6 +105,9 @@ const AdminAdhesions = () => {
             </div>
           </div>
           <div className="flex items-center gap-2">
+            <Button variant="outline" size="sm" onClick={importFromHelloAsso} disabled={importing}>
+              <RefreshCw className={`w-4 h-4 mr-2 ${importing ? "animate-spin" : ""}`} /> {importing ? "Import…" : "Import HelloAsso"}
+            </Button>
             <Button variant="outline" size="sm" onClick={exportCSV} disabled={!adhesions?.length}>
               <Download className="w-4 h-4 mr-2" /> Export CSV
             </Button>
