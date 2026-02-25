@@ -163,7 +163,7 @@ const AdminPodcasts = () => {
                   <TableHead>Besoins</TableHead>
                   <TableHead>Score</TableHead>
                   <TableHead>Segment</TableHead>
-                  <TableHead className="w-[50px]"></TableHead>
+                  <TableHead className="w-[100px]">Actions</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
