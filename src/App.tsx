@@ -13,6 +13,7 @@ import AdminAdhesions from "./pages/AdminAdhesions";
 import AdminEvenements from "./pages/AdminEvenements";
 import AdminLogin from "./pages/AdminLogin";
 import AdminContacts from "./pages/AdminContacts";
+import AdminDashboard from "./pages/AdminDashboard";
 import Evenements from "./pages/Evenements";
 import NotFound from "./pages/NotFound";
 
@@ -32,6 +33,7 @@ const App = () => (
           <Route path="/politique-de-confidentialite" element={<PolitiqueConfidentialite />} />
           <Route path="/conditions-utilisation" element={<CGU />} />
           <Route path="/evenements" element={<Evenements />} />
+          <Route path="/admin" element={<AdminDashboard />} />
           <Route path="/admin/login" element={<AdminLogin />} />
           <Route path="/admin/adhesions" element={<AdminAdhesions />} />
           <Route path="/admin/evenements" element={<AdminEvenements />} />
