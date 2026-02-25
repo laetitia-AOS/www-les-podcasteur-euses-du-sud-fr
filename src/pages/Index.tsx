@@ -5,6 +5,7 @@ import VisionSection from "@/components/VisionSection";
 import ObjectifsSection from "@/components/ObjectifsSection";
 import PromessesSection from "@/components/PromessesSection";
 import DynamiqueSection from "@/components/DynamiqueSection";
+import ProchainEvenement from "@/components/ProchainEvenement";
 import CommunauteSection from "@/components/CommunauteSection";
 import ContactCTA from "@/components/ContactCTA";
 import FormSection from "@/components/FormSection";
@@ -26,6 +27,7 @@ const Index = () => {
           <PromessesSection />
         </article>
         <DynamiqueSection />
+        <ProchainEvenement />
         <CommunauteSection />
         <ContactCTA />
         <FormSection />
