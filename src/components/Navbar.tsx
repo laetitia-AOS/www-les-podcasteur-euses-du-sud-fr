@@ -1,14 +1,13 @@
 import { useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
-import { Menu, X } from "lucide-react";
+import { Menu, X, User } from "lucide-react";
 import logoPds from "@/assets/logo-pds.png";
 
 const links = [
-  { label: "Découvrir", href: "#dynamique" },
+  { label: "Flux", href: "#flux" },
   { label: "Événements", href: "/evenements" },
   { label: "Référencer", href: "#formulaire" },
-  { label: "Participer", href: "#communaute" },
   { label: "Contact", href: "/contact" },
 ];
 
@@ -66,6 +65,14 @@ const Navbar = () => {
               {l.label}
             </button>
           ))}
+          <button
+            onClick={() => handleClick("/espace-podcasteur")}
+            className="ml-2 p-2 rounded-full transition-colors text-muted-foreground hover:text-foreground hover:bg-muted/50"
+            aria-label="Mon espace"
+            title="Mon espace"
+          >
+            <User className="w-4.5 h-4.5" />
+          </button>
         </div>
 
         {/* Mobile toggle */}
@@ -97,6 +104,13 @@ const Navbar = () => {
                   {l.label}
                 </button>
               ))}
+              <button
+                onClick={() => handleClick("/espace-podcasteur")}
+                className="flex items-center gap-2 w-full text-left px-3 py-2.5 rounded-md text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-muted/50 transition-colors"
+              >
+                <User className="w-4 h-4" />
+                Mon espace
+              </button>
             </div>
           </motion.div>
         )}
