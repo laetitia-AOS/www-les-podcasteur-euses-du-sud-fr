@@ -6,6 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { Users, ArrowLeft, LogOut, Loader2 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useAdminAuth } from "@/hooks/useAdminAuth";
+import AddAdhesionDialog from "@/components/AddAdhesionDialog";
 
 const AdminAdhesions = () => {
   const navigate = useNavigate();
@@ -55,9 +56,12 @@ const AdminAdhesions = () => {
               </p>
             </div>
           </div>
-          <Button variant="outline" size="sm" onClick={signOut}>
-            <LogOut className="w-4 h-4 mr-2" /> Déconnexion
-          </Button>
+          <div className="flex items-center gap-2">
+            <AddAdhesionDialog />
+            <Button variant="outline" size="sm" onClick={signOut}>
+              <LogOut className="w-4 h-4 mr-2" /> Déconnexion
+            </Button>
+          </div>
         </div>
 
         {isLoading ? (
