@@ -6,6 +6,7 @@ import logoPds from "@/assets/logo-pds.png";
 
 const links = [
   { label: "Découvrir", href: "#dynamique" },
+  { label: "Événements", href: "/evenements" },
   { label: "Référencer", href: "#formulaire" },
   { label: "Participer", href: "#communaute" },
   { label: "Contact", href: "/contact" },

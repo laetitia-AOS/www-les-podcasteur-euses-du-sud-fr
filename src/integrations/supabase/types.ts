@@ -98,6 +98,48 @@ export type Database = {
         }
         Relationships: []
       }
+      evenements: {
+        Row: {
+          adresse: string | null
+          created_at: string
+          date_debut: string
+          date_fin: string | null
+          description: string | null
+          id: string
+          lien_externe: string | null
+          lieu: string | null
+          publie: boolean
+          titre: string
+          type: string
+        }
+        Insert: {
+          adresse?: string | null
+          created_at?: string
+          date_debut: string
+          date_fin?: string | null
+          description?: string | null
+          id?: string
+          lien_externe?: string | null
+          lieu?: string | null
+          publie?: boolean
+          titre: string
+          type?: string
+        }
+        Update: {
+          adresse?: string | null
+          created_at?: string
+          date_debut?: string
+          date_fin?: string | null
+          description?: string | null
+          id?: string
+          lien_externe?: string | null
+          lieu?: string | null
+          publie?: boolean
+          titre?: string
+          type?: string
+        }
+        Relationships: []
+      }
       podcasts: {
         Row: {
           besoin: string | null
