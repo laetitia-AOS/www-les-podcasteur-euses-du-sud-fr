@@ -111,12 +111,18 @@ const AdminEvenements = () => {
     setShowForm(false);
   };
 
+  const toLocalDatetime = (iso: string) => {
+    const d = new Date(iso);
+    const pad = (n: number) => n.toString().padStart(2, "0");
+    return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
+  };
+
   const startEdit = (evt: any) => {
     setForm({
       titre: evt.titre,
       description: evt.description || "",
-      date_debut: evt.date_debut ? new Date(evt.date_debut).toISOString().slice(0, 16) : "",
-      date_fin: evt.date_fin ? new Date(evt.date_fin).toISOString().slice(0, 16) : "",
+      date_debut: evt.date_debut ? toLocalDatetime(evt.date_debut) : "",
+      date_fin: evt.date_fin ? toLocalDatetime(evt.date_fin) : "",
       lieu: evt.lieu || "",
       adresse: evt.adresse || "",
       type: evt.type || "rencontre",
