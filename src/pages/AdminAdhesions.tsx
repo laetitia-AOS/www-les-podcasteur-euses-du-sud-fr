@@ -1,14 +1,63 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Users, ArrowLeft, LogOut, Loader2, Download, RefreshCw } from "lucide-react";
 import { useNavigate, Navigate } from "react-router-dom";
 import { useAdminAuth } from "@/hooks/useAdminAuth";
 import AddAdhesionDialog from "@/components/AddAdhesionDialog";
 import { toast } from "sonner";
+
+const getAdhesionDate = (a: any) =>
+  a.date_adhesion ? new Date(a.date_adhesion) : new Date(a.created_at);
+
+const AdhesionTable = ({ items }: { items: any[] }) => (
+  <div className="border rounded-xl overflow-hidden">
+    <Table>
+      <TableHeader>
+        <TableRow>
+          <TableHead>Date</TableHead>
+          <TableHead>Prénom</TableHead>
+          <TableHead>Nom</TableHead>
+          <TableHead>Email</TableHead>
+          <TableHead>Téléphone</TableHead>
+          <TableHead>Montant</TableHead>
+          <TableHead>Type</TableHead>
+          <TableHead>Statut</TableHead>
+        </TableRow>
+      </TableHeader>
+      <TableBody>
+        {items.map((a: any) => (
+          <TableRow key={a.id}>
+            <TableCell className="text-sm whitespace-nowrap">
+              {getAdhesionDate(a).toLocaleDateString("fr-FR")}
+            </TableCell>
+            <TableCell>{a.prenom || "—"}</TableCell>
+            <TableCell>{a.nom || "—"}</TableCell>
+            <TableCell className="text-sm">{a.email || "—"}</TableCell>
+            <TableCell className="text-sm">
+              {a.telephone ? (
+                <a href={`https://wa.me/${a.telephone.replace(/\s+/g, '').replace(/^0/, '33')}`} target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">
+                  {a.telephone}
+                </a>
+              ) : "—"}
+            </TableCell>
+            <TableCell>{a.montant ? `${a.montant} €` : "—"}</TableCell>
+            <TableCell className="text-sm">{a.type_adhesion || "—"}</TableCell>
+            <TableCell>
+              <Badge variant={a.statut === "active" ? "default" : "secondary"}>
+                {a.statut}
+              </Badge>
+            </TableCell>
+          </TableRow>
+        ))}
+      </TableBody>
+    </Table>
+  </div>
+);
 
 const AdminAdhesions = () => {
   const navigate = useNavigate();
@@ -37,18 +86,50 @@ const AdminAdhesions = () => {
     }
   };
 
+  const { data: adhesions, isLoading } = useQuery({
+    queryKey: ["adhesions"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("adhesions")
+        .select("*")
+        .order("date_adhesion", { ascending: false, nullsFirst: false });
+      if (error) throw error;
+      return data;
+    },
+    enabled: isAdmin,
+  });
+
+  const { activeAdhesions, expiredByYear } = useMemo(() => {
+    if (!adhesions) return { activeAdhesions: [], expiredByYear: {} as Record<string, any[]> };
+
+    const active = adhesions.filter((a: any) => a.statut === "active");
+    const expired = adhesions.filter((a: any) => a.statut !== "active");
+
+    const byYear: Record<string, any[]> = {};
+    expired.forEach((a: any) => {
+      const year = String(getAdhesionDate(a).getFullYear());
+      if (!byYear[year]) byYear[year] = [];
+      byYear[year].push(a);
+    });
+
+    // Sort years descending
+    const sorted: Record<string, any[]> = {};
+    Object.keys(byYear).sort((a, b) => Number(b) - Number(a)).forEach(y => {
+      sorted[y] = byYear[y];
+    });
+
+    return { activeAdhesions: active, expiredByYear: sorted };
+  }, [adhesions]);
+
+  const expiredYears = Object.keys(expiredByYear);
+
   const exportCSV = () => {
     if (!adhesions?.length) return;
     const headers = ["Date", "Prénom", "Nom", "Email", "Téléphone", "Montant", "Type", "Statut"];
     const rows = adhesions.map((a: any) => [
-      a.date_adhesion ? new Date(a.date_adhesion).toLocaleDateString("fr-FR") : new Date(a.created_at).toLocaleDateString("fr-FR"),
-      a.prenom || "",
-      a.nom || "",
-      a.email || "",
-      a.telephone || "",
-      a.montant ?? "",
-      a.type_adhesion || "",
-      a.statut,
+      getAdhesionDate(a).toLocaleDateString("fr-FR"),
+      a.prenom || "", a.nom || "", a.email || "", a.telephone || "",
+      a.montant ?? "", a.type_adhesion || "", a.statut,
     ]);
     const csv = [headers, ...rows].map(r => r.map(v => `"${String(v).replace(/"/g, '""')}"`).join(",")).join("\n");
     const blob = new Blob(["\uFEFF" + csv], { type: "text/csv;charset=utf-8;" });
@@ -59,19 +140,6 @@ const AdminAdhesions = () => {
     link.click();
     URL.revokeObjectURL(url);
   };
-
-  const { data: adhesions, isLoading } = useQuery({
-    queryKey: ["adhesions"],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from("adhesions")
-        .select("*")
-        .order("created_at", { ascending: false });
-      if (error) throw error;
-      return data;
-    },
-    enabled: isAdmin,
-  });
 
   if (authLoading) {
     return (
@@ -90,7 +158,7 @@ const AdminAdhesions = () => {
       <div className="container mx-auto px-6 py-10 max-w-6xl">
         <div className="flex items-center justify-between mb-8">
           <div className="flex items-center gap-3">
-            <Button variant="ghost" size="icon" onClick={() => navigate("/")}>
+            <Button variant="ghost" size="icon" onClick={() => navigate("/admin")}>
               <ArrowLeft className="w-5 h-5" />
             </Button>
             <div>
@@ -99,7 +167,7 @@ const AdminAdhesions = () => {
                 Adhésions
               </h1>
               <p className="text-muted-foreground">
-                {adhesions?.length ?? 0} adhésion{(adhesions?.length ?? 0) > 1 ? "s" : ""} enregistrée{(adhesions?.length ?? 0) > 1 ? "s" : ""}
+                {activeAdhesions.length} active{activeAdhesions.length > 1 ? "s" : ""} · {adhesions?.length ?? 0} au total
               </p>
             </div>
           </div>
@@ -123,55 +191,34 @@ const AdminAdhesions = () => {
           <div className="text-center py-20">
             <Users className="w-12 h-12 text-muted-foreground/40 mx-auto mb-4" />
             <p className="text-muted-foreground">Aucune adhésion pour le moment.</p>
-            <p className="text-sm text-muted-foreground/60 mt-2">
-              Les adhésions apparaîtront ici dès qu'un webhook HelloAsso sera configuré.
-            </p>
           </div>
         ) : (
-          <div className="border rounded-xl overflow-hidden">
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Date</TableHead>
-                  <TableHead>Prénom</TableHead>
-                  <TableHead>Nom</TableHead>
-                  <TableHead>Email</TableHead>
-                  <TableHead>Téléphone</TableHead>
-                  <TableHead>Montant</TableHead>
-                  <TableHead>Type</TableHead>
-                  <TableHead>Statut</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {adhesions.map((a: any) => (
-                  <TableRow key={a.id}>
-                    <TableCell className="text-sm">
-                      {a.date_adhesion
-                        ? new Date(a.date_adhesion).toLocaleDateString("fr-FR")
-                        : new Date(a.created_at).toLocaleDateString("fr-FR")}
-                    </TableCell>
-                    <TableCell>{a.prenom || "—"}</TableCell>
-                    <TableCell>{a.nom || "—"}</TableCell>
-                    <TableCell className="text-sm">{a.email || "—"}</TableCell>
-                    <TableCell className="text-sm">
-                      {a.telephone ? (
-                        <a href={`https://wa.me/${a.telephone.replace(/\s+/g, '').replace(/^0/, '33')}`} target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">
-                          {a.telephone}
-                        </a>
-                      ) : "—"}
-                    </TableCell>
-                    <TableCell>{a.montant ? `${a.montant} €` : "—"}</TableCell>
-                    <TableCell className="text-sm">{a.type_adhesion || "—"}</TableCell>
-                    <TableCell>
-                      <Badge variant={a.statut === "active" ? "default" : "secondary"}>
-                        {a.statut}
-                      </Badge>
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </div>
+          <Tabs defaultValue="active" className="space-y-4">
+            <TabsList>
+              <TabsTrigger value="active">
+                Actives ({activeAdhesions.length})
+              </TabsTrigger>
+              {expiredYears.map((year) => (
+                <TabsTrigger key={year} value={year}>
+                  {year} ({expiredByYear[year].length})
+                </TabsTrigger>
+              ))}
+            </TabsList>
+
+            <TabsContent value="active">
+              {activeAdhesions.length > 0 ? (
+                <AdhesionTable items={activeAdhesions} />
+              ) : (
+                <p className="text-muted-foreground text-center py-10">Aucune adhésion active.</p>
+              )}
+            </TabsContent>
+
+            {expiredYears.map((year) => (
+              <TabsContent key={year} value={year}>
+                <AdhesionTable items={expiredByYear[year]} />
+              </TabsContent>
+            ))}
+          </Tabs>
         )}
       </div>
     </div>
