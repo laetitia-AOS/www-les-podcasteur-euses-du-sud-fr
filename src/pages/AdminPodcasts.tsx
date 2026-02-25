@@ -6,7 +6,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Badge } from "@/components/ui/badge";
 import { Switch } from "@/components/ui/switch";
 import { Mic, ArrowLeft, LogOut, Loader2, Download, Eye, EyeOff, ExternalLink } from "lucide-react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Navigate } from "react-router-dom";
 import { useAdminAuth } from "@/hooks/useAdminAuth";
 import { toast } from "sonner";
 import {
@@ -91,8 +91,7 @@ const AdminPodcasts = () => {
   }
 
   if (!user || !isAdmin) {
-    navigate("/admin/login");
-    return null;
+    return <Navigate to="/admin/login" replace />;
   }
 
   const validCount = podcasts?.filter((p) => p.valide).length ?? 0;

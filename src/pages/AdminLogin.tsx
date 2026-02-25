@@ -66,7 +66,7 @@ const AdminLogin = () => {
       }
     }
 
-    navigate("/admin/adhesions");
+    navigate("/admin");
   };
 
   return (
