@@ -16,7 +16,7 @@ const CommunauteSection = () => {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, margin: "-80px" }}
           transition={{ duration: 0.7 }}
-          className="bg-gradient-to-br from-primary via-[hsl(220,60%,38%)] to-primary rounded-3xl p-10 sm:p-14 text-center relative overflow-hidden"
+          className="bg-gradient-to-br from-primary via-[hsl(227,70%,30%)] to-primary rounded-3xl p-10 sm:p-14 text-center relative overflow-hidden"
         >
           <div className="absolute inset-0 opacity-25" style={{
             backgroundImage: `radial-gradient(ellipse at 50% 100%, hsl(42 95% 52% / 0.5) 0%, transparent 60%)`

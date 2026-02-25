@@ -1,5 +1,5 @@
-import { Mic2 } from "lucide-react";
 import { Link } from "react-router-dom";
+import logoPds from "@/assets/logo-pds.png";
 
 const Footer = () => {
   return (
@@ -7,11 +7,9 @@ const Footer = () => {
       <div className="container mx-auto px-6 max-w-5xl">
         <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-8">
           <div className="flex items-center gap-3">
-            <div className="w-9 h-9 rounded-xl bg-primary/10 flex items-center justify-center">
-              <Mic2 className="w-4 h-4 text-primary" />
-            </div>
+            <img src={logoPds} alt="Les Podcasteur·euses du Sud" className="w-10 h-10 rounded-xl object-cover" />
             <div>
-              <span className="font-serif text-lg text-foreground block leading-tight">
+              <span className="font-serif text-lg text-foreground block leading-tight font-bold">
                 Les Podcasteur·euses du Sud
               </span>
               <span className="text-xs text-muted-foreground">

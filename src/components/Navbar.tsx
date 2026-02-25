@@ -1,7 +1,8 @@
 import { useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
-import { Mic2, Menu, X } from "lucide-react";
+import { Menu, X } from "lucide-react";
+import logoPds from "@/assets/logo-pds.png";
 
 const links = [
   { label: "Découvrir", href: "#dynamique" },
@@ -47,10 +48,10 @@ const Navbar = () => {
       <div className="container mx-auto px-6 max-w-6xl flex items-center justify-between h-16">
         <button
           onClick={() => handleClick("#hero")}
-          className="flex items-center gap-2 font-serif text-lg transition-colors text-foreground"
+          className="flex items-center gap-2.5 font-serif text-lg transition-colors text-foreground"
         >
-          <Mic2 className="w-5 h-5" />
-          <span className="hidden sm:inline">Les Podcasteur·euses du Sud</span>
+          <img src={logoPds} alt="Les Podcasteur·euses du Sud" className="w-8 h-8 rounded-lg object-cover" />
+          <span className="hidden sm:inline font-bold">Les Podcasteur·euses du Sud</span>
         </button>
 
         {/* Desktop */}
