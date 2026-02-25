@@ -32,6 +32,8 @@ const formatTime = (iso: string) => {
 const Evenements = () => {
   useEffect(() => {
     document.title = "Événements — Les Podcasteur·euses du Sud";
+    const meta = document.querySelector('meta[name="description"]');
+    if (meta) meta.setAttribute("content", "Retrouvez les prochains rendez-vous, sessions d'écoute et événements des Podcasteur·euses du Sud en Région PACA.");
   }, []);
 
   const { data: evenements, isLoading } = useQuery({
