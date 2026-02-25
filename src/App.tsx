@@ -14,6 +14,7 @@ import AdminEvenements from "./pages/AdminEvenements";
 import AdminLogin from "./pages/AdminLogin";
 import AdminContacts from "./pages/AdminContacts";
 import AdminDashboard from "./pages/AdminDashboard";
+import AdminPodcasts from "./pages/AdminPodcasts";
 import Evenements from "./pages/Evenements";
 import ResetPassword from "./pages/ResetPassword";
 import PodcasteurLogin from "./pages/PodcasteurLogin";
@@ -43,6 +44,7 @@ const App = () => (
           <Route path="/admin/adhesions" element={<AdminAdhesions />} />
           <Route path="/admin/evenements" element={<AdminEvenements />} />
           <Route path="/admin/contacts" element={<AdminContacts />} />
+          <Route path="/admin/podcasts" element={<AdminPodcasts />} />
           <Route path="/reset-password" element={<ResetPassword />} />
           <Route path="/espace-podcasteur" element={<PodcasteurLogin />} />
           <Route path="/mon-podcast" element={<MonPodcast />} />
