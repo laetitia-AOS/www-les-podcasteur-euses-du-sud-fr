@@ -104,6 +104,7 @@ const AdminAdhesions = () => {
                   <TableHead>Prénom</TableHead>
                   <TableHead>Nom</TableHead>
                   <TableHead>Email</TableHead>
+                  <TableHead>Téléphone</TableHead>
                   <TableHead>Montant</TableHead>
                   <TableHead>Type</TableHead>
                   <TableHead>Statut</TableHead>
@@ -120,6 +121,13 @@ const AdminAdhesions = () => {
                     <TableCell>{a.prenom || "—"}</TableCell>
                     <TableCell>{a.nom || "—"}</TableCell>
                     <TableCell className="text-sm">{a.email || "—"}</TableCell>
+                    <TableCell className="text-sm">
+                      {a.telephone ? (
+                        <a href={`https://wa.me/${a.telephone.replace(/\s+/g, '').replace(/^0/, '33')}`} target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">
+                          {a.telephone}
+                        </a>
+                      ) : "—"}
+                    </TableCell>
                     <TableCell>{a.montant ? `${a.montant} €` : "—"}</TableCell>
                     <TableCell className="text-sm">{a.type_adhesion || "—"}</TableCell>
                     <TableCell>
