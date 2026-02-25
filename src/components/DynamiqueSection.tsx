@@ -39,7 +39,7 @@ const DynamiqueSection = () => {
   const hasMore = visible < podcasts.length;
 
   return (
-    <section id="dynamique" className="py-20 md:py-32 bg-card">
+    <section id="flux" className="py-20 md:py-32 bg-card">
       <div className="container mx-auto px-6 max-w-5xl">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
