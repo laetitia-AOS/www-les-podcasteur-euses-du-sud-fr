@@ -163,7 +163,7 @@ const AdminPodcasts = () => {
                   <TableHead>Besoins</TableHead>
                   <TableHead>Score</TableHead>
                   <TableHead>Segment</TableHead>
-                  <TableHead className="w-[100px]">Actions</TableHead>
+                  <TableHead className="w-[100px] sticky right-0 bg-background z-10">Actions</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -233,7 +233,7 @@ const AdminPodcasts = () => {
                         {p.segment_pds}
                       </Badge>
                     </TableCell>
-                    <TableCell>
+                    <TableCell className="sticky right-0 bg-background z-10">
                       <div className="flex items-center gap-1">
                         <Button
                           variant="ghost"
