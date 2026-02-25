@@ -19,6 +19,7 @@ import ResetPassword from "./pages/ResetPassword";
 import PodcasteurLogin from "./pages/PodcasteurLogin";
 import MonPodcast from "./pages/MonPodcast";
 import NotFound from "./pages/NotFound";
+import Adhesion from "./pages/Adhesion";
 
 const queryClient = new QueryClient();
 
@@ -36,6 +37,7 @@ const App = () => (
           <Route path="/politique-de-confidentialite" element={<PolitiqueConfidentialite />} />
           <Route path="/conditions-utilisation" element={<CGU />} />
           <Route path="/evenements" element={<Evenements />} />
+          <Route path="/adhesion" element={<Adhesion />} />
           <Route path="/admin" element={<AdminDashboard />} />
           <Route path="/admin/login" element={<AdminLogin />} />
           <Route path="/admin/adhesions" element={<AdminAdhesions />} />
