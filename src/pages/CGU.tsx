@@ -9,113 +9,103 @@ const CGU = () => {
       <Navbar />
       <main className="min-h-screen py-20 md:py-32 bg-background">
         <div className="container mx-auto px-6 max-w-3xl">
-          <h1 className="font-serif text-3xl sm:text-4xl mb-10">Conditions générales d'utilisation</h1>
+          <h1 className="font-serif text-3xl sm:text-4xl mb-10">Conditions Générales d'Utilisation et Règlement de Soumission des Podcasts</h1>
 
           <div className="prose prose-sm max-w-none text-muted-foreground space-y-8">
             <section>
               <h2 className="font-serif text-xl text-foreground">1. Objet</h2>
               <p>
-                Les présentes conditions générales d'utilisation (ci-après « CGU ») ont pour objet de définir
-                les modalités d'accès et d'utilisation du site <strong>Les Podcasteur·euses du Sud</strong>,
-                édité par l'association loi 1901 du même nom.
-              </p>
-              <p>
-                L'utilisation du site implique l'acceptation pleine et entière des présentes CGU.
+                Les présentes Conditions Générales d'Utilisation (CGU) ont pour objet de définir les modalités d'accès et d'utilisation du site édité par l'association <strong>Les Podcasteur·euses du Sud</strong>, ainsi que les règles applicables à la soumission de contenus audio et podcasts.
               </p>
             </section>
 
             <section>
-              <h2 className="font-serif text-xl text-foreground">2. Accès au site</h2>
+              <h2 className="font-serif text-xl text-foreground">2. Acceptation des conditions</h2>
               <p>
-                Le site est accessible gratuitement à tout utilisateur disposant d'un accès à Internet.
-                L'association se réserve le droit de suspendre ou d'interrompre l'accès au site pour des raisons
-                de maintenance ou de mise à jour, sans préavis ni indemnité.
+                Toute navigation sur le site implique l'acceptation pleine, entière et sans réserve des présentes conditions.
               </p>
             </section>
 
             <section>
-              <h2 className="font-serif text-xl text-foreground">3. Référencement de podcast</h2>
+              <h2 className="font-serif text-xl text-foreground">3. Accès au site</h2>
               <p>
-                Le formulaire de référencement permet aux créateurs audio de la Région Sud de s'inscrire
-                dans le répertoire. En soumettant le formulaire, l'utilisateur :
+                Le site est accessible librement. L'association ne saurait être tenue responsable des interruptions, indisponibilités ou dysfonctionnements liés à des contraintes techniques ou de maintenance.
               </p>
+            </section>
+
+            <section>
+              <h2 className="font-serif text-xl text-foreground">4. Statut de membre et cotisation</h2>
+              <p>
+                L'adhésion à l'association et le paiement de la cotisation annuelle confèrent exclusivement la qualité de membre.
+              </p>
+              <p>
+                Ils ne constituent pas l'achat d'un service et ne garantissent en aucun cas la diffusion, la publication ou la mise en avant d'un podcast sur le site ou les supports de l'association.
+              </p>
+            </section>
+
+            <section>
+              <h2 className="font-serif text-xl text-foreground">5. Soumission de podcasts</h2>
+              <p>Toute personne soumettant un podcast ou un contenu audio garantit :</p>
               <ul className="list-disc pl-5 space-y-1">
-                <li>Certifie l'exactitude des informations transmises</li>
-                <li>Autorise l'association à conserver et utiliser ces données conformément à la politique de confidentialité</li>
-                <li>S'engage à ne pas transmettre de contenus illicites, diffamatoires ou portant atteinte aux droits de tiers</li>
+                <li>être titulaire des droits nécessaires à sa diffusion</li>
+                <li>respecter les droits de propriété intellectuelle</li>
+                <li>respecter la législation en vigueur</li>
               </ul>
+              <p className="mt-2">Le soumetteur demeure seul responsable des contenus transmis.</p>
+            </section>
+
+            <section>
+              <h2 className="font-serif text-xl text-foreground">6. Conditions de diffusion et liberté éditoriale</h2>
               <p>
-                L'association se réserve le droit de refuser ou supprimer tout référencement qui ne respecterait pas
-                ces conditions ou la charte éditoriale du projet.
+                L'association Les Podcasteur·euses du Sud conserve une <strong>liberté éditoriale totale</strong>.
+              </p>
+              <p>
+                La publication, la non-publication, la mise en avant ou le retrait d'un podcast relèvent de la seule appréciation de l'association, notamment au regard de sa ligne éditoriale, de contraintes techniques, juridiques ou éthiques.
+              </p>
+              <ul className="list-disc pl-5 space-y-1 mt-2">
+                <li>Aucun droit automatique à diffusion n'est accordé.</li>
+                <li>Aucune indemnité, remboursement ou compensation ne pourra être réclamée en cas de refus ou de retrait d'un contenu.</li>
+              </ul>
+            </section>
+
+            <section>
+              <h2 className="font-serif text-xl text-foreground">7. Responsabilités</h2>
+              <p>L'association ne saurait être tenue responsable :</p>
+              <ul className="list-disc pl-5 space-y-1">
+                <li>des contenus publiés par les utilisateurs</li>
+                <li>de l'utilisation faite du site</li>
+                <li>des décisions éditoriales</li>
+              </ul>
+            </section>
+
+            <section>
+              <h2 className="font-serif text-xl text-foreground">8. Propriété intellectuelle</h2>
+              <p>
+                Les éléments du site sont protégés par le droit de la propriété intellectuelle. Toute reproduction non autorisée est interdite.
               </p>
             </section>
 
             <section>
-              <h2 className="font-serif text-xl text-foreground">4. Visibilité et mise en avant</h2>
+              <h2 className="font-serif text-xl text-foreground">9. Comportements interdits</h2>
+              <p>Sont notamment interdits :</p>
+              <ul className="list-disc pl-5 space-y-1">
+                <li>contenus illicites ou frauduleux</li>
+                <li>atteintes aux droits de tiers</li>
+                <li>tentatives d'intrusion ou d'abus technique</li>
+              </ul>
+            </section>
+
+            <section>
+              <h2 className="font-serif text-xl text-foreground">10. Modification des conditions</h2>
               <p>
-                Le référencement dans la base de données est gratuit et ouvert à tous.
-                La mise en avant éditoriale et la diffusion sur le flux du site sont réservées aux membres
-                adhérents de l'association Les Podcasteur·euses du Sud. Cette distinction vise à préserver
-                une ligne éditoriale cohérente et à valoriser l'engagement collectif.
+                L'association se réserve le droit de modifier les présentes CGU à tout moment. Les modifications prennent effet dès leur publication sur le site.
               </p>
             </section>
 
             <section>
-              <h2 className="font-serif text-xl text-foreground">5. Propriété intellectuelle</h2>
+              <h2 className="font-serif text-xl text-foreground">11. Droit applicable</h2>
               <p>
-                Chaque utilisateur reste propriétaire des contenus qu'il soumet (nom, description, vignette de son podcast).
-                En soumettant ces contenus, l'utilisateur accorde à l'association une licence non exclusive, gratuite
-                et pour la durée du référencement, aux fins d'affichage sur le site et les supports de communication
-                de l'association.
-              </p>
-            </section>
-
-            <section>
-              <h2 className="font-serif text-xl text-foreground">6. Responsabilités</h2>
-              <p>
-                L'association ne saurait être tenue responsable des contenus soumis par les utilisateurs.
-                Chaque utilisateur est seul responsable des informations qu'il publie et garantit qu'elles
-                ne portent pas atteinte aux droits de tiers.
-              </p>
-              <p>
-                L'association décline toute responsabilité en cas d'interruption du service, de perte de données
-                ou de tout dommage indirect lié à l'utilisation du site.
-              </p>
-            </section>
-
-            <section>
-              <h2 className="font-serif text-xl text-foreground">7. Données personnelles</h2>
-              <p>
-                Le traitement des données personnelles est régi par notre
-                <a href="/politique-de-confidentialite" className="text-primary hover:underline ml-1">politique de confidentialité</a>,
-                qui constitue une partie intégrante des présentes CGU.
-              </p>
-            </section>
-
-            <section>
-              <h2 className="font-serif text-xl text-foreground">8. Suppression de compte et données</h2>
-              <p>
-                Tout utilisateur peut demander la suppression de son référencement et de ses données personnelles
-                à tout moment en envoyant un email à
-                <a href="mailto:contact@podcasteusesdusud.fr" className="text-primary hover:underline ml-1">contact@podcasteusesdusud.fr</a>.
-                La suppression sera effective dans un délai raisonnable n'excédant pas un mois.
-              </p>
-            </section>
-
-            <section>
-              <h2 className="font-serif text-xl text-foreground">9. Modification des CGU</h2>
-              <p>
-                L'association se réserve le droit de modifier les présentes CGU à tout moment.
-                Les modifications prennent effet dès leur publication sur le site. L'utilisation continue du site
-                après modification vaut acceptation des nouvelles CGU.
-              </p>
-            </section>
-
-            <section>
-              <h2 className="font-serif text-xl text-foreground">10. Droit applicable et juridiction</h2>
-              <p>
-                Les présentes CGU sont régies par le droit français. En cas de litige, et après tentative de
-                résolution amiable, les tribunaux compétents seront ceux du ressort du siège social de l'association.
+                Les présentes conditions sont soumises au droit français. En cas de litige, et après tentative de résolution amiable, les tribunaux compétents seront ceux du ressort du Tribunal judiciaire de Marseille.
               </p>
             </section>
 
