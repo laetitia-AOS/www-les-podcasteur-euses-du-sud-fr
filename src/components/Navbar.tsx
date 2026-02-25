@@ -50,7 +50,7 @@ const Navbar = () => {
           onClick={() => handleClick("#hero")}
           className="flex items-center gap-2.5 font-serif text-lg transition-colors text-foreground"
         >
-          <img src={logoPds} alt="Les Podcasteur·euses du Sud" className="w-8 h-8 rounded-lg object-cover" />
+          <img src={logoPds} alt="Les Podcasteur·euses du Sud" className="w-9 h-9 rounded-xl object-cover shadow-sm" />
           <span className="hidden sm:inline font-bold">Les Podcasteur·euses du Sud</span>
         </button>
 
