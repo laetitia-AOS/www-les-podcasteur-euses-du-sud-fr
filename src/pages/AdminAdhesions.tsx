@@ -3,7 +3,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
-import { Users, ArrowLeft, LogOut, Loader2 } from "lucide-react";
+import { Users, ArrowLeft, LogOut, Loader2, Download } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useAdminAuth } from "@/hooks/useAdminAuth";
 import AddAdhesionDialog from "@/components/AddAdhesionDialog";
@@ -11,6 +11,29 @@ import AddAdhesionDialog from "@/components/AddAdhesionDialog";
 const AdminAdhesions = () => {
   const navigate = useNavigate();
   const { user, isAdmin, loading: authLoading, signOut } = useAdminAuth();
+
+  const exportCSV = () => {
+    if (!adhesions?.length) return;
+    const headers = ["Date", "Prénom", "Nom", "Email", "Téléphone", "Montant", "Type", "Statut"];
+    const rows = adhesions.map((a: any) => [
+      a.date_adhesion ? new Date(a.date_adhesion).toLocaleDateString("fr-FR") : new Date(a.created_at).toLocaleDateString("fr-FR"),
+      a.prenom || "",
+      a.nom || "",
+      a.email || "",
+      a.telephone || "",
+      a.montant ?? "",
+      a.type_adhesion || "",
+      a.statut,
+    ]);
+    const csv = [headers, ...rows].map(r => r.map(v => `"${String(v).replace(/"/g, '""')}"`).join(",")).join("\n");
+    const blob = new Blob(["\uFEFF" + csv], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = `adhesions_${new Date().toISOString().slice(0, 10)}.csv`;
+    link.click();
+    URL.revokeObjectURL(url);
+  };
 
   const { data: adhesions, isLoading } = useQuery({
     queryKey: ["adhesions"],
@@ -57,6 +80,9 @@ const AdminAdhesions = () => {
             </div>
           </div>
           <div className="flex items-center gap-2">
+            <Button variant="outline" size="sm" onClick={exportCSV} disabled={!adhesions?.length}>
+              <Download className="w-4 h-4 mr-2" /> Export CSV
+            </Button>
             <AddAdhesionDialog />
             <Button variant="outline" size="sm" onClick={signOut}>
               <LogOut className="w-4 h-4 mr-2" /> Déconnexion
