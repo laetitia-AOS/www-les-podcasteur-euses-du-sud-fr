@@ -2,9 +2,15 @@ import { useNavigate } from "react-router-dom";
 import { useAdminAuth } from "@/hooks/useAdminAuth";
 import { Button } from "@/components/ui/button";
 import { Card, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { Users, Mail, CalendarDays, ArrowLeft, LogOut, Loader2 } from "lucide-react";
+import { Users, Mail, CalendarDays, Mic, ArrowLeft, LogOut, Loader2 } from "lucide-react";
 
 const links = [
+  {
+    title: "Podcasts",
+    description: "Voir toutes les fiches, activer/désactiver la visibilité dans le flux.",
+    icon: Mic,
+    to: "/admin/podcasts",
+  },
   {
     title: "Adhésions",
     description: "Gérer les membres et exporter la liste des adhérents.",
