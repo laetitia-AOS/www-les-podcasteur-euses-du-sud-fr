@@ -14,6 +14,51 @@ export type Database = {
   }
   public: {
     Tables: {
+      adhesions: {
+        Row: {
+          created_at: string
+          date_adhesion: string | null
+          email: string | null
+          helloasso_order_id: string | null
+          id: string
+          montant: number | null
+          nom: string | null
+          prenom: string | null
+          raw_payload: Json | null
+          statut: string
+          telephone: string | null
+          type_adhesion: string | null
+        }
+        Insert: {
+          created_at?: string
+          date_adhesion?: string | null
+          email?: string | null
+          helloasso_order_id?: string | null
+          id?: string
+          montant?: number | null
+          nom?: string | null
+          prenom?: string | null
+          raw_payload?: Json | null
+          statut?: string
+          telephone?: string | null
+          type_adhesion?: string | null
+        }
+        Update: {
+          created_at?: string
+          date_adhesion?: string | null
+          email?: string | null
+          helloasso_order_id?: string | null
+          id?: string
+          montant?: number | null
+          nom?: string | null
+          prenom?: string | null
+          raw_payload?: Json | null
+          statut?: string
+          telephone?: string | null
+          type_adhesion?: string | null
+        }
+        Relationships: []
+      }
       contacts: {
         Row: {
           created_at: string
