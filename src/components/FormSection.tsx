@@ -290,6 +290,28 @@ const FormSection = () => {
               <span className="inline-block mt-4 text-xs font-semibold uppercase tracking-wider text-primary bg-primary/10 px-3 py-1 rounded-full">
                 Gratuit
               </span>
+
+              <div className="mt-8 bg-secondary/10 border border-secondary/20 rounded-2xl p-5 text-left max-w-lg mx-auto">
+                <div className="flex items-start gap-3">
+                  <Users className="w-5 h-5 text-secondary mt-0.5 shrink-0" />
+                  <div>
+                    <p className="text-sm font-semibold text-foreground mb-1">
+                      Apparaître sur le flux du site
+                    </p>
+                    <p className="text-sm text-muted-foreground leading-relaxed">
+                      Les podcasts des adhérent·es sont automatiquement mis en avant sur le flux.{" "}
+                      <a
+                        href="https://www.helloasso.com/associations/les-podcasteur-euses-du-sud/adhesions/rejoindre-les-podcasteureuses-du-sud"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-primary font-medium hover:underline"
+                      >
+                        Adhérer à l'association →
+                      </a>
+                    </p>
+                  </div>
+                </div>
+              </div>
             </motion.div>
 
             <motion.form
