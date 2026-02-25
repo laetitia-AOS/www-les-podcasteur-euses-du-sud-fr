@@ -12,6 +12,7 @@ import CGU from "./pages/CGU";
 import AdminAdhesions from "./pages/AdminAdhesions";
 import AdminEvenements from "./pages/AdminEvenements";
 import AdminLogin from "./pages/AdminLogin";
+import AdminContacts from "./pages/AdminContacts";
 import Evenements from "./pages/Evenements";
 import NotFound from "./pages/NotFound";
 
@@ -34,6 +35,7 @@ const App = () => (
           <Route path="/admin/login" element={<AdminLogin />} />
           <Route path="/admin/adhesions" element={<AdminAdhesions />} />
           <Route path="/admin/evenements" element={<AdminEvenements />} />
+          <Route path="/admin/contacts" element={<AdminContacts />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>
