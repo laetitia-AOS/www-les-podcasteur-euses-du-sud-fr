@@ -9,6 +9,7 @@ import Contact from "./pages/Contact";
 import MentionsLegales from "./pages/MentionsLegales";
 import PolitiqueConfidentialite from "./pages/PolitiqueConfidentialite";
 import CGU from "./pages/CGU";
+import PolitiqueCookies from "./pages/PolitiqueCookies";
 import AdminAdhesions from "./pages/AdminAdhesions";
 import AdminEvenements from "./pages/AdminEvenements";
 import AdminLogin from "./pages/AdminLogin";
@@ -37,6 +38,7 @@ const App = () => (
           <Route path="/mentions-legales" element={<MentionsLegales />} />
           <Route path="/politique-de-confidentialite" element={<PolitiqueConfidentialite />} />
           <Route path="/conditions-utilisation" element={<CGU />} />
+          <Route path="/politique-cookies" element={<PolitiqueCookies />} />
           <Route path="/evenements" element={<Evenements />} />
           <Route path="/adhesion" element={<Adhesion />} />
           <Route path="/admin" element={<AdminDashboard />} />

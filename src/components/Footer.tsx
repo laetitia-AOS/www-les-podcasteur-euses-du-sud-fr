@@ -38,6 +38,10 @@ const Footer = () => {
             <Link to="/conditions-utilisation" className="hover:text-foreground transition-colors">
               CGU
             </Link>
+            <span className="w-1 h-1 rounded-full bg-border hidden sm:block" />
+            <Link to="/politique-cookies" className="hover:text-foreground transition-colors">
+              Cookies
+            </Link>
           </div>
         </div>
       </div>
