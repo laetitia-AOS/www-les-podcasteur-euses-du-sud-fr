@@ -27,6 +27,7 @@ const DynamiqueSection = () => {
       const { data, error } = await supabase
         .from("podcasts")
         .select("id, nom_podcast, description, ville, thematique, lien_ecoute, vignette_url, created_at")
+        .eq("valide", true)
         .order("created_at", { ascending: false });
 
       if (!error && data) setPodcasts(data);
