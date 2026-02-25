@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { Switch } from "@/components/ui/switch";
-import { Mic, ArrowLeft, LogOut, Loader2, Download, Eye, EyeOff, ExternalLink } from "lucide-react";
+import { Mic, ArrowLeft, LogOut, Loader2, Download, Eye, EyeOff, ExternalLink, Trash2 } from "lucide-react";
 import { useNavigate, Navigate } from "react-router-dom";
 import { useAdminAuth } from "@/hooks/useAdminAuth";
 import { toast } from "sonner";
@@ -46,6 +46,23 @@ const AdminPodcasts = () => {
     onSuccess: (_, { valide }) => {
       queryClient.invalidateQueries({ queryKey: ["admin-podcasts"] });
       toast.success(valide ? "Podcast activé dans le flux" : "Podcast retiré du flux");
+    },
+    onError: (err: any) => {
+      toast.error("Erreur : " + (err.message || "Erreur inconnue"));
+    },
+  });
+
+  const deletePodcast = useMutation({
+    mutationFn: async (id: string) => {
+      const { error } = await supabase
+        .from("podcasts")
+        .delete()
+        .eq("id", id);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["admin-podcasts"] });
+      toast.success("Fiche podcast supprimée");
     },
     onError: (err: any) => {
       toast.error("Erreur : " + (err.message || "Erreur inconnue"));
@@ -217,14 +234,29 @@ const AdminPodcasts = () => {
                       </Badge>
                     </TableCell>
                     <TableCell>
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        onClick={() => setSelectedPodcast(p)}
-                        title="Voir le détail"
-                      >
-                        <Eye className="w-4 h-4" />
-                      </Button>
+                      <div className="flex items-center gap-1">
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          onClick={() => setSelectedPodcast(p)}
+                          title="Voir le détail"
+                        >
+                          <Eye className="w-4 h-4" />
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="text-destructive hover:text-destructive hover:bg-destructive/10"
+                          onClick={() => {
+                            if (window.confirm(`Supprimer la fiche "${p.nom_podcast}" ? Cette action est irréversible.`)) {
+                              deletePodcast.mutate(p.id);
+                            }
+                          }}
+                          title="Supprimer la fiche"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </Button>
+                      </div>
                     </TableCell>
                   </TableRow>
                 ))}
