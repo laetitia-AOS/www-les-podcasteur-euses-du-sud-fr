@@ -38,15 +38,13 @@ const CommunauteSection = () => {
                 Prendre contact
                 <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
               </button>
-              <a
-                href="https://www.helloasso.com/associations/les-podcasteur-euses-du-sud/adhesions/rejoindre-les-podcasteureuses-du-sud"
-                target="_blank"
-                rel="noopener noreferrer"
+              <button
+                onClick={() => navigate("/adhesion")}
                 className="group inline-flex items-center gap-3 bg-white/10 text-white border border-white/15 px-8 py-4 rounded-xl font-semibold hover:bg-white/15 transition-all duration-300 backdrop-blur-sm"
               >
                 <Users className="w-4 h-4" />
                 Adhérer à l'association
-              </a>
+              </button>
             </div>
           </div>
         </motion.div>
