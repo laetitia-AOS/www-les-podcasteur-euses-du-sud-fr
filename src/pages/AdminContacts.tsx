@@ -65,7 +65,7 @@ const AdminContacts = () => {
       <div className="container mx-auto px-6 py-10 max-w-6xl">
         <div className="flex items-center justify-between mb-8">
           <div className="flex items-center gap-3">
-            <Button variant="ghost" size="icon" onClick={() => navigate("/")}>
+            <Button variant="ghost" size="icon" onClick={() => navigate("/admin")}>
               <ArrowLeft className="w-5 h-5" />
             </Button>
             <div>
