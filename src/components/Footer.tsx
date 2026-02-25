@@ -19,6 +19,10 @@ const Footer = () => {
           </div>
 
           <div className="flex flex-wrap items-center gap-x-6 gap-y-2 text-sm text-muted-foreground">
+            <Link to="/evenements" className="hover:text-foreground transition-colors">
+              Événements
+            </Link>
+            <span className="w-1 h-1 rounded-full bg-border hidden sm:block" />
             <Link to="/contact" className="hover:text-foreground transition-colors">
               Contact
             </Link>
