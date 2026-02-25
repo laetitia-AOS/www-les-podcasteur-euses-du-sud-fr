@@ -1,4 +1,4 @@
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Navigate } from "react-router-dom";
 import { useAdminAuth } from "@/hooks/useAdminAuth";
 import { Button } from "@/components/ui/button";
 import { Card, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
@@ -44,8 +44,7 @@ const AdminDashboard = () => {
   }
 
   if (!user || !isAdmin) {
-    navigate("/admin/login");
-    return null;
+    return <Navigate to="/admin/login" replace />;
   }
 
   return (
