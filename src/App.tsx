@@ -15,6 +15,7 @@ import AdminLogin from "./pages/AdminLogin";
 import AdminContacts from "./pages/AdminContacts";
 import AdminDashboard from "./pages/AdminDashboard";
 import Evenements from "./pages/Evenements";
+import ResetPassword from "./pages/ResetPassword";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -38,6 +39,7 @@ const App = () => (
           <Route path="/admin/adhesions" element={<AdminAdhesions />} />
           <Route path="/admin/evenements" element={<AdminEvenements />} />
           <Route path="/admin/contacts" element={<AdminContacts />} />
+          <Route path="/reset-password" element={<ResetPassword />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>
