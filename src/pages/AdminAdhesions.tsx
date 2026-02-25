@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -73,6 +73,12 @@ const AdminAdhesions = () => {
     enabled: isAdmin,
   });
 
+  useEffect(() => {
+    if (!authLoading && (!user || !isAdmin)) {
+      navigate("/admin/login");
+    }
+  }, [user, isAdmin, authLoading, navigate]);
+
   if (authLoading) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
@@ -82,7 +88,6 @@ const AdminAdhesions = () => {
   }
 
   if (!user || !isAdmin) {
-    navigate("/admin/login");
     return null;
   }
 
