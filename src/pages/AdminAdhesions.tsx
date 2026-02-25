@@ -1,68 +1,40 @@
-import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
-import { Lock, Users, ArrowLeft } from "lucide-react";
+import { Users, ArrowLeft, LogOut, Loader2 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-
-const ADMIN_PASSWORD = "pds-admin-2025";
+import { useAdminAuth } from "@/hooks/useAdminAuth";
 
 const AdminAdhesions = () => {
-  const [password, setPassword] = useState("");
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [error, setError] = useState("");
   const navigate = useNavigate();
+  const { user, isAdmin, loading: authLoading, signOut } = useAdminAuth();
 
   const { data: adhesions, isLoading } = useQuery({
     queryKey: ["adhesions"],
     queryFn: async () => {
       const { data, error } = await supabase
-        .from("adhesions" as any)
+        .from("adhesions")
         .select("*")
         .order("created_at", { ascending: false });
       if (error) throw error;
-      return data as any[];
+      return data;
     },
-    enabled: isAuthenticated,
+    enabled: isAdmin,
   });
 
-  const handleLogin = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (password === ADMIN_PASSWORD) {
-      setIsAuthenticated(true);
-      setError("");
-    } else {
-      setError("Mot de passe incorrect");
-    }
-  };
-
-  if (!isAuthenticated) {
+  if (authLoading) {
     return (
-      <div className="min-h-screen bg-background flex items-center justify-center px-4">
-        <form onSubmit={handleLogin} className="w-full max-w-sm space-y-6">
-          <div className="text-center">
-            <div className="mx-auto w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center mb-4">
-              <Lock className="w-6 h-6 text-primary" />
-            </div>
-            <h1 className="font-serif text-2xl text-foreground">Espace admin</h1>
-            <p className="text-muted-foreground mt-1">Suivi des adhésions</p>
-          </div>
-          <div className="space-y-3">
-            <Input
-              type="password"
-              placeholder="Mot de passe"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-            />
-            {error && <p className="text-sm text-destructive">{error}</p>}
-            <Button type="submit" className="w-full">Accéder</Button>
-          </div>
-        </form>
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <Loader2 className="w-6 h-6 animate-spin text-primary" />
       </div>
     );
+  }
+
+  if (!user || !isAdmin) {
+    navigate("/admin/login");
+    return null;
   }
 
   return (
@@ -83,6 +55,9 @@ const AdminAdhesions = () => {
               </p>
             </div>
           </div>
+          <Button variant="outline" size="sm" onClick={signOut}>
+            <LogOut className="w-4 h-4 mr-2" /> Déconnexion
+          </Button>
         </div>
 
         {isLoading ? (
