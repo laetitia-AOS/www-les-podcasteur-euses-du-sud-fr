@@ -16,6 +16,8 @@ import AdminContacts from "./pages/AdminContacts";
 import AdminDashboard from "./pages/AdminDashboard";
 import Evenements from "./pages/Evenements";
 import ResetPassword from "./pages/ResetPassword";
+import PodcasteurLogin from "./pages/PodcasteurLogin";
+import MonPodcast from "./pages/MonPodcast";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -40,6 +42,8 @@ const App = () => (
           <Route path="/admin/evenements" element={<AdminEvenements />} />
           <Route path="/admin/contacts" element={<AdminContacts />} />
           <Route path="/reset-password" element={<ResetPassword />} />
+          <Route path="/espace-podcasteur" element={<PodcasteurLogin />} />
+          <Route path="/mon-podcast" element={<MonPodcast />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>
