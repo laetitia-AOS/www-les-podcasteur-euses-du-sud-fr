@@ -28,11 +28,24 @@ const Navbar = () => {
     if (href.startsWith("/")) {
       navigate(href);
     } else if (location.pathname !== "/") {
-      navigate("/" + href);
+      navigate("/", { state: { scrollTo: href } });
     } else {
       document.querySelector(href)?.scrollIntoView({ behavior: "smooth" });
     }
   };
+
+  // Handle scroll after navigating back to home
+  useEffect(() => {
+    if (location.pathname === "/" && location.state?.scrollTo) {
+      const target = location.state.scrollTo as string;
+      // Small delay to let the page render
+      setTimeout(() => {
+        document.querySelector(target)?.scrollIntoView({ behavior: "smooth" });
+      }, 300);
+      // Clear the state to avoid re-scrolling
+      window.history.replaceState({}, "");
+    }
+  }, [location.pathname, location.state]);
 
   return (
     <motion.nav
