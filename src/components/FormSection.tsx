@@ -44,6 +44,8 @@ const FormSection = () => {
     nomPodcast: "", lienEcoute: "", description: "",
     thematique: "", departementCode: "",
     typePodcast: "", niveauAvancement: "", frequencePublication: "", monetise: "",
+    typeProfil: "podcasteur", bio750: "", lienPrincipal: "",
+    metierPrincipal: "", services3: "", disponibilite: "",
   });
   const [selectedBesoins, setSelectedBesoins] = useState<string[]>([]);
   const [prioriteActuelle, setPrioriteActuelle] = useState("");
@@ -94,8 +96,16 @@ const FormSection = () => {
       toast.error("Veuillez remplir vos coordonnées.");
       return;
     }
-    if (!formData.nomPodcast || !formData.lienEcoute || !formData.description) {
+    if (!formData.bio750 || formData.bio750.length < 10) {
+      toast.error("Veuillez remplir votre présentation (min. 10 caractères).");
+      return;
+    }
+    if (formData.typeProfil === "podcasteur" && (!formData.nomPodcast || !formData.lienEcoute || !formData.description)) {
       toast.error("Veuillez remplir les informations de votre podcast.");
+      return;
+    }
+    if (formData.typeProfil === "pro_podcast" && !formData.metierPrincipal) {
+      toast.error("Veuillez sélectionner votre métier principal.");
       return;
     }
     try { new URL(formData.lienEcoute); } catch {
@@ -140,22 +150,23 @@ const FormSection = () => {
     }
 
     setUploading(true);
+    const services3Array = formData.services3 ? formData.services3.split(",").map(s => s.trim()).filter(Boolean).slice(0, 3) : [];
     const { error: dbError } = await supabase.from("podcasts").insert({
       prenom: formData.prenom,
       nom: formData.nom,
       email: formData.email,
       telephone: formData.telephone || null,
-      nom_podcast: formData.nomPodcast,
-      lien_ecoute: formData.lienEcoute,
-      description: formData.description,
+      nom_podcast: formData.nomPodcast || "—",
+      lien_ecoute: formData.lienEcoute || "https://les-podcasteur-euses-du-sud.fr",
+      description: formData.description || formData.bio750,
       vignette_url: vignetteUrl || null,
       thematique: formData.thematique || null,
-      department_code: formData.departementCode,
+      department_code: formData.departementCode || null,
       department_label: dept?.label || null,
-      city_name: selectedCity.city_name,
-      city_insee_code: selectedCity.city_insee_code,
-      city_postcode: selectedCity.city_postcode,
-      ville: `${selectedCity.city_name}, ${dept?.label || formData.departementCode}`,
+      city_name: selectedCity?.city_name || null,
+      city_insee_code: selectedCity?.city_insee_code || null,
+      city_postcode: selectedCity?.city_postcode || null,
+      ville: selectedCity ? `${selectedCity.city_name}, ${dept?.label || formData.departementCode}` : null,
       type_podcast: formData.typePodcast || null,
       niveau_avancement: formData.niveauAvancement || null,
       frequence_publication: formData.frequencePublication || null,
@@ -166,6 +177,12 @@ const FormSection = () => {
       consent_contact: consentContact,
       consent_mise_en_relation: consentMiseEnRelation,
       structure: null,
+      type_profil: formData.typeProfil,
+      bio_750: formData.bio750 || null,
+      lien_principal: formData.lienPrincipal || null,
+      metier_principal: formData.typeProfil === "pro_podcast" ? formData.metierPrincipal : null,
+      services_3: formData.typeProfil === "pro_podcast" ? services3Array : null,
+      disponibilite: formData.typeProfil === "pro_podcast" ? formData.disponibilite : null,
     } as any);
     setUploading(false);
 
@@ -281,11 +298,11 @@ const FormSection = () => {
                 <div className="h-px w-8 bg-primary/30" />
               </div>
               <h2 className="font-serif text-3xl sm:text-4xl md:text-5xl mb-5">
-                Référencer mon podcast
+                Rejoindre le collectif
               </h2>
               <p className="text-muted-foreground leading-relaxed max-w-lg mx-auto">
-                Votre podcast participe à la vitalité créative du territoire.
-                Intégrez la cartographie des voix audio de la Région Sud.
+                Podcasteur·euse, professionnel·le du podcast ou simplement curieux·se :
+                intégrez l'écosystème audio de la Région Sud.
               </p>
               <span className="inline-block mt-4 text-xs font-semibold uppercase tracking-wider text-primary bg-primary/10 px-3 py-1 rounded-full">
                 Gratuit
@@ -348,9 +365,81 @@ const FormSection = () => {
 
               <div className="h-px bg-border" />
 
-              {/* SECTION 2 — Podcast */}
+              {/* SECTION 1.5 — Type de profil */}
               <div className="space-y-5">
-                <SectionHeader number={2} title="Votre podcast" />
+                <SectionHeader number={2} title="Votre profil" />
+                <div>
+                  <label className={labelClass}>Je rejoins le collectif en tant que : <span className="text-primary">*</span></label>
+                  <select name="typeProfil" value={formData.typeProfil} onChange={handleChange} className={selectClass} required>
+                    <option value="podcasteur">Podcasteur·euse (j'ai un podcast)</option>
+                    <option value="pro_podcast">Pro / métier du podcast (je propose des compétences)</option>
+                    <option value="soutien">Soutien / curieux (je veux suivre et contribuer)</option>
+                  </select>
+                </div>
+                <div>
+                  <label className={labelClass}>Présentation (max 750 caractères) <span className="text-primary">*</span></label>
+                  <p className="text-xs text-muted-foreground mb-2">Présente-toi en 3–6 lignes : qui tu es, ton lien avec le podcast, ce que tu fais / proposes, et ce que tu cherches aujourd'hui.</p>
+                  <textarea
+                    name="bio750"
+                    value={formData.bio750}
+                    onChange={(e) => { if (e.target.value.length <= 750) handleChange(e); }}
+                    className={inputClass + " min-h-[120px] resize-y"}
+                    placeholder="Quelques mots sur vous…"
+                    required
+                  />
+                  <p className="text-xs text-muted-foreground mt-1 text-right">{formData.bio750.length}/750</p>
+                </div>
+                <div>
+                  <label className={labelClass}>Lien principal (site / LinkedIn / portfolio / Linktree) <span className="text-primary">*</span></label>
+                  <input name="lienPrincipal" value={formData.lienPrincipal} onChange={handleChange} className={inputClass} placeholder="https://..." />
+                </div>
+              </div>
+
+              {/* SECTION Pro — Métier (conditionnel) */}
+              {formData.typeProfil === "pro_podcast" && (
+                <>
+                  <div className="h-px bg-border" />
+                  <div className="space-y-5">
+                    <SectionHeader number={3} title="Votre métier" />
+                    <div>
+                      <label className={labelClass}>Métier principal <span className="text-primary">*</span></label>
+                      <select name="metierPrincipal" value={formData.metierPrincipal} onChange={handleChange} className={selectClass} required>
+                        <option value="">Sélectionner</option>
+                        <option value="Studio / enregistrement">Studio / enregistrement</option>
+                        <option value="Montage / mixage">Montage / mixage</option>
+                        <option value="Réalisation / production">Réalisation / production</option>
+                        <option value="Sound design / composition">Sound design / composition</option>
+                        <option value="Voix off">Voix off</option>
+                        <option value="Vidéo / teasers / motion">Vidéo / teasers / motion</option>
+                        <option value="Identité sonore / branding">Identité sonore / branding</option>
+                        <option value="Copywriting / éditorial">Copywriting / éditorial</option>
+                        <option value="Diffusion / marketing / RP">Diffusion / marketing / RP</option>
+                        <option value="Stratégie / monétisation">Stratégie / monétisation</option>
+                        <option value="Formation / coaching">Formation / coaching</option>
+                        <option value="Régie pub / partenariats">Régie pub / partenariats</option>
+                        <option value="Autre">Autre</option>
+                      </select>
+                    </div>
+                    <div>
+                      <label className={labelClass}>Services proposés (max 3) <span className="text-primary">*</span></label>
+                      <input name="services3" value={formData.services3} onChange={handleChange} className={inputClass} placeholder="Ex : Montage, Mixage, Sound design" />
+                      <p className="text-xs text-muted-foreground mt-1">Séparez les services par des virgules.</p>
+                    </div>
+                    <div>
+                      <label className={labelClass}>Disponibilité</label>
+                      <input name="disponibilite" value={formData.disponibilite} onChange={handleChange} className={inputClass} placeholder="Ex : Ouvert aux missions / collabs / bénévolat" />
+                    </div>
+                  </div>
+                </>
+              )}
+
+              <div className="h-px bg-border" />
+
+              {/* SECTION — Podcast (conditionnel pour podcasteurs) */}
+              {formData.typeProfil === "podcasteur" && (
+              <>
+              <div className="space-y-5">
+                <SectionHeader number={formData.typeProfil === "podcasteur" ? 3 : 4} title="Votre podcast" />
                 <div>
                   <label className={labelClass}>Nom du podcast <span className="text-primary">*</span></label>
                   <input name="nomPodcast" value={formData.nomPodcast} onChange={handleChange} className={inputClass} placeholder="Ex : Les Voix de la Canebière" required />
@@ -389,9 +478,9 @@ const FormSection = () => {
 
               <div className="h-px bg-border" />
 
-              {/* SECTION 3 — Ligne éditoriale */}
+              {/* SECTION — Ligne éditoriale (podcasteur only) */}
               <div className="space-y-5">
-                <SectionHeader number={3} title="Ligne éditoriale" />
+                <SectionHeader number={4} title="Ligne éditoriale" />
                 <div>
                   <label className={labelClass}>Thématique principale</label>
                   <select name="thematique" value={formData.thematique} onChange={handleChange} className={selectClass}>
@@ -403,30 +492,7 @@ const FormSection = () => {
 
               <div className="h-px bg-border" />
 
-              {/* SECTION 4 — Localisation */}
-              <div className="space-y-5">
-                <SectionHeader number={4} title="Localisation" />
-                <div>
-                  <label className={labelClass}>Département <span className="text-primary">*</span></label>
-                  <select name="departementCode" value={formData.departementCode} onChange={handleChange} className={selectClass} required>
-                    <option value="">Sélectionner un département</option>
-                    {departements.map((d) => <option key={d.code} value={d.code}>{d.label}</option>)}
-                  </select>
-                </div>
-                <CityAutocomplete
-                  departmentCode={formData.departementCode}
-                  value={selectedCity}
-                  onChange={(city) => { setSelectedCity(city); setCityError(""); }}
-                  inputClass={inputClass}
-                  labelClass={labelClass}
-                  required
-                  error={cityError}
-                />
-              </div>
-
-              <div className="h-px bg-border" />
-
-              {/* SECTION 5 — Profil du podcast */}
+              {/* SECTION — Profil du podcast */}
               <div className="space-y-5">
                 <SectionHeader number={5} title="Profil du podcast" />
                 <div>
@@ -445,7 +511,7 @@ const FormSection = () => {
 
               <div className="h-px bg-border" />
 
-              {/* SECTION 6 — Structuration du projet */}
+              {/* SECTION — Structuration */}
               <div className="space-y-5">
                 <SectionHeader number={6} title="Structuration du projet" />
                 <div className="grid sm:grid-cols-2 gap-4">
@@ -482,7 +548,7 @@ const FormSection = () => {
 
               <div className="h-px bg-border" />
 
-              {/* SECTION 7 — Besoins */}
+              {/* SECTION — Besoins */}
               <div className="space-y-5">
                 <SectionHeader number={7} title="Vos besoins" />
                 <BesoinsMultiSelect
@@ -494,7 +560,7 @@ const FormSection = () => {
 
               <div className="h-px bg-border" />
 
-              {/* SECTION 8 — Priorité actuelle */}
+              {/* SECTION — Priorité */}
               <div className="space-y-5">
                 <SectionHeader number={8} title="Priorité actuelle" />
                 <PrioriteSelect
@@ -502,6 +568,33 @@ const FormSection = () => {
                   onChange={setPrioriteActuelle}
                   labelClass="sr-only"
                 />
+              </div>
+              </>
+              )}
+
+              <div className="h-px bg-border" />
+
+              {/* Localisation (all profiles) */}
+              <div className="space-y-5">
+                <SectionHeader number={formData.typeProfil === "podcasteur" ? 4 : (formData.typeProfil === "pro_podcast" ? 4 : 3)} title="Localisation" />
+                <div>
+                  <label className={labelClass}>Département</label>
+                  <select name="departementCode" value={formData.departementCode} onChange={handleChange} className={selectClass}>
+                    <option value="">Sélectionner un département</option>
+                    {departements.map((d) => <option key={d.code} value={d.code}>{d.label}</option>)}
+                  </select>
+                </div>
+                {formData.departementCode && (
+                  <CityAutocomplete
+                    departmentCode={formData.departementCode}
+                    value={selectedCity}
+                    onChange={(city) => { setSelectedCity(city); setCityError(""); }}
+                    inputClass={inputClass}
+                    labelClass={labelClass}
+                    required={false}
+                    error={cityError}
+                  />
+                )}
               </div>
 
               <div className="h-px bg-border" />
@@ -540,7 +633,7 @@ const FormSection = () => {
                 disabled={uploading}
                 className="group w-full flex items-center justify-center gap-3 bg-primary text-primary-foreground py-4 rounded-xl text-base font-semibold hover:brightness-110 transition-all duration-300 shadow-md hover:shadow-lg mt-2 disabled:opacity-60 disabled:cursor-not-allowed"
               >
-                {uploading ? "Envoi en cours…" : "Référencer mon podcast"}
+                {uploading ? "Envoi en cours…" : "Rejoindre le collectif"}
                 {!uploading && <Send className="w-4 h-4 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />}
               </button>
             </motion.form>

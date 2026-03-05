@@ -22,6 +22,8 @@ import PodcasteurLogin from "./pages/PodcasteurLogin";
 import MonPodcast from "./pages/MonPodcast";
 import NotFound from "./pages/NotFound";
 import Adhesion from "./pages/Adhesion";
+import Annuaire from "./pages/Annuaire";
+import ProfilMembre from "./pages/ProfilMembre";
 
 const queryClient = new QueryClient();
 
@@ -41,6 +43,8 @@ const App = () => (
           <Route path="/politique-cookies" element={<PolitiqueCookies />} />
           <Route path="/evenements" element={<Evenements />} />
           <Route path="/adhesion" element={<Adhesion />} />
+          <Route path="/annuaire" element={<Annuaire />} />
+          <Route path="/profil/:id" element={<ProfilMembre />} />
           <Route path="/admin" element={<AdminDashboard />} />
           <Route path="/admin/login" element={<AdminLogin />} />
           <Route path="/admin/adhesions" element={<AdminAdhesions />} />

@@ -3,6 +3,8 @@ import { motion } from "framer-motion";
 import { Mic2, ArrowUpRight, MapPin, Loader2, ChevronDown } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 
+import { Link } from "react-router-dom";
+
 interface Podcast {
   id: string;
   nom_podcast: string;
@@ -12,6 +14,10 @@ interface Podcast {
   lien_ecoute: string;
   vignette_url: string | null;
   created_at: string;
+  prenom: string | null;
+  nom: string | null;
+  bio_750: string | null;
+  type_profil: string;
 }
 
 const INITIAL_COUNT = 6;
@@ -26,8 +32,9 @@ const DynamiqueSection = () => {
     const fetchPodcasts = async () => {
       const { data, error } = await supabase
         .from("podcasts")
-        .select("id, nom_podcast, description, ville, thematique, lien_ecoute, vignette_url, created_at")
+        .select("id, nom_podcast, description, ville, thematique, lien_ecoute, vignette_url, created_at, prenom, nom, bio_750, type_profil")
         .eq("valide", true)
+        .eq("type_profil", "podcasteur")
         .order("created_at", { ascending: false });
 
       if (!error && data) setPodcasts(data);
@@ -116,19 +123,35 @@ const DynamiqueSection = () => {
                       </div>
                     )}
 
-                    <p className="text-muted-foreground text-sm leading-relaxed line-clamp-2 flex-1 mb-4">
+                    <p className="text-muted-foreground text-sm leading-relaxed line-clamp-2 mb-2">
                       {p.description}
                     </p>
 
-                    <a
-                      href={p.lien_ecoute}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="inline-flex items-center gap-1.5 text-sm font-medium text-primary hover:text-primary/80 transition-colors"
-                    >
-                      Écouter le podcast
-                      <ArrowUpRight className="w-3.5 h-3.5 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
-                    </a>
+                    {(p.prenom || p.nom) && (
+                      <p className="text-xs text-muted-foreground mb-1">par {p.prenom} {p.nom}</p>
+                    )}
+
+                    {p.bio_750 && (
+                      <p className="text-xs text-muted-foreground/70 line-clamp-2 mb-3">{p.bio_750}</p>
+                    )}
+
+                    <div className="flex items-center gap-3 mt-auto">
+                      <a
+                        href={p.lien_ecoute}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center gap-1.5 text-sm font-medium text-primary hover:text-primary/80 transition-colors"
+                      >
+                        Écouter
+                        <ArrowUpRight className="w-3.5 h-3.5" />
+                      </a>
+                      <Link
+                        to={`/profil/${p.id}`}
+                        className="inline-flex items-center gap-1 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
+                      >
+                        Voir le profil
+                      </Link>
+                    </div>
                   </div>
                 </motion.article>
               ))}
