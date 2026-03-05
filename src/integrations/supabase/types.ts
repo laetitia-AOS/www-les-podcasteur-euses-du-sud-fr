@@ -144,6 +144,7 @@ export type Database = {
         Row: {
           besoin: string | null
           besoins_podcast: string[] | null
+          bio_750: string | null
           city_insee_code: string | null
           city_name: string | null
           city_postcode: string | null
@@ -153,10 +154,13 @@ export type Database = {
           department_code: string | null
           department_label: string | null
           description: string
+          disponibilite: string | null
           email: string
           frequence_publication: string | null
           id: string
           lien_ecoute: string
+          lien_principal: string | null
+          metier_principal: string | null
           monetise: string | null
           niveau_avancement: string | null
           nom: string | null
@@ -168,10 +172,12 @@ export type Database = {
           score_global: number
           score_opportunite: number
           segment_pds: string
+          services_3: string[] | null
           structure: string | null
           telephone: string | null
           thematique: string | null
           type_podcast: string | null
+          type_profil: string
           valide: boolean
           vignette_url: string | null
           ville: string | null
@@ -179,6 +185,7 @@ export type Database = {
         Insert: {
           besoin?: string | null
           besoins_podcast?: string[] | null
+          bio_750?: string | null
           city_insee_code?: string | null
           city_name?: string | null
           city_postcode?: string | null
@@ -188,10 +195,13 @@ export type Database = {
           department_code?: string | null
           department_label?: string | null
           description: string
+          disponibilite?: string | null
           email: string
           frequence_publication?: string | null
           id?: string
           lien_ecoute: string
+          lien_principal?: string | null
+          metier_principal?: string | null
           monetise?: string | null
           niveau_avancement?: string | null
           nom?: string | null
@@ -203,10 +213,12 @@ export type Database = {
           score_global?: number
           score_opportunite?: number
           segment_pds?: string
+          services_3?: string[] | null
           structure?: string | null
           telephone?: string | null
           thematique?: string | null
           type_podcast?: string | null
+          type_profil?: string
           valide?: boolean
           vignette_url?: string | null
           ville?: string | null
@@ -214,6 +226,7 @@ export type Database = {
         Update: {
           besoin?: string | null
           besoins_podcast?: string[] | null
+          bio_750?: string | null
           city_insee_code?: string | null
           city_name?: string | null
           city_postcode?: string | null
@@ -223,10 +236,13 @@ export type Database = {
           department_code?: string | null
           department_label?: string | null
           description?: string
+          disponibilite?: string | null
           email?: string
           frequence_publication?: string | null
           id?: string
           lien_ecoute?: string
+          lien_principal?: string | null
+          metier_principal?: string | null
           monetise?: string | null
           niveau_avancement?: string | null
           nom?: string | null
@@ -238,10 +254,12 @@ export type Database = {
           score_global?: number
           score_opportunite?: number
           segment_pds?: string
+          services_3?: string[] | null
           structure?: string | null
           telephone?: string | null
           thematique?: string | null
           type_podcast?: string | null
+          type_profil?: string
           valide?: boolean
           vignette_url?: string | null
           ville?: string | null
