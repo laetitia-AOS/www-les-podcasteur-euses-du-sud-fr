@@ -1,11 +1,11 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
-import { CalendarDays, ArrowLeft, Plus, Pencil, Trash2, X, LogOut, Loader2, Download } from "lucide-react";
+import { CalendarDays, ArrowLeft, Plus, Pencil, Trash2, X, LogOut, Loader2, Download, Image, Users } from "lucide-react";
 import { useNavigate, Navigate } from "react-router-dom";
 import { toast } from "sonner";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -13,6 +13,7 @@ import { useAdminAuth } from "@/hooks/useAdminAuth";
 
 type EventForm = {
   titre: string;
+  sous_titre: string;
   description: string;
   date_debut: string;
   date_fin: string;
@@ -21,17 +22,22 @@ type EventForm = {
   type: string;
   lien_externe: string;
   publie: boolean;
+  image_url: string;
+  places: string;
 };
 
 const emptyForm: EventForm = {
-  titre: "", description: "", date_debut: "", date_fin: "",
+  titre: "", sous_titre: "", description: "", date_debut: "", date_fin: "",
   lieu: "", adresse: "", type: "rencontre", lien_externe: "", publie: true,
+  image_url: "", places: "",
 };
 
 const AdminEvenements = () => {
   const [showForm, setShowForm] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [form, setForm] = useState<EventForm>(emptyForm);
+  const [uploading, setUploading] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const { user, isAdmin, loading: authLoading, signOut } = useAdminAuth();
@@ -51,6 +57,7 @@ const AdminEvenements = () => {
     mutationFn: async (values: EventForm) => {
       const payload = {
         titre: values.titre,
+        sous_titre: values.sous_titre || null,
         description: values.description || null,
         date_debut: new Date(values.date_debut).toISOString(),
         date_fin: values.date_fin ? new Date(values.date_fin).toISOString() : null,
@@ -59,6 +66,8 @@ const AdminEvenements = () => {
         type: values.type,
         lien_externe: values.lien_externe || null,
         publie: values.publie,
+        image_url: values.image_url || null,
+        places: values.places ? parseInt(values.places) : null,
       };
       if (editingId) {
         const { error } = await supabase.from("evenements").update(payload).eq("id", editingId);
@@ -97,14 +106,33 @@ const AdminEvenements = () => {
 
   const startEdit = (evt: any) => {
     setForm({
-      titre: evt.titre, description: evt.description || "",
+      titre: evt.titre, sous_titre: evt.sous_titre || "",
+      description: evt.description || "",
       date_debut: evt.date_debut ? toLocalDatetime(evt.date_debut) : "",
       date_fin: evt.date_fin ? toLocalDatetime(evt.date_fin) : "",
       lieu: evt.lieu || "", adresse: evt.adresse || "",
-      type: evt.type || "rencontre", lien_externe: evt.lien_externe || "", publie: evt.publie,
+      type: evt.type || "rencontre", lien_externe: evt.lien_externe || "",
+      publie: evt.publie, image_url: evt.image_url || "",
+      places: evt.places ? String(evt.places) : "",
     });
     setEditingId(evt.id);
     setShowForm(true);
+  };
+
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    if (!file.type.startsWith("image/")) { toast.error("Sélectionnez une image."); return; }
+    if (file.size > 5 * 1024 * 1024) { toast.error("Max 5 Mo."); return; }
+    setUploading(true);
+    const ext = file.name.split(".").pop();
+    const fileName = `${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`;
+    const { error } = await supabase.storage.from("event-images").upload(fileName, file, { contentType: file.type });
+    if (error) { toast.error("Erreur upload : " + error.message); setUploading(false); return; }
+    const { data: urlData } = supabase.storage.from("event-images").getPublicUrl(fileName);
+    setForm((prev) => ({ ...prev, image_url: urlData.publicUrl }));
+    setUploading(false);
+    toast.success("Image uploadée !");
   };
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -115,12 +143,12 @@ const AdminEvenements = () => {
 
   const exportCSV = () => {
     if (!evenements?.length) return;
-    const headers = ["Titre", "Date début", "Date fin", "Lieu", "Adresse", "Type", "Lien externe", "Publié", "Description"];
+    const headers = ["Titre", "Sous-titre", "Date début", "Date fin", "Lieu", "Adresse", "Type", "Places", "Lien externe", "Publié", "Description"];
     const rows = evenements.map((e: any) => [
-      e.titre,
+      e.titre, e.sous_titre || "",
       new Date(e.date_debut).toLocaleString("fr-FR"),
       e.date_fin ? new Date(e.date_fin).toLocaleString("fr-FR") : "",
-      e.lieu || "", e.adresse || "", e.type, e.lien_externe || "",
+      e.lieu || "", e.adresse || "", e.type, e.places ?? "", e.lien_externe || "",
       e.publie ? "Oui" : "Non", e.description || "",
     ]);
     const csv = [headers, ...rows].map(r => r.map(v => `"${String(v).replace(/"/g, '""')}"`).join(",")).join("\n");
@@ -188,9 +216,42 @@ const AdminEvenements = () => {
                 <Input value={form.titre} onChange={(e) => setForm({ ...form, titre: e.target.value })} placeholder="Session d'écoute #3" />
               </div>
               <div className="md:col-span-2">
+                <label className="text-sm font-medium text-foreground mb-1 block">Sous-titre</label>
+                <Input value={form.sous_titre} onChange={(e) => setForm({ ...form, sous_titre: e.target.value })} placeholder="Soirée spéciale podcasts narratifs" />
+              </div>
+              <div className="md:col-span-2">
                 <label className="text-sm font-medium text-foreground mb-1 block">Description</label>
                 <Textarea value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} rows={3} />
               </div>
+
+              {/* Image upload */}
+              <div className="md:col-span-2">
+                <label className="text-sm font-medium text-foreground mb-1 block">Image de couverture</label>
+                <div className="flex items-start gap-4">
+                  {form.image_url ? (
+                    <div className="relative">
+                      <img src={form.image_url} alt="Couverture" className="w-40 h-24 rounded-xl object-cover border border-border" />
+                      <button type="button" onClick={() => setForm((prev) => ({ ...prev, image_url: "" }))}
+                        className="absolute -top-2 -right-2 w-6 h-6 bg-destructive text-destructive-foreground rounded-full flex items-center justify-center">
+                        <X className="w-3 h-3" />
+                      </button>
+                    </div>
+                  ) : (
+                    <div className="w-40 h-24 rounded-xl border-2 border-dashed border-border flex items-center justify-center">
+                      <Image className="w-6 h-6 text-muted-foreground" />
+                    </div>
+                  )}
+                  <div className="pt-2">
+                    <input ref={fileInputRef} type="file" accept="image/jpeg,image/png,image/webp" onChange={handleImageUpload} className="hidden" />
+                    <Button type="button" variant="outline" size="sm" onClick={() => fileInputRef.current?.click()} disabled={uploading}>
+                      {uploading ? <Loader2 className="w-4 h-4 animate-spin mr-1.5" /> : <Image className="w-4 h-4 mr-1.5" />}
+                      {uploading ? "Envoi…" : form.image_url ? "Changer" : "Ajouter une image"}
+                    </Button>
+                    <p className="text-xs text-muted-foreground mt-1">JPG, PNG ou WebP. Max 5 Mo.</p>
+                  </div>
+                </div>
+              </div>
+
               <div>
                 <label className="text-sm font-medium text-foreground mb-1 block">Début *</label>
                 <Input type="datetime-local" value={form.date_debut} onChange={(e) => setForm({ ...form, date_debut: e.target.value })} />
@@ -218,6 +279,10 @@ const AdminEvenements = () => {
                     <SelectItem value="partenaire">Partenaire</SelectItem>
                   </SelectContent>
                 </Select>
+              </div>
+              <div>
+                <label className="text-sm font-medium text-foreground mb-1 block">Nombre de places</label>
+                <Input type="number" min="0" value={form.places} onChange={(e) => setForm({ ...form, places: e.target.value })} placeholder="Illimité si vide" />
               </div>
               <div>
                 <label className="text-sm font-medium text-foreground mb-1 block">Lien externe</label>
@@ -248,17 +313,23 @@ const AdminEvenements = () => {
           <div className="space-y-3">
             {evenements.map((evt: any) => (
               <div key={evt.id} className="flex items-center gap-4 bg-card border border-border rounded-xl p-4">
-                <div className="shrink-0 w-14 h-14 bg-primary/10 rounded-xl flex flex-col items-center justify-center">
-                  <span className="text-lg font-bold text-primary leading-none">{new Date(evt.date_debut).getDate()}</span>
-                  <span className="text-[10px] uppercase text-primary/70">{new Date(evt.date_debut).toLocaleDateString("fr-FR", { month: "short" })}</span>
-                </div>
+                {evt.image_url ? (
+                  <img src={evt.image_url} alt="" className="shrink-0 w-16 h-16 rounded-xl object-cover" />
+                ) : (
+                  <div className="shrink-0 w-16 h-16 bg-primary/10 rounded-xl flex flex-col items-center justify-center">
+                    <span className="text-lg font-bold text-primary leading-none">{new Date(evt.date_debut).getDate()}</span>
+                    <span className="text-[10px] uppercase text-primary/70">{new Date(evt.date_debut).toLocaleDateString("fr-FR", { month: "short" })}</span>
+                  </div>
+                )}
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2">
                     <p className="font-medium text-foreground truncate">{evt.titre}</p>
                     {!evt.publie && <Badge variant="outline" className="text-xs">Brouillon</Badge>}
                   </div>
+                  {evt.sous_titre && <p className="text-xs text-muted-foreground">{evt.sous_titre}</p>}
                   <p className="text-xs text-muted-foreground">
                     {evt.lieu && `${evt.lieu} · `}{new Date(evt.date_debut).toLocaleDateString("fr-FR")}
+                    {evt.places && ` · ${evt.places} places`}
                   </p>
                 </div>
                 <div className="flex gap-1 shrink-0">
