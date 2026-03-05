@@ -16,7 +16,7 @@ const Adhesion = () => {
           <iframe
             id="haWidget"
             allowTransparency={true}
-            src="https://www.helloasso.com/associations/les-podcasteur-euses-du-sud/adhesions/adherer-a-l-association/widget"
+            src="https://www.helloasso.com/associations/les-podcasteur-euses-du-sud/adhesions/adherer-a-l-association/widget?redirectUrl=https://www-les-podcasteur-euses-du-sud-fr.lovable.app/bienvenue"
             style={{ width: "100%", border: "none", minHeight: 800 }}
             title="Formulaire d'adhésion HelloAsso"
           />
