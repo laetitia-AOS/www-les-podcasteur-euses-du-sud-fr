@@ -45,6 +45,22 @@ const thematiques = [
   "Autre",
 ];
 
+const normalize = (str: string) =>
+  str.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
+
+const fuzzyMatch = (haystack: string, needle: string) => {
+  const h = normalize(haystack);
+  const n = normalize(needle);
+  if (h.includes(n)) return true;
+  if (n.length >= 4) {
+    for (let i = 0; i < n.length; i++) {
+      const partial = n.slice(0, i) + n.slice(i + 1);
+      if (h.includes(partial)) return true;
+    }
+  }
+  return false;
+};
+
 const profilBadge = (type: string) => {
   switch (type) {
     case "pro_podcast":
@@ -103,9 +119,13 @@ const Annuaire = () => {
       if (filterMetier && p.metier_principal !== filterMetier) return false;
       if (filterThematique && p.thematique !== filterThematique) return false;
       if (searchQuery) {
-        const q = searchQuery.toLowerCase();
-        const searchable = [p.prenom, p.nom, p.nom_podcast, p.bio_750, p.metier_principal, p.city_name].filter(Boolean).join(" ").toLowerCase();
-        if (!searchable.includes(q)) return false;
+        const q = searchQuery.trim();
+        const searchable = [
+          p.prenom, p.nom, p.nom_podcast, p.bio_750, p.metier_principal,
+          p.city_name, p.department_label, p.department_code,
+          p.thematique, ...(p.services_3 || [])
+        ].filter(Boolean).join(" ");
+        if (!fuzzyMatch(searchable, q)) return false;
       }
       return true;
     });
@@ -163,7 +183,7 @@ const Annuaire = () => {
             </div>
             <div className="flex flex-wrap gap-3">
               <select value={filterType} onChange={(e) => { setFilterType(e.target.value); setFilterMetier(""); setFilterThematique(""); }} className={selectClass}>
-                <option value="">Tous les profils</option>
+                <option value="">Tous les métiers</option>
                 <option value="podcasteur">Podcasteurs</option>
                 <option value="pro_podcast">Pros du podcast</option>
                 <option value="soutien">Soutiens</option>
