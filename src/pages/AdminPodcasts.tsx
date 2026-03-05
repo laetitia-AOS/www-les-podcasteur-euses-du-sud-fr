@@ -72,19 +72,22 @@ const AdminPodcasts = () => {
   const exportCSV = () => {
     if (!podcasts?.length) return;
     const headers = [
-      "Date", "Nom podcast", "Prénom", "Nom", "Email", "Téléphone",
+      "Date", "Type profil", "Nom podcast", "Prénom", "Nom", "Email", "Téléphone",
       "Thématique", "Type", "Ville", "Département", "Lien écoute",
       "Fréquence", "Niveau", "Priorité", "Besoins", "Monétisé",
+      "Bio", "Lien principal", "Métier principal", "Services", "Disponibilité",
       "Score fiche", "Score dynamique", "Score opportunité", "Score global", "Segment",
       "Consent contact", "Consent mise en relation", "Validé",
     ];
     const rows = podcasts.map((p) => [
       new Date(p.created_at).toLocaleDateString("fr-FR"),
-      p.nom_podcast, p.prenom || "", p.nom || "", p.email, p.telephone || "",
+      p.type_profil, p.nom_podcast, p.prenom || "", p.nom || "", p.email, p.telephone || "",
       p.thematique || "", p.type_podcast || "", p.city_name || p.ville || "",
       p.department_label || "", p.lien_ecoute, p.frequence_publication || "",
       p.niveau_avancement || "", p.priorite_actuelle || "",
       (p.besoins_podcast || []).join(", "), p.monetise || "",
+      p.bio_750 || "", p.lien_principal || "", p.metier_principal || "",
+      (p.services_3 || []).join(", "), p.disponibilite || "",
       p.score_fiche, p.score_dynamique, p.score_opportunite, p.score_global, p.segment_pds,
       p.consent_contact ? "Oui" : "Non", p.consent_mise_en_relation ? "Oui" : "Non",
       p.valide ? "Oui" : "Non",
@@ -156,10 +159,11 @@ const AdminPodcasts = () => {
                 <TableRow>
                   <TableHead className="w-[70px]">Visible</TableHead>
                   <TableHead>Date</TableHead>
-                  <TableHead>Podcast</TableHead>
-                  <TableHead>Contact</TableHead>
-                  <TableHead>Ville</TableHead>
-                  <TableHead>Thématique</TableHead>
+                   <TableHead>Profil</TableHead>
+                    <TableHead>Podcast / Titre</TableHead>
+                    <TableHead>Contact</TableHead>
+                    <TableHead>Ville</TableHead>
+                    <TableHead>Thématique</TableHead>
                   <TableHead>Besoins</TableHead>
                   <TableHead>Score</TableHead>
                   <TableHead>Segment</TableHead>
@@ -179,6 +183,11 @@ const AdminPodcasts = () => {
                     </TableCell>
                     <TableCell className="text-sm whitespace-nowrap">
                       {new Date(p.created_at).toLocaleDateString("fr-FR")}
+                    </TableCell>
+                    <TableCell>
+                      <Badge variant="outline" className="text-xs whitespace-nowrap">
+                        {p.type_profil === "podcasteur" ? "Podcasteur·euse" : p.type_profil === "pro_podcast" ? "Pro" : "Soutien"}
+                      </Badge>
                     </TableCell>
                     <TableCell>
                       <div className="flex items-center gap-2">
@@ -280,6 +289,10 @@ const AdminPodcasts = () => {
                 </DialogTitle>
               </DialogHeader>
               <div className="grid grid-cols-2 gap-4 text-sm mt-4">
+                <DetailRow label="Type de profil" value={
+                  selectedPodcast.type_profil === "podcasteur" ? "Podcasteur·euse" :
+                  selectedPodcast.type_profil === "pro_podcast" ? "Professionnel·le" : "Soutien"
+                } />
                 <DetailRow label="Prénom" value={selectedPodcast.prenom} />
                 <DetailRow label="Nom" value={selectedPodcast.nom} />
                 <DetailRow label="Email" value={selectedPodcast.email} />
@@ -294,6 +307,13 @@ const AdminPodcasts = () => {
                 <DetailRow label="Niveau" value={selectedPodcast.niveau_avancement} />
                 <DetailRow label="Monétisé" value={selectedPodcast.monetise} />
                 <DetailRow label="Priorité" value={selectedPodcast.priorite_actuelle} />
+                <DetailRow label="Métier principal" value={selectedPodcast.metier_principal} />
+                <DetailRow label="Disponibilité" value={selectedPodcast.disponibilite} />
+                <div className="col-span-2">
+                  <DetailRow label="Services proposés" value={
+                    selectedPodcast.services_3?.length ? selectedPodcast.services_3.join(", ") : null
+                  } />
+                </div>
                 <div className="col-span-2">
                   <DetailRow
                     label="Besoins"
@@ -305,6 +325,9 @@ const AdminPodcasts = () => {
                   />
                 </div>
                 <div className="col-span-2">
+                  <DetailRow label="Bio" value={selectedPodcast.bio_750} />
+                </div>
+                <div className="col-span-2">
                   <DetailRow label="Description" value={selectedPodcast.description} />
                 </div>
                 <div className="col-span-2">
@@ -313,6 +336,14 @@ const AdminPodcasts = () => {
                     {selectedPodcast.lien_ecoute} <ExternalLink className="w-3 h-3" />
                   </a>
                 </div>
+                {selectedPodcast.lien_principal && (
+                  <div className="col-span-2">
+                    <p className="text-muted-foreground mb-1">Lien principal</p>
+                    <a href={selectedPodcast.lien_principal} target="_blank" rel="noopener noreferrer" className="text-primary hover:underline flex items-center gap-1">
+                      {selectedPodcast.lien_principal} <ExternalLink className="w-3 h-3" />
+                    </a>
+                  </div>
+                )}
                 <DetailRow label="Score fiche" value={`${selectedPodcast.score_fiche}/10`} />
                 <DetailRow label="Score dynamique" value={`${selectedPodcast.score_dynamique}/10`} />
                 <DetailRow label="Score opportunité" value={`${selectedPodcast.score_opportunite}/10`} />
