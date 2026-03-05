@@ -31,4 +31,4 @@ Allow: /
 User-agent: *
 Allow: /
 
-Sitemap: https://les-podcasteur-euses-du-sud.fr/sitemap.xml
+Sitemap: https://www.les-podcasteur-euses-du-sud.fr/sitemap.xml
