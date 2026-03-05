@@ -5,7 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
-import { CalendarDays, ArrowLeft, Plus, Pencil, Trash2, X, LogOut, Loader2 } from "lucide-react";
+import { CalendarDays, ArrowLeft, Plus, Pencil, Trash2, X, LogOut, Loader2, Download } from "lucide-react";
 import { useNavigate, Navigate } from "react-router-dom";
 import { toast } from "sonner";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -24,15 +24,8 @@ type EventForm = {
 };
 
 const emptyForm: EventForm = {
-  titre: "",
-  description: "",
-  date_debut: "",
-  date_fin: "",
-  lieu: "",
-  adresse: "",
-  type: "rencontre",
-  lien_externe: "",
-  publie: true,
+  titre: "", description: "", date_debut: "", date_fin: "",
+  lieu: "", adresse: "", type: "rencontre", lien_externe: "", publie: true,
 };
 
 const AdminEvenements = () => {
@@ -47,9 +40,7 @@ const AdminEvenements = () => {
     queryKey: ["admin-evenements"],
     queryFn: async () => {
       const { data, error } = await supabase
-        .from("evenements")
-        .select("*")
-        .order("date_debut", { ascending: false });
+        .from("evenements").select("*").order("date_debut", { ascending: false });
       if (error) throw error;
       return data;
     },
@@ -69,17 +60,11 @@ const AdminEvenements = () => {
         lien_externe: values.lien_externe || null,
         publie: values.publie,
       };
-
       if (editingId) {
-        const { error } = await supabase
-          .from("evenements")
-          .update(payload)
-          .eq("id", editingId);
+        const { error } = await supabase.from("evenements").update(payload).eq("id", editingId);
         if (error) throw error;
       } else {
-        const { error } = await supabase
-          .from("evenements")
-          .insert(payload);
+        const { error } = await supabase.from("evenements").insert(payload);
         if (error) throw error;
       }
     },
@@ -102,11 +87,7 @@ const AdminEvenements = () => {
     },
   });
 
-  const resetForm = () => {
-    setForm(emptyForm);
-    setEditingId(null);
-    setShowForm(false);
-  };
+  const resetForm = () => { setForm(emptyForm); setEditingId(null); setShowForm(false); };
 
   const toLocalDatetime = (iso: string) => {
     const d = new Date(iso);
@@ -116,15 +97,11 @@ const AdminEvenements = () => {
 
   const startEdit = (evt: any) => {
     setForm({
-      titre: evt.titre,
-      description: evt.description || "",
+      titre: evt.titre, description: evt.description || "",
       date_debut: evt.date_debut ? toLocalDatetime(evt.date_debut) : "",
       date_fin: evt.date_fin ? toLocalDatetime(evt.date_fin) : "",
-      lieu: evt.lieu || "",
-      adresse: evt.adresse || "",
-      type: evt.type || "rencontre",
-      lien_externe: evt.lien_externe || "",
-      publie: evt.publie,
+      lieu: evt.lieu || "", adresse: evt.adresse || "",
+      type: evt.type || "rencontre", lien_externe: evt.lien_externe || "", publie: evt.publie,
     });
     setEditingId(evt.id);
     setShowForm(true);
@@ -132,11 +109,28 @@ const AdminEvenements = () => {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!form.titre || !form.date_debut) {
-      toast.error("Titre et date de début obligatoires");
-      return;
-    }
+    if (!form.titre || !form.date_debut) { toast.error("Titre et date de début obligatoires"); return; }
     saveMutation.mutate(form);
+  };
+
+  const exportCSV = () => {
+    if (!evenements?.length) return;
+    const headers = ["Titre", "Date début", "Date fin", "Lieu", "Adresse", "Type", "Lien externe", "Publié", "Description"];
+    const rows = evenements.map((e: any) => [
+      e.titre,
+      new Date(e.date_debut).toLocaleString("fr-FR"),
+      e.date_fin ? new Date(e.date_fin).toLocaleString("fr-FR") : "",
+      e.lieu || "", e.adresse || "", e.type, e.lien_externe || "",
+      e.publie ? "Oui" : "Non", e.description || "",
+    ]);
+    const csv = [headers, ...rows].map(r => r.map(v => `"${String(v).replace(/"/g, '""')}"`).join(",")).join("\n");
+    const blob = new Blob(["\uFEFF" + csv], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = `evenements_${new Date().toISOString().slice(0, 10)}.csv`;
+    link.click();
+    URL.revokeObjectURL(url);
   };
 
   if (authLoading) {
@@ -170,6 +164,9 @@ const AdminEvenements = () => {
             </div>
           </div>
           <div className="flex gap-2">
+            <Button variant="outline" size="sm" onClick={exportCSV} disabled={!evenements?.length}>
+              <Download className="w-4 h-4 mr-2" /> Export CSV
+            </Button>
             <Button onClick={() => { resetForm(); setShowForm(true); }}>
               <Plus className="w-4 h-4 mr-2" /> Ajouter
             </Button>
@@ -179,16 +176,11 @@ const AdminEvenements = () => {
           </div>
         </div>
 
-        {/* Form */}
         {showForm && (
           <form onSubmit={handleSubmit} className="bg-card border border-border rounded-2xl p-6 mb-8 space-y-4">
             <div className="flex items-center justify-between mb-2">
-              <h2 className="font-serif text-xl text-foreground">
-                {editingId ? "Modifier" : "Nouvel événement"}
-              </h2>
-              <Button type="button" variant="ghost" size="icon" onClick={resetForm}>
-                <X className="w-4 h-4" />
-              </Button>
+              <h2 className="font-serif text-xl text-foreground">{editingId ? "Modifier" : "Nouvel événement"}</h2>
+              <Button type="button" variant="ghost" size="icon" onClick={resetForm}><X className="w-4 h-4" /></Button>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="md:col-span-2">
@@ -197,7 +189,7 @@ const AdminEvenements = () => {
               </div>
               <div className="md:col-span-2">
                 <label className="text-sm font-medium text-foreground mb-1 block">Description</label>
-                <Textarea value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} placeholder="3 ou 4 volontaires viennent soumettre une écoute…" rows={3} />
+                <Textarea value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} rows={3} />
               </div>
               <div>
                 <label className="text-sm font-medium text-foreground mb-1 block">Début *</label>
@@ -232,13 +224,7 @@ const AdminEvenements = () => {
                 <Input value={form.lien_externe} onChange={(e) => setForm({ ...form, lien_externe: e.target.value })} placeholder="https://…" />
               </div>
               <div className="flex items-center gap-2 md:col-span-2">
-                <input
-                  type="checkbox"
-                  checked={form.publie}
-                  onChange={(e) => setForm({ ...form, publie: e.target.checked })}
-                  className="rounded border-border"
-                  id="publie"
-                />
+                <input type="checkbox" checked={form.publie} onChange={(e) => setForm({ ...form, publie: e.target.checked })} className="rounded border-border" id="publie" />
                 <label htmlFor="publie" className="text-sm text-foreground">Publié (visible sur le site)</label>
               </div>
             </div>
@@ -251,7 +237,6 @@ const AdminEvenements = () => {
           </form>
         )}
 
-        {/* List */}
         {isLoading ? (
           <p className="text-muted-foreground">Chargement…</p>
         ) : !evenements?.length ? (
@@ -262,17 +247,10 @@ const AdminEvenements = () => {
         ) : (
           <div className="space-y-3">
             {evenements.map((evt: any) => (
-              <div
-                key={evt.id}
-                className="flex items-center gap-4 bg-card border border-border rounded-xl p-4"
-              >
+              <div key={evt.id} className="flex items-center gap-4 bg-card border border-border rounded-xl p-4">
                 <div className="shrink-0 w-14 h-14 bg-primary/10 rounded-xl flex flex-col items-center justify-center">
-                  <span className="text-lg font-bold text-primary leading-none">
-                    {new Date(evt.date_debut).getDate()}
-                  </span>
-                  <span className="text-[10px] uppercase text-primary/70">
-                    {new Date(evt.date_debut).toLocaleDateString("fr-FR", { month: "short" })}
-                  </span>
+                  <span className="text-lg font-bold text-primary leading-none">{new Date(evt.date_debut).getDate()}</span>
+                  <span className="text-[10px] uppercase text-primary/70">{new Date(evt.date_debut).toLocaleDateString("fr-FR", { month: "short" })}</span>
                 </div>
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2">
@@ -280,21 +258,12 @@ const AdminEvenements = () => {
                     {!evt.publie && <Badge variant="outline" className="text-xs">Brouillon</Badge>}
                   </div>
                   <p className="text-xs text-muted-foreground">
-                    {evt.lieu && `${evt.lieu} · `}
-                    {new Date(evt.date_debut).toLocaleDateString("fr-FR")}
+                    {evt.lieu && `${evt.lieu} · `}{new Date(evt.date_debut).toLocaleDateString("fr-FR")}
                   </p>
                 </div>
                 <div className="flex gap-1 shrink-0">
-                  <Button variant="ghost" size="icon" onClick={() => startEdit(evt)}>
-                    <Pencil className="w-4 h-4" />
-                  </Button>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    onClick={() => {
-                      if (confirm("Supprimer cet événement ?")) deleteMutation.mutate(evt.id);
-                    }}
-                  >
+                  <Button variant="ghost" size="icon" onClick={() => startEdit(evt)}><Pencil className="w-4 h-4" /></Button>
+                  <Button variant="ghost" size="icon" onClick={() => { if (confirm("Supprimer cet événement ?")) deleteMutation.mutate(evt.id); }}>
                     <Trash2 className="w-4 h-4 text-destructive" />
                   </Button>
                 </div>

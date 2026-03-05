@@ -1,15 +1,27 @@
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
-import { Mail, ArrowLeft, LogOut, Loader2, Download } from "lucide-react";
+import { Mail, ArrowLeft, LogOut, Loader2, Download, Trash2, Eye } from "lucide-react";
 import { useNavigate, Navigate } from "react-router-dom";
 import { useAdminAuth } from "@/hooks/useAdminAuth";
+import { toast } from "sonner";
+import { useState } from "react";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+
+const statusOptions = ["Nouveau", "En cours", "Traité", "Archivé"];
 
 const AdminContacts = () => {
   const navigate = useNavigate();
   const { user, isAdmin, loading: authLoading, signOut } = useAdminAuth();
+  const queryClient = useQueryClient();
+  const [selectedContact, setSelectedContact] = useState<any>(null);
 
   const { data: contacts, isLoading } = useQuery({
     queryKey: ["contacts"],
@@ -24,19 +36,37 @@ const AdminContacts = () => {
     enabled: isAdmin,
   });
 
+  const updateStatut = useMutation({
+    mutationFn: async ({ id, statut }: { id: string; statut: string }) => {
+      const { error } = await supabase.from("contacts").update({ statut }).eq("id", id);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["contacts"] });
+      toast.success("Statut mis à jour");
+    },
+    onError: (err: any) => toast.error("Erreur : " + (err.message || "Erreur inconnue")),
+  });
+
+  const deleteContact = useMutation({
+    mutationFn: async (id: string) => {
+      const { error } = await supabase.from("contacts").delete().eq("id", id);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["contacts"] });
+      toast.success("Message supprimé");
+      setSelectedContact(null);
+    },
+    onError: (err: any) => toast.error("Erreur : " + (err.message || "Erreur inconnue")),
+  });
+
   const exportCSV = () => {
     if (!contacts?.length) return;
     const headers = ["Date", "Profil", "Prénom", "Nom", "Email", "Structure", "Objet", "Message", "Statut"];
     const rows = contacts.map((c) => [
       new Date(c.created_at).toLocaleDateString("fr-FR"),
-      c.profil,
-      c.prenom,
-      c.nom,
-      c.email,
-      c.structure || "",
-      c.objet,
-      c.message,
-      c.statut,
+      c.profil, c.prenom, c.nom, c.email, c.structure || "", c.objet, c.message, c.statut,
     ]);
     const csv = [headers, ...rows].map(r => r.map(v => `"${String(v).replace(/"/g, '""')}"`).join(",")).join("\n");
     const blob = new Blob(["\uFEFF" + csv], { type: "text/csv;charset=utf-8;" });
@@ -47,6 +77,8 @@ const AdminContacts = () => {
     link.click();
     URL.revokeObjectURL(url);
   };
+
+  const newCount = contacts?.filter(c => c.statut === "Nouveau").length ?? 0;
 
   if (authLoading) {
     return (
@@ -74,7 +106,8 @@ const AdminContacts = () => {
                 Messages de contact
               </h1>
               <p className="text-muted-foreground">
-                {contacts?.length ?? 0} message{(contacts?.length ?? 0) > 1 ? "s" : ""} reçu{(contacts?.length ?? 0) > 1 ? "s" : ""}
+                {contacts?.length ?? 0} message{(contacts?.length ?? 0) > 1 ? "s" : ""}
+                {newCount > 0 && <span className="text-primary font-medium"> · {newCount} nouveau{newCount > 1 ? "x" : ""}</span>}
               </p>
             </div>
           </div>
@@ -102,38 +135,54 @@ const AdminContacts = () => {
                 <TableRow>
                   <TableHead>Date</TableHead>
                   <TableHead>Profil</TableHead>
-                  <TableHead>Prénom</TableHead>
-                  <TableHead>Nom</TableHead>
-                  <TableHead>Email</TableHead>
-                  <TableHead>Structure</TableHead>
+                  <TableHead>Contact</TableHead>
                   <TableHead>Objet</TableHead>
                   <TableHead>Message</TableHead>
                   <TableHead>Statut</TableHead>
+                  <TableHead className="w-[100px]">Actions</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {contacts.map((c) => (
-                  <TableRow key={c.id}>
+                  <TableRow key={c.id} className={c.statut === "Nouveau" ? "bg-primary/5" : ""}>
                     <TableCell className="text-sm whitespace-nowrap">
                       {new Date(c.created_at).toLocaleDateString("fr-FR")}
                     </TableCell>
                     <TableCell className="text-sm">{c.profil}</TableCell>
-                    <TableCell>{c.prenom}</TableCell>
-                    <TableCell>{c.nom}</TableCell>
                     <TableCell className="text-sm">
-                      <a href={`mailto:${c.email}`} className="text-primary hover:underline">
-                        {c.email}
-                      </a>
+                      <p className="font-medium">{c.prenom} {c.nom}</p>
+                      <a href={`mailto:${c.email}`} className="text-primary text-xs hover:underline">{c.email}</a>
+                      {c.structure && <p className="text-xs text-muted-foreground">{c.structure}</p>}
                     </TableCell>
-                    <TableCell className="text-sm">{c.structure || "—"}</TableCell>
                     <TableCell className="text-sm">{c.objet}</TableCell>
-                    <TableCell className="text-sm max-w-xs truncate" title={c.message}>
-                      {c.message}
+                    <TableCell className="text-sm max-w-xs truncate" title={c.message}>{c.message}</TableCell>
+                    <TableCell>
+                      <select
+                        value={c.statut}
+                        onChange={(e) => updateStatut.mutate({ id: c.id, statut: e.target.value })}
+                        className="text-xs rounded-md border border-border bg-card px-2 py-1 text-foreground"
+                      >
+                        {statusOptions.map(s => <option key={s} value={s}>{s}</option>)}
+                      </select>
                     </TableCell>
                     <TableCell>
-                      <Badge variant={c.statut === "Nouveau" ? "default" : "secondary"}>
-                        {c.statut}
-                      </Badge>
+                      <div className="flex items-center gap-1">
+                        <Button variant="ghost" size="icon" onClick={() => setSelectedContact(c)} title="Voir le message">
+                          <Eye className="w-4 h-4" />
+                        </Button>
+                        <Button
+                          variant="ghost" size="icon"
+                          className="text-destructive hover:text-destructive hover:bg-destructive/10"
+                          onClick={() => {
+                            if (window.confirm(`Supprimer le message de ${c.prenom} ${c.nom} ?`)) {
+                              deleteContact.mutate(c.id);
+                            }
+                          }}
+                          title="Supprimer"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </Button>
+                      </div>
                     </TableCell>
                   </TableRow>
                 ))}
@@ -142,6 +191,77 @@ const AdminContacts = () => {
           </div>
         )}
       </div>
+
+      {/* Detail Dialog */}
+      <Dialog open={!!selectedContact} onOpenChange={() => setSelectedContact(null)}>
+        <DialogContent className="max-w-lg">
+          {selectedContact && (
+            <>
+              <DialogHeader>
+                <DialogTitle>{selectedContact.objet}</DialogTitle>
+              </DialogHeader>
+              <div className="space-y-4 mt-4 text-sm">
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <p className="text-muted-foreground text-xs">Contact</p>
+                    <p className="font-medium">{selectedContact.prenom} {selectedContact.nom}</p>
+                  </div>
+                  <div>
+                    <p className="text-muted-foreground text-xs">Email</p>
+                    <a href={`mailto:${selectedContact.email}`} className="text-primary hover:underline font-medium">{selectedContact.email}</a>
+                  </div>
+                  <div>
+                    <p className="text-muted-foreground text-xs">Profil</p>
+                    <p className="font-medium">{selectedContact.profil}</p>
+                  </div>
+                  <div>
+                    <p className="text-muted-foreground text-xs">Structure</p>
+                    <p className="font-medium">{selectedContact.structure || "—"}</p>
+                  </div>
+                  <div>
+                    <p className="text-muted-foreground text-xs">Date</p>
+                    <p className="font-medium">{new Date(selectedContact.created_at).toLocaleString("fr-FR")}</p>
+                  </div>
+                  <div>
+                    <p className="text-muted-foreground text-xs">Statut</p>
+                    <select
+                      value={selectedContact.statut}
+                      onChange={(e) => {
+                        updateStatut.mutate({ id: selectedContact.id, statut: e.target.value });
+                        setSelectedContact({ ...selectedContact, statut: e.target.value });
+                      }}
+                      className="text-sm rounded-md border border-border bg-card px-2 py-1 text-foreground"
+                    >
+                      {statusOptions.map(s => <option key={s} value={s}>{s}</option>)}
+                    </select>
+                  </div>
+                </div>
+                <div>
+                  <p className="text-muted-foreground text-xs mb-2">Message</p>
+                  <div className="bg-muted/30 border border-border rounded-lg p-4 whitespace-pre-wrap text-foreground">
+                    {selectedContact.message}
+                  </div>
+                </div>
+                <div className="flex justify-between">
+                  <Button
+                    variant="destructive" size="sm"
+                    onClick={() => {
+                      if (window.confirm("Supprimer ce message ?")) deleteContact.mutate(selectedContact.id);
+                    }}
+                  >
+                    <Trash2 className="w-4 h-4 mr-1" /> Supprimer
+                  </Button>
+                  <a href={`mailto:${selectedContact.email}?subject=Re: ${selectedContact.objet}`}>
+                    <Button size="sm">
+                      <Mail className="w-4 h-4 mr-1" /> Répondre
+                    </Button>
+                  </a>
+                </div>
+              </div>
+            </>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
