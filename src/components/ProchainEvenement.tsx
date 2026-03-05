@@ -1,14 +1,12 @@
 import { useQuery } from "@tanstack/react-query";
 import { motion } from "framer-motion";
-import { CalendarDays, Clock, MapPin, ArrowRight } from "lucide-react";
+import { CalendarDays, Clock, MapPin, ArrowRight, Users } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useNavigate } from "react-router-dom";
 
 const formatDate = (iso: string) =>
   new Date(iso).toLocaleDateString("fr-FR", {
-    weekday: "long",
-    day: "numeric",
-    month: "long",
+    weekday: "long", day: "numeric", month: "long",
   });
 
 const formatTime = (iso: string) =>
@@ -36,6 +34,7 @@ const ProchainEvenement = () => {
 
   const day = new Date(evt.date_debut).getDate();
   const month = new Date(evt.date_debut).toLocaleDateString("fr-FR", { month: "short" });
+  const hasImage = !!(evt as any).image_url;
 
   return (
     <section className="py-16 md:py-24 bg-background">
@@ -54,27 +53,42 @@ const ProchainEvenement = () => {
           </div>
 
           <div className="relative bg-card border border-border rounded-3xl overflow-hidden hover:shadow-xl transition-shadow duration-500">
-            {/* Subtle accent gradient */}
-            <div
-              className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-primary via-secondary to-primary"
-            />
+            <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-primary via-secondary to-primary" />
+
+            {/* Cover image */}
+            {hasImage && (
+              <div className="relative h-48 md:h-64 overflow-hidden">
+                <img
+                  src={(evt as any).image_url}
+                  alt={evt.titre}
+                  className="w-full h-full object-cover"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-card via-card/30 to-transparent" />
+                <div className="absolute top-4 right-4 w-20 h-20 bg-card/90 backdrop-blur-sm rounded-2xl flex flex-col items-center justify-center shadow-lg">
+                  <span className="text-3xl font-bold text-primary leading-none">{day}</span>
+                  <span className="text-xs font-semibold uppercase text-primary/70 mt-1">{month}</span>
+                </div>
+              </div>
+            )}
 
             <div className="p-8 md:p-12 flex flex-col md:flex-row gap-8 items-start">
-              {/* Big date */}
-              <div className="shrink-0 w-24 h-24 md:w-28 md:h-28 bg-primary/10 rounded-2xl flex flex-col items-center justify-center">
-                <span className="text-4xl md:text-5xl font-bold text-primary leading-none">
-                  {day}
-                </span>
-                <span className="text-sm font-semibold uppercase text-primary/70 mt-1">
-                  {month}
-                </span>
-              </div>
+              {/* Big date (only if no image) */}
+              {!hasImage && (
+                <div className="shrink-0 w-24 h-24 md:w-28 md:h-28 bg-primary/10 rounded-2xl flex flex-col items-center justify-center">
+                  <span className="text-4xl md:text-5xl font-bold text-primary leading-none">{day}</span>
+                  <span className="text-sm font-semibold uppercase text-primary/70 mt-1">{month}</span>
+                </div>
+              )}
 
-              {/* Content */}
               <div className="flex-1 min-w-0">
-                <h2 className="font-serif text-2xl md:text-3xl text-foreground mb-3">
+                <h2 className="font-serif text-2xl md:text-3xl text-foreground mb-1">
                   {evt.titre}
                 </h2>
+                {(evt as any).sous_titre && (
+                  <p className="text-lg font-semibold text-primary/80 mb-3">
+                    {(evt as any).sous_titre}
+                  </p>
+                )}
                 {evt.description && (
                   <p className="text-muted-foreground leading-relaxed mb-5 max-w-xl">
                     {evt.description}
@@ -95,6 +109,12 @@ const ProchainEvenement = () => {
                       <MapPin className="w-4 h-4 text-primary/60" />
                       {evt.lieu}
                       {evt.adresse && `, ${evt.adresse}`}
+                    </span>
+                  )}
+                  {(evt as any).places && (
+                    <span className="flex items-center gap-1.5">
+                      <Users className="w-4 h-4 text-primary/60" />
+                      {(evt as any).places} place{(evt as any).places > 1 ? "s" : ""}
                     </span>
                   )}
                 </div>

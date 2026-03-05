@@ -106,9 +106,12 @@ export type Database = {
           date_fin: string | null
           description: string | null
           id: string
+          image_url: string | null
           lien_externe: string | null
           lieu: string | null
+          places: number | null
           publie: boolean
+          sous_titre: string | null
           titre: string
           type: string
         }
@@ -119,9 +122,12 @@ export type Database = {
           date_fin?: string | null
           description?: string | null
           id?: string
+          image_url?: string | null
           lien_externe?: string | null
           lieu?: string | null
+          places?: number | null
           publie?: boolean
+          sous_titre?: string | null
           titre: string
           type?: string
         }
@@ -132,9 +138,12 @@ export type Database = {
           date_fin?: string | null
           description?: string | null
           id?: string
+          image_url?: string | null
           lien_externe?: string | null
           lieu?: string | null
+          places?: number | null
           publie?: boolean
+          sous_titre?: string | null
           titre?: string
           type?: string
         }
