@@ -51,6 +51,9 @@ const FormSection = () => {
   const [prioriteActuelle, setPrioriteActuelle] = useState("");
   const [consentContact, setConsentContact] = useState(false);
   const [consentMiseEnRelation, setConsentMiseEnRelation] = useState(false);
+  const [consentPublicationPodcast, setConsentPublicationPodcast] = useState(false);
+  const [consentAnnuaire, setConsentAnnuaire] = useState(false);
+  const [consentCGU, setConsentCGU] = useState(false);
   const [consentError, setConsentError] = useState("");
   const [selectedCity, setSelectedCity] = useState<CityResult | null>(null);
   const [cityError, setCityError] = useState("");
@@ -59,7 +62,24 @@ const FormSection = () => {
   const [uploading, setUploading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const validateSquareImage = (file: File): Promise<boolean> => {
+    return new Promise((resolve) => {
+      const img = new window.Image();
+      img.onload = () => {
+        const ratio = img.width / img.height;
+        URL.revokeObjectURL(img.src);
+        if (ratio < 0.9 || ratio > 1.1) {
+          toast.error("L'image doit être au format carré (ratio 1:1). Recadrez-la avant de l'envoyer.");
+          resolve(false);
+        } else {
+          resolve(true);
+        }
+      };
+      img.src = URL.createObjectURL(file);
+    });
+  };
+
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
     if (!file.type.startsWith("image/")) {
@@ -70,6 +90,8 @@ const FormSection = () => {
       toast.error("L'image ne doit pas dépasser 5 Mo.");
       return;
     }
+    const isSquare = await validateSquareImage(file);
+    if (!isSquare) return;
     setVignette(file);
     setVignettePreview(URL.createObjectURL(file));
   };
@@ -108,8 +130,14 @@ const FormSection = () => {
       toast.error("Veuillez sélectionner votre métier principal.");
       return;
     }
-    try { new URL(formData.lienEcoute); } catch {
-      toast.error("Veuillez entrer un lien d'écoute valide (ex: https://...)");
+    if (formData.typeProfil === "podcasteur") {
+      try { new URL(formData.lienEcoute); } catch {
+        toast.error("Veuillez entrer un lien d'écoute valide (ex: https://...)");
+        return;
+      }
+    }
+    if (!vignette) {
+      toast.error("Veuillez ajouter une photo (format carré obligatoire).");
       return;
     }
     if (!formData.departementCode) {
@@ -119,6 +147,18 @@ const FormSection = () => {
     if (!selectedCity?.city_insee_code) {
       setCityError("Veuillez sélectionner une ville dans la liste.");
       toast.error("Veuillez sélectionner une ville dans la liste.");
+      return;
+    }
+    if (!consentCGU) {
+      toast.error("Veuillez accepter les conditions générales d'utilisation et la politique de confidentialité.");
+      return;
+    }
+    if (formData.typeProfil === "podcasteur" && !consentPublicationPodcast) {
+      toast.error("Veuillez accepter la publication de votre podcast.");
+      return;
+    }
+    if (!consentAnnuaire) {
+      toast.error("Veuillez accepter d'apparaître dans l'annuaire.");
       return;
     }
     if (!consentContact) {
@@ -429,6 +469,36 @@ const FormSection = () => {
                 </>
               )}
 
+              {/* Photo section for non-podcasteurs */}
+              {formData.typeProfil !== "podcasteur" && (
+                <>
+                  <div className="h-px bg-border" />
+                  <div className="space-y-5">
+                    <SectionHeader number={formData.typeProfil === "pro_podcast" ? 4 : 3} title="Votre photo" />
+                    <div>
+                      <label className={labelClass}>Photo de profil <span className="text-primary">*</span></label>
+                      <p className="text-xs text-muted-foreground mb-1">Format carré obligatoire (1:1). JPG, PNG ou WebP. Max 5 Mo.</p>
+                      {vignettePreview ? (
+                        <div className="relative inline-block">
+                          <img src={vignettePreview} alt="Aperçu photo" className="w-32 h-32 object-cover rounded-xl border border-border shadow-sm" />
+                          <button type="button" onClick={removeVignette} className="absolute -top-2 -right-2 w-6 h-6 bg-destructive text-destructive-foreground rounded-full flex items-center justify-center shadow-md hover:brightness-110 transition-all">
+                            <X className="w-3.5 h-3.5" />
+                          </button>
+                        </div>
+                      ) : (
+                        <button type="button" onClick={() => fileInputRef.current?.click()} className="flex items-center gap-3 px-5 py-4 rounded-xl border-2 border-dashed border-border hover:border-primary/40 bg-card hover:bg-primary/5 transition-all text-muted-foreground hover:text-foreground w-full">
+                          <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center">
+                            <Image className="w-5 h-5 text-primary" />
+                          </div>
+                          <span className="text-sm">Ajouter votre photo de profil</span>
+                        </button>
+                      )}
+                      <input ref={fileInputRef} type="file" accept="image/jpeg,image/png,image/webp" onChange={handleFileChange} className="hidden" />
+                    </div>
+                  </div>
+                </>
+              )}
+
               <div className="h-px bg-border" />
 
               {/* SECTION — Podcast (conditionnel pour podcasteurs) */}
@@ -450,9 +520,8 @@ const FormSection = () => {
                   <textarea name="description" value={formData.description} onChange={handleChange} className={inputClass + " min-h-[100px] resize-y"} placeholder="En 1 ou 2 phrases, de quoi parle votre podcast ?" required />
                 </div>
                 <div>
-                  <label className={labelClass}>Vignette du podcast</label>
-                  <p className="text-xs text-muted-foreground mb-1">Format carré recommandé (1400×1400 px). JPG, PNG ou WebP.</p>
-                  <p className="text-xs text-muted-foreground/70 mb-3">Optionnel — vous pourrez l'ajouter plus tard</p>
+                  <label className={labelClass}>Vignette du podcast <span className="text-primary">*</span></label>
+                  <p className="text-xs text-muted-foreground mb-1">Format carré obligatoire (1:1, ex: 1400×1400 px). JPG, PNG ou WebP. Max 5 Mo.</p>
                   {vignettePreview ? (
                     <div className="relative inline-block">
                       <img src={vignettePreview} alt="Aperçu vignette" className="w-32 h-32 object-cover rounded-xl border border-border shadow-sm" />
@@ -595,9 +664,48 @@ const FormSection = () => {
 
               <div className="h-px bg-border" />
 
-              {/* SECTION 9 — Consentement */}
+              {/* SECTION — Consentements */}
               <div className="space-y-4">
-                <SectionHeader number={9} title="Consentement" />
+                <SectionHeader number={formData.typeProfil === "podcasteur" ? 9 : (formData.typeProfil === "pro_podcast" ? 5 : 4)} title="Consentements" />
+                
+                <label className="flex items-start gap-3 cursor-pointer group">
+                  <input
+                    type="checkbox"
+                    checked={consentCGU}
+                    onChange={(e) => setConsentCGU(e.target.checked)}
+                    className="mt-1 h-4 w-4 rounded border-border text-primary accent-primary focus:ring-primary/30"
+                  />
+                  <span className="text-sm text-foreground group-hover:text-foreground/80 transition-colors">
+                    J'accepte les <a href="/conditions-utilisation" target="_blank" className="text-primary hover:underline">conditions générales d'utilisation</a> et la <a href="/politique-de-confidentialite" target="_blank" className="text-primary hover:underline">politique de confidentialité</a> <span className="text-primary">*</span>
+                  </span>
+                </label>
+
+                <label className="flex items-start gap-3 cursor-pointer group">
+                  <input
+                    type="checkbox"
+                    checked={consentAnnuaire}
+                    onChange={(e) => setConsentAnnuaire(e.target.checked)}
+                    className="mt-1 h-4 w-4 rounded border-border text-primary accent-primary focus:ring-primary/30"
+                  />
+                  <span className="text-sm text-foreground group-hover:text-foreground/80 transition-colors">
+                    J'accepte d'apparaître dans l'annuaire des Podcasteur·euses du Sud <span className="text-primary">*</span>
+                  </span>
+                </label>
+
+                {formData.typeProfil === "podcasteur" && (
+                  <label className="flex items-start gap-3 cursor-pointer group">
+                    <input
+                      type="checkbox"
+                      checked={consentPublicationPodcast}
+                      onChange={(e) => setConsentPublicationPodcast(e.target.checked)}
+                      className="mt-1 h-4 w-4 rounded border-border text-primary accent-primary focus:ring-primary/30"
+                    />
+                    <span className="text-sm text-foreground group-hover:text-foreground/80 transition-colors">
+                      J'accepte la publication de mon podcast sur le flux du site <span className="text-primary">*</span>
+                    </span>
+                  </label>
+                )}
+
                 <label className="flex items-start gap-3 cursor-pointer group">
                   <input
                     type="checkbox"
