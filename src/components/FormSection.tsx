@@ -257,12 +257,10 @@ const FormSection = () => {
                 <li className="flex items-start gap-2"><Check className="w-4 h-4 text-primary mt-0.5 shrink-0" /> contribuer à la dynamique régionale</li>
               </ul>
               <a
-                href="https://www.helloasso.com/associations/les-podcasteur-euses-du-sud/adhesions/rejoindre-les-podcasteureuses-du-sud"
-                target="_blank"
-                rel="noopener noreferrer"
+                href="/adhesion"
                 className="group inline-flex items-center gap-3 bg-primary text-primary-foreground px-8 py-4 rounded-xl font-semibold hover:brightness-110 transition-all duration-300 shadow-md hover:shadow-lg"
               >
-                👉 Adhérer via HelloAsso
+                👉 Adhérer à l'association
                 <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
               </a>
             </div>
@@ -318,9 +316,7 @@ const FormSection = () => {
                     <p className="text-sm text-muted-foreground leading-relaxed">
                       Les podcasts des adhérent·es sont automatiquement mis en avant sur le flux.{" "}
                       <a
-                        href="https://www.helloasso.com/associations/les-podcasteur-euses-du-sud/adhesions/rejoindre-les-podcasteureuses-du-sud"
-                        target="_blank"
-                        rel="noopener noreferrer"
+                        href="/adhesion"
                         className="text-primary font-medium hover:underline"
                       >
                         Adhérer à l'association →

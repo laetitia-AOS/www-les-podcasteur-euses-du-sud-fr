@@ -152,11 +152,7 @@ const Annuaire = () => {
               Podcasteurs, monteurs, studios, voix off, sound designers, consultants…
               L'écosystème podcast en région Sud, au même endroit.
             </p>
-            <a
-              href="https://www.helloasso.com/associations/les-podcasteur-euses-du-sud/adhesions/rejoindre-les-podcasteureuses-du-sud"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
+            <a href="/adhesion">
               <Button className="gap-2">
                 <Users className="w-4 h-4" />
                 Rejoindre le collectif
