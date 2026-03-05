@@ -2,30 +2,30 @@ import { useNavigate, Navigate } from "react-router-dom";
 import { useAdminAuth } from "@/hooks/useAdminAuth";
 import { Button } from "@/components/ui/button";
 import { Card, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { Users, Mail, CalendarDays, Mic, ArrowLeft, LogOut, Loader2 } from "lucide-react";
+import { Users, Mail, CalendarDays, BookOpen, ArrowLeft, LogOut, Loader2 } from "lucide-react";
 
 const links = [
   {
-    title: "Podcasts",
-    description: "Voir toutes les fiches, activer/désactiver la visibilité dans le flux.",
-    icon: Mic,
+    title: "Annuaire",
+    description: "Gérer les fiches membres : podcasteurs, pros et soutiens. Modifier, activer/désactiver, supprimer.",
+    icon: BookOpen,
     to: "/admin/podcasts",
   },
   {
     title: "Adhésions",
-    description: "Gérer les membres et exporter la liste des adhérents.",
+    description: "Gérer les adhésions : consulter, modifier, supprimer, importer et exporter.",
     icon: Users,
     to: "/admin/adhesions",
   },
   {
     title: "Messages de contact",
-    description: "Consulter et suivre les demandes reçues via le formulaire.",
+    description: "Consulter, changer le statut et supprimer les demandes reçues.",
     icon: Mail,
     to: "/admin/contacts",
   },
   {
     title: "Événements",
-    description: "Créer, modifier et publier les événements de l'association.",
+    description: "Créer, modifier, supprimer et publier les événements.",
     icon: CalendarDays,
     to: "/admin/evenements",
   },
@@ -62,7 +62,7 @@ const AdminDashboard = () => {
           </Button>
         </div>
 
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="grid gap-4 sm:grid-cols-2">
           {links.map((link) => (
             <Card
               key={link.to}
