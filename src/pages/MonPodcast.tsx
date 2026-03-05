@@ -4,7 +4,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
-import { LogOut, Save, Loader2, Image, X, ArrowLeft } from "lucide-react";
+import { LogOut, Save, Loader2, Image, X, ArrowLeft, Mic, Users } from "lucide-react";
 import { useNavigate, Link } from "react-router-dom";
 
 interface PodcastData {
@@ -20,13 +20,20 @@ interface PodcastData {
   email: string;
   ville: string | null;
   type_podcast: string | null;
+  type_profil: string;
+  bio_750: string | null;
+  lien_principal: string | null;
+  metier_principal: string | null;
+  services_3: string[] | null;
+  disponibilite: string | null;
   valide: boolean;
 }
 
-const MonPodcast = () => {
+const MonEspace = () => {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
-  const [podcast, setPodcast] = useState<PodcastData | null>(null);
+  const [podcasts, setPodcasts] = useState<PodcastData[]>([]);
+  const [activeTab, setActiveTab] = useState(0);
   const [form, setForm] = useState<Partial<PodcastData>>({});
   const [userEmail, setUserEmail] = useState("");
   const [uploading, setUploading] = useState(false);
@@ -37,23 +44,23 @@ const MonPodcast = () => {
     const init = async () => {
       const { data: { session } } = await supabase.auth.getSession();
       if (!session) {
-        navigate("/espace-podcasteur");
+        navigate("/espace-membre");
         return;
       }
       setUserEmail(session.user.email || "");
       const { data, error } = await supabase
         .from("podcasts")
-        .select("id, nom_podcast, lien_ecoute, description, thematique, vignette_url, prenom, nom, telephone, email, ville, type_podcast, valide")
+        .select("id, nom_podcast, lien_ecoute, description, thematique, vignette_url, prenom, nom, telephone, email, ville, type_podcast, type_profil, bio_750, lien_principal, metier_principal, services_3, disponibilite, valide")
         .eq("email", session.user.email!)
         .order("created_at", { ascending: false });
 
       if (error) {
         console.error(error);
-        toast.error("Erreur lors du chargement de votre fiche.");
+        toast.error("Erreur lors du chargement de vos fiches.");
       }
       if (data && data.length > 0) {
-        setPodcast(data[0]);
-        setForm(data[0]);
+        setPodcasts(data as PodcastData[]);
+        setForm(data[0] as PodcastData);
       }
       setLoading(false);
     };
@@ -62,11 +69,28 @@ const MonPodcast = () => {
 
   const handleLogout = async () => {
     await supabase.auth.signOut();
-    navigate("/espace-podcasteur");
+    navigate("/espace-membre");
   };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     setForm((prev) => ({ ...prev, [e.target.name]: e.target.value }));
+  };
+
+  const validateSquareImage = (file: File): Promise<boolean> => {
+    return new Promise((resolve) => {
+      const img = new window.Image();
+      img.onload = () => {
+        const ratio = img.width / img.height;
+        URL.revokeObjectURL(img.src);
+        if (ratio < 0.9 || ratio > 1.1) {
+          toast.error("L'image doit être au format carré (ratio 1:1). Recadrez-la avant de l'envoyer.");
+          resolve(false);
+        } else {
+          resolve(true);
+        }
+      };
+      img.src = URL.createObjectURL(file);
+    });
   };
 
   const handleVignetteUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -80,6 +104,9 @@ const MonPodcast = () => {
       toast.error("L'image ne doit pas dépasser 5 Mo.");
       return;
     }
+    const isSquare = await validateSquareImage(file);
+    if (!isSquare) return;
+
     setUploading(true);
     const ext = file.name.split(".").pop();
     const fileName = `${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`;
@@ -100,7 +127,8 @@ const MonPodcast = () => {
   };
 
   const handleSave = async () => {
-    if (!podcast) return;
+    const current = podcasts[activeTab];
+    if (!current) return;
     setSaving(true);
     const { error } = await supabase
       .from("podcasts")
@@ -113,16 +141,26 @@ const MonPodcast = () => {
         prenom: form.prenom,
         nom: form.nom,
         telephone: form.telephone,
+        bio_750: form.bio_750,
+        lien_principal: form.lien_principal,
+        metier_principal: form.metier_principal,
+        disponibilite: form.disponibilite,
       })
-      .eq("id", podcast.id);
+      .eq("id", current.id);
     setSaving(false);
     if (error) {
       toast.error("Erreur lors de la sauvegarde.");
       console.error(error);
       return;
     }
-    setPodcast({ ...podcast, ...form } as PodcastData);
+    const updated = podcasts.map((p, i) => i === activeTab ? { ...p, ...form } as PodcastData : p);
+    setPodcasts(updated);
     toast.success("Fiche mise à jour avec succès !");
+  };
+
+  const switchTab = (idx: number) => {
+    setActiveTab(idx);
+    setForm(podcasts[idx]);
   };
 
   if (loading) {
@@ -133,20 +171,20 @@ const MonPodcast = () => {
     );
   }
 
-  if (!podcast) {
+  if (podcasts.length === 0) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center px-4">
         <div className="text-center space-y-4 max-w-sm">
-          <h1 className="font-serif text-2xl text-foreground">Aucun podcast trouvé</h1>
+          <h1 className="font-serif text-2xl text-foreground">Aucune fiche trouvée</h1>
           <p className="text-muted-foreground text-sm">
-            Aucun podcast n'est associé à l'adresse <span className="font-medium text-foreground">{userEmail}</span>.
+            Aucune fiche n'est associée à l'adresse <span className="font-medium text-foreground">{userEmail}</span>.
           </p>
           <p className="text-muted-foreground text-sm">
-            Vous devez d'abord référencer votre podcast sur le site.
+            Vous devez d'abord remplir le formulaire de référencement.
           </p>
           <div className="flex flex-col gap-2">
             <Link to="/formulaire">
-              <Button className="w-full">Référencer mon podcast</Button>
+              <Button className="w-full">Remplir le formulaire</Button>
             </Link>
             <Button variant="outline" onClick={handleLogout}>Se déconnecter</Button>
           </div>
@@ -154,6 +192,10 @@ const MonPodcast = () => {
       </div>
     );
   }
+
+  const current = podcasts[activeTab];
+  const isPodcasteur = current?.type_profil === "podcasteur";
+  const isPro = current?.type_profil === "pro_podcast";
 
   const inputClass =
     "w-full rounded-xl border border-border bg-card px-4 py-3.5 text-foreground placeholder:text-muted-foreground/50 focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary/30 transition-all";
@@ -169,7 +211,7 @@ const MonPodcast = () => {
               <ArrowLeft className="w-5 h-5" />
             </Link>
             <div>
-              <h1 className="font-serif text-lg text-foreground">Mon podcast</h1>
+              <h1 className="font-serif text-lg text-foreground">Espace membre</h1>
               <p className="text-xs text-muted-foreground">{userEmail}</p>
             </div>
           </div>
@@ -181,27 +223,51 @@ const MonPodcast = () => {
       </header>
 
       <main className="container mx-auto px-6 py-8 max-w-2xl space-y-8">
+        {/* Tabs if multiple fiches */}
+        {podcasts.length > 1 && (
+          <div className="flex gap-2 overflow-x-auto pb-2">
+            {podcasts.map((p, i) => (
+              <button
+                key={p.id}
+                onClick={() => switchTab(i)}
+                className={`flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium transition-all whitespace-nowrap ${
+                  i === activeTab
+                    ? "bg-primary text-primary-foreground shadow-sm"
+                    : "bg-card border border-border text-muted-foreground hover:text-foreground"
+                }`}
+              >
+                {p.type_profil === "podcasteur" ? <Mic className="w-4 h-4" /> : <Users className="w-4 h-4" />}
+                {p.type_profil === "podcasteur" ? p.nom_podcast : `Profil ${p.type_profil}`}
+              </button>
+            ))}
+          </div>
+        )}
+
         {/* Status badge */}
         <div className="flex items-center gap-2">
           <span className={`inline-flex items-center gap-1.5 text-xs font-medium px-3 py-1 rounded-full ${
-            podcast.valide
+            current.valide
               ? "bg-primary/10 text-primary"
               : "bg-muted text-muted-foreground"
           }`}>
-            <span className={`w-1.5 h-1.5 rounded-full ${podcast.valide ? "bg-primary" : "bg-muted-foreground"}`} />
-            {podcast.valide ? "Visible sur le site" : "En attente de validation"}
+            <span className={`w-1.5 h-1.5 rounded-full ${current.valide ? "bg-primary" : "bg-muted-foreground"}`} />
+            {current.valide ? "Visible sur le site" : "En attente de validation"}
           </span>
         </div>
 
-        {/* Vignette */}
+        {/* Vignette (photo) */}
         <div className="space-y-3">
-          <label className={labelClass}>Vignette du podcast</label>
+          <label className={labelClass}>
+            {isPodcasteur ? "Vignette du podcast" : "Photo de profil"}
+            <span className="text-primary ml-1">*</span>
+          </label>
+          <p className="text-xs text-muted-foreground -mt-2">Format carré obligatoire (1:1). JPG, PNG ou WebP. Max 5 Mo.</p>
           <div className="flex items-start gap-4">
             {form.vignette_url ? (
               <div className="relative">
                 <img
                   src={form.vignette_url}
-                  alt="Vignette"
+                  alt="Photo"
                   className="w-24 h-24 rounded-xl object-cover border border-border"
                 />
                 <button
@@ -221,7 +287,7 @@ const MonPodcast = () => {
               <input
                 ref={fileInputRef}
                 type="file"
-                accept="image/*"
+                accept="image/jpeg,image/png,image/webp"
                 onChange={handleVignetteUpload}
                 className="hidden"
               />
@@ -235,35 +301,12 @@ const MonPodcast = () => {
                 {uploading ? <Loader2 className="w-4 h-4 animate-spin mr-1.5" /> : <Image className="w-4 h-4 mr-1.5" />}
                 {uploading ? "Envoi…" : "Changer l'image"}
               </Button>
-              <p className="text-xs text-muted-foreground mt-1">JPG, PNG ou WebP. Max 5 Mo.</p>
+              <p className="text-xs text-muted-foreground mt-1">Format carré (1:1) obligatoire</p>
             </div>
           </div>
         </div>
 
-        {/* Form */}
-        <div className="bg-card border border-border rounded-2xl p-6 sm:p-8 space-y-6">
-          <h2 className="font-serif text-xl text-foreground">Informations du podcast</h2>
-
-          <div className="space-y-4">
-            <div>
-              <label className={labelClass}>Nom du podcast</label>
-              <input name="nom_podcast" value={form.nom_podcast || ""} onChange={handleChange} className={inputClass} />
-            </div>
-            <div>
-              <label className={labelClass}>Lien d'écoute</label>
-              <input name="lien_ecoute" value={form.lien_ecoute || ""} onChange={handleChange} className={inputClass} />
-            </div>
-            <div>
-              <label className={labelClass}>Description</label>
-              <Textarea name="description" value={form.description || ""} onChange={handleChange} rows={4} className="rounded-xl border-border bg-card" />
-            </div>
-            <div>
-              <label className={labelClass}>Thématique</label>
-              <input name="thematique" value={form.thematique || ""} onChange={handleChange} className={inputClass} />
-            </div>
-          </div>
-        </div>
-
+        {/* Coordonnées */}
         <div className="bg-card border border-border rounded-2xl p-6 sm:p-8 space-y-6">
           <h2 className="font-serif text-xl text-foreground">Vos coordonnées</h2>
           <div className="space-y-4">
@@ -278,11 +321,64 @@ const MonPodcast = () => {
               </div>
             </div>
             <div>
-              <label className={labelClass}>Téléphone</label>
-              <input name="telephone" value={form.telephone || ""} onChange={handleChange} className={inputClass} />
+              <label className={labelClass}>Bio / présentation</label>
+              <Textarea 
+                name="bio_750" 
+                value={form.bio_750 || ""} 
+                onChange={(e) => { if (e.target.value.length <= 750) handleChange(e); }}
+                rows={4} 
+                className="rounded-xl border-border bg-card" 
+              />
+              <p className="text-xs text-muted-foreground mt-1 text-right">{(form.bio_750 || "").length}/750</p>
+            </div>
+            <div>
+              <label className={labelClass}>Lien principal</label>
+              <input name="lien_principal" value={form.lien_principal || ""} onChange={handleChange} className={inputClass} placeholder="https://..." />
             </div>
           </div>
         </div>
+
+        {/* Podcast info (podcasteur only) */}
+        {isPodcasteur && (
+          <div className="bg-card border border-border rounded-2xl p-6 sm:p-8 space-y-6">
+            <h2 className="font-serif text-xl text-foreground">Informations du podcast</h2>
+            <div className="space-y-4">
+              <div>
+                <label className={labelClass}>Nom du podcast</label>
+                <input name="nom_podcast" value={form.nom_podcast || ""} onChange={handleChange} className={inputClass} />
+              </div>
+              <div>
+                <label className={labelClass}>Lien d'écoute</label>
+                <input name="lien_ecoute" value={form.lien_ecoute || ""} onChange={handleChange} className={inputClass} />
+              </div>
+              <div>
+                <label className={labelClass}>Description</label>
+                <Textarea name="description" value={form.description || ""} onChange={handleChange} rows={4} className="rounded-xl border-border bg-card" />
+              </div>
+              <div>
+                <label className={labelClass}>Thématique</label>
+                <input name="thematique" value={form.thematique || ""} onChange={handleChange} className={inputClass} />
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Pro info */}
+        {isPro && (
+          <div className="bg-card border border-border rounded-2xl p-6 sm:p-8 space-y-6">
+            <h2 className="font-serif text-xl text-foreground">Informations professionnelles</h2>
+            <div className="space-y-4">
+              <div>
+                <label className={labelClass}>Métier principal</label>
+                <input name="metier_principal" value={form.metier_principal || ""} onChange={handleChange} className={inputClass} />
+              </div>
+              <div>
+                <label className={labelClass}>Disponibilité</label>
+                <input name="disponibilite" value={form.disponibilite || ""} onChange={handleChange} className={inputClass} />
+              </div>
+            </div>
+          </div>
+        )}
 
         <div className="flex justify-end">
           <Button onClick={handleSave} disabled={saving} size="lg">
@@ -295,4 +391,4 @@ const MonPodcast = () => {
   );
 };
 
-export default MonPodcast;
+export default MonEspace;

@@ -80,10 +80,10 @@ const Navbar = () => {
             </button>
           ))}
           <button
-            onClick={() => handleClick("/espace-podcasteur")}
+            onClick={() => handleClick("/espace-membre")}
             className="ml-2 p-2 rounded-full transition-colors text-muted-foreground hover:text-foreground hover:bg-muted/50"
-            aria-label="Mon espace"
-            title="Mon espace"
+            aria-label="Espace membre"
+            title="Espace membre"
           >
             <User className="w-4.5 h-4.5" />
           </button>
@@ -119,11 +119,11 @@ const Navbar = () => {
                 </button>
               ))}
               <button
-                onClick={() => handleClick("/espace-podcasteur")}
+                onClick={() => handleClick("/espace-membre")}
                 className="flex items-center gap-2 w-full text-left px-3 py-2.5 rounded-md text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-muted/50 transition-colors"
               >
                 <User className="w-4 h-4" />
-                Mon espace
+                Espace membre
               </button>
             </div>
           </motion.div>

@@ -6,7 +6,7 @@ import { Mail, ArrowLeft, Check } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 
-const PodcasteurLogin = () => {
+const EspaceMembre = () => {
   const [email, setEmail] = useState("");
   const [loading, setLoading] = useState(false);
   const [sent, setSent] = useState(false);
@@ -15,11 +15,11 @@ const PodcasteurLogin = () => {
   useEffect(() => {
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
       if (session && event !== "PASSWORD_RECOVERY") {
-        navigate("/mon-podcast");
+        navigate("/mon-espace");
       }
     });
     supabase.auth.getSession().then(({ data: { session } }) => {
-      if (session) navigate("/mon-podcast");
+      if (session) navigate("/mon-espace");
     });
     return () => subscription.unsubscribe();
   }, [navigate]);
@@ -31,7 +31,7 @@ const PodcasteurLogin = () => {
     const { error } = await supabase.auth.signInWithOtp({
       email,
       options: {
-        emailRedirectTo: `${window.location.origin}/mon-podcast`,
+        emailRedirectTo: `${window.location.origin}/mon-espace`,
       },
     });
     setLoading(false);
@@ -49,9 +49,9 @@ const PodcasteurLogin = () => {
           <div className="mx-auto w-14 h-14 bg-primary/10 rounded-full flex items-center justify-center mb-4">
             <Mail className="w-7 h-7 text-primary" />
           </div>
-          <h1 className="font-serif text-2xl text-foreground">Espace podcasteur</h1>
+          <h1 className="font-serif text-2xl text-foreground">Espace membre</h1>
           <p className="text-muted-foreground mt-1 text-sm">
-            Connectez-vous pour modifier votre fiche podcast
+            Connectez-vous pour modifier vos fiches et vos photos
           </p>
         </div>
 
@@ -83,7 +83,7 @@ const PodcasteurLogin = () => {
                 required
               />
               <p className="text-xs text-muted-foreground mt-1.5">
-                Utilisez l'email avec lequel vous avez référencé votre podcast
+                Utilisez l'email avec lequel vous avez rempli le formulaire de référencement
               </p>
             </div>
             <Button type="submit" className="w-full" disabled={loading}>
@@ -103,4 +103,4 @@ const PodcasteurLogin = () => {
   );
 };
 
-export default PodcasteurLogin;
+export default EspaceMembre;
