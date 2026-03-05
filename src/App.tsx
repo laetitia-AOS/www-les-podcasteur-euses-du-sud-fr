@@ -25,6 +25,7 @@ import Adhesion from "./pages/Adhesion";
 import Annuaire from "./pages/Annuaire";
 import ProfilMembre from "./pages/ProfilMembre";
 import Bienvenue from "./pages/Bienvenue";
+import Formulaire from "./pages/Formulaire";
 
 const queryClient = new QueryClient();
 
@@ -47,6 +48,7 @@ const App = () => (
           <Route path="/annuaire" element={<Annuaire />} />
           <Route path="/profil/:id" element={<ProfilMembre />} />
           <Route path="/bienvenue" element={<Bienvenue />} />
+          <Route path="/formulaire" element={<Formulaire />} />
           <Route path="/admin" element={<AdminDashboard />} />
           <Route path="/admin/login" element={<AdminLogin />} />
           <Route path="/admin/adhesions" element={<AdminAdhesions />} />
