@@ -145,7 +145,7 @@ const MonPodcast = () => {
             Vous devez d'abord référencer votre podcast sur le site.
           </p>
           <div className="flex flex-col gap-2">
-            <Link to="/#formulaire">
+            <Link to="/formulaire">
               <Button className="w-full">Référencer mon podcast</Button>
             </Link>
             <Button variant="outline" onClick={handleLogout}>Se déconnecter</Button>

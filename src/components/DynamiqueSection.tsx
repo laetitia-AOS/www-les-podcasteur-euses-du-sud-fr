@@ -188,7 +188,7 @@ const DynamiqueSection = () => {
               Soyez parmi les premiers à apparaître.
             </p>
             <a
-              href="#formulaire"
+              href="/formulaire"
               className="inline-flex items-center gap-2 mt-6 text-sm font-medium text-primary hover:text-primary/80 transition-colors"
             >
               Référencer mon podcast gratuitement

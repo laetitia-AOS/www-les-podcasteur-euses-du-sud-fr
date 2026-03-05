@@ -8,7 +8,7 @@ const links = [
   { label: "Podcasts", href: "#flux" },
   { label: "Annuaire", href: "/annuaire" },
   { label: "Événements", href: "/evenements" },
-  { label: "Référencer", href: "#formulaire" },
+  { label: "Référencer", href: "/formulaire" },
   { label: "Contact", href: "/contact" },
 ];
 
