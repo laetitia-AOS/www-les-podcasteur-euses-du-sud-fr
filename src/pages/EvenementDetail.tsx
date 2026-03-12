@@ -51,14 +51,6 @@ const EvenementDetail = () => {
     enabled: !!slug,
   });
 
-  useEffect(() => {
-    if (evt) {
-      document.title = `${evt.titre} — Les Podcasteur·euses du Sud`;
-      const meta = document.querySelector('meta[name="description"]');
-      if (meta) meta.setAttribute("content", evt.description || evt.sous_titre || `Événement podcast : ${evt.titre}`);
-    }
-  }, [evt]);
-
   const handleShare = async () => {
     const url = window.location.href;
     if (navigator.share) {
@@ -71,11 +63,11 @@ const EvenementDetail = () => {
     }
   };
 
-  const jsonLd = evt ? {
+  const jsonLd = useMemo(() => evt ? {
     "@context": "https://schema.org",
     "@type": "Event",
     name: evt.titre,
-    description: evt.description || evt.sous_titre || `Événement podcast`,
+    description: evt.description || evt.sous_titre || "Événement podcast",
     startDate: evt.date_debut,
     ...(evt.date_fin && { endDate: evt.date_fin }),
     eventStatus: "https://schema.org/EventScheduled",
@@ -94,7 +86,10 @@ const EvenementDetail = () => {
       name: "Les Podcasteur·euses du Sud",
       url: "https://www.les-podcasteur-euses-du-sud.fr",
     },
-  } : null, [evt]);
+  } : undefined, [evt]);
+
+  const seoTitle = evt ? `${evt.titre} — Les Podcasteur·euses du Sud` : "Événement — Les Podcasteur·euses du Sud";
+  const seoDesc = evt ? (evt.description || evt.sous_titre || `Événement podcast : ${evt.titre}`) : "Événement podcast en Région Sud.";
 
   if (isLoading) {
     return (
