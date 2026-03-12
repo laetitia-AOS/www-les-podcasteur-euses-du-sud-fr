@@ -85,6 +85,12 @@ const disponibiliteOptions = [
   "Me contacter pour en discuter",
 ];
 
+const toSlug = (str: string) =>
+  str.toLowerCase()
+    .normalize("NFD").replace(/[\u0300-\u036f]/g, "")
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "");
+
 const SectionHeader = ({ number, title }: { number: number; title: string }) => (
   <h3 className="font-serif text-lg text-foreground flex items-center gap-2 mb-1">
     <span className="w-6 h-6 rounded-full bg-primary/10 text-primary text-xs flex items-center justify-center font-sans font-bold">
@@ -368,6 +374,7 @@ const FormSection = () => {
       cherche_collaboration: chercheCollab.length > 0 ? chercheCollab : null,
       peut_apporter: peutApporter.length > 0 ? peutApporter : null,
       format_collaboration: formData.formatCollaboration || null,
+      slug: toSlug(`${formData.nomPodcast || formData.prenom}-${formData.prenom}-${selectedCity?.city_name || ""}`),
     } as any);
     setUploading(false);
 
@@ -428,9 +435,9 @@ const FormSection = () => {
 
             {/* Visibilité */}
             <div className="space-y-4">
-              <h3 className="font-serif text-xl text-foreground">✨ À propos de la visibilité sur le flux</h3>
+              <h3 className="font-serif text-xl text-foreground">✨ À propos de la visibilité dans l'annuaire</h3>
               <p className="text-muted-foreground leading-relaxed text-sm">
-                La mise en avant éditoriale et la diffusion sur le flux du site sont réservées aux membres de l'association <span className="text-foreground font-medium">Les podcasteur·euses du Sud</span>.
+                Votre profil sera publié dans l'annuaire après validation manuelle par notre équipe (48 à 72h). Les membres à jour de leur cotisation associative sont mis en avant en priorité — mais ce n'est pas une condition obligatoire pour apparaître.
               </p>
               <p className="text-muted-foreground text-sm">Cette logique permet de :</p>
               <ul className="space-y-2 text-sm text-muted-foreground">
@@ -456,10 +463,9 @@ const FormSection = () => {
               </ul>
               <a
                 href="/adhesion"
-                className="group inline-flex items-center gap-3 bg-primary text-primary-foreground px-8 py-4 rounded-xl font-semibold hover:brightness-110 transition-all duration-300 shadow-md hover:shadow-lg"
+                className="text-primary hover:underline text-sm"
               >
-                👉 Adhérer à l'association
-                <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                Découvrir l'adhésion au collectif →
               </a>
             </div>
 
@@ -509,15 +515,18 @@ const FormSection = () => {
                   <Users className="w-5 h-5 text-secondary mt-0.5 shrink-0" />
                   <div>
                     <p className="text-sm font-semibold text-foreground mb-1">
-                      Apparaître sur le flux du site
+                      Visibilité dans l'annuaire et sur le flux
                     </p>
                     <p className="text-sm text-muted-foreground leading-relaxed">
-                      Les podcasts des adhérent·es sont automatiquement mis en avant sur le flux.{" "}
+                      Créer votre profil est gratuit et ouvert à toustes.
+                      La publication dans l'annuaire est validée manuellement par notre équipe.
+                      Les membres à jour de leur cotisation associative sont prioritairement mis en avant
+                      dans l'annuaire et sur le flux du site.{" "}
                       <a
                         href="/adhesion"
                         className="text-primary font-medium hover:underline"
                       >
-                        Adhérer à l'association →
+                        En savoir plus sur l'adhésion →
                       </a>
                     </p>
                   </div>
@@ -884,17 +893,24 @@ const FormSection = () => {
                 </label>
 
                 {formData.typeProfil === "podcasteur" && (
-                  <label className="flex items-start gap-3 cursor-pointer group">
-                    <input
-                      type="checkbox"
-                      checked={consentPublicationPodcast}
-                      onChange={(e) => setConsentPublicationPodcast(e.target.checked)}
-                      className="mt-1 h-4 w-4 rounded border-border text-primary accent-primary focus:ring-primary/30"
-                    />
-                    <span className="text-sm text-foreground group-hover:text-foreground/80 transition-colors">
-                      J'accepte la publication de mon podcast sur le flux du site <span className="text-primary">*</span>
-                    </span>
-                  </label>
+                  <>
+                    <label className="flex items-start gap-3 cursor-pointer group">
+                      <input
+                        type="checkbox"
+                        checked={consentPublicationPodcast}
+                        onChange={(e) => setConsentPublicationPodcast(e.target.checked)}
+                        className="mt-1 h-4 w-4 rounded border-border text-primary accent-primary focus:ring-primary/30"
+                      />
+                      <span className="text-sm text-foreground group-hover:text-foreground/80 transition-colors">
+                        J'accepte la publication de mon podcast sur le flux du site <span className="text-primary">*</span>
+                      </span>
+                    </label>
+                    <p className="text-xs text-muted-foreground ml-7 -mt-2 leading-relaxed">
+                      Le flux référence votre podcast via son lien d'écoute (hébergeur externe).
+                      Votre profil sera accessible à l'URL :
+                      /annuaire/[nom-du-podcast]-[prenom]-[ville]
+                    </p>
+                  </>
                 )}
 
                 <label className="flex items-start gap-3 cursor-pointer group">
