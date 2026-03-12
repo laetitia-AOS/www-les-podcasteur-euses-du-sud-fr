@@ -254,7 +254,7 @@ const MonEspace = () => {
                   i === activeTab ? "bg-primary text-primary-foreground shadow-sm" : "bg-card border border-border text-muted-foreground hover:text-foreground"
                 }`}>
                 {p.type_profil === "podcasteur" ? <Mic className="w-4 h-4" /> : <Users className="w-4 h-4" />}
-                {p.type_profil === "podcasteur" ? p.nom_podcast : p.type_profil === "pro_podcast" ? "Profil Pro" : "Profil Soutien"}
+                {p.type_profil === "podcasteur" ? p.nom_podcast : p.type_profil === "pro_podcast" ? "Acteur·ice" : "Profil Soutien"}
               </button>
             ))}
           </div>
@@ -269,7 +269,7 @@ const MonEspace = () => {
             {current.valide ? "Visible sur le site" : "En attente de validation"}
           </span>
           <span className="text-xs text-muted-foreground capitalize">
-            {current.type_profil === "podcasteur" ? "Podcasteur·euse" : current.type_profil === "pro_podcast" ? "Professionnel·le" : "Soutien"}
+            {current.type_profil === "podcasteur" ? "Podcasteur·euse" : current.type_profil === "pro_podcast" ? "Acteur·ice de l'écosystème" : "Soutien"}
           </span>
         </div>
 

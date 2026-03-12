@@ -506,7 +506,7 @@ const FormSection = () => {
                 Rejoindre le collectif
               </h2>
               <p className="text-muted-foreground leading-relaxed max-w-lg mx-auto">
-                Podcasteur·euse, professionnel·le du podcast ou simplement curieux·se :
+                Podcasteur·euse, acteur·ice de l'écosystème ou simplement curieux·se :
                 intégrez l'écosystème audio de la Région Sud.
               </p>
 
@@ -573,7 +573,7 @@ const FormSection = () => {
                   <label className={labelClass}>Je rejoins le collectif en tant que : <span className="text-primary">*</span></label>
                   <select name="typeProfil" value={formData.typeProfil} onChange={handleChange} className={selectClass} required>
                     <option value="podcasteur">Podcasteur·euse (j'ai un podcast)</option>
-                    <option value="pro_podcast">Professionnel·le du podcast (je propose des compétences)</option>
+                    <option value="pro_podcast">Acteur·ice de l'écosystème (je propose des compétences)</option>
                     <option value="soutien">Soutien / curieux (je veux suivre et contribuer)</option>
                   </select>
                 </div>

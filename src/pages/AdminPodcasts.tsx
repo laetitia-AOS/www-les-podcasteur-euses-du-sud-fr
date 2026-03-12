@@ -255,7 +255,7 @@ const AdminPodcasts = () => {
                     </TableCell>
                     <TableCell>
                       <Badge variant="outline" className="text-xs whitespace-nowrap">
-                        {p.type_profil === "podcasteur" ? "Podcasteur·euse" : p.type_profil === "pro_podcast" ? "Pro" : "Soutien"}
+                        {p.type_profil === "podcasteur" ? "Podcasteur·euse" : p.type_profil === "pro_podcast" ? "Acteur·ice" : "Soutien"}
                       </Badge>
                     </TableCell>
                     <TableCell>
@@ -330,7 +330,7 @@ const AdminPodcasts = () => {
               <div className="grid grid-cols-2 gap-4 text-sm mt-4">
                 <DetailRow label="Type de profil" value={
                   selectedPodcast.type_profil === "podcasteur" ? "Podcasteur·euse" :
-                  selectedPodcast.type_profil === "pro_podcast" ? "Professionnel·le" : "Soutien"
+                  selectedPodcast.type_profil === "pro_podcast" ? "Acteur·ice de l'écosystème" : "Soutien"
                 } />
                 <DetailRow label="Prénom" value={selectedPodcast.prenom} />
                 <DetailRow label="Nom" value={selectedPodcast.nom} />

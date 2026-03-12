@@ -83,7 +83,7 @@ const fuzzyMatch = (haystack: string, needle: string) => {
 const profilBadge = (type: string) => {
   switch (type) {
     case "pro_podcast":
-      return { label: "Pro du podcast", icon: Briefcase, className: "bg-secondary/15 text-secondary border-secondary/30" };
+      return { label: "Acteur·ice de l'écosystème", icon: Briefcase, className: "bg-secondary/15 text-secondary border-secondary/30" };
     case "soutien":
       return { label: "Soutien", icon: Heart, className: "bg-primary/10 text-primary border-primary/30" };
     default:
@@ -213,7 +213,7 @@ const Annuaire = () => {
               <select value={filterType} onChange={(e) => { setFilterType(e.target.value); setFilterMetier(""); setFilterThematique(""); }} className={selectClass}>
                 <option value="">Tous les profils</option>
                 <option value="podcasteur">Podcasteurs</option>
-                <option value="pro_podcast">Pros du podcast</option>
+                <option value="pro_podcast">Acteurs de l'écosystème</option>
                 <option value="soutien">Soutiens</option>
               </select>
               <select value={filterDept} onChange={(e) => setFilterDept(e.target.value)} className={selectClass}>
