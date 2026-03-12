@@ -235,11 +235,32 @@ const Annuaire = () => {
                       to={`/profil/${profile.id}`}
                       className="block bg-card border border-border rounded-2xl p-6 hover:shadow-md hover:border-primary/20 transition-all duration-300 h-full"
                     >
-                      <div className="flex items-start justify-between mb-3">
-                        <div>
-                          <h3 className="font-serif text-lg text-foreground">
-                            {profile.prenom} {profile.nom}
-                          </h3>
+                      <div className="flex items-start gap-4 mb-3">
+                        {/* Photo de profil */}
+                        <div className="w-14 h-14 rounded-xl overflow-hidden bg-muted flex-shrink-0">
+                          {profile.vignette_url ? (
+                            <img
+                              src={profile.vignette_url}
+                              alt={`${profile.prenom ?? ""} ${profile.nom ?? ""}`}
+                              className="w-full h-full object-cover"
+                              loading="lazy"
+                            />
+                          ) : (
+                            <div className="w-full h-full flex items-center justify-center bg-primary/5">
+                              <BadgeIcon className="w-6 h-6 text-primary/30" />
+                            </div>
+                          )}
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-start justify-between gap-2">
+                            <h3 className="font-serif text-lg text-foreground truncate">
+                              {profile.prenom} {profile.nom}
+                            </h3>
+                            <span className={`inline-flex items-center gap-1 text-xs font-medium px-2 py-1 rounded-full border flex-shrink-0 ${badge.className}`}>
+                              <BadgeIcon className="w-3 h-3" />
+                              {badge.label}
+                            </span>
+                          </div>
                           {profile.city_name && (
                             <p className="text-xs text-muted-foreground flex items-center gap-1 mt-1">
                               <MapPin className="w-3 h-3" />
@@ -247,10 +268,6 @@ const Annuaire = () => {
                             </p>
                           )}
                         </div>
-                        <span className={`inline-flex items-center gap-1 text-xs font-medium px-2 py-1 rounded-full border ${badge.className}`}>
-                          <BadgeIcon className="w-3 h-3" />
-                          {badge.label}
-                        </span>
                       </div>
 
                       {/* Conditional content */}
