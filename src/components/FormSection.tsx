@@ -271,12 +271,12 @@ const FormSection = () => {
       toast.error("Veuillez remplir votre présentation (min. 10 caractères).");
       return;
     }
-    if (!formData.lienPrincipal) {
-      toast.error("Veuillez indiquer votre lien principal (site, LinkedIn, portfolio...)");
+    if (formData.lienPrincipal && !formData.lienPrincipal.startsWith("https://")) {
+      toast.error("Le lien site internet doit commencer par https://");
       return;
     }
-    if (!formData.lienPrincipal.startsWith("https://")) {
-      toast.error("Le lien principal doit commencer par https://");
+    if (formData.lienLinkedin && !formData.lienLinkedin.startsWith("https://")) {
+      toast.error("Le lien réseau social doit commencer par https://");
       return;
     }
     if (formData.typeProfil === "podcasteur" && (!formData.nomPodcast || !formData.lienEcoute || !formData.description)) {
