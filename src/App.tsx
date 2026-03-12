@@ -17,6 +17,7 @@ import AdminContacts from "./pages/AdminContacts";
 import AdminDashboard from "./pages/AdminDashboard";
 import AdminPodcasts from "./pages/AdminPodcasts";
 import Evenements from "./pages/Evenements";
+import EvenementDetail from "./pages/EvenementDetail";
 import ResetPassword from "./pages/ResetPassword";
 import PodcasteurLogin from "./pages/PodcasteurLogin";
 import MonPodcast from "./pages/MonPodcast";
