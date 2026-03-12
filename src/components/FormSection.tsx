@@ -85,6 +85,12 @@ const disponibiliteOptions = [
   "Me contacter pour en discuter",
 ];
 
+const toSlug = (str: string) =>
+  str.toLowerCase()
+    .normalize("NFD").replace(/[\u0300-\u036f]/g, "")
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "");
+
 const SectionHeader = ({ number, title }: { number: number; title: string }) => (
   <h3 className="font-serif text-lg text-foreground flex items-center gap-2 mb-1">
     <span className="w-6 h-6 rounded-full bg-primary/10 text-primary text-xs flex items-center justify-center font-sans font-bold">
