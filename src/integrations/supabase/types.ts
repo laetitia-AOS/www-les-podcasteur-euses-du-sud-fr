@@ -182,6 +182,7 @@ export type Database = {
           score_opportunite: number
           segment_pds: string
           services_3: string[] | null
+          slug: string | null
           structure: string | null
           telephone: string | null
           thematique: string | null
@@ -223,6 +224,7 @@ export type Database = {
           score_opportunite?: number
           segment_pds?: string
           services_3?: string[] | null
+          slug?: string | null
           structure?: string | null
           telephone?: string | null
           thematique?: string | null
@@ -264,6 +266,7 @@ export type Database = {
           score_opportunite?: number
           segment_pds?: string
           services_3?: string[] | null
+          slug?: string | null
           structure?: string | null
           telephone?: string | null
           thematique?: string | null
@@ -305,6 +308,7 @@ export type Database = {
         }
         Returns: boolean
       }
+      unaccent: { Args: { "": string }; Returns: string }
     }
     Enums: {
       app_role: "admin" | "moderator" | "user"
