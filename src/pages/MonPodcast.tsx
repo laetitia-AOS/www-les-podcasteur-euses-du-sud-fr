@@ -140,6 +140,7 @@ const MonEspace = () => {
       telephone: form.telephone,
       bio_750: form.bio_750,
       lien_principal: form.lien_principal,
+      lien_linkedin: (form as any).lien_linkedin,
       metier_principal: form.metier_principal,
       disponibilite: form.disponibilite,
       type_podcast: form.type_podcast,
