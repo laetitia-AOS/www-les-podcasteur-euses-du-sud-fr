@@ -374,6 +374,7 @@ const FormSection = () => {
       cherche_collaboration: chercheCollab.length > 0 ? chercheCollab : null,
       peut_apporter: peutApporter.length > 0 ? peutApporter : null,
       format_collaboration: formData.formatCollaboration || null,
+      slug: toSlug(`${formData.nomPodcast || formData.prenom}-${formData.prenom}-${selectedCity?.city_name || ""}`),
     } as any);
     setUploading(false);
 
