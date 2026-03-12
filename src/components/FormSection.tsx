@@ -73,7 +73,7 @@ const peutApporterOptions = [
 const formatCollaborationOptions = [
   "En présentiel (Marseille / région)",
   "À distance",
-  "Les deux",
+  "Présentiel et à distance",
   "À définir",
 ];
 
