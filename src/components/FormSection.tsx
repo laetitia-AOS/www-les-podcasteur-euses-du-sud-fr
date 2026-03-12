@@ -509,15 +509,18 @@ const FormSection = () => {
                   <Users className="w-5 h-5 text-secondary mt-0.5 shrink-0" />
                   <div>
                     <p className="text-sm font-semibold text-foreground mb-1">
-                      Apparaître sur le flux du site
+                      Visibilité dans l'annuaire et sur le flux
                     </p>
                     <p className="text-sm text-muted-foreground leading-relaxed">
-                      Les podcasts des adhérent·es sont automatiquement mis en avant sur le flux.{" "}
+                      Créer votre profil est gratuit et ouvert à toustes.
+                      La publication dans l'annuaire est validée manuellement par notre équipe.
+                      Les membres à jour de leur cotisation associative sont prioritairement mis en avant
+                      dans l'annuaire et sur le flux du site.{" "}
                       <a
                         href="/adhesion"
                         className="text-primary font-medium hover:underline"
                       >
-                        Adhérer à l'association →
+                        En savoir plus sur l'adhésion →
                       </a>
                     </p>
                   </div>
