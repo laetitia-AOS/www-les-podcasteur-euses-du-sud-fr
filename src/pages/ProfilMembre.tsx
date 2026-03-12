@@ -271,11 +271,6 @@ const ProfilMembre = () => {
                     {profile.type_podcast && (
                       <Badge variant="secondary">{profile.type_podcast}</Badge>
                     )}
-                    {profile.niveau_avancement && (
-                      <Badge variant="secondary" className="gap-1">
-                        <BarChart3 className="w-3 h-3" /> {niveauLabels[profile.niveau_avancement] || profile.niveau_avancement}
-                      </Badge>
-                    )}
                     {profile.frequence_publication && (
                       <Badge variant="secondary" className="gap-1">
                         <Clock className="w-3 h-3" /> {profile.frequence_publication}
