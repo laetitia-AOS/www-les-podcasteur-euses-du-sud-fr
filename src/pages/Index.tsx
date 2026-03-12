@@ -6,9 +6,6 @@ import ObjectifsSection from "@/components/ObjectifsSection";
 import PromessesSection from "@/components/PromessesSection";
 import DynamiqueSection from "@/components/DynamiqueSection";
 import ProchainEvenement from "@/components/ProchainEvenement";
-import CommunauteSection from "@/components/CommunauteSection";
-import ContactCTA from "@/components/ContactCTA";
-import FormSection from "@/components/FormSection";
 import Footer from "@/components/Footer";
 
 const Index = () => {
