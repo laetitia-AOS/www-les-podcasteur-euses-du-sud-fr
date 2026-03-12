@@ -573,7 +573,7 @@ const FormSection = () => {
                   <label className={labelClass}>Je rejoins le collectif en tant que : <span className="text-primary">*</span></label>
                   <select name="typeProfil" value={formData.typeProfil} onChange={handleChange} className={selectClass} required>
                     <option value="podcasteur">Podcasteur·euse (j'ai un podcast)</option>
-                    <option value="pro_podcast">Professionnel·le du podcast (je propose des compétences)</option>
+                    <option value="pro_podcast">Acteur·ice de l'écosystème (je propose des compétences)</option>
                     <option value="soutien">Soutien / curieux (je veux suivre et contribuer)</option>
                   </select>
                 </div>

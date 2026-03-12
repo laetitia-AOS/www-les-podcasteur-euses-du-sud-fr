@@ -269,7 +269,7 @@ const MonEspace = () => {
             {current.valide ? "Visible sur le site" : "En attente de validation"}
           </span>
           <span className="text-xs text-muted-foreground capitalize">
-            {current.type_profil === "podcasteur" ? "Podcasteur·euse" : current.type_profil === "pro_podcast" ? "Professionnel·le" : "Soutien"}
+            {current.type_profil === "podcasteur" ? "Podcasteur·euse" : current.type_profil === "pro_podcast" ? "Acteur·ice de l'écosystème" : "Soutien"}
           </span>
         </div>
 

@@ -213,7 +213,7 @@ const Annuaire = () => {
               <select value={filterType} onChange={(e) => { setFilterType(e.target.value); setFilterMetier(""); setFilterThematique(""); }} className={selectClass}>
                 <option value="">Tous les profils</option>
                 <option value="podcasteur">Podcasteurs</option>
-                <option value="pro_podcast">Pros du podcast</option>
+                <option value="pro_podcast">Acteurs de l'écosystème</option>
                 <option value="soutien">Soutiens</option>
               </select>
               <select value={filterDept} onChange={(e) => setFilterDept(e.target.value)} className={selectClass}>
