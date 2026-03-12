@@ -95,6 +95,43 @@ const ProfilMembre = () => {
     fetchProfile();
   }, [slug]);
 
+  const config = profile ? (profilConfig[profile.type_profil] || profilConfig.podcasteur) : profilConfig.podcasteur;
+  const ProfilIcon = config.icon;
+  const fullName = profile ? `${profile.prenom ?? ""} ${profile.nom ?? ""}`.trim() : "";
+  const showContact = profile ? profile.consent_contact && profile.consent_mise_en_relation : false;
+
+  const jsonLd = useMemo(() => {
+    if (!profile) return undefined;
+    return {
+      "@context": "https://schema.org",
+      "@type": "Person",
+      name: fullName,
+      url: `https://www.les-podcasteur-euses-du-sud.fr/profil/${slug}`,
+      ...(profile.bio_750 && { description: profile.bio_750 }),
+      ...(profile.vignette_url && { image: profile.vignette_url }),
+      ...(profile.city_name && {
+        address: {
+          "@type": "PostalAddress",
+          addressLocality: profile.city_name.replace(/\s+\d+(er?|e)?\s+Arrondissement$/i, "").replace(/\s+\d+$/, ""),
+          addressRegion: "Provence-Alpes-Côte d'Azur",
+          addressCountry: "FR",
+        },
+      }),
+      ...(profile.metier_principal && { jobTitle: profile.metier_principal }),
+      ...(profile.structure && { worksFor: { "@type": "Organization", name: profile.structure } }),
+      memberOf: { "@type": "Organization", name: "Les Podcasteur·euses du Sud", url: "https://www.les-podcasteur-euses-du-sud.fr" },
+    };
+  }, [profile, fullName, slug]);
+
+  const seoTitle = profile
+    ? (profile.type_profil === "podcasteur" && profile.nom_podcast
+      ? `${profile.nom_podcast} par ${fullName} — Les Podcasteur·euses du Sud`
+      : `${fullName} — Les Podcasteur·euses du Sud`)
+    : "Profil — Les Podcasteur·euses du Sud";
+  const seoDesc = profile
+    ? (profile.bio_750 ? profile.bio_750.slice(0, 155) + "…" : `${fullName}, ${config.label} référencé·e dans l'écosystème podcast de la Région Sud.`)
+    : "Profil membre de l'écosystème podcast de la Région Sud.";
+
   if (loading) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
@@ -115,42 +152,6 @@ const ProfilMembre = () => {
       </div>
     );
   }
-
-  const config = profilConfig[profile.type_profil] || profilConfig.podcasteur;
-  const ProfilIcon = config.icon;
-  const fullName = `${profile.prenom ?? ""} ${profile.nom ?? ""}`.trim();
-  const showContact = profile.consent_contact && profile.consent_mise_en_relation;
-
-  const jsonLd = useMemo(() => {
-    if (!profile) return undefined;
-    const base: Record<string, unknown> = {
-      "@context": "https://schema.org",
-      "@type": "Person",
-      name: fullName,
-      url: `https://www.les-podcasteur-euses-du-sud.fr/profil/${slug}`,
-      ...(profile.bio_750 && { description: profile.bio_750 }),
-      ...(profile.vignette_url && { image: profile.vignette_url }),
-      ...(profile.city_name && {
-        address: {
-          "@type": "PostalAddress",
-          addressLocality: profile.city_name.replace(/\s+\d+(er?|e)?\s+Arrondissement$/i, "").replace(/\s+\d+$/, ""),
-          addressRegion: "Provence-Alpes-Côte d'Azur",
-          addressCountry: "FR",
-        },
-      }),
-      ...(profile.metier_principal && { jobTitle: profile.metier_principal }),
-      ...(profile.structure && { worksFor: { "@type": "Organization", name: profile.structure } }),
-      memberOf: { "@type": "Organization", name: "Les Podcasteur·euses du Sud", url: "https://www.les-podcasteur-euses-du-sud.fr" },
-    };
-    return base;
-  }, [profile, fullName, slug]);
-
-  const seoTitle = profile.type_profil === "podcasteur" && profile.nom_podcast
-    ? `${profile.nom_podcast} par ${fullName} — Les Podcasteur·euses du Sud`
-    : `${fullName} — Les Podcasteur·euses du Sud`;
-  const seoDesc = profile.bio_750
-    ? profile.bio_750.slice(0, 155) + "…"
-    : `${fullName}, ${config.label} référencé·e dans l'écosystème podcast de la Région Sud.`;
 
   return (
     <div className="min-h-screen bg-background">
