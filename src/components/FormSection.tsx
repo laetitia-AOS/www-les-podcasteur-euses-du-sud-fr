@@ -691,7 +691,7 @@ const FormSection = () => {
                 </div>
                 <div>
                   <label className={labelClass}>Vignette du podcast <span className="text-primary">*</span></label>
-                  <p className="text-xs text-muted-foreground mb-1">Format carré obligatoire (1:1, ex: 1400×1400 px). JPG, PNG ou WebP. Max 5 Mo.</p>
+                  <p className="text-xs text-muted-foreground mb-1">JPG, PNG ou WebP. Max 5 Mo. L'image sera recadrée au format carré.</p>
                   {vignettePreview ? (
                     <div className="relative inline-block">
                       <img src={vignettePreview} alt="Aperçu vignette" className="w-32 h-32 object-cover rounded-xl border-2 border-border/40 shadow-md" />

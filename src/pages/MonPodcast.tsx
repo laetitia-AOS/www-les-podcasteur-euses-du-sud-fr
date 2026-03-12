@@ -285,7 +285,7 @@ const MonEspace = () => {
           <h2 className="font-serif text-xl text-foreground">
             {isPodcasteur ? "Vignette du podcast" : "Photo de profil"}
           </h2>
-          <p className="text-xs text-muted-foreground">Format carré (1:1). JPG, PNG ou WebP. Max 5 Mo.</p>
+          <p className="text-xs text-muted-foreground">JPG, PNG ou WebP. Max 5 Mo. L'image sera recadrée au format carré.</p>
           <div className="flex items-start gap-4">
             {form.vignette_url ? (
               <div className="relative">
