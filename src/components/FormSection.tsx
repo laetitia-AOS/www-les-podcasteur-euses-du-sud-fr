@@ -539,10 +539,10 @@ const FormSection = () => {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true, margin: "-60px" }}
               transition={{ duration: 0.8, delay: 0.15 }}
-              className="bg-background border border-border rounded-3xl p-7 sm:p-10 space-y-8"
+              className="space-y-6"
             >
               {/* SECTION 1 — Coordonnées */}
-              <div className="space-y-5">
+              <div className={sectionCardClass}>
                 <SectionHeader number={sn.coordonnees} title="Vos coordonnées" />
                 <div className="grid sm:grid-cols-2 gap-4">
                   <div>
