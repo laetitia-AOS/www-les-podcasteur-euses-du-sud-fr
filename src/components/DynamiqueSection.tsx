@@ -7,6 +7,7 @@ import { Link } from "react-router-dom";
 
 interface Podcast {
   id: string;
+  slug: string | null;
   nom_podcast: string;
   description: string;
   ville: string | null;
