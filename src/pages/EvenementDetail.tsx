@@ -1,9 +1,10 @@
-import { useEffect } from "react";
+import { useMemo } from "react";
 import { useParams, Link } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
+import SEOHead from "@/components/SEOHead";
 import { motion } from "framer-motion";
 import { CalendarDays, MapPin, Clock, ExternalLink, Ticket, ArrowLeft, Share2 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
@@ -50,14 +51,6 @@ const EvenementDetail = () => {
     enabled: !!slug,
   });
 
-  useEffect(() => {
-    if (evt) {
-      document.title = `${evt.titre} — Les Podcasteur·euses du Sud`;
-      const meta = document.querySelector('meta[name="description"]');
-      if (meta) meta.setAttribute("content", evt.description || evt.sous_titre || `Événement podcast : ${evt.titre}`);
-    }
-  }, [evt]);
-
   const handleShare = async () => {
     const url = window.location.href;
     if (navigator.share) {
@@ -70,11 +63,11 @@ const EvenementDetail = () => {
     }
   };
 
-  const jsonLd = evt ? {
+  const jsonLd = useMemo(() => evt ? {
     "@context": "https://schema.org",
     "@type": "Event",
     name: evt.titre,
-    description: evt.description || evt.sous_titre || `Événement podcast`,
+    description: evt.description || evt.sous_titre || "Événement podcast",
     startDate: evt.date_debut,
     ...(evt.date_fin && { endDate: evt.date_fin }),
     eventStatus: "https://schema.org/EventScheduled",
@@ -93,7 +86,10 @@ const EvenementDetail = () => {
       name: "Les Podcasteur·euses du Sud",
       url: "https://www.les-podcasteur-euses-du-sud.fr",
     },
-  } : null;
+  } : undefined, [evt]);
+
+  const seoTitle = evt ? `${evt.titre} — Les Podcasteur·euses du Sud` : "Événement — Les Podcasteur·euses du Sud";
+  const seoDesc = evt ? (evt.description || evt.sous_titre || `Événement podcast : ${evt.titre}`) : "Événement podcast en Région Sud.";
 
   if (isLoading) {
     return (
@@ -139,13 +135,14 @@ const EvenementDetail = () => {
 
   return (
     <>
+      <SEOHead
+        title={seoTitle}
+        description={seoDesc}
+        path={`/evenement/${slug}`}
+        image={evt.image_url || undefined}
+        jsonLd={jsonLd}
+      />
       <Navbar />
-      {jsonLd && (
-        <script
-          type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
-        />
-      )}
       <main className="min-h-screen pt-20 pb-16">
         {/* Hero image */}
         {evt.image_url ? (
