@@ -506,9 +506,6 @@ const FormSection = () => {
                 Podcasteur·euse, professionnel·le du podcast ou simplement curieux·se :
                 intégrez l'écosystème audio de la Région Sud.
               </p>
-              <span className="inline-block mt-4 text-xs font-semibold uppercase tracking-wider text-primary bg-primary/10 px-3 py-1 rounded-full">
-                Gratuit
-              </span>
 
               <div className="mt-8 bg-secondary/10 border border-secondary/20 rounded-2xl p-5 text-left max-w-lg mx-auto">
                 <div className="flex items-start gap-3">
@@ -518,7 +515,7 @@ const FormSection = () => {
                       Visibilité dans l'annuaire et sur le flux
                     </p>
                     <p className="text-sm text-muted-foreground leading-relaxed">
-                      Créer votre profil est gratuit et ouvert à toustes.
+                      Créer votre profil est ouvert à toustes.
                       La publication dans l'annuaire est validée manuellement par notre équipe.
                       Les membres à jour de leur cotisation associative sont prioritairement mis en avant
                       dans l'annuaire et sur le flux du site.{" "}

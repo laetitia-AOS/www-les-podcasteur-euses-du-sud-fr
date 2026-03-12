@@ -27,7 +27,7 @@ const Adhesion = () => {
               <User className="w-8 h-8 text-primary mb-2" />
               <h2 className="font-serif text-lg text-foreground font-semibold">Référencer mon profil</h2>
               <p className="text-sm text-muted-foreground leading-relaxed">
-                Gratuit, ouvert à toustes. Intégrez l'annuaire de l'écosystème podcast
+                Ouvert à toustes. Intégrez l'annuaire de l'écosystème podcast
                 Région Sud. La publication est validée manuellement par notre équipe.
               </p>
               <a
