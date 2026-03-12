@@ -255,7 +255,7 @@ const AdminPodcasts = () => {
                     </TableCell>
                     <TableCell>
                       <Badge variant="outline" className="text-xs whitespace-nowrap">
-                        {p.type_profil === "podcasteur" ? "Podcasteur·euse" : p.type_profil === "pro_podcast" ? "Pro" : "Soutien"}
+                        {p.type_profil === "podcasteur" ? "Podcasteur·euse" : p.type_profil === "pro_podcast" ? "Acteur·ice" : "Soutien"}
                       </Badge>
                     </TableCell>
                     <TableCell>
