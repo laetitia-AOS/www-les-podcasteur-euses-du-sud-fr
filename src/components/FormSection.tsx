@@ -80,7 +80,7 @@ const formatCollaborationOptions = [
 const disponibiliteOptions = [
   "Disponible pour missions freelance",
   "Disponible pour collaborations bénévoles",
-  "Disponible pour les deux",
+  "Disponible pour missions freelance et collaborations bénévoles",
   "Non disponible actuellement",
   "Me contacter pour en discuter",
 ];

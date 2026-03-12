@@ -255,7 +255,7 @@ const Annuaire = () => {
                   <option value="">Format</option>
                   <option value="En présentiel (Marseille / région)">En présentiel</option>
                   <option value="À distance">À distance</option>
-                  <option value="Les deux">Les deux</option>
+                  <option value="Présentiel et à distance">Présentiel et à distance</option>
                 </select>
               </div>
             </div>
