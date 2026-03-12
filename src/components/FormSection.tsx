@@ -428,9 +428,9 @@ const FormSection = () => {
 
             {/* Visibilité */}
             <div className="space-y-4">
-              <h3 className="font-serif text-xl text-foreground">✨ À propos de la visibilité sur le flux</h3>
+              <h3 className="font-serif text-xl text-foreground">✨ À propos de la visibilité dans l'annuaire</h3>
               <p className="text-muted-foreground leading-relaxed text-sm">
-                La mise en avant éditoriale et la diffusion sur le flux du site sont réservées aux membres de l'association <span className="text-foreground font-medium">Les podcasteur·euses du Sud</span>.
+                Votre profil sera publié dans l'annuaire après validation manuelle par notre équipe (48 à 72h). Les membres à jour de leur cotisation associative sont mis en avant en priorité — mais ce n'est pas une condition obligatoire pour apparaître.
               </p>
               <p className="text-muted-foreground text-sm">Cette logique permet de :</p>
               <ul className="space-y-2 text-sm text-muted-foreground">
