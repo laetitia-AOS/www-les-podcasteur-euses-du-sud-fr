@@ -191,6 +191,13 @@ const ProfilMembre = () => {
                       </Button>
                     </a>
                   )}
+                  {profile.lien_linkedin && (
+                    <a href={profile.lien_linkedin} target="_blank" rel="noopener noreferrer">
+                      <Button variant="outline" size="sm" className="gap-2 rounded-full">
+                        <Globe className="w-4 h-4" /> LinkedIn
+                      </Button>
+                    </a>
+                  )}
                   {profile.lien_principal && (
                     <a href={profile.lien_principal} target="_blank" rel="noopener noreferrer">
                       <Button variant="outline" size="sm" className="gap-2 rounded-full">
