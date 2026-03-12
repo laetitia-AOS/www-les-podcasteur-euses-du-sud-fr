@@ -186,13 +186,6 @@ const ProfilMembre = () => {
                       </Button>
                     </a>
                   )}
-                  {showContact && profile.email && (
-                    <a href={`mailto:${profile.email}`}>
-                      <Button variant="outline" size="sm" className="gap-2 rounded-full">
-                        <Mail className="w-4 h-4" /> Contacter
-                      </Button>
-                    </a>
-                  )}
                 </div>
               </motion.div>
             </div>
