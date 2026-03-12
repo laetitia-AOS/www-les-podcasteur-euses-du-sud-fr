@@ -456,10 +456,9 @@ const FormSection = () => {
               </ul>
               <a
                 href="/adhesion"
-                className="group inline-flex items-center gap-3 bg-primary text-primary-foreground px-8 py-4 rounded-xl font-semibold hover:brightness-110 transition-all duration-300 shadow-md hover:shadow-lg"
+                className="text-primary hover:underline text-sm"
               >
-                👉 Adhérer à l'association
-                <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                Découvrir l'adhésion au collectif →
               </a>
             </div>
 
