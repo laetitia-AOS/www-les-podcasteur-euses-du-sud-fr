@@ -63,19 +63,30 @@ const niveauLabels: Record<string, string> = {
 };
 
 const ProfilMembre = () => {
-  const { id } = useParams<{ id: string }>();
+  const { slug } = useParams<{ slug: string }>();
   const [profile, setProfile] = useState<ProfileData | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchProfile = async () => {
-      if (!id) return;
-      const { data, error } = await supabase
+      if (!slug) return;
+      
+      // Try slug first, fallback to id for backward compatibility
+      let query = supabase
         .from("podcasts")
         .select("*")
-        .eq("id", id)
-        .eq("valide", true)
-        .maybeSingle();
+        .eq("valide", true);
+      
+      // If it looks like a UUID, search by id too
+      const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(slug);
+      
+      if (isUuid) {
+        query = query.eq("id", slug);
+      } else {
+        query = query.eq("slug", slug);
+      }
+      
+      const { data, error } = await query.maybeSingle();
       if (!error && data) {
         setProfile(data as unknown as ProfileData);
         document.title = `${data.prenom || ""} ${data.nom || ""} — Les Podcasteur·euses du Sud`;
@@ -83,7 +94,7 @@ const ProfilMembre = () => {
       setLoading(false);
     };
     fetchProfile();
-  }, [id]);
+  }, [slug]);
 
   if (loading) {
     return (
