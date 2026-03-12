@@ -654,15 +654,6 @@ const ProfilMembre = () => {
       </main>
       <Footer />
 
-      {/* Contact Modal */}
-      {profile && (
-        <ContactModal
-          open={contactOpen}
-          onOpenChange={setContactOpen}
-          recipientId={profile.id}
-          recipientName={fullName}
-        />
-      )}
     </div>
   );
 };
