@@ -123,12 +123,12 @@ const CheckboxMultiSelect = ({
         return (
           <label
             key={opt}
-            className={`flex items-center gap-3 px-3 py-2.5 rounded-lg border cursor-pointer transition-all text-sm ${
+            className={`flex items-center gap-3 px-4 py-3 rounded-xl border-2 cursor-pointer transition-all text-sm ${
               isChecked
-                ? "border-primary/30 bg-primary/5 text-foreground"
+                ? "border-primary/40 bg-primary/5 text-foreground shadow-sm"
                 : isDisabled
-                ? "border-border bg-muted/30 text-muted-foreground cursor-not-allowed opacity-50"
-                : "border-border bg-card text-foreground hover:border-primary/20"
+                ? "border-transparent bg-muted/20 text-muted-foreground cursor-not-allowed opacity-40"
+                : "border-transparent bg-background text-foreground hover:border-primary/20 hover:bg-primary/[0.02]"
             }`}
           >
             <input
