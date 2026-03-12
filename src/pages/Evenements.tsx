@@ -1,10 +1,11 @@
 import { useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
+import { Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { motion } from "framer-motion";
-import { CalendarDays, MapPin, Clock, ExternalLink, Users, Ticket } from "lucide-react";
+import { CalendarDays, MapPin, Clock, ExternalLink, Users, Ticket, ArrowRight } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 
 const TYPE_COLORS: Record<string, string> = {
