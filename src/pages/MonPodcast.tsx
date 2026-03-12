@@ -121,9 +121,9 @@ const MonEspace = () => {
     if (file.size > 5 * 1024 * 1024) { toast.error("Max 5 Mo."); return; }
     const croppedFile = await cropToSquare(file);
     setUploading(true);
-    const ext = file.name.split(".").pop();
+    const ext = croppedFile.name.split(".").pop();
     const fileName = `${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`;
-    const { error } = await supabase.storage.from("podcast-thumbnails").upload(fileName, file, { contentType: file.type });
+    const { error } = await supabase.storage.from("podcast-thumbnails").upload(fileName, croppedFile, { contentType: croppedFile.type });
     if (error) { toast.error("Erreur upload."); setUploading(false); return; }
     const { data: urlData } = supabase.storage.from("podcast-thumbnails").getPublicUrl(fileName);
     setForm((prev) => ({ ...prev, vignette_url: urlData.publicUrl }));
