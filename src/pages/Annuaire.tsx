@@ -128,7 +128,6 @@ const Annuaire = () => {
   const [filterFormat, setFilterFormat] = useState("");
 
   useEffect(() => {
-    document.title = "Annuaire — Écosystème Podcast | Les Podcasteur·euses du Sud";
     const fetchProfiles = async () => {
       const { data, error } = await supabase
         .from("podcasts")

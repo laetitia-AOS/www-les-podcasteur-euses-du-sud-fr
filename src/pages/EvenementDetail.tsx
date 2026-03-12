@@ -135,13 +135,14 @@ const EvenementDetail = () => {
 
   return (
     <>
+      <SEOHead
+        title={seoTitle}
+        description={seoDesc}
+        path={`/evenement/${slug}`}
+        image={evt.image_url || undefined}
+        jsonLd={jsonLd}
+      />
       <Navbar />
-      {jsonLd && (
-        <script
-          type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
-        />
-      )}
       <main className="min-h-screen pt-20 pb-16">
         {/* Hero image */}
         {evt.image_url ? (
