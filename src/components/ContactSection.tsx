@@ -72,10 +72,11 @@ const ContactSection = () => {
   };
 
   const inputClass =
-    "w-full rounded-xl border border-border bg-card px-4 py-3.5 text-foreground placeholder:text-muted-foreground/50 focus:outline-none focus:ring-2 focus:ring-secondary/30 focus:border-secondary/30 transition-all";
+    "w-full rounded-xl border-2 border-border/60 bg-background px-4 py-3.5 text-foreground placeholder:text-muted-foreground/40 focus:outline-none focus:ring-2 focus:ring-secondary/20 focus:border-secondary/40 transition-all shadow-sm";
   const selectClass =
-    "w-full rounded-xl border border-border bg-card px-4 py-3.5 text-foreground focus:outline-none focus:ring-2 focus:ring-secondary/30 focus:border-secondary/30 transition-all appearance-none";
-  const labelClass = "block text-sm font-medium text-foreground mb-2";
+    "w-full rounded-xl border-2 border-border/60 bg-background px-4 py-3.5 text-foreground focus:outline-none focus:ring-2 focus:ring-secondary/20 focus:border-secondary/40 transition-all appearance-none shadow-sm";
+  const labelClass = "block text-sm font-semibold text-foreground/80 mb-2";
+  const sectionCardClass = "bg-card/50 border border-border/40 rounded-2xl p-6 space-y-5";
 
   return (
     <section id="contact" className="py-20 md:py-32 bg-background">
