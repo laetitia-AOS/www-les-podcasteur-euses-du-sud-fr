@@ -73,14 +73,14 @@ const peutApporterOptions = [
 const formatCollaborationOptions = [
   "En présentiel (Marseille / région)",
   "À distance",
-  "Les deux",
+  "Présentiel et à distance",
   "À définir",
 ];
 
 const disponibiliteOptions = [
   "Disponible pour missions freelance",
   "Disponible pour collaborations bénévoles",
-  "Disponible pour les deux",
+  "Disponible pour missions freelance et collaborations bénévoles",
   "Non disponible actuellement",
   "Me contacter pour en discuter",
 ];
@@ -271,12 +271,12 @@ const FormSection = () => {
       toast.error("Veuillez remplir votre présentation (min. 10 caractères).");
       return;
     }
-    if (!formData.lienPrincipal) {
-      toast.error("Veuillez indiquer votre lien principal (site, LinkedIn, portfolio...)");
+    if (formData.lienPrincipal && !formData.lienPrincipal.startsWith("https://")) {
+      toast.error("Le lien site internet doit commencer par https://");
       return;
     }
-    if (!formData.lienPrincipal.startsWith("https://")) {
-      toast.error("Le lien principal doit commencer par https://");
+    if (formData.lienLinkedin && !formData.lienLinkedin.startsWith("https://")) {
+      toast.error("Le lien réseau social doit commencer par https://");
       return;
     }
     if (formData.typeProfil === "podcasteur" && (!formData.nomPodcast || !formData.lienEcoute || !formData.description)) {
@@ -603,7 +603,7 @@ const FormSection = () => {
                     <input name="lienLinkedin" value={formData.lienLinkedin} onChange={handleChange} className={inputClass} placeholder="https://linkedin.com/in/..." />
                   </div>
                   <div>
-                    <label className={labelClass}>Site internet / portfolio <span className="text-primary">*</span></label>
+                    <label className={labelClass}>Site internet / portfolio</label>
                     <input name="lienPrincipal" value={formData.lienPrincipal} onChange={handleChange} className={inputClass} placeholder="https://..." />
                   </div>
                 </div>
