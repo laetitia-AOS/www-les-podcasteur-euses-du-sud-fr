@@ -258,8 +258,8 @@ const Evenements = () => {
               </div>
               <div className="grid sm:grid-cols-2 gap-4">
                 {pastEvents.map((evt) => (
+                  <Link to={`/evenement/${evt.slug || evt.id}`} key={evt.id}>
                   <article
-                    key={evt.id}
                     className="flex items-center gap-4 bg-muted/20 border border-border/50 rounded-xl p-4 opacity-60 hover:opacity-90 transition-opacity"
                   >
                     {evt.image_url ? (
@@ -283,6 +283,7 @@ const Evenements = () => {
                       </p>
                     </div>
                   </article>
+                  </Link>
                 ))}
               </div>
             </section>
