@@ -17,6 +17,7 @@ import AdminContacts from "./pages/AdminContacts";
 import AdminDashboard from "./pages/AdminDashboard";
 import AdminPodcasts from "./pages/AdminPodcasts";
 import Evenements from "./pages/Evenements";
+import EvenementDetail from "./pages/EvenementDetail";
 import ResetPassword from "./pages/ResetPassword";
 import PodcasteurLogin from "./pages/PodcasteurLogin";
 import MonPodcast from "./pages/MonPodcast";
@@ -44,6 +45,7 @@ const App = () => (
           <Route path="/conditions-utilisation" element={<CGU />} />
           <Route path="/politique-cookies" element={<PolitiqueCookies />} />
           <Route path="/evenements" element={<Evenements />} />
+          <Route path="/evenement/:slug" element={<EvenementDetail />} />
           <Route path="/adhesion" element={<Adhesion />} />
           <Route path="/annuaire" element={<Annuaire />} />
           <Route path="/profil/:slug" element={<ProfilMembre />} />

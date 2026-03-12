@@ -1,10 +1,11 @@
 import { useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
+import { Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { motion } from "framer-motion";
-import { CalendarDays, MapPin, Clock, ExternalLink, Users, Ticket } from "lucide-react";
+import { CalendarDays, MapPin, Clock, ExternalLink, Users, Ticket, ArrowRight } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 
 const TYPE_COLORS: Record<string, string> = {
@@ -142,6 +143,7 @@ const Evenements = () => {
                 const monthShort = new Date(evt.date_debut).toLocaleDateString("fr-FR", { month: "short" });
 
                 return (
+                  <Link to={`/evenement/${evt.slug || evt.id}`} className="block">
                   <motion.article
                     key={evt.id}
                     role="listitem"
@@ -192,7 +194,7 @@ const Evenements = () => {
                             </div>
                           )}
 
-                          <h2 className="font-serif text-xl md:text-2xl text-foreground mb-1 leading-tight">
+                          <h2 className="font-serif text-xl md:text-2xl text-foreground mb-1 leading-tight group-hover:text-primary transition-colors">
                             {evt.titre}
                           </h2>
                           {evt.sous_titre && (
@@ -201,7 +203,7 @@ const Evenements = () => {
                             </p>
                           )}
                           {evt.description && (
-                            <p className="text-muted-foreground text-sm leading-relaxed mb-5 max-w-2xl">
+                            <p className="text-muted-foreground text-sm leading-relaxed mb-5 max-w-2xl line-clamp-3">
                               {evt.description}
                             </p>
                           )}
@@ -230,21 +232,15 @@ const Evenements = () => {
                             )}
                           </div>
 
-                          {evt.lien_externe && (
-                            <a
-                              href={evt.lien_externe}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className="inline-flex items-center gap-2 mt-6 text-sm font-semibold text-primary-foreground bg-primary px-5 py-2.5 rounded-xl hover:brightness-110 transition-all shadow-sm hover:shadow-md"
-                            >
-                              S'inscrire / Plus d'infos
-                              <ExternalLink className="w-3.5 h-3.5" />
-                            </a>
-                          )}
+                          <div className="mt-5 flex items-center gap-1.5 text-sm font-semibold text-primary group-hover:gap-2.5 transition-all">
+                            Voir les détails
+                            <ArrowRight className="w-4 h-4" />
+                          </div>
                         </div>
                       </div>
                     </div>
                   </motion.article>
+                  </Link>
                 );
               })}
             </div>
@@ -262,8 +258,8 @@ const Evenements = () => {
               </div>
               <div className="grid sm:grid-cols-2 gap-4">
                 {pastEvents.map((evt) => (
+                  <Link to={`/evenement/${evt.slug || evt.id}`} key={evt.id}>
                   <article
-                    key={evt.id}
                     className="flex items-center gap-4 bg-muted/20 border border-border/50 rounded-xl p-4 opacity-60 hover:opacity-90 transition-opacity"
                   >
                     {evt.image_url ? (
@@ -287,6 +283,7 @@ const Evenements = () => {
                       </p>
                     </div>
                   </article>
+                  </Link>
                 ))}
               </div>
             </section>
