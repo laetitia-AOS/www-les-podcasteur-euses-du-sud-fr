@@ -89,7 +89,6 @@ const ProfilMembre = () => {
       const { data, error } = await query.maybeSingle();
       if (!error && data) {
         setProfile(data as unknown as ProfileData);
-        document.title = `${data.prenom || ""} ${data.nom || ""} — Les Podcasteur·euses du Sud`;
       }
       setLoading(false);
     };
