@@ -503,12 +503,6 @@ const ProfilMembre = () => {
                           <span>{profile.thematique}</span>
                         </div>
                       )}
-                      {profile.niveau_avancement && (
-                        <div className="flex items-center gap-3 text-foreground/70">
-                          <BarChart3 className="w-4 h-4 text-primary" />
-                          <span>{niveauLabels[profile.niveau_avancement] || profile.niveau_avancement}</span>
-                        </div>
-                      )}
                       {profile.frequence_publication && (
                         <div className="flex items-center gap-3 text-foreground/70">
                           <Clock className="w-4 h-4 text-primary" />
