@@ -9,8 +9,10 @@ import { motion } from "framer-motion";
 import {
   MapPin, Headphones, ExternalLink, ArrowLeft, Briefcase, Heart,
   CheckCircle, Music, Tag, BarChart3, Clock, Coins, Loader2, Mail, Phone,
-  Globe, Mic, Sparkles
+  Globe, Mic, Sparkles, MessageCircle, Wifi, Handshake, Send
 } from "lucide-react";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
+import { toast } from "sonner";
 
 interface ProfileData {
   id: string;
@@ -40,6 +42,9 @@ interface ProfileData {
   email: string;
   telephone: string | null;
   structure: string | null;
+  cherche_collaboration: string[] | null;
+  peut_apporter: string[] | null;
+  format_collaboration: string | null;
 }
 
 const profilConfig: Record<string, { label: string; icon: typeof Headphones; gradient: string; accent: string }> = {
@@ -64,10 +69,96 @@ const niveauLabels: Record<string, string> = {
   installe: "Installé (50+)",
 };
 
+const ContactModal = ({ open, onOpenChange, recipientId, recipientName }: {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  recipientId: string;
+  recipientName: string;
+}) => {
+  const [senderName, setSenderName] = useState("");
+  const [senderEmail, setSenderEmail] = useState("");
+  const [message, setMessage] = useState("");
+  const [sending, setSending] = useState(false);
+
+  const handleSend = async () => {
+    if (!senderName.trim() || !senderEmail.trim() || !message.trim()) {
+      toast.error("Veuillez remplir tous les champs.");
+      return;
+    }
+    if (!senderEmail.includes("@")) {
+      toast.error("Veuillez entrer un email valide.");
+      return;
+    }
+    setSending(true);
+    const { error } = await supabase.from("contact_requests" as any).insert({
+      sender_name: senderName.trim(),
+      sender_email: senderEmail.trim(),
+      recipient_id: recipientId,
+      message: message.trim(),
+    } as any);
+    setSending(false);
+    if (error) {
+      toast.error("Erreur lors de l'envoi. Veuillez réessayer.");
+      return;
+    }
+    toast.success("Message envoyé avec succès !");
+    setSenderName("");
+    setSenderEmail("");
+    setMessage("");
+    onOpenChange(false);
+  };
+
+  return (
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className="sm:max-w-md">
+        <DialogHeader>
+          <DialogTitle className="font-serif">Contacter {recipientName}</DialogTitle>
+          <DialogDescription>Votre message sera transmis de manière confidentielle.</DialogDescription>
+        </DialogHeader>
+        <div className="space-y-4 pt-2">
+          <div>
+            <label className="block text-sm font-medium text-foreground mb-1">Votre prénom <span className="text-primary">*</span></label>
+            <input
+              value={senderName}
+              onChange={(e) => setSenderName(e.target.value)}
+              className="w-full rounded-xl border border-border bg-card px-4 py-3 text-foreground placeholder:text-muted-foreground/50 focus:outline-none focus:ring-2 focus:ring-primary/30 transition-all"
+              placeholder="Votre prénom"
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-foreground mb-1">Votre email <span className="text-primary">*</span></label>
+            <input
+              type="email"
+              value={senderEmail}
+              onChange={(e) => setSenderEmail(e.target.value)}
+              className="w-full rounded-xl border border-border bg-card px-4 py-3 text-foreground placeholder:text-muted-foreground/50 focus:outline-none focus:ring-2 focus:ring-primary/30 transition-all"
+              placeholder="vous@exemple.com"
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-foreground mb-1">Message <span className="text-primary">*</span></label>
+            <textarea
+              value={message}
+              onChange={(e) => setMessage(e.target.value)}
+              className="w-full rounded-xl border border-border bg-card px-4 py-3 text-foreground placeholder:text-muted-foreground/50 focus:outline-none focus:ring-2 focus:ring-primary/30 transition-all min-h-[100px] resize-y"
+              placeholder="Votre message..."
+            />
+          </div>
+          <Button onClick={handleSend} disabled={sending} className="w-full gap-2">
+            {sending ? "Envoi…" : "Envoyer le message"}
+            {!sending && <Send className="w-4 h-4" />}
+          </Button>
+        </div>
+      </DialogContent>
+    </Dialog>
+  );
+};
+
 const ProfilMembre = () => {
   const { slug } = useParams<{ slug: string }>();
   const [profile, setProfile] = useState<ProfileData | null>(null);
   const [loading, setLoading] = useState(true);
+  const [contactOpen, setContactOpen] = useState(false);
 
   useEffect(() => {
     const fetchProfile = async () => {
@@ -327,6 +418,55 @@ const ProfilMembre = () => {
                   )}
                 </motion.div>
               )}
+
+              {/* Collaborations block (all types) */}
+              {(profile.cherche_collaboration?.length || profile.peut_apporter?.length || profile.format_collaboration) && (
+                <motion.div
+                  initial={{ opacity: 0, y: 15 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.4, delay: 0.35 }}
+                  className="bg-card border border-border rounded-2xl p-6 md:p-8"
+                >
+                  <h2 className="font-serif text-lg text-foreground mb-5 flex items-center gap-2">
+                    <Handshake className="w-4 h-4 text-primary" /> Collaborations
+                  </h2>
+
+                  {profile.cherche_collaboration && profile.cherche_collaboration.length > 0 && (
+                    <div className="mb-5">
+                      <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-3">Ce que je cherche</p>
+                      <div className="flex flex-wrap gap-2">
+                        {profile.cherche_collaboration.map((item) => (
+                          <Badge key={item} variant="outline">{item}</Badge>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {profile.peut_apporter && profile.peut_apporter.length > 0 && (
+                    <div className="mb-5">
+                      <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-3">Ce que je peux apporter</p>
+                      <div className="flex flex-wrap gap-2">
+                        {profile.peut_apporter.map((item) => (
+                          <Badge key={item} variant="secondary" className="bg-secondary/15">{item}</Badge>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {profile.format_collaboration && (
+                    <div className="flex items-center gap-2 text-sm text-foreground/80">
+                      {profile.format_collaboration.includes("présentiel") ? (
+                        <MapPin className="w-4 h-4 text-primary" />
+                      ) : profile.format_collaboration.includes("distance") ? (
+                        <Wifi className="w-4 h-4 text-primary" />
+                      ) : (
+                        <Handshake className="w-4 h-4 text-primary" />
+                      )}
+                      <span>Format préféré : {profile.format_collaboration}</span>
+                    </div>
+                  )}
+                </motion.div>
+              )}
             </div>
 
             {/* Sidebar */}
@@ -341,22 +481,30 @@ const ProfilMembre = () => {
                 >
                   <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-4">Contact</p>
                   <div className="space-y-3">
-                    {profile.email && (
-                      <a href={`mailto:${profile.email}`} className="flex items-center gap-3 text-sm text-foreground hover:text-primary transition-colors group">
-                        <div className="w-9 h-9 rounded-lg bg-primary/10 flex items-center justify-center group-hover:bg-primary/20 transition-colors">
-                          <Mail className="w-4 h-4 text-primary" />
-                        </div>
-                        <span className="truncate">{profile.email}</span>
-                      </a>
-                    )}
+                    <Button
+                      onClick={() => setContactOpen(true)}
+                      variant="outline"
+                      className="w-full gap-2 justify-start"
+                    >
+                      <div className="w-9 h-9 rounded-lg bg-primary/10 flex items-center justify-center">
+                        <MessageCircle className="w-4 h-4 text-primary" />
+                      </div>
+                      <span>Envoyer un message</span>
+                    </Button>
+
                     {profile.telephone && (
-                      <a href={`tel:${profile.telephone}`} className="flex items-center gap-3 text-sm text-foreground hover:text-primary transition-colors group">
-                        <div className="w-9 h-9 rounded-lg bg-primary/10 flex items-center justify-center group-hover:bg-primary/20 transition-colors">
+                      <Button
+                        onClick={() => setContactOpen(true)}
+                        variant="outline"
+                        className="w-full gap-2 justify-start"
+                      >
+                        <div className="w-9 h-9 rounded-lg bg-primary/10 flex items-center justify-center">
                           <Phone className="w-4 h-4 text-primary" />
                         </div>
-                        <span>{profile.telephone}</span>
-                      </a>
+                        <span className="text-left text-sm">Disponible par téléphone / WhatsApp — Demander le contact</span>
+                      </Button>
                     )}
+
                     {profile.lien_principal && (
                       <a href={profile.lien_principal} target="_blank" rel="noopener noreferrer" className="flex items-center gap-3 text-sm text-foreground hover:text-primary transition-colors group">
                         <div className="w-9 h-9 rounded-lg bg-primary/10 flex items-center justify-center group-hover:bg-primary/20 transition-colors">
@@ -411,16 +559,75 @@ const ProfilMembre = () => {
                       <span>{profile.city_name}</span>
                     </div>
                   )}
-                  {profile.type_profil === "podcasteur" && profile.thematique && (
-                    <div className="flex items-center gap-3 text-foreground/70">
-                      <Tag className="w-4 h-4 text-primary" />
-                      <span>{profile.thematique}</span>
+
+                  {/* Podcasteur-specific sidebar items */}
+                  {profile.type_profil === "podcasteur" && (
+                    <>
+                      {profile.thematique && (
+                        <div className="flex items-center gap-3 text-foreground/70">
+                          <Tag className="w-4 h-4 text-primary" />
+                          <span>{profile.thematique}</span>
+                        </div>
+                      )}
+                      {profile.niveau_avancement && (
+                        <div className="flex items-center gap-3 text-foreground/70">
+                          <BarChart3 className="w-4 h-4 text-primary" />
+                          <span>{niveauLabels[profile.niveau_avancement] || profile.niveau_avancement}</span>
+                        </div>
+                      )}
+                      {profile.frequence_publication && (
+                        <div className="flex items-center gap-3 text-foreground/70">
+                          <Clock className="w-4 h-4 text-primary" />
+                          <span>{profile.frequence_publication}</span>
+                        </div>
+                      )}
+                    </>
+                  )}
+
+                  {/* Pro-specific sidebar items */}
+                  {profile.type_profil === "pro_podcast" && (
+                    <>
+                      {profile.metier_principal && (
+                        <div className="flex items-center gap-3 text-foreground/70">
+                          <Briefcase className="w-4 h-4 text-primary" />
+                          <span>{profile.metier_principal}</span>
+                        </div>
+                      )}
+                      {profile.disponibilite && (
+                        <div className="flex items-center gap-3 text-foreground/70">
+                          <Clock className="w-4 h-4 text-primary" />
+                          <span>{profile.disponibilite}</span>
+                        </div>
+                      )}
+                      {profile.format_collaboration && (
+                        <div className="flex items-center gap-3 text-foreground/70">
+                          {profile.format_collaboration.includes("présentiel") ? <MapPin className="w-4 h-4 text-primary" /> : <Wifi className="w-4 h-4 text-primary" />}
+                          <span>{profile.format_collaboration}</span>
+                        </div>
+                      )}
+                    </>
+                  )}
+
+                  {/* Matching info for all types in sidebar */}
+                  {profile.cherche_collaboration && profile.cherche_collaboration.length > 0 && (
+                    <div className="pt-2 border-t border-border">
+                      <p className="text-xs font-semibold text-muted-foreground mb-2">Cherche :</p>
+                      <div className="flex flex-wrap gap-1.5">
+                        {profile.cherche_collaboration.map((item) => (
+                          <Badge key={item} variant="outline" className="text-xs">{item}</Badge>
+                        ))}
+                      </div>
                     </div>
                   )}
-                  {profile.type_profil === "pro_podcast" && profile.metier_principal && (
-                    <div className="flex items-center gap-3 text-foreground/70">
-                      <Briefcase className="w-4 h-4 text-primary" />
-                      <span>{profile.metier_principal}</span>
+
+                  {profile.type_profil === "pro_podcast" && profile.peut_apporter && profile.peut_apporter.length > 0 && (
+                    <div className="pt-2 border-t border-border">
+                      <p className="text-xs font-semibold text-muted-foreground mb-2">Peut apporter :</p>
+                      <div className="flex flex-wrap gap-1.5">
+                        {profile.peut_apporter.map((item) => (
+                          <Badge key={item} variant="secondary" className="text-xs bg-secondary/15">{item}</Badge>
+                        ))}
+                      </div>
                     </div>
                   )}
                 </div>
@@ -443,6 +650,16 @@ const ProfilMembre = () => {
         </div>
       </main>
       <Footer />
+
+      {/* Contact Modal */}
+      {profile && (
+        <ContactModal
+          open={contactOpen}
+          onOpenChange={setContactOpen}
+          recipientId={profile.id}
+          recipientName={fullName}
+        />
+      )}
     </div>
   );
 };
