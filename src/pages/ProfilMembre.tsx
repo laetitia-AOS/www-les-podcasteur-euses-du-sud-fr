@@ -22,6 +22,7 @@ interface ProfileData {
   department_label: string | null;
   bio_750: string | null;
   lien_principal: string | null;
+  lien_linkedin: string | null;
   nom_podcast: string | null;
   lien_ecoute: string;
   description: string;
