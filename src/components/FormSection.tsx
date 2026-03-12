@@ -91,13 +91,14 @@ const toSlug = (str: string) =>
     .replace(/[^a-z0-9]+/g, "-")
     .replace(/^-+|-+$/g, "");
 
-const SectionHeader = ({ number, title }: { number: number; title: string }) => (
-  <h3 className="font-serif text-lg text-foreground flex items-center gap-2 mb-1">
-    <span className="w-6 h-6 rounded-full bg-primary/10 text-primary text-xs flex items-center justify-center font-sans font-bold">
+const SectionHeader = ({ number, title, icon }: { number: number; title: string; icon?: React.ReactNode }) => (
+  <div className="flex items-center gap-3 mb-2">
+    <span className="w-8 h-8 rounded-xl bg-gradient-to-br from-primary to-primary/70 text-primary-foreground text-sm flex items-center justify-center font-sans font-bold shadow-sm">
       {number}
     </span>
-    {title}
-  </h3>
+    <h3 className="font-serif text-xl text-foreground">{title}</h3>
+    {icon && <span className="text-primary/50">{icon}</span>}
+  </div>
 );
 
 const CheckboxMultiSelect = ({
@@ -122,12 +123,12 @@ const CheckboxMultiSelect = ({
         return (
           <label
             key={opt}
-            className={`flex items-center gap-3 px-3 py-2.5 rounded-lg border cursor-pointer transition-all text-sm ${
+            className={`flex items-center gap-3 px-4 py-3 rounded-xl border-2 cursor-pointer transition-all text-sm ${
               isChecked
-                ? "border-primary/30 bg-primary/5 text-foreground"
+                ? "border-primary/40 bg-primary/5 text-foreground shadow-sm"
                 : isDisabled
-                ? "border-border bg-muted/30 text-muted-foreground cursor-not-allowed opacity-50"
-                : "border-border bg-card text-foreground hover:border-primary/20"
+                ? "border-transparent bg-muted/20 text-muted-foreground cursor-not-allowed opacity-40"
+                : "border-transparent bg-background text-foreground hover:border-primary/20 hover:bg-primary/[0.02]"
             }`}
           >
             <input
@@ -234,8 +235,8 @@ const FormSection = () => {
     if (formData.typeProfil === "podcasteur") {
       return {
         coordonnees: 1, profil: 2, podcast: 3, ligneEditoriale: 4,
-        profilPodcast: 5, structuration: 6, besoins: 7, priorite: 8,
-        localisation: 9, matching: 10, consentements: 11,
+        structuration: 5, besoins: 6,
+        localisation: 7, matching: 8, consentements: 9,
       };
     } else if (formData.typeProfil === "pro_podcast") {
       return {
@@ -389,13 +390,14 @@ const FormSection = () => {
   };
 
   const inputClass =
-    "w-full rounded-xl border border-border bg-card px-4 py-3.5 text-foreground placeholder:text-muted-foreground/50 focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary/30 transition-all";
+    "w-full rounded-xl border-2 border-border/60 bg-background px-4 py-3.5 text-foreground placeholder:text-muted-foreground/40 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary/40 transition-all shadow-sm";
   const selectClass =
-    "w-full rounded-xl border border-border bg-card px-4 py-3.5 text-foreground focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary/30 transition-all appearance-none";
-  const labelClass = "block text-sm font-medium text-foreground mb-2";
+    "w-full rounded-xl border-2 border-border/60 bg-background px-4 py-3.5 text-foreground focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary/40 transition-all appearance-none shadow-sm";
+  const labelClass = "block text-sm font-semibold text-foreground/80 mb-2";
+  const sectionCardClass = "bg-card/50 border border-border/40 rounded-2xl p-6 space-y-5";
 
   return (
-    <section id="formulaire" className="py-20 md:py-32 bg-card">
+    <section id="formulaire" className="py-20 md:py-32 bg-background">
       <div className="container mx-auto px-6 max-w-2xl">
         {submitted ? (
           <motion.div
@@ -537,10 +539,10 @@ const FormSection = () => {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true, margin: "-60px" }}
               transition={{ duration: 0.8, delay: 0.15 }}
-              className="bg-background border border-border rounded-3xl p-7 sm:p-10 space-y-8"
+              className="space-y-6"
             >
               {/* SECTION 1 — Coordonnées */}
-              <div className="space-y-5">
+              <div className={sectionCardClass}>
                 <SectionHeader number={sn.coordonnees} title="Vos coordonnées" />
                 <div className="grid sm:grid-cols-2 gap-4">
                   <div>
@@ -563,16 +565,14 @@ const FormSection = () => {
                 </div>
               </div>
 
-              <div className="h-px bg-border" />
-
               {/* SECTION 2 — Type de profil */}
-              <div className="space-y-5">
+              <div className={sectionCardClass}>
                 <SectionHeader number={sn.profil} title="Votre profil" />
                 <div>
                   <label className={labelClass}>Je rejoins le collectif en tant que : <span className="text-primary">*</span></label>
                   <select name="typeProfil" value={formData.typeProfil} onChange={handleChange} className={selectClass} required>
                     <option value="podcasteur">Podcasteur·euse (j'ai un podcast)</option>
-                    <option value="pro_podcast">Pro / métier du podcast (je propose des compétences)</option>
+                    <option value="pro_podcast">Professionnel·le du podcast (je propose des compétences)</option>
                     <option value="soutien">Soutien / curieux (je veux suivre et contribuer)</option>
                   </select>
                 </div>
@@ -597,78 +597,70 @@ const FormSection = () => {
 
               {/* SECTION Pro — Métier (conditionnel) */}
               {formData.typeProfil === "pro_podcast" && (
-                <>
-                  <div className="h-px bg-border" />
-                  <div className="space-y-5">
-                    <SectionHeader number={sn.metier!} title="Votre métier" />
-                    <div>
-                      <label className={labelClass}>Métier principal <span className="text-primary">*</span></label>
-                      <select name="metierPrincipal" value={formData.metierPrincipal} onChange={handleChange} className={selectClass} required>
-                        <option value="">Sélectionner</option>
-                        {servicesOptions.map((s) => (
-                          <option key={s} value={s}>{s}</option>
-                        ))}
-                      </select>
-                    </div>
-                    <div>
-                      <label className={labelClass}>Services proposés (max 5) <span className="text-primary">*</span></label>
-                      <CheckboxMultiSelect
-                        options={servicesOptions}
-                        selected={selectedServices}
-                        onChange={setSelectedServices}
-                        max={5}
-                        label="Sélectionnez vos services"
-                      />
-                    </div>
-                    <div>
-                      <label className={labelClass}>Disponibilité</label>
-                      <select name="disponibilite" value={formData.disponibilite} onChange={handleChange} className={selectClass}>
-                        <option value="">Sélectionner</option>
-                        {disponibiliteOptions.map((d) => (
-                          <option key={d} value={d}>{d}</option>
-                        ))}
-                      </select>
-                    </div>
+                <div className={sectionCardClass}>
+                  <SectionHeader number={sn.metier!} title="Votre métier" />
+                  <div>
+                    <label className={labelClass}>Métier principal <span className="text-primary">*</span></label>
+                    <select name="metierPrincipal" value={formData.metierPrincipal} onChange={handleChange} className={selectClass} required>
+                      <option value="">Sélectionner</option>
+                      {servicesOptions.map((s) => (
+                        <option key={s} value={s}>{s}</option>
+                      ))}
+                    </select>
                   </div>
-                </>
+                  <div>
+                    <label className={labelClass}>Services proposés (max 5) <span className="text-primary">*</span></label>
+                    <CheckboxMultiSelect
+                      options={servicesOptions}
+                      selected={selectedServices}
+                      onChange={setSelectedServices}
+                      max={5}
+                      label="Sélectionnez vos services"
+                    />
+                  </div>
+                  <div>
+                    <label className={labelClass}>Disponibilité</label>
+                    <select name="disponibilite" value={formData.disponibilite} onChange={handleChange} className={selectClass}>
+                      <option value="">Sélectionner</option>
+                      {disponibiliteOptions.map((d) => (
+                        <option key={d} value={d}>{d}</option>
+                      ))}
+                    </select>
+                  </div>
+                </div>
               )}
 
               {/* Photo section for non-podcasteurs */}
               {formData.typeProfil !== "podcasteur" && (
-                <>
-                  <div className="h-px bg-border" />
-                  <div className="space-y-5">
-                    <SectionHeader number={sn.photo!} title="Votre photo" />
-                    <div>
-                      <label className={labelClass}>Photo de profil <span className="text-primary">*</span></label>
-                      <p className="text-xs text-muted-foreground mb-1">Format carré obligatoire (1:1). JPG, PNG ou WebP. Max 5 Mo.</p>
-                      {vignettePreview ? (
-                        <div className="relative inline-block">
-                          <img src={vignettePreview} alt="Aperçu photo" className="w-32 h-32 object-cover rounded-xl border border-border shadow-sm" />
-                          <button type="button" onClick={removeVignette} className="absolute -top-2 -right-2 w-6 h-6 bg-destructive text-destructive-foreground rounded-full flex items-center justify-center shadow-md hover:brightness-110 transition-all">
-                            <X className="w-3.5 h-3.5" />
-                          </button>
-                        </div>
-                      ) : (
-                        <button type="button" onClick={() => fileInputRef.current?.click()} className="flex items-center gap-3 px-5 py-4 rounded-xl border-2 border-dashed border-border hover:border-primary/40 bg-card hover:bg-primary/5 transition-all text-muted-foreground hover:text-foreground w-full">
-                          <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center">
-                            <Image className="w-5 h-5 text-primary" />
-                          </div>
-                          <span className="text-sm">Ajouter votre photo de profil</span>
+                <div className={sectionCardClass}>
+                  <SectionHeader number={sn.photo!} title="Votre photo" />
+                  <div>
+                    <label className={labelClass}>Photo de profil <span className="text-primary">*</span></label>
+                    <p className="text-xs text-muted-foreground mb-1">Format carré obligatoire (1:1). JPG, PNG ou WebP. Max 5 Mo.</p>
+                    {vignettePreview ? (
+                      <div className="relative inline-block">
+                        <img src={vignettePreview} alt="Aperçu photo" className="w-32 h-32 object-cover rounded-xl border-2 border-border/40 shadow-md" />
+                        <button type="button" onClick={removeVignette} className="absolute -top-2 -right-2 w-6 h-6 bg-destructive text-destructive-foreground rounded-full flex items-center justify-center shadow-md hover:brightness-110 transition-all">
+                          <X className="w-3.5 h-3.5" />
                         </button>
-                      )}
-                      <input ref={fileInputRef} type="file" accept="image/jpeg,image/png,image/webp" onChange={handleFileChange} className="hidden" />
-                    </div>
+                      </div>
+                    ) : (
+                      <button type="button" onClick={() => fileInputRef.current?.click()} className="flex items-center gap-3 px-5 py-5 rounded-xl border-2 border-dashed border-border/60 hover:border-primary/40 bg-background hover:bg-primary/5 transition-all text-muted-foreground hover:text-foreground w-full">
+                        <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center">
+                          <Image className="w-5 h-5 text-primary" />
+                        </div>
+                        <span className="text-sm font-medium">Ajouter votre photo de profil</span>
+                      </button>
+                    )}
+                    <input ref={fileInputRef} type="file" accept="image/jpeg,image/png,image/webp" onChange={handleFileChange} className="hidden" />
                   </div>
-                </>
+                </div>
               )}
-
-              <div className="h-px bg-border" />
 
               {/* SECTION — Podcast (conditionnel pour podcasteurs) */}
               {formData.typeProfil === "podcasteur" && (
               <>
-              <div className="space-y-5">
+              <div className={sectionCardClass}>
                 <SectionHeader number={sn.podcast!} title="Votre podcast" />
                 <div>
                   <label className={labelClass}>Nom du podcast <span className="text-primary">*</span></label>
@@ -688,28 +680,26 @@ const FormSection = () => {
                   <p className="text-xs text-muted-foreground mb-1">Format carré obligatoire (1:1, ex: 1400×1400 px). JPG, PNG ou WebP. Max 5 Mo.</p>
                   {vignettePreview ? (
                     <div className="relative inline-block">
-                      <img src={vignettePreview} alt="Aperçu vignette" className="w-32 h-32 object-cover rounded-xl border border-border shadow-sm" />
+                      <img src={vignettePreview} alt="Aperçu vignette" className="w-32 h-32 object-cover rounded-xl border-2 border-border/40 shadow-md" />
                       <button type="button" onClick={removeVignette} className="absolute -top-2 -right-2 w-6 h-6 bg-destructive text-destructive-foreground rounded-full flex items-center justify-center shadow-md hover:brightness-110 transition-all">
                         <X className="w-3.5 h-3.5" />
                       </button>
                     </div>
                   ) : (
-                    <button type="button" onClick={() => fileInputRef.current?.click()} className="flex items-center gap-3 px-5 py-4 rounded-xl border-2 border-dashed border-border hover:border-primary/40 bg-card hover:bg-primary/5 transition-all text-muted-foreground hover:text-foreground w-full">
-                      <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center">
+                    <button type="button" onClick={() => fileInputRef.current?.click()} className="flex items-center gap-3 px-5 py-5 rounded-xl border-2 border-dashed border-border/60 hover:border-primary/40 bg-background hover:bg-primary/5 transition-all text-muted-foreground hover:text-foreground w-full">
+                      <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center">
                         <Image className="w-5 h-5 text-primary" />
                       </div>
-                      <span className="text-sm">Ajouter la vignette de votre podcast</span>
+                      <span className="text-sm font-medium">Ajouter la vignette de votre podcast</span>
                     </button>
                   )}
                   <input ref={fileInputRef} type="file" accept="image/jpeg,image/png,image/webp" onChange={handleFileChange} className="hidden" />
                 </div>
               </div>
 
-              <div className="h-px bg-border" />
-
-              {/* SECTION — Ligne éditoriale */}
-              <div className="space-y-5">
-                <SectionHeader number={sn.ligneEditoriale!} title="Ligne éditoriale" />
+              {/* SECTION — Ligne éditoriale + Profil du podcast (regroupés) */}
+              <div className={sectionCardClass}>
+                <SectionHeader number={sn.ligneEditoriale!} title="Ligne éditoriale & profil" />
                 <div>
                   <label className={labelClass}>Thématique principale</label>
                   <select name="thematique" value={formData.thematique} onChange={handleChange} className={selectClass}>
@@ -717,13 +707,6 @@ const FormSection = () => {
                     {thematiques.map((t) => <option key={t} value={t}>{t}</option>)}
                   </select>
                 </div>
-              </div>
-
-              <div className="h-px bg-border" />
-
-              {/* SECTION — Profil du podcast */}
-              <div className="space-y-5">
-                <SectionHeader number={sn.profilPodcast!} title="Profil du podcast" />
                 <div>
                   <label className={labelClass}>Type de podcast</label>
                   <select name="typePodcast" value={formData.typePodcast} onChange={handleChange} className={selectClass}>
@@ -738,10 +721,8 @@ const FormSection = () => {
                 </div>
               </div>
 
-              <div className="h-px bg-border" />
-
               {/* SECTION — Structuration */}
-              <div className="space-y-5">
+              <div className={sectionCardClass}>
                 <SectionHeader number={sn.structuration!} title="Structuration du projet" />
                 <div className="grid sm:grid-cols-2 gap-4">
                   <div>
@@ -775,36 +756,28 @@ const FormSection = () => {
                 </div>
               </div>
 
-              <div className="h-px bg-border" />
-
-              {/* SECTION — Besoins */}
-              <div className="space-y-5">
-                <SectionHeader number={sn.besoins!} title="Vos besoins" />
+              {/* SECTION — Besoins & Priorité (regroupés) */}
+              <div className={sectionCardClass}>
+                <SectionHeader number={sn.besoins!} title="Vos besoins & priorité" />
                 <BesoinsMultiSelect
                   selected={selectedBesoins}
                   onChange={setSelectedBesoins}
                   labelClass="sr-only"
                 />
-              </div>
-
-              <div className="h-px bg-border" />
-
-              {/* SECTION — Priorité */}
-              <div className="space-y-5">
-                <SectionHeader number={sn.priorite!} title="Priorité actuelle" />
-                <PrioriteSelect
-                  value={prioriteActuelle}
-                  onChange={setPrioriteActuelle}
-                  labelClass="sr-only"
-                />
+                <div className="pt-2">
+                  <p className="text-sm font-semibold text-foreground/80 mb-3">Priorité actuelle</p>
+                  <PrioriteSelect
+                    value={prioriteActuelle}
+                    onChange={setPrioriteActuelle}
+                    labelClass="sr-only"
+                  />
+                </div>
               </div>
               </>
               )}
 
-              <div className="h-px bg-border" />
-
               {/* Localisation (all profiles) */}
-              <div className="space-y-5">
+              <div className={sectionCardClass}>
                 <SectionHeader number={sn.localisation} title="Localisation" />
                 <div>
                   <label className={labelClass}>Département</label>
@@ -826,10 +799,8 @@ const FormSection = () => {
                 )}
               </div>
 
-              <div className="h-px bg-border" />
-
               {/* SECTION — Mise en réseau & collaborations */}
-              <div className="space-y-5">
+              <div className={sectionCardClass}>
                 <SectionHeader number={sn.matching} title="Mise en réseau & collaborations" />
 
                 <CheckboxMultiSelect
@@ -859,13 +830,11 @@ const FormSection = () => {
                 </div>
               </div>
 
-              <div className="h-px bg-border" />
-
               {/* SECTION — Consentements */}
-              <div className="space-y-4">
+              <div className={sectionCardClass}>
                 <SectionHeader number={sn.consentements} title="Consentements" />
                 
-                <label className="flex items-start gap-3 cursor-pointer group">
+                <label className="flex items-start gap-3 cursor-pointer group px-3 py-2.5 rounded-xl hover:bg-background/50 transition-colors">
                   <input
                     type="checkbox"
                     checked={consentCGU}
@@ -877,7 +846,7 @@ const FormSection = () => {
                   </span>
                 </label>
 
-                <label className="flex items-start gap-3 cursor-pointer group">
+                <label className="flex items-start gap-3 cursor-pointer group px-3 py-2.5 rounded-xl hover:bg-background/50 transition-colors">
                   <input
                     type="checkbox"
                     checked={consentAnnuaire}
@@ -891,7 +860,7 @@ const FormSection = () => {
 
                 {formData.typeProfil === "podcasteur" && (
                   <>
-                    <label className="flex items-start gap-3 cursor-pointer group">
+                    <label className="flex items-start gap-3 cursor-pointer group px-3 py-2.5 rounded-xl hover:bg-background/50 transition-colors">
                       <input
                         type="checkbox"
                         checked={consentPublicationPodcast}
@@ -902,7 +871,7 @@ const FormSection = () => {
                         J'accepte la publication de mon podcast sur le flux du site <span className="text-primary">*</span>
                       </span>
                     </label>
-                    <p className="text-xs text-muted-foreground ml-7 -mt-2 leading-relaxed">
+                    <p className="text-xs text-muted-foreground ml-10 -mt-2 leading-relaxed">
                       Le flux référence votre podcast via son lien d'écoute (hébergeur externe).
                       Votre profil sera accessible à l'URL :
                       /annuaire/[nom-du-podcast]-[prenom]-[ville]
@@ -910,7 +879,7 @@ const FormSection = () => {
                   </>
                 )}
 
-                <label className="flex items-start gap-3 cursor-pointer group">
+                <label className="flex items-start gap-3 cursor-pointer group px-3 py-2.5 rounded-xl hover:bg-background/50 transition-colors">
                   <input
                     type="checkbox"
                     checked={consentContact}
@@ -921,9 +890,9 @@ const FormSection = () => {
                     J'accepte d'être contacté(e) par Les Podcasteur·euses du Sud <span className="text-primary">*</span>
                   </span>
                 </label>
-                {consentError && <p className="text-xs text-destructive ml-7">{consentError}</p>}
+                {consentError && <p className="text-xs text-destructive ml-10">{consentError}</p>}
 
-                <label className="flex items-start gap-3 cursor-pointer group">
+                <label className="flex items-start gap-3 cursor-pointer group px-3 py-2.5 rounded-xl hover:bg-background/50 transition-colors">
                   <input
                     type="checkbox"
                     checked={consentMiseEnRelation}
@@ -939,7 +908,7 @@ const FormSection = () => {
               <button
                 type="submit"
                 disabled={uploading}
-                className="group w-full flex items-center justify-center gap-3 bg-primary text-primary-foreground py-4 rounded-xl text-base font-semibold hover:brightness-110 transition-all duration-300 shadow-md hover:shadow-lg mt-2 disabled:opacity-60 disabled:cursor-not-allowed"
+                className="group w-full flex items-center justify-center gap-3 bg-gradient-to-r from-primary to-primary/85 text-primary-foreground py-4.5 rounded-2xl text-base font-semibold hover:brightness-110 transition-all duration-300 shadow-lg hover:shadow-xl mt-2 disabled:opacity-60 disabled:cursor-not-allowed"
               >
                 {uploading ? "Envoi en cours…" : "Rejoindre le collectif"}
                 {!uploading && <Send className="w-4 h-4 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />}
