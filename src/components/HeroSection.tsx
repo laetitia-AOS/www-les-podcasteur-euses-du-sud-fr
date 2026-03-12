@@ -55,14 +55,14 @@ const HeroSection = () => {
               className="flex flex-col items-start gap-3"
             >
               <button
-                onClick={scrollToForm}
+                onClick={() => navigate("/formulaire")}
                 className="group flex items-center gap-3 bg-primary text-primary-foreground px-8 py-4 rounded-xl text-base font-semibold hover:brightness-110 transition-all duration-300 shadow-md hover:shadow-lg hover:-translate-y-0.5"
               >
-                Référencer mon podcast gratuitement
+                Référencer mon podcast
                 <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
               </button>
               <p className="text-xs text-muted-foreground/70 ml-1">
-                Ouvert à tous les podcasts de la Région Sud · 100% gratuit
+                Ouvert à tous les podcasts de la Région Sud
               </p>
             </motion.div>
 
