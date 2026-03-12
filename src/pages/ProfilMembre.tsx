@@ -140,12 +140,12 @@ const ProfilMembre = () => {
             <div className="bg-card border border-border rounded-2xl p-8">
               <div className="flex flex-col sm:flex-row sm:items-start gap-6 mb-6">
                 {/* Photo */}
-                <div className="w-24 h-24 rounded-2xl overflow-hidden bg-muted flex-shrink-0 border border-border">
+              <div className="w-28 h-28 sm:w-32 sm:h-32 rounded-2xl overflow-hidden bg-muted flex-shrink-0 border border-border shadow-sm">
                   {profile.vignette_url ? (
                     <img src={profile.vignette_url} alt={`${profile.prenom ?? ""} ${profile.nom ?? ""}`} className="w-full h-full object-cover" />
                   ) : (
                     <div className="w-full h-full flex items-center justify-center bg-primary/5">
-                      <ProfilIcon className="w-10 h-10 text-primary/30" />
+                      <ProfilIcon className="w-12 h-12 text-primary/30" />
                     </div>
                   )}
                 </div>
