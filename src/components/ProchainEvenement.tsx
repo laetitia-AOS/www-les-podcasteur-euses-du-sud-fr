@@ -84,17 +84,17 @@ const ProchainEvenement = () => {
               </div>
             )}
 
-            <div className="p-8 md:p-12 flex flex-col md:flex-row gap-8 items-start">
+            <div className="p-6 md:p-8 flex flex-col md:flex-row gap-6 items-center">
               {!evt.image_url && (
-                <div className="shrink-0 w-24 h-24 md:w-28 md:h-28 bg-primary/10 rounded-2xl flex flex-col items-center justify-center" aria-hidden="true">
-                  <span className="text-4xl md:text-5xl font-bold text-primary leading-none">{day}</span>
-                  <span className="text-sm font-semibold uppercase text-primary/70 mt-1">{month}</span>
+                <div className="shrink-0 w-20 h-20 bg-primary/10 rounded-2xl flex flex-col items-center justify-center" aria-hidden="true">
+                  <span className="text-3xl font-bold text-primary leading-none">{day}</span>
+                  <span className="text-xs font-semibold uppercase text-primary/70 mt-1">{month}</span>
                 </div>
               )}
 
-              <div className="flex-1 min-w-0">
+              <div className="flex-1 min-w-0 text-center md:text-left">
                 {!evt.image_url && (
-                  <Badge className="text-xs bg-primary/10 text-primary border border-primary/20 mb-3">
+                  <Badge className="text-xs bg-primary/10 text-primary border border-primary/20 mb-2">
                     {TYPE_LABELS[evt.type] || evt.type}
                   </Badge>
                 )}
@@ -102,57 +102,32 @@ const ProchainEvenement = () => {
                   {evt.titre}
                 </h2>
                 {evt.sous_titre && (
-                  <p className="text-lg font-semibold text-primary/80 mb-3 leading-snug">
+                  <p className="text-base text-muted-foreground mb-3">
                     {evt.sous_titre}
                   </p>
                 )}
-                {evt.description && (
-                  <p className="text-muted-foreground leading-relaxed mb-5 max-w-xl">
-                    {evt.description}
-                  </p>
-                )}
-                <div className="flex flex-wrap gap-x-6 gap-y-2 text-sm text-muted-foreground mb-6">
+                <div className="flex flex-wrap justify-center md:justify-start gap-x-5 gap-y-1 text-sm text-muted-foreground">
                   <span className="flex items-center gap-1.5">
                     <CalendarDays className="w-4 h-4 text-primary/60" aria-hidden="true" />
                     <time dateTime={evt.date_debut}>{formatDate(evt.date_debut)}</time>
                   </span>
-                  <span className="flex items-center gap-1.5">
-                    <Clock className="w-4 h-4 text-primary/60" aria-hidden="true" />
-                    {formatTime(evt.date_debut)}
-                    {evt.date_fin && ` – ${formatTime(evt.date_fin)}`}
-                  </span>
                   {evt.lieu && (
                     <span className="flex items-center gap-1.5">
                       <MapPin className="w-4 h-4 text-primary/60" aria-hidden="true" />
-                      {evt.lieu}{evt.adresse && `, ${evt.adresse}`}
-                    </span>
-                  )}
-                  {evt.places && (
-                    <span className="flex items-center gap-1.5">
-                      <Ticket className="w-4 h-4 text-primary/60" aria-hidden="true" />
-                      {evt.places} place{evt.places > 1 ? "s" : ""}
+                      {evt.lieu}
                     </span>
                   )}
                 </div>
-                <div className="flex flex-wrap gap-3">
-                  {evt.lien_externe && (
-                    <a
-                      href={evt.lien_externe}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="inline-flex items-center gap-2 text-sm font-semibold text-primary-foreground bg-primary px-5 py-2.5 rounded-xl hover:brightness-110 transition-all shadow-sm"
-                    >
-                      S'inscrire
-                    </a>
-                  )}
-                  <button
-                    onClick={() => navigate("/evenements")}
-                    className="group inline-flex items-center gap-2 text-sm font-semibold text-primary hover:text-primary/80 transition-colors px-1"
-                  >
-                    Voir tous les événements
-                    <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-                  </button>
-                </div>
+              </div>
+
+              <div className="flex shrink-0 gap-3">
+                <button
+                  onClick={() => navigate(evt.slug ? `/evenement/${evt.slug}` : "/evenements")}
+                  className="inline-flex items-center gap-2 text-sm font-semibold text-primary-foreground bg-primary px-5 py-2.5 rounded-xl hover:brightness-110 transition-all shadow-sm"
+                >
+                  Découvrir
+                  <ArrowRight className="w-4 h-4" />
+                </button>
               </div>
             </div>
           </article>
