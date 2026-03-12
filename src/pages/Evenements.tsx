@@ -1,9 +1,9 @@
-import { useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
+import SEOHead from "@/components/SEOHead";
 import { motion } from "framer-motion";
 import { CalendarDays, MapPin, Clock, ExternalLink, Users, Ticket, ArrowRight } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
@@ -31,11 +31,6 @@ const formatTime = (iso: string) =>
   new Date(iso).toLocaleTimeString("fr-FR", { hour: "2-digit", minute: "2-digit" });
 
 const Evenements = () => {
-  useEffect(() => {
-    document.title = "Événements podcast Région Sud — Les Podcasteur·euses du Sud";
-    const meta = document.querySelector('meta[name="description"]');
-    if (meta) meta.setAttribute("content", "Agenda des rencontres, ateliers et événements podcast en Provence-Alpes-Côte d'Azur. Rejoignez la communauté des créateurs audio du Sud.");
-  }, []);
 
   const { data: evenements, isLoading } = useQuery({
     queryKey: ["evenements-public"],
