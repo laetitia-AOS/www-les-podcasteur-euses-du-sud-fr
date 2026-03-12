@@ -294,7 +294,7 @@ const FormSection = () => {
       }
     }
     if (!vignette) {
-      toast.error("Veuillez ajouter une photo (format carré obligatoire).");
+      toast.error("Veuillez ajouter une photo.");
       return;
     }
     if (!formData.departementCode) {
