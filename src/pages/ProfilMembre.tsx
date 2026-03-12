@@ -48,8 +48,8 @@ interface ProfileData {
 
 const profilConfig: Record<string, { label: string; icon: typeof Headphones; gradient: string; accent: string }> = {
   podcasteur: { label: "Podcasteur·euse", icon: Headphones, gradient: "from-primary/20 via-secondary/10 to-accent/10", accent: "primary" },
-  pro_podcast: { label: "Pro du podcast", icon: Briefcase, gradient: "from-secondary/20 via-primary/10 to-accent/10", accent: "secondary" },
-  soutien: { label: "Soutien / Curieux", icon: Heart, gradient: "from-accent/15 via-primary/10 to-secondary/10", accent: "primary" },
+  pro_podcast: { label: "Professionnel·le du podcast", icon: Briefcase, gradient: "from-secondary/20 via-primary/10 to-accent/10", accent: "secondary" },
+  soutien: { label: "Soutien / Curieux·se", icon: Heart, gradient: "from-accent/15 via-primary/10 to-secondary/10", accent: "primary" },
 };
 
 const besoinsLabels: Record<string, string> = {
@@ -162,11 +162,17 @@ const ProfilMembre = () => {
                     {config.label}
                   </span>
                 </div>
-                <h1 className="font-serif text-3xl md:text-4xl text-foreground leading-tight mb-2">
+                <h1 className="font-serif text-3xl md:text-4xl text-foreground leading-tight mb-1">
                   {fullName}
                 </h1>
+                {profile.type_profil === "pro_podcast" && profile.metier_principal && (
+                  <p className="text-base font-medium text-foreground/70 mb-1">{profile.metier_principal}</p>
+                )}
+                {profile.type_profil === "podcasteur" && profile.nom_podcast && (
+                  <p className="text-base font-medium text-foreground/70 mb-1">🎙 {profile.nom_podcast}</p>
+                )}
                 {profile.structure && (
-                  <p className="text-sm font-medium text-foreground/70 mb-1">{profile.structure}</p>
+                  <p className="text-sm text-foreground/60 mb-1">{profile.structure}</p>
                 )}
                 {profile.city_name && (
                   <p className="text-sm text-muted-foreground flex items-center gap-1.5">

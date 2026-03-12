@@ -83,11 +83,11 @@ const fuzzyMatch = (haystack: string, needle: string) => {
 const profilBadge = (type: string) => {
   switch (type) {
     case "pro_podcast":
-      return { label: "Pro", icon: Briefcase, className: "bg-secondary/15 text-secondary border-secondary/30" };
+      return { label: "Pro du podcast", icon: Briefcase, className: "bg-secondary/15 text-secondary border-secondary/30" };
     case "soutien":
       return { label: "Soutien", icon: Heart, className: "bg-primary/10 text-primary border-primary/30" };
     default:
-      return { label: "Podcasteur", icon: Headphones, className: "bg-accent/15 text-accent-foreground border-accent/30" };
+      return { label: "Podcasteur·euse", icon: Headphones, className: "bg-accent/15 text-accent-foreground border-accent/30" };
   }
 };
 
