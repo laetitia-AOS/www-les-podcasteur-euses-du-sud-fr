@@ -159,7 +159,7 @@ const FormSection = () => {
     nomPodcast: "", lienEcoute: "", description: "",
     thematique: "", departementCode: "",
     typePodcast: "", niveauAvancement: "", frequencePublication: "", monetise: "",
-    typeProfil: "podcasteur", bio750: "", lienPrincipal: "",
+    typeProfil: "podcasteur", bio750: "", lienPrincipal: "", lienLinkedin: "",
     metierPrincipal: "", disponibilite: "",
     formatCollaboration: "",
   });
