@@ -22,6 +22,7 @@ interface PodcastData {
   type_profil: string;
   bio_750: string | null;
   lien_principal: string | null;
+  lien_linkedin: string | null;
   metier_principal: string | null;
   services_3: string[] | null;
   disponibilite: string | null;
