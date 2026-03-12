@@ -111,14 +111,14 @@ const ContactSection = () => {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, margin: "-60px" }}
           transition={{ duration: 0.8, delay: 0.15 }}
-          className="bg-card border border-border rounded-3xl p-7 sm:p-10 shadow-sm space-y-6"
+          className="space-y-6"
         >
           {/* Intention */}
-          <div className="space-y-5">
-            <h3 className="font-serif text-lg text-foreground flex items-center gap-2">
-              <span className="w-6 h-6 rounded-full bg-secondary/10 text-secondary text-xs flex items-center justify-center font-sans font-bold">1</span>
-              Votre intention
-            </h3>
+          <div className={sectionCardClass}>
+            <div className="flex items-center gap-3 mb-2">
+              <span className="w-8 h-8 rounded-xl bg-gradient-to-br from-secondary to-secondary/70 text-secondary-foreground text-sm flex items-center justify-center font-sans font-bold shadow-sm">1</span>
+              <h3 className="font-serif text-xl text-foreground">Votre intention</h3>
+            </div>
 
             <div>
               <label className={labelClass}>
@@ -159,14 +159,12 @@ const ContactSection = () => {
             </div>
           </div>
 
-          <div className="h-px bg-border" />
-
           {/* Coordonnées */}
-          <div className="space-y-5">
-            <h3 className="font-serif text-lg text-foreground flex items-center gap-2">
-              <span className="w-6 h-6 rounded-full bg-secondary/10 text-secondary text-xs flex items-center justify-center font-sans font-bold">2</span>
-              Vos coordonnées
-            </h3>
+          <div className={sectionCardClass}>
+            <div className="flex items-center gap-3 mb-2">
+              <span className="w-8 h-8 rounded-xl bg-gradient-to-br from-secondary to-secondary/70 text-secondary-foreground text-sm flex items-center justify-center font-sans font-bold shadow-sm">2</span>
+              <h3 className="font-serif text-xl text-foreground">Vos coordonnées</h3>
+            </div>
 
             <div className="grid sm:grid-cols-2 gap-4">
               <div>
@@ -193,7 +191,7 @@ const ContactSection = () => {
           <button
             type="submit"
             disabled={submitting}
-            className="group w-full flex items-center justify-center gap-3 bg-secondary text-secondary-foreground py-4 rounded-xl text-base font-semibold hover:brightness-110 transition-all duration-300 shadow-md hover:shadow-lg mt-2 disabled:opacity-60 disabled:cursor-not-allowed"
+            className="group w-full flex items-center justify-center gap-3 bg-gradient-to-r from-secondary to-secondary/85 text-secondary-foreground py-4.5 rounded-2xl text-base font-semibold hover:brightness-110 transition-all duration-300 shadow-lg hover:shadow-xl mt-2 disabled:opacity-60 disabled:cursor-not-allowed"
           >
             {submitting ? "Envoi en cours…" : "Envoyer la demande"}
             {!submitting && <Send className="w-4 h-4 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />}
