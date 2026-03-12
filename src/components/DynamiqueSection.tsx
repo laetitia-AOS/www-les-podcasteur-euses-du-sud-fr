@@ -33,7 +33,7 @@ const DynamiqueSection = () => {
     const fetchPodcasts = async () => {
       const { data, error } = await supabase
         .from("podcasts")
-        .select("id, nom_podcast, description, ville, thematique, lien_ecoute, vignette_url, created_at, prenom, nom, bio_750, type_profil")
+        .select("id, slug, nom_podcast, description, ville, thematique, lien_ecoute, vignette_url, created_at, prenom, nom, bio_750, type_profil")
         .eq("valide", true)
         .eq("type_profil", "podcasteur")
         .order("created_at", { ascending: false });
