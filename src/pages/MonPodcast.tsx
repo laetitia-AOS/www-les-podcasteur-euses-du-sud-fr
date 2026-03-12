@@ -89,18 +89,26 @@ const MonEspace = () => {
     setForm((prev) => ({ ...prev, [e.target.name]: e.target.value }));
   };
 
-  const validateSquareImage = (file: File): Promise<boolean> => {
+  const cropToSquare = (file: File): Promise<File> => {
     return new Promise((resolve) => {
       const img = new window.Image();
       img.onload = () => {
-        const ratio = img.width / img.height;
         URL.revokeObjectURL(img.src);
-        if (ratio < 0.9 || ratio > 1.1) {
-          toast.error("L'image doit être au format carré (ratio 1:1).");
-          resolve(false);
-        } else {
-          resolve(true);
-        }
+        const size = Math.min(img.width, img.height);
+        const offsetX = (img.width - size) / 2;
+        const offsetY = (img.height - size) / 2;
+        const canvas = document.createElement("canvas");
+        canvas.width = size;
+        canvas.height = size;
+        const ctx = canvas.getContext("2d")!;
+        ctx.drawImage(img, offsetX, offsetY, size, size, 0, 0, size, size);
+        canvas.toBlob((blob) => {
+          if (blob) {
+            resolve(new File([blob], file.name, { type: file.type }));
+          } else {
+            resolve(file);
+          }
+        }, file.type, 0.92);
       };
       img.src = URL.createObjectURL(file);
     });
@@ -111,12 +119,11 @@ const MonEspace = () => {
     if (!file) return;
     if (!file.type.startsWith("image/")) { toast.error("Sélectionnez une image."); return; }
     if (file.size > 5 * 1024 * 1024) { toast.error("Max 5 Mo."); return; }
-    const isSquare = await validateSquareImage(file);
-    if (!isSquare) return;
+    const croppedFile = await cropToSquare(file);
     setUploading(true);
-    const ext = file.name.split(".").pop();
+    const ext = croppedFile.name.split(".").pop();
     const fileName = `${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`;
-    const { error } = await supabase.storage.from("podcast-thumbnails").upload(fileName, file, { contentType: file.type });
+    const { error } = await supabase.storage.from("podcast-thumbnails").upload(fileName, croppedFile, { contentType: croppedFile.type });
     if (error) { toast.error("Erreur upload."); setUploading(false); return; }
     const { data: urlData } = supabase.storage.from("podcast-thumbnails").getPublicUrl(fileName);
     setForm((prev) => ({ ...prev, vignette_url: urlData.publicUrl }));
@@ -278,7 +285,7 @@ const MonEspace = () => {
           <h2 className="font-serif text-xl text-foreground">
             {isPodcasteur ? "Vignette du podcast" : "Photo de profil"}
           </h2>
-          <p className="text-xs text-muted-foreground">Format carré (1:1). JPG, PNG ou WebP. Max 5 Mo.</p>
+          <p className="text-xs text-muted-foreground">JPG, PNG ou WebP. Max 5 Mo. L'image sera recadrée au format carré.</p>
           <div className="flex items-start gap-4">
             {form.vignette_url ? (
               <div className="relative">

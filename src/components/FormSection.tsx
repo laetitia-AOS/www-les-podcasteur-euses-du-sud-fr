@@ -181,18 +181,26 @@ const FormSection = () => {
   const [uploading, setUploading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const validateSquareImage = (file: File): Promise<boolean> => {
+  const cropToSquare = (file: File): Promise<File> => {
     return new Promise((resolve) => {
       const img = new window.Image();
       img.onload = () => {
-        const ratio = img.width / img.height;
         URL.revokeObjectURL(img.src);
-        if (ratio < 0.9 || ratio > 1.1) {
-          toast.error("L'image doit être au format carré (ratio 1:1). Recadrez-la avant de l'envoyer.");
-          resolve(false);
-        } else {
-          resolve(true);
-        }
+        const size = Math.min(img.width, img.height);
+        const offsetX = (img.width - size) / 2;
+        const offsetY = (img.height - size) / 2;
+        const canvas = document.createElement("canvas");
+        canvas.width = size;
+        canvas.height = size;
+        const ctx = canvas.getContext("2d")!;
+        ctx.drawImage(img, offsetX, offsetY, size, size, 0, 0, size, size);
+        canvas.toBlob((blob) => {
+          if (blob) {
+            resolve(new File([blob], file.name, { type: file.type }));
+          } else {
+            resolve(file);
+          }
+        }, file.type, 0.92);
       };
       img.src = URL.createObjectURL(file);
     });
@@ -209,10 +217,9 @@ const FormSection = () => {
       toast.error("L'image ne doit pas dépasser 5 Mo.");
       return;
     }
-    const isSquare = await validateSquareImage(file);
-    if (!isSquare) return;
-    setVignette(file);
-    setVignettePreview(URL.createObjectURL(file));
+    const croppedFile = await cropToSquare(file);
+    setVignette(croppedFile);
+    setVignettePreview(URL.createObjectURL(croppedFile));
   };
 
   const removeVignette = () => {
@@ -287,7 +294,7 @@ const FormSection = () => {
       }
     }
     if (!vignette) {
-      toast.error("Veuillez ajouter une photo (format carré obligatoire).");
+      toast.error("Veuillez ajouter une photo.");
       return;
     }
     if (!formData.departementCode) {
@@ -643,7 +650,7 @@ const FormSection = () => {
                   <SectionHeader number={sn.photo!} title="Votre photo" />
                   <div>
                     <label className={labelClass}>Photo de profil <span className="text-primary">*</span></label>
-                    <p className="text-xs text-muted-foreground mb-1">Format carré obligatoire (1:1). JPG, PNG ou WebP. Max 5 Mo.</p>
+                    <p className="text-xs text-muted-foreground mb-1">JPG, PNG ou WebP. Max 5 Mo. L'image sera recadrée au format carré.</p>
                     {vignettePreview ? (
                       <div className="relative inline-block">
                         <img src={vignettePreview} alt="Aperçu photo" className="w-32 h-32 object-cover rounded-xl border-2 border-border/40 shadow-md" />
@@ -684,7 +691,7 @@ const FormSection = () => {
                 </div>
                 <div>
                   <label className={labelClass}>Vignette du podcast <span className="text-primary">*</span></label>
-                  <p className="text-xs text-muted-foreground mb-1">Format carré obligatoire (1:1, ex: 1400×1400 px). JPG, PNG ou WebP. Max 5 Mo.</p>
+                  <p className="text-xs text-muted-foreground mb-1">JPG, PNG ou WebP. Max 5 Mo. L'image sera recadrée au format carré.</p>
                   {vignettePreview ? (
                     <div className="relative inline-block">
                       <img src={vignettePreview} alt="Aperçu vignette" className="w-32 h-32 object-cover rounded-xl border-2 border-border/40 shadow-md" />
