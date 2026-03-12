@@ -158,7 +158,7 @@ const ProfilMembre = () => {
   const { slug } = useParams<{ slug: string }>();
   const [profile, setProfile] = useState<ProfileData | null>(null);
   const [loading, setLoading] = useState(true);
-  const [contactOpen, setContactOpen] = useState(false);
+  const [phoneRevealed, setPhoneRevealed] = useState(false);
 
   useEffect(() => {
     const fetchProfile = async () => {
