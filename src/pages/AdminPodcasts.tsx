@@ -96,6 +96,7 @@ const AdminPodcasts = () => {
       bio_750: p.bio_750 || "",
       lien_ecoute: p.lien_ecoute || "",
       lien_principal: p.lien_principal || "",
+      lien_linkedin: (p as any).lien_linkedin || "",
       metier_principal: p.metier_principal || "",
       services_3: Array.isArray(p.services_3) ? p.services_3.join(", ") : "",
       disponibilite: p.disponibilite || "",
