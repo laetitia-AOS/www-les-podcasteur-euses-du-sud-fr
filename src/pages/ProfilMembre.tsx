@@ -481,28 +481,31 @@ const ProfilMembre = () => {
                 >
                   <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-4">Contact</p>
                   <div className="space-y-3">
-                    <Button
-                      onClick={() => setContactOpen(true)}
-                      variant="outline"
-                      className="w-full gap-2 justify-start"
-                    >
-                      <div className="w-9 h-9 rounded-lg bg-primary/10 flex items-center justify-center">
-                        <MessageCircle className="w-4 h-4 text-primary" />
-                      </div>
-                      <span>Envoyer un message</span>
-                    </Button>
-
                     {profile.telephone && (
-                      <Button
-                        onClick={() => setContactOpen(true)}
-                        variant="outline"
-                        className="w-full gap-2 justify-start"
-                      >
-                        <div className="w-9 h-9 rounded-lg bg-primary/10 flex items-center justify-center">
-                          <Phone className="w-4 h-4 text-primary" />
-                        </div>
-                        <span className="text-left text-sm">Disponible par téléphone / WhatsApp — Demander le contact</span>
-                      </Button>
+                      <>
+                        {!phoneRevealed ? (
+                          <Button
+                            onClick={() => setPhoneRevealed(true)}
+                            variant="outline"
+                            className="w-full gap-2 justify-start"
+                          >
+                            <div className="w-9 h-9 rounded-lg bg-primary/10 flex items-center justify-center">
+                              <Phone className="w-4 h-4 text-primary" />
+                            </div>
+                            <span className="text-left text-sm">Afficher le numéro de téléphone</span>
+                          </Button>
+                        ) : (
+                          <a
+                            href={`tel:${profile.telephone}`}
+                            className="flex items-center gap-3 text-sm text-foreground hover:text-primary transition-colors group"
+                          >
+                            <div className="w-9 h-9 rounded-lg bg-primary/10 flex items-center justify-center group-hover:bg-primary/20 transition-colors">
+                              <Phone className="w-4 h-4 text-primary" />
+                            </div>
+                            <span>{profile.telephone}</span>
+                          </a>
+                        )}
+                      </>
                     )}
 
                     {profile.lien_principal && (
