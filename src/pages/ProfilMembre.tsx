@@ -36,6 +36,8 @@ interface ProfileData {
   disponibilite: string | null;
   consent_contact: boolean;
   consent_mise_en_relation: boolean;
+  email: string;
+  telephone: string | null;
 }
 
 const profilLabel: Record<string, { label: string; icon: typeof Headphones }> = {
