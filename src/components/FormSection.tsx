@@ -589,9 +589,15 @@ const FormSection = () => {
                   />
                   <p className="text-xs text-muted-foreground mt-1 text-right">{formData.bio750.length}/750</p>
                 </div>
-                <div>
-                  <label className={labelClass}>Lien principal (site / LinkedIn / portfolio / Linktree) <span className="text-primary">*</span></label>
-                  <input name="lienPrincipal" value={formData.lienPrincipal} onChange={handleChange} className={inputClass} placeholder="https://..." />
+                <div className="grid sm:grid-cols-2 gap-4">
+                  <div>
+                    <label className={labelClass}>LinkedIn / réseau social</label>
+                    <input name="lienLinkedin" value={formData.lienLinkedin} onChange={handleChange} className={inputClass} placeholder="https://linkedin.com/in/..." />
+                  </div>
+                  <div>
+                    <label className={labelClass}>Site internet / portfolio <span className="text-primary">*</span></label>
+                    <input name="lienPrincipal" value={formData.lienPrincipal} onChange={handleChange} className={inputClass} placeholder="https://..." />
+                  </div>
                 </div>
               </div>
 
