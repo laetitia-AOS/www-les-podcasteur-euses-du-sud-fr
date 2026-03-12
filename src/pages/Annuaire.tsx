@@ -74,6 +74,7 @@ const profilBadge = (type: string) => {
 
 interface Profile {
   id: string;
+  slug: string | null;
   prenom: string | null;
   nom: string | null;
   type_profil: string;
