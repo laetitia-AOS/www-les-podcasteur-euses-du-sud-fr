@@ -273,9 +273,6 @@ const Annuaire = () => {
                       {/* Conditional content */}
                       {profile.type_profil === "podcasteur" && profile.nom_podcast && (
                         <div className="flex items-center gap-2 mb-2">
-                          {profile.vignette_url && (
-                            <img src={profile.vignette_url} alt="" className="w-8 h-8 rounded-lg object-cover" />
-                          )}
                           <span className="text-sm font-medium text-foreground truncate">{profile.nom_podcast}</span>
                         </div>
                       )}
