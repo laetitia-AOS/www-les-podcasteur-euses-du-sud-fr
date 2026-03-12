@@ -436,6 +436,14 @@ const ProfilMembre = () => {
                       </>
                     )}
 
+                    {profile.lien_linkedin && (
+                      <a href={profile.lien_linkedin} target="_blank" rel="noopener noreferrer" className="flex items-center gap-3 text-sm text-foreground hover:text-primary transition-colors group">
+                        <div className="w-9 h-9 rounded-lg bg-primary/10 flex items-center justify-center group-hover:bg-primary/20 transition-colors">
+                          <Globe className="w-4 h-4 text-primary" />
+                        </div>
+                        <span className="truncate">LinkedIn</span>
+                      </a>
+                    )}
                     {profile.lien_principal && (
                       <a href={profile.lien_principal} target="_blank" rel="noopener noreferrer" className="flex items-center gap-3 text-sm text-foreground hover:text-primary transition-colors group">
                         <div className="w-9 h-9 rounded-lg bg-primary/10 flex items-center justify-center group-hover:bg-primary/20 transition-colors">

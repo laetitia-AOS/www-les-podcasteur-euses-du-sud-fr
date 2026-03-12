@@ -513,8 +513,12 @@ const AdminPodcasts = () => {
                   <label className={labelClass}>Lien d'écoute</label>
                   <input value={editForm.lien_ecoute} onChange={(e) => setEditForm({ ...editForm, lien_ecoute: e.target.value })} className={inputClass} />
                 </div>
-                <div className="sm:col-span-2">
-                  <label className={labelClass}>Lien principal (site / LinkedIn)</label>
+                <div>
+                  <label className={labelClass}>LinkedIn / réseau social</label>
+                  <input value={(editForm as any).lien_linkedin || ""} onChange={(e) => setEditForm({ ...editForm, lien_linkedin: e.target.value } as any)} className={inputClass} />
+                </div>
+                <div>
+                  <label className={labelClass}>Site internet / portfolio</label>
                   <input value={editForm.lien_principal} onChange={(e) => setEditForm({ ...editForm, lien_principal: e.target.value })} className={inputClass} />
                 </div>
                 <div className="sm:col-span-2">

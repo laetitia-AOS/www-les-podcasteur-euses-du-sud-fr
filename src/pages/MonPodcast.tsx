@@ -335,9 +335,15 @@ const MonEspace = () => {
                 rows={5} className="rounded-xl border-border bg-card" />
               <p className="text-xs text-muted-foreground mt-1 text-right">{(form.bio_750 || "").length}/750</p>
             </div>
-            <div>
-              <label className={labelClass}>Lien principal (site / LinkedIn / portfolio)</label>
-              <input name="lien_principal" value={form.lien_principal || ""} onChange={handleChange} className={inputClass} placeholder="https://..." />
+            <div className="grid sm:grid-cols-2 gap-4">
+              <div>
+                <label className={labelClass}>LinkedIn / réseau social</label>
+                <input name="lien_linkedin" value={(form as any).lien_linkedin || ""} onChange={handleChange} className={inputClass} placeholder="https://linkedin.com/in/..." />
+              </div>
+              <div>
+                <label className={labelClass}>Site internet / portfolio</label>
+                <input name="lien_principal" value={form.lien_principal || ""} onChange={handleChange} className={inputClass} placeholder="https://..." />
+              </div>
             </div>
           </div>
         </div>
