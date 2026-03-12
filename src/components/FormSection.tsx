@@ -515,7 +515,7 @@ const FormSection = () => {
                       Visibilité dans l'annuaire et sur le flux
                     </p>
                     <p className="text-sm text-muted-foreground leading-relaxed">
-                      Créer votre profil est gratuit et ouvert à toustes.
+                      Créer votre profil est ouvert à toustes.
                       La publication dans l'annuaire est validée manuellement par notre équipe.
                       Les membres à jour de leur cotisation associative sont prioritairement mis en avant
                       dans l'annuaire et sur le flux du site.{" "}
