@@ -603,7 +603,7 @@ const FormSection = () => {
                     <input name="lienLinkedin" value={formData.lienLinkedin} onChange={handleChange} className={inputClass} placeholder="https://linkedin.com/in/..." />
                   </div>
                   <div>
-                    <label className={labelClass}>Site internet / portfolio <span className="text-primary">*</span></label>
+                    <label className={labelClass}>Site internet / portfolio</label>
                     <input name="lienPrincipal" value={formData.lienPrincipal} onChange={handleChange} className={inputClass} placeholder="https://..." />
                   </div>
                 </div>
