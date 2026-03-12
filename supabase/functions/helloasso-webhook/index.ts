@@ -21,27 +21,46 @@ Deno.serve(async (req) => {
 
     // HelloAsso sends different event types
     const eventType = payload.eventType;
+    const normalizedEventType = String(eventType || "").toLowerCase();
     const data = payload.data || payload;
+
+    // Always use the stable order identifier first (prevents Payment/Order duplicates)
+    const stableOrderId =
+      data?.order?.id ??
+      data?.orderId ??
+      data?.id ??
+      "";
+    const helloassoOrderId = stableOrderId ? String(stableOrderId) : "";
+
+    // Only keep Order/membership events, skip Payment events
+    if (normalizedEventType === "payment") {
+      console.log("Skipping Payment event, keeping only Order/membership events");
+      return new Response(JSON.stringify({ success: true, skipped: true }), {
+        status: 200,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
 
     // Extract payer/member info
     const payer = data.payer || {};
     const items = data.items || [];
     const firstItem = items[0] || {};
+    const amountCents = data.amount ?? firstItem.amount ?? null;
 
     const adhesion = {
       email: payer.email || data.email || null,
       prenom: payer.firstName || data.firstName || null,
       nom: payer.lastName || data.lastName || null,
       telephone: payer.phone || null,
-      montant: data.amount ? data.amount / 100 : null, // HelloAsso amounts in cents
+      montant: amountCents ? amountCents / 100 : null, // HelloAsso amounts in cents
       type_adhesion: firstItem.name || eventType || "adhesion",
       statut: "active",
-      date_adhesion: data.date || new Date().toISOString(),
-      helloasso_order_id: String(data.id || data.orderId || ""),
+      date_adhesion: data.order?.date || data.date || new Date().toISOString(),
+      helloasso_order_id: helloassoOrderId,
       raw_payload: payload,
     };
 
-    // Skip if this order was already recorded (HelloAsso sends multiple events per transaction)
+    // Skip if this order was already recorded (HelloAsso can send multiple events per transaction)
     if (adhesion.helloasso_order_id) {
       const { data: existing } = await supabase
         .from("adhesions")
@@ -56,15 +75,6 @@ Deno.serve(async (req) => {
           headers: { ...corsHeaders, "Content-Type": "application/json" },
         });
       }
-    }
-
-    // Only keep "Order" or membership events, skip pure "Payment" events
-    if (eventType === "Payment") {
-      console.log("Skipping Payment event, keeping only Order/membership events");
-      return new Response(JSON.stringify({ success: true, skipped: true }), {
-        status: 200,
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-      });
     }
 
     const { error } = await supabase.from("adhesions").insert(adhesion);
