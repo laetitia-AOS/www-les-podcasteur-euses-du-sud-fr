@@ -113,6 +113,8 @@ const HeroSection = () => {
                 src={heroPodcast}
                 alt="Créatrice de podcast enregistrant dans un studio lumineux en Région Sud"
                 className="w-full h-full object-cover"
+                width="600"
+                height="750"
               />
               <div className="absolute inset-0 bg-gradient-to-t from-background/20 via-transparent to-transparent" />
             </div>
