@@ -366,9 +366,17 @@ const AdminPodcasts = () => {
                     {selectedPodcast.lien_ecoute} <ExternalLink className="w-3 h-3" />
                   </a>
                 </div>
+                {(selectedPodcast as any).lien_linkedin && (
+                  <div className="col-span-2">
+                    <p className="text-muted-foreground mb-1">LinkedIn</p>
+                    <a href={(selectedPodcast as any).lien_linkedin} target="_blank" rel="noopener noreferrer" className="text-primary hover:underline flex items-center gap-1">
+                      {(selectedPodcast as any).lien_linkedin} <ExternalLink className="w-3 h-3" />
+                    </a>
+                  </div>
+                )}
                 {selectedPodcast.lien_principal && (
                   <div className="col-span-2">
-                    <p className="text-muted-foreground mb-1">Lien principal</p>
+                    <p className="text-muted-foreground mb-1">Site internet / portfolio</p>
                     <a href={selectedPodcast.lien_principal} target="_blank" rel="noopener noreferrer" className="text-primary hover:underline flex items-center gap-1">
                       {selectedPodcast.lien_principal} <ExternalLink className="w-3 h-3" />
                     </a>
