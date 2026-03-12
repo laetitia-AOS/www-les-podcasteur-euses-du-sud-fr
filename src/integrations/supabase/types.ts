@@ -59,6 +59,44 @@ export type Database = {
         }
         Relationships: []
       }
+      contact_requests: {
+        Row: {
+          created_at: string
+          id: string
+          message: string
+          recipient_id: string
+          sender_email: string
+          sender_name: string
+          status: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          message: string
+          recipient_id: string
+          sender_email: string
+          sender_name: string
+          status?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          message?: string
+          recipient_id?: string
+          sender_email?: string
+          sender_name?: string
+          status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "contact_requests_recipient_id_fkey"
+            columns: ["recipient_id"]
+            isOneToOne: false
+            referencedRelation: "podcasts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       contacts: {
         Row: {
           created_at: string
@@ -154,6 +192,7 @@ export type Database = {
           besoin: string | null
           besoins_podcast: string[] | null
           bio_750: string | null
+          cherche_collaboration: string[] | null
           city_insee_code: string | null
           city_name: string | null
           city_postcode: string | null
@@ -165,6 +204,7 @@ export type Database = {
           description: string
           disponibilite: string | null
           email: string
+          format_collaboration: string | null
           frequence_publication: string | null
           id: string
           lien_ecoute: string
@@ -174,6 +214,7 @@ export type Database = {
           niveau_avancement: string | null
           nom: string | null
           nom_podcast: string
+          peut_apporter: string[] | null
           prenom: string | null
           priorite_actuelle: string | null
           score_dynamique: number
@@ -196,6 +237,7 @@ export type Database = {
           besoin?: string | null
           besoins_podcast?: string[] | null
           bio_750?: string | null
+          cherche_collaboration?: string[] | null
           city_insee_code?: string | null
           city_name?: string | null
           city_postcode?: string | null
@@ -207,6 +249,7 @@ export type Database = {
           description: string
           disponibilite?: string | null
           email: string
+          format_collaboration?: string | null
           frequence_publication?: string | null
           id?: string
           lien_ecoute: string
@@ -216,6 +259,7 @@ export type Database = {
           niveau_avancement?: string | null
           nom?: string | null
           nom_podcast: string
+          peut_apporter?: string[] | null
           prenom?: string | null
           priorite_actuelle?: string | null
           score_dynamique?: number
@@ -238,6 +282,7 @@ export type Database = {
           besoin?: string | null
           besoins_podcast?: string[] | null
           bio_750?: string | null
+          cherche_collaboration?: string[] | null
           city_insee_code?: string | null
           city_name?: string | null
           city_postcode?: string | null
@@ -249,6 +294,7 @@ export type Database = {
           description?: string
           disponibilite?: string | null
           email?: string
+          format_collaboration?: string | null
           frequence_publication?: string | null
           id?: string
           lien_ecoute?: string
@@ -258,6 +304,7 @@ export type Database = {
           niveau_avancement?: string | null
           nom?: string | null
           nom_podcast?: string
+          peut_apporter?: string[] | null
           prenom?: string | null
           priorite_actuelle?: string | null
           score_dynamique?: number
