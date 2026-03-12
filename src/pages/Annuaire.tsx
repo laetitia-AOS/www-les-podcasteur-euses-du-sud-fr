@@ -167,6 +167,11 @@ const Annuaire = () => {
 
   return (
     <div className="min-h-screen bg-background">
+      <SEOHead
+        title="Annuaire — Écosystème Podcast Région Sud"
+        description="Podcasteurs, studios, monteurs, voix off, consultants : trouvez tous les acteurs de l'écosystème podcast en Provence-Alpes-Côte d'Azur."
+        path="/annuaire"
+      />
       <Navbar />
       <main className="pt-24 pb-20">
         <div className="container mx-auto px-6 max-w-6xl">
