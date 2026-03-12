@@ -208,6 +208,7 @@ export type Database = {
           frequence_publication: string | null
           id: string
           lien_ecoute: string
+          lien_linkedin: string | null
           lien_principal: string | null
           metier_principal: string | null
           monetise: string | null
@@ -253,6 +254,7 @@ export type Database = {
           frequence_publication?: string | null
           id?: string
           lien_ecoute: string
+          lien_linkedin?: string | null
           lien_principal?: string | null
           metier_principal?: string | null
           monetise?: string | null
@@ -298,6 +300,7 @@ export type Database = {
           frequence_publication?: string | null
           id?: string
           lien_ecoute?: string
+          lien_linkedin?: string | null
           lien_principal?: string | null
           metier_principal?: string | null
           monetise?: string | null
