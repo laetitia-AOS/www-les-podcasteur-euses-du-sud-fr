@@ -48,8 +48,8 @@ interface ProfileData {
 
 const profilConfig: Record<string, { label: string; icon: typeof Headphones; gradient: string; accent: string }> = {
   podcasteur: { label: "Podcasteur·euse", icon: Headphones, gradient: "from-primary/20 via-secondary/10 to-accent/10", accent: "primary" },
-  pro_podcast: { label: "Pro du podcast", icon: Briefcase, gradient: "from-secondary/20 via-primary/10 to-accent/10", accent: "secondary" },
-  soutien: { label: "Soutien / Curieux", icon: Heart, gradient: "from-accent/15 via-primary/10 to-secondary/10", accent: "primary" },
+  pro_podcast: { label: "Professionnel·le du podcast", icon: Briefcase, gradient: "from-secondary/20 via-primary/10 to-accent/10", accent: "secondary" },
+  soutien: { label: "Soutien / Curieux·se", icon: Heart, gradient: "from-accent/15 via-primary/10 to-secondary/10", accent: "primary" },
 };
 
 const besoinsLabels: Record<string, string> = {
