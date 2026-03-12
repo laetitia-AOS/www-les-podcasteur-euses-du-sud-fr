@@ -96,6 +96,7 @@ const AdminPodcasts = () => {
       bio_750: p.bio_750 || "",
       lien_ecoute: p.lien_ecoute || "",
       lien_principal: p.lien_principal || "",
+      lien_linkedin: (p as any).lien_linkedin || "",
       metier_principal: p.metier_principal || "",
       services_3: Array.isArray(p.services_3) ? p.services_3.join(", ") : "",
       disponibilite: p.disponibilite || "",
@@ -124,6 +125,7 @@ const AdminPodcasts = () => {
         bio_750: editForm.bio_750 || null,
         lien_ecoute: editForm.lien_ecoute,
         lien_principal: editForm.lien_principal || null,
+        lien_linkedin: (editForm as any).lien_linkedin || null,
         metier_principal: editForm.metier_principal || null,
         services_3: services3Array,
         disponibilite: editForm.disponibilite || null,
@@ -364,9 +366,17 @@ const AdminPodcasts = () => {
                     {selectedPodcast.lien_ecoute} <ExternalLink className="w-3 h-3" />
                   </a>
                 </div>
+                {(selectedPodcast as any).lien_linkedin && (
+                  <div className="col-span-2">
+                    <p className="text-muted-foreground mb-1">LinkedIn</p>
+                    <a href={(selectedPodcast as any).lien_linkedin} target="_blank" rel="noopener noreferrer" className="text-primary hover:underline flex items-center gap-1">
+                      {(selectedPodcast as any).lien_linkedin} <ExternalLink className="w-3 h-3" />
+                    </a>
+                  </div>
+                )}
                 {selectedPodcast.lien_principal && (
                   <div className="col-span-2">
-                    <p className="text-muted-foreground mb-1">Lien principal</p>
+                    <p className="text-muted-foreground mb-1">Site internet / portfolio</p>
                     <a href={selectedPodcast.lien_principal} target="_blank" rel="noopener noreferrer" className="text-primary hover:underline flex items-center gap-1">
                       {selectedPodcast.lien_principal} <ExternalLink className="w-3 h-3" />
                     </a>
@@ -503,8 +513,12 @@ const AdminPodcasts = () => {
                   <label className={labelClass}>Lien d'écoute</label>
                   <input value={editForm.lien_ecoute} onChange={(e) => setEditForm({ ...editForm, lien_ecoute: e.target.value })} className={inputClass} />
                 </div>
-                <div className="sm:col-span-2">
-                  <label className={labelClass}>Lien principal (site / LinkedIn)</label>
+                <div>
+                  <label className={labelClass}>LinkedIn / réseau social</label>
+                  <input value={(editForm as any).lien_linkedin || ""} onChange={(e) => setEditForm({ ...editForm, lien_linkedin: e.target.value } as any)} className={inputClass} />
+                </div>
+                <div>
+                  <label className={labelClass}>Site internet / portfolio</label>
                   <input value={editForm.lien_principal} onChange={(e) => setEditForm({ ...editForm, lien_principal: e.target.value })} className={inputClass} />
                 </div>
                 <div className="sm:col-span-2">

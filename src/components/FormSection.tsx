@@ -159,7 +159,7 @@ const FormSection = () => {
     nomPodcast: "", lienEcoute: "", description: "",
     thematique: "", departementCode: "",
     typePodcast: "", niveauAvancement: "", frequencePublication: "", monetise: "",
-    typeProfil: "podcasteur", bio750: "", lienPrincipal: "",
+    typeProfil: "podcasteur", bio750: "", lienPrincipal: "", lienLinkedin: "",
     metierPrincipal: "", disponibilite: "",
     formatCollaboration: "",
   });
@@ -369,6 +369,7 @@ const FormSection = () => {
       type_profil: formData.typeProfil,
       bio_750: formData.bio750 || null,
       lien_principal: formData.lienPrincipal || null,
+      lien_linkedin: formData.lienLinkedin || null,
       metier_principal: formData.typeProfil === "pro_podcast" ? formData.metierPrincipal : null,
       services_3: formData.typeProfil === "pro_podcast" ? selectedServices : null,
       disponibilite: formData.typeProfil === "pro_podcast" ? formData.disponibilite : null,
@@ -589,9 +590,15 @@ const FormSection = () => {
                   />
                   <p className="text-xs text-muted-foreground mt-1 text-right">{formData.bio750.length}/750</p>
                 </div>
-                <div>
-                  <label className={labelClass}>Lien principal (site / LinkedIn / portfolio / Linktree) <span className="text-primary">*</span></label>
-                  <input name="lienPrincipal" value={formData.lienPrincipal} onChange={handleChange} className={inputClass} placeholder="https://..." />
+                <div className="grid sm:grid-cols-2 gap-4">
+                  <div>
+                    <label className={labelClass}>LinkedIn / réseau social</label>
+                    <input name="lienLinkedin" value={formData.lienLinkedin} onChange={handleChange} className={inputClass} placeholder="https://linkedin.com/in/..." />
+                  </div>
+                  <div>
+                    <label className={labelClass}>Site internet / portfolio <span className="text-primary">*</span></label>
+                    <input name="lienPrincipal" value={formData.lienPrincipal} onChange={handleChange} className={inputClass} placeholder="https://..." />
+                  </div>
                 </div>
               </div>
 

@@ -22,6 +22,7 @@ interface PodcastData {
   type_profil: string;
   bio_750: string | null;
   lien_principal: string | null;
+  lien_linkedin: string | null;
   metier_principal: string | null;
   services_3: string[] | null;
   disponibilite: string | null;
@@ -62,7 +63,7 @@ const MonEspace = () => {
       setUserEmail(session.user.email || "");
       const { data, error } = await supabase
         .from("podcasts")
-        .select("id, nom_podcast, lien_ecoute, description, thematique, vignette_url, prenom, nom, telephone, email, ville, type_podcast, type_profil, bio_750, lien_principal, metier_principal, services_3, disponibilite, valide, niveau_avancement, frequence_publication, monetise, department_code, city_name")
+        .select("id, nom_podcast, lien_ecoute, description, thematique, vignette_url, prenom, nom, telephone, email, ville, type_podcast, type_profil, bio_750, lien_principal, lien_linkedin, metier_principal, services_3, disponibilite, valide, niveau_avancement, frequence_publication, monetise, department_code, city_name")
         .eq("email", session.user.email!)
         .order("created_at", { ascending: false });
 
@@ -139,6 +140,7 @@ const MonEspace = () => {
       telephone: form.telephone,
       bio_750: form.bio_750,
       lien_principal: form.lien_principal,
+      lien_linkedin: (form as any).lien_linkedin,
       metier_principal: form.metier_principal,
       disponibilite: form.disponibilite,
       type_podcast: form.type_podcast,
@@ -333,9 +335,15 @@ const MonEspace = () => {
                 rows={5} className="rounded-xl border-border bg-card" />
               <p className="text-xs text-muted-foreground mt-1 text-right">{(form.bio_750 || "").length}/750</p>
             </div>
-            <div>
-              <label className={labelClass}>Lien principal (site / LinkedIn / portfolio)</label>
-              <input name="lien_principal" value={form.lien_principal || ""} onChange={handleChange} className={inputClass} placeholder="https://..." />
+            <div className="grid sm:grid-cols-2 gap-4">
+              <div>
+                <label className={labelClass}>LinkedIn / réseau social</label>
+                <input name="lien_linkedin" value={(form as any).lien_linkedin || ""} onChange={handleChange} className={inputClass} placeholder="https://linkedin.com/in/..." />
+              </div>
+              <div>
+                <label className={labelClass}>Site internet / portfolio</label>
+                <input name="lien_principal" value={form.lien_principal || ""} onChange={handleChange} className={inputClass} placeholder="https://..." />
+              </div>
             </div>
           </div>
         </div>

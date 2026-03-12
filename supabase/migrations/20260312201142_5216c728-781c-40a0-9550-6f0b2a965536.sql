@@ -1,0 +1,1 @@
+ALTER TABLE public.podcasts ADD COLUMN lien_linkedin text DEFAULT null;
