@@ -41,6 +41,32 @@ Deno.serve(async (req) => {
       raw_payload: payload,
     };
 
+    // Skip if this order was already recorded (HelloAsso sends multiple events per transaction)
+    if (adhesion.helloasso_order_id) {
+      const { data: existing } = await supabase
+        .from("adhesions")
+        .select("id")
+        .eq("helloasso_order_id", adhesion.helloasso_order_id)
+        .maybeSingle();
+
+      if (existing) {
+        console.log("Skipping duplicate order:", adhesion.helloasso_order_id);
+        return new Response(JSON.stringify({ success: true, skipped: true }), {
+          status: 200,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+    }
+
+    // Only keep "Order" or membership events, skip pure "Payment" events
+    if (eventType === "Payment") {
+      console.log("Skipping Payment event, keeping only Order/membership events");
+      return new Response(JSON.stringify({ success: true, skipped: true }), {
+        status: 200,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
     const { error } = await supabase.from("adhesions").insert(adhesion);
 
     if (error) {
