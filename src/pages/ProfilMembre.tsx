@@ -11,7 +11,6 @@ import {
   CheckCircle, Music, Tag, BarChart3, Clock, Coins, Loader2, Mail, Phone,
   Globe, Mic, Sparkles, Wifi, Handshake
 } from "lucide-react";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { toast } from "sonner";
 
 interface ProfileData {
