@@ -125,6 +125,7 @@ const AdminPodcasts = () => {
         bio_750: editForm.bio_750 || null,
         lien_ecoute: editForm.lien_ecoute,
         lien_principal: editForm.lien_principal || null,
+        lien_linkedin: (editForm as any).lien_linkedin || null,
         metier_principal: editForm.metier_principal || null,
         services_3: services3Array,
         disponibilite: editForm.disponibilite || null,
