@@ -8,7 +8,7 @@ import { Badge } from "@/components/ui/badge";
 import { motion } from "framer-motion";
 import {
   MapPin, Headphones, ExternalLink, ArrowLeft, Briefcase, Heart,
-  CheckCircle, Music, Tag, BarChart3, Clock, Coins, Loader2
+  CheckCircle, Music, Tag, BarChart3, Clock, Coins, Loader2, Mail, Phone
 } from "lucide-react";
 
 interface ProfileData {
