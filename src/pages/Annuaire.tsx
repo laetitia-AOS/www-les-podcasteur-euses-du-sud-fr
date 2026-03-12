@@ -345,11 +345,6 @@ const Annuaire = () => {
                             {profile.thematique && (
                               <Badge variant="secondary" className="text-xs">{profile.thematique}</Badge>
                             )}
-                            {profile.niveau_avancement && (
-                              <Badge variant="outline" className="text-xs gap-1">
-                                <BarChart3 className="w-2.5 h-2.5" /> {niveauLabels[profile.niveau_avancement] || profile.niveau_avancement}
-                              </Badge>
-                            )}
                           </div>
                           {profile.cherche_collaboration && profile.cherche_collaboration.length > 0 && (
                             <p className="text-xs text-muted-foreground mt-1">
