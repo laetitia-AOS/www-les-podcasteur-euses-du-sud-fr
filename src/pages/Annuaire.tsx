@@ -5,7 +5,7 @@ import Footer from "@/components/Footer";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { motion } from "framer-motion";
-import { MapPin, Headphones, ArrowRight, Search, Users, Briefcase, Heart } from "lucide-react";
+import { MapPin, Headphones, ArrowRight, Search, Users, Briefcase, Heart, Handshake, BarChart3 } from "lucide-react";
 import { Link } from "react-router-dom";
 
 const departements = [
@@ -44,6 +44,25 @@ const thematiques = [
   "Territoires, initiatives & regards",
   "Autre",
 ];
+
+const chercheCollaborationOptions = [
+  "Un·e podcasteur·euse pour co-production",
+  "Un·e monteur·euse / ingénieur son",
+  "Un·e studio d'enregistrement",
+  "Un·e voix off",
+  "Un·e expert·e en stratégie podcast",
+  "Un·e graphiste / motion designer",
+  "Des invité·es pour mon podcast",
+  "Un·e partenaire pour un événement",
+  "Des sponsors / partenaires commerciaux",
+  "Un·e coach ou mentor·e",
+];
+
+const niveauLabels: Record<string, string> = {
+  lancement: "Lancement",
+  croissance: "Croissance",
+  installe: "Installé",
+};
 
 const normalize = (str: string) =>
   str.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
@@ -88,6 +107,12 @@ interface Profile {
   services_3: string[] | null;
   thematique: string | null;
   vignette_url: string | null;
+  consent_mise_en_relation: boolean;
+  niveau_avancement: string | null;
+  disponibilite: string | null;
+  cherche_collaboration: string[] | null;
+  peut_apporter: string[] | null;
+  format_collaboration: string | null;
 }
 
 const Annuaire = () => {
@@ -98,13 +123,16 @@ const Annuaire = () => {
   const [filterMetier, setFilterMetier] = useState("");
   const [filterThematique, setFilterThematique] = useState("");
   const [searchQuery, setSearchQuery] = useState("");
+  const [filterCollab, setFilterCollab] = useState(false);
+  const [filterChercheCollab, setFilterChercheCollab] = useState("");
+  const [filterFormat, setFilterFormat] = useState("");
 
   useEffect(() => {
     document.title = "Annuaire — Écosystème Podcast | Les Podcasteur·euses du Sud";
     const fetchProfiles = async () => {
       const { data, error } = await supabase
         .from("podcasts")
-        .select("id, slug, prenom, nom, type_profil, city_name, department_label, department_code, bio_750, nom_podcast, lien_ecoute, metier_principal, services_3, thematique, vignette_url")
+        .select("id, slug, prenom, nom, type_profil, city_name, department_label, department_code, bio_750, nom_podcast, lien_ecoute, metier_principal, services_3, thematique, vignette_url, consent_mise_en_relation, niveau_avancement, disponibilite, cherche_collaboration, peut_apporter, format_collaboration")
         .eq("valide", true)
         .order("created_at", { ascending: false });
       if (!error && data) setProfiles(data as unknown as Profile[]);
@@ -119,6 +147,9 @@ const Annuaire = () => {
       if (filterType && p.type_profil !== filterType) return false;
       if (filterMetier && p.metier_principal !== filterMetier) return false;
       if (filterThematique && p.thematique !== filterThematique) return false;
+      if (filterCollab && !p.consent_mise_en_relation) return false;
+      if (filterChercheCollab && (!p.cherche_collaboration || !p.cherche_collaboration.includes(filterChercheCollab))) return false;
+      if (filterFormat && p.format_collaboration !== filterFormat) return false;
       if (searchQuery) {
         const q = searchQuery.trim();
         const searchable = [
@@ -130,7 +161,7 @@ const Annuaire = () => {
       }
       return true;
     });
-  }, [profiles, filterDept, filterType, filterMetier, filterThematique, searchQuery]);
+  }, [profiles, filterDept, filterType, filterMetier, filterThematique, searchQuery, filterCollab, filterChercheCollab, filterFormat]);
 
   const selectClass = "rounded-xl border border-border bg-card px-3 py-2.5 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-primary/30 transition-all";
 
@@ -180,7 +211,7 @@ const Annuaire = () => {
             </div>
             <div className="flex flex-wrap gap-3">
               <select value={filterType} onChange={(e) => { setFilterType(e.target.value); setFilterMetier(""); setFilterThematique(""); }} className={selectClass}>
-                <option value="">Tous les métiers</option>
+                <option value="">Tous les profils</option>
                 <option value="podcasteur">Podcasteurs</option>
                 <option value="pro_podcast">Pros du podcast</option>
                 <option value="soutien">Soutiens</option>
@@ -201,6 +232,32 @@ const Annuaire = () => {
                   {thematiques.map((t) => <option key={t} value={t}>{t}</option>)}
                 </select>
               )}
+            </div>
+
+            {/* Matching filters */}
+            <div className="pt-3 border-t border-border">
+              <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-3">Matching</p>
+              <div className="flex flex-wrap gap-3 items-center">
+                <label className="flex items-center gap-2 cursor-pointer text-sm text-foreground">
+                  <input
+                    type="checkbox"
+                    checked={filterCollab}
+                    onChange={(e) => setFilterCollab(e.target.checked)}
+                    className="h-4 w-4 rounded border-border text-primary accent-primary focus:ring-primary/30"
+                  />
+                  Ouvert·e aux collaborations
+                </label>
+                <select value={filterChercheCollab} onChange={(e) => setFilterChercheCollab(e.target.value)} className={selectClass}>
+                  <option value="">Cherche à collaborer avec…</option>
+                  {chercheCollaborationOptions.map((o) => <option key={o} value={o}>{o}</option>)}
+                </select>
+                <select value={filterFormat} onChange={(e) => setFilterFormat(e.target.value)} className={selectClass}>
+                  <option value="">Format</option>
+                  <option value="En présentiel (Marseille / région)">En présentiel</option>
+                  <option value="À distance">À distance</option>
+                  <option value="Les deux">Les deux</option>
+                </select>
+              </div>
             </div>
           </motion.div>
 
@@ -234,10 +291,17 @@ const Annuaire = () => {
                   >
                     <Link
                       to={`/profil/${profile.slug || profile.id}`}
-                      className="block bg-card border border-border rounded-2xl p-6 hover:shadow-md hover:border-primary/20 transition-all duration-300 h-full"
+                      className="block bg-card border border-border rounded-2xl p-6 hover:shadow-md hover:border-primary/20 transition-all duration-300 h-full relative"
                     >
+                      {/* Collab badge */}
+                      {profile.consent_mise_en_relation && (
+                        <span className="absolute top-3 right-3 inline-flex items-center gap-1 text-[10px] font-semibold px-2 py-0.5 rounded-full bg-green-100 text-green-700 border border-green-200">
+                          <Handshake className="w-3 h-3" /> Ouvert·e aux collabs
+                        </span>
+                      )}
+
                       <div className="flex items-start gap-4 mb-3">
-                        {/* Photo de profil */}
+                        {/* Photo */}
                         <div className="w-14 h-14 rounded-xl overflow-hidden bg-muted flex-shrink-0">
                           {profile.vignette_url ? (
                             <img
@@ -257,11 +321,11 @@ const Annuaire = () => {
                             <h3 className="font-serif text-lg text-foreground truncate">
                               {profile.prenom} {profile.nom}
                             </h3>
-                            <span className={`inline-flex items-center gap-1 text-xs font-medium px-2 py-1 rounded-full border flex-shrink-0 ${badge.className}`}>
-                              <BadgeIcon className="w-3 h-3" />
-                              {badge.label}
-                            </span>
                           </div>
+                          <span className={`inline-flex items-center gap-1 text-xs font-medium px-2 py-0.5 rounded-full border mt-1 ${badge.className}`}>
+                            <BadgeIcon className="w-3 h-3" />
+                            {badge.label}
+                          </span>
                           {profile.city_name && (
                             <p className="text-xs text-muted-foreground flex items-center gap-1 mt-1">
                               <MapPin className="w-3 h-3" />
@@ -271,28 +335,62 @@ const Annuaire = () => {
                         </div>
                       </div>
 
-                      {/* Conditional content */}
-                      {profile.type_profil === "podcasteur" && profile.nom_podcast && (
-                        <div className="flex items-center gap-2 mb-2">
-                          <span className="text-sm font-medium text-foreground truncate">{profile.nom_podcast}</span>
-                        </div>
-                      )}
-
-                      {profile.type_profil === "pro_podcast" && profile.metier_principal && (
-                        <div className="mb-2">
-                          <p className="text-sm font-medium text-foreground">{profile.metier_principal}</p>
-                          {profile.services_3 && profile.services_3.length > 0 && (
-                            <p className="text-xs text-muted-foreground mt-0.5 truncate">
-                              Services : {profile.services_3.join(", ")}
+                      {/* Conditional content per type */}
+                      {profile.type_profil === "podcasteur" && (
+                        <div className="space-y-1.5 mb-2">
+                          {profile.nom_podcast && (
+                            <p className="text-sm font-medium text-foreground truncate">{profile.nom_podcast}</p>
+                          )}
+                          <div className="flex flex-wrap gap-1.5">
+                            {profile.thematique && (
+                              <Badge variant="secondary" className="text-xs">{profile.thematique}</Badge>
+                            )}
+                            {profile.niveau_avancement && (
+                              <Badge variant="outline" className="text-xs gap-1">
+                                <BarChart3 className="w-2.5 h-2.5" /> {niveauLabels[profile.niveau_avancement] || profile.niveau_avancement}
+                              </Badge>
+                            )}
+                          </div>
+                          {profile.cherche_collaboration && profile.cherche_collaboration.length > 0 && (
+                            <p className="text-xs text-muted-foreground mt-1">
+                              Cherche : {profile.cherche_collaboration.slice(0, 2).join(", ")}
                             </p>
                           )}
                         </div>
                       )}
 
-                      {profile.bio_750 && (
-                        <p className="text-sm text-muted-foreground line-clamp-3 mt-2">
-                          {profile.bio_750}
-                        </p>
+                      {profile.type_profil === "pro_podcast" && (
+                        <div className="space-y-1.5 mb-2">
+                          {profile.metier_principal && (
+                            <p className="text-sm font-medium text-foreground">{profile.metier_principal}</p>
+                          )}
+                          {profile.services_3 && profile.services_3.length > 0 && (
+                            <p className="text-xs text-muted-foreground truncate">
+                              {profile.services_3.slice(0, 2).join(", ")}
+                            </p>
+                          )}
+                          {profile.disponibilite && (
+                            <p className="text-xs text-muted-foreground">{profile.disponibilite}</p>
+                          )}
+                          {profile.peut_apporter && profile.peut_apporter.length > 0 && (
+                            <p className="text-xs text-muted-foreground mt-1">
+                              Peut apporter : {profile.peut_apporter.slice(0, 2).join(", ")}
+                            </p>
+                          )}
+                        </div>
+                      )}
+
+                      {profile.type_profil === "soutien" && (
+                        <div className="space-y-1.5 mb-2">
+                          {profile.bio_750 && (
+                            <p className="text-sm text-muted-foreground line-clamp-3">{profile.bio_750}</p>
+                          )}
+                          {profile.cherche_collaboration && profile.cherche_collaboration.length > 0 && (
+                            <p className="text-xs text-muted-foreground mt-1">
+                              Cherche : {profile.cherche_collaboration.slice(0, 2).join(", ")}
+                            </p>
+                          )}
+                        </div>
                       )}
 
                       <div className="flex items-center gap-2 mt-4">
