@@ -7,6 +7,7 @@ import { Link } from "react-router-dom";
 
 interface Podcast {
   id: string;
+  slug: string | null;
   nom_podcast: string;
   description: string;
   ville: string | null;
@@ -32,7 +33,7 @@ const DynamiqueSection = () => {
     const fetchPodcasts = async () => {
       const { data, error } = await supabase
         .from("podcasts")
-        .select("id, nom_podcast, description, ville, thematique, lien_ecoute, vignette_url, created_at, prenom, nom, bio_750, type_profil")
+        .select("id, slug, nom_podcast, description, ville, thematique, lien_ecoute, vignette_url, created_at, prenom, nom, bio_750, type_profil")
         .eq("valide", true)
         .eq("type_profil", "podcasteur")
         .order("created_at", { ascending: false });
@@ -146,7 +147,7 @@ const DynamiqueSection = () => {
                         <ArrowUpRight className="w-3.5 h-3.5" />
                       </a>
                       <Link
-                        to={`/profil/${p.id}`}
+                        to={`/profil/${p.slug || p.id}`}
                         className="inline-flex items-center gap-1 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
                       >
                         Voir le profil

@@ -74,6 +74,7 @@ const profilBadge = (type: string) => {
 
 interface Profile {
   id: string;
+  slug: string | null;
   prenom: string | null;
   nom: string | null;
   type_profil: string;
@@ -103,7 +104,7 @@ const Annuaire = () => {
     const fetchProfiles = async () => {
       const { data, error } = await supabase
         .from("podcasts")
-        .select("id, prenom, nom, type_profil, city_name, department_label, department_code, bio_750, nom_podcast, lien_ecoute, metier_principal, services_3, thematique, vignette_url")
+        .select("id, slug, prenom, nom, type_profil, city_name, department_label, department_code, bio_750, nom_podcast, lien_ecoute, metier_principal, services_3, thematique, vignette_url")
         .eq("valide", true)
         .order("created_at", { ascending: false });
       if (!error && data) setProfiles(data as unknown as Profile[]);
@@ -232,7 +233,7 @@ const Annuaire = () => {
                     transition={{ duration: 0.4, delay: i * 0.03 }}
                   >
                     <Link
-                      to={`/profil/${profile.id}`}
+                      to={`/profil/${profile.slug || profile.id}`}
                       className="block bg-card border border-border rounded-2xl p-6 hover:shadow-md hover:border-primary/20 transition-all duration-300 h-full"
                     >
                       <div className="flex items-start gap-4 mb-3">
