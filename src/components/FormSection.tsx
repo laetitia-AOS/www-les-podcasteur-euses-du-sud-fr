@@ -91,13 +91,14 @@ const toSlug = (str: string) =>
     .replace(/[^a-z0-9]+/g, "-")
     .replace(/^-+|-+$/g, "");
 
-const SectionHeader = ({ number, title }: { number: number; title: string }) => (
-  <h3 className="font-serif text-lg text-foreground flex items-center gap-2 mb-1">
-    <span className="w-6 h-6 rounded-full bg-primary/10 text-primary text-xs flex items-center justify-center font-sans font-bold">
+const SectionHeader = ({ number, title, icon }: { number: number; title: string; icon?: React.ReactNode }) => (
+  <div className="flex items-center gap-3 mb-2">
+    <span className="w-8 h-8 rounded-xl bg-gradient-to-br from-primary to-primary/70 text-primary-foreground text-sm flex items-center justify-center font-sans font-bold shadow-sm">
       {number}
     </span>
-    {title}
-  </h3>
+    <h3 className="font-serif text-xl text-foreground">{title}</h3>
+    {icon && <span className="text-primary/50">{icon}</span>}
+  </div>
 );
 
 const CheckboxMultiSelect = ({
