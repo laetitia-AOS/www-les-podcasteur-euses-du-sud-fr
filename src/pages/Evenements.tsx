@@ -89,13 +89,13 @@ const Evenements = () => {
 
   return (
     <>
+      <SEOHead
+        title="Événements podcast Région Sud — Les Podcasteur·euses du Sud"
+        description="Agenda des rencontres, ateliers et événements podcast en Provence-Alpes-Côte d'Azur. Rejoignez la communauté des créateurs audio du Sud."
+        path="/evenements"
+        jsonLd={jsonLdEvents}
+      />
       <Navbar />
-      {jsonLdEvents && jsonLdEvents.length > 0 && (
-        <script
-          type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLdEvents) }}
-        />
-      )}
       <main className="min-h-screen pt-24 pb-16">
         <section className="container mx-auto px-6 max-w-5xl" aria-labelledby="events-heading">
           <motion.header

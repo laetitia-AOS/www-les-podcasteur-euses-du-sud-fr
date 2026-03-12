@@ -94,7 +94,7 @@ const EvenementDetail = () => {
       name: "Les Podcasteur·euses du Sud",
       url: "https://www.les-podcasteur-euses-du-sud.fr",
     },
-  } : null;
+  } : null, [evt]);
 
   if (isLoading) {
     return (
