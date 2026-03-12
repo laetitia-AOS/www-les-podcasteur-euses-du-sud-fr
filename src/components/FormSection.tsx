@@ -235,8 +235,8 @@ const FormSection = () => {
     if (formData.typeProfil === "podcasteur") {
       return {
         coordonnees: 1, profil: 2, podcast: 3, ligneEditoriale: 4,
-        profilPodcast: 5, structuration: 6, besoins: 7, priorite: 8,
-        localisation: 9, matching: 10, consentements: 11,
+        structuration: 5, besoins: 6,
+        localisation: 7, matching: 8, consentements: 9,
       };
     } else if (formData.typeProfil === "pro_podcast") {
       return {
