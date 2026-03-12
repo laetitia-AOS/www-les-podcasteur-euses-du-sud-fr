@@ -149,6 +149,7 @@ export type Database = {
           lieu: string | null
           places: number | null
           publie: boolean
+          slug: string | null
           sous_titre: string | null
           titre: string
           type: string
@@ -165,6 +166,7 @@ export type Database = {
           lieu?: string | null
           places?: number | null
           publie?: boolean
+          slug?: string | null
           sous_titre?: string | null
           titre: string
           type?: string
@@ -181,6 +183,7 @@ export type Database = {
           lieu?: string | null
           places?: number | null
           publie?: boolean
+          slug?: string | null
           sous_titre?: string | null
           titre?: string
           type?: string
