@@ -178,7 +178,7 @@ const ProfilMembre = () => {
                 {profile.city_name && (
                   <p className="text-sm text-muted-foreground flex items-center gap-1.5">
                     <MapPin className="w-4 h-4" />
-                    {profile.city_name}{profile.department_label ? ` · ${profile.department_label}` : ""}
+                    {profile.city_name.replace(/\s+\d+(er?|e)?\s+Arrondissement$/i, "").replace(/\s+\d+$/,"")}{profile.department_label ? ` · ${profile.department_label}` : ""}
                   </p>
                 )}
 
