@@ -886,17 +886,24 @@ const FormSection = () => {
                 </label>
 
                 {formData.typeProfil === "podcasteur" && (
-                  <label className="flex items-start gap-3 cursor-pointer group">
-                    <input
-                      type="checkbox"
-                      checked={consentPublicationPodcast}
-                      onChange={(e) => setConsentPublicationPodcast(e.target.checked)}
-                      className="mt-1 h-4 w-4 rounded border-border text-primary accent-primary focus:ring-primary/30"
-                    />
-                    <span className="text-sm text-foreground group-hover:text-foreground/80 transition-colors">
-                      J'accepte la publication de mon podcast sur le flux du site <span className="text-primary">*</span>
-                    </span>
-                  </label>
+                  <>
+                    <label className="flex items-start gap-3 cursor-pointer group">
+                      <input
+                        type="checkbox"
+                        checked={consentPublicationPodcast}
+                        onChange={(e) => setConsentPublicationPodcast(e.target.checked)}
+                        className="mt-1 h-4 w-4 rounded border-border text-primary accent-primary focus:ring-primary/30"
+                      />
+                      <span className="text-sm text-foreground group-hover:text-foreground/80 transition-colors">
+                        J'accepte la publication de mon podcast sur le flux du site <span className="text-primary">*</span>
+                      </span>
+                    </label>
+                    <p className="text-xs text-muted-foreground ml-7 -mt-2 leading-relaxed">
+                      Le flux référence votre podcast via son lien d'écoute (hébergeur externe).
+                      Votre profil sera accessible à l'URL :
+                      /annuaire/[nom-du-podcast]-[prenom]-[ville]
+                    </p>
+                  </>
                 )}
 
                 <label className="flex items-start gap-3 cursor-pointer group">
