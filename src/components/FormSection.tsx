@@ -369,6 +369,7 @@ const FormSection = () => {
       type_profil: formData.typeProfil,
       bio_750: formData.bio750 || null,
       lien_principal: formData.lienPrincipal || null,
+      lien_linkedin: formData.lienLinkedin || null,
       metier_principal: formData.typeProfil === "pro_podcast" ? formData.metierPrincipal : null,
       services_3: formData.typeProfil === "pro_podcast" ? selectedServices : null,
       disponibilite: formData.typeProfil === "pro_podcast" ? formData.disponibilite : null,
