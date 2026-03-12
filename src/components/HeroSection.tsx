@@ -1,11 +1,10 @@
 import { motion } from "framer-motion";
 import { ArrowRight, Play } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 import heroPodcast from "@/assets/hero-podcast.jpg";
 
 const HeroSection = () => {
-  const scrollToForm = () => {
-    document.getElementById("formulaire")?.scrollIntoView({ behavior: "smooth" });
-  };
+  const navigate = useNavigate();
 
   return (
     <section
