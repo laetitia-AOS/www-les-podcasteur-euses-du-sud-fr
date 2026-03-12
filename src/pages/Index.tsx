@@ -28,9 +28,6 @@ const Index = () => {
         </article>
         <DynamiqueSection />
         <ProchainEvenement />
-        <CommunauteSection />
-        <ContactCTA />
-        <FormSection />
       </main>
       <Footer />
     </>
