@@ -8,7 +8,7 @@ import { Badge } from "@/components/ui/badge";
 import { motion } from "framer-motion";
 import {
   MapPin, Headphones, ExternalLink, ArrowLeft, Briefcase, Heart,
-  CheckCircle, Music, Tag, BarChart3, Clock, Coins, Loader2
+  CheckCircle, Music, Tag, BarChart3, Clock, Coins, Loader2, Mail, Phone
 } from "lucide-react";
 
 interface ProfileData {
@@ -36,6 +36,8 @@ interface ProfileData {
   disponibilite: string | null;
   consent_contact: boolean;
   consent_mise_en_relation: boolean;
+  email: string;
+  telephone: string | null;
 }
 
 const profilLabel: Record<string, { label: string; icon: typeof Headphones }> = {
@@ -125,22 +127,36 @@ const ProfilMembre = () => {
           >
             {/* Header */}
             <div className="bg-card border border-border rounded-2xl p-8">
-              <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4 mb-6">
-                <div>
-                  <h1 className="font-serif text-3xl text-foreground">
-                    {profile.prenom} {profile.nom}
-                  </h1>
-                  {profile.city_name && (
-                    <p className="text-sm text-muted-foreground flex items-center gap-1.5 mt-2">
-                      <MapPin className="w-4 h-4" />
-                      {profile.city_name}{profile.department_label ? `, ${profile.department_label}` : ""}
-                    </p>
+              <div className="flex flex-col sm:flex-row sm:items-start gap-6 mb-6">
+                {/* Photo */}
+                <div className="w-24 h-24 rounded-2xl overflow-hidden bg-muted flex-shrink-0 border border-border">
+                  {profile.vignette_url ? (
+                    <img src={profile.vignette_url} alt={`${profile.prenom ?? ""} ${profile.nom ?? ""}`} className="w-full h-full object-cover" />
+                  ) : (
+                    <div className="w-full h-full flex items-center justify-center bg-primary/5">
+                      <ProfilIcon className="w-10 h-10 text-primary/30" />
+                    </div>
                   )}
                 </div>
-                <span className="inline-flex items-center gap-1.5 text-sm font-medium px-3 py-1.5 rounded-full bg-primary/10 text-primary border border-primary/20">
-                  <ProfilIcon className="w-4 h-4" />
-                  {profil.label}
-                </span>
+                <div className="flex-1">
+                  <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-3">
+                    <div>
+                      <h1 className="font-serif text-3xl text-foreground">
+                        {profile.prenom} {profile.nom}
+                      </h1>
+                      {profile.city_name && (
+                        <p className="text-sm text-muted-foreground flex items-center gap-1.5 mt-2">
+                          <MapPin className="w-4 h-4" />
+                          {profile.city_name}{profile.department_label ? `, ${profile.department_label}` : ""}
+                        </p>
+                      )}
+                    </div>
+                    <span className="inline-flex items-center gap-1.5 text-sm font-medium px-3 py-1.5 rounded-full bg-primary/10 text-primary border border-primary/20">
+                      <ProfilIcon className="w-4 h-4" />
+                      {profil.label}
+                    </span>
+                  </div>
+                </div>
               </div>
 
               {/* Bio */}
@@ -148,19 +164,40 @@ const ProfilMembre = () => {
                 <p className="text-foreground/80 leading-relaxed whitespace-pre-line">{profile.bio_750}</p>
               )}
 
-              {/* Badges */}
-              <div className="flex flex-wrap gap-2 mt-6">
-                {profile.consent_contact && (
-                  <span className="inline-flex items-center gap-1 text-xs font-medium px-2.5 py-1 rounded-full bg-primary/10 text-primary border border-primary/20">
-                    <CheckCircle className="w-3 h-3" /> Ok pour être contacté(e)
-                  </span>
-                )}
-                {profile.consent_mise_en_relation && (
-                  <span className="inline-flex items-center gap-1 text-xs font-medium px-2.5 py-1 rounded-full bg-secondary/10 text-secondary-foreground border border-secondary/20">
-                    <CheckCircle className="w-3 h-3" /> Ok pour mise en relation
-                  </span>
-                )}
-              </div>
+              {/* Contact info — visible si les deux consentements sont actifs */}
+              {profile.consent_contact && profile.consent_mise_en_relation && (
+                <div className="mt-6 p-4 rounded-xl bg-primary/5 border border-primary/15 space-y-2">
+                  <p className="text-xs font-semibold uppercase tracking-wider text-primary/70 mb-2">Coordonnées</p>
+                  {profile.email && (
+                    <a href={`mailto:${profile.email}`} className="flex items-center gap-2 text-sm text-foreground hover:text-primary transition-colors">
+                      <Mail className="w-4 h-4 text-primary/60" />
+                      {profile.email}
+                    </a>
+                  )}
+                  {profile.telephone && (
+                    <a href={`tel:${profile.telephone}`} className="flex items-center gap-2 text-sm text-foreground hover:text-primary transition-colors">
+                      <Phone className="w-4 h-4 text-primary/60" />
+                      {profile.telephone}
+                    </a>
+                  )}
+                </div>
+              )}
+
+              {/* Badges consentement (si un seul) */}
+              {!(profile.consent_contact && profile.consent_mise_en_relation) && (
+                <div className="flex flex-wrap gap-2 mt-6">
+                  {profile.consent_contact && (
+                    <span className="inline-flex items-center gap-1 text-xs font-medium px-2.5 py-1 rounded-full bg-primary/10 text-primary border border-primary/20">
+                      <CheckCircle className="w-3 h-3" /> Ok pour être contacté(e)
+                    </span>
+                  )}
+                  {profile.consent_mise_en_relation && (
+                    <span className="inline-flex items-center gap-1 text-xs font-medium px-2.5 py-1 rounded-full bg-secondary/10 text-secondary-foreground border border-secondary/20">
+                      <CheckCircle className="w-3 h-3" /> Ok pour mise en relation
+                    </span>
+                  )}
+                </div>
+              )}
 
               {/* Links */}
               <div className="flex flex-wrap gap-3 mt-6">
