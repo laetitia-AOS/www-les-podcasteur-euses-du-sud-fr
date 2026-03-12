@@ -233,7 +233,7 @@ const Annuaire = () => {
                     transition={{ duration: 0.4, delay: i * 0.03 }}
                   >
                     <Link
-                      to={`/profil/${profile.id}`}
+                      to={`/profil/${profile.slug || profile.id}`}
                       className="block bg-card border border-border rounded-2xl p-6 hover:shadow-md hover:border-primary/20 transition-all duration-300 h-full"
                     >
                       <div className="flex items-start gap-4 mb-3">
