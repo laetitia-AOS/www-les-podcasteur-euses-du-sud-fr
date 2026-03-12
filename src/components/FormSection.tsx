@@ -506,7 +506,7 @@ const FormSection = () => {
                 Rejoindre le collectif
               </h2>
               <p className="text-muted-foreground leading-relaxed max-w-lg mx-auto">
-                Podcasteur·euse, professionnel·le du podcast ou simplement curieux·se :
+                Podcasteur·euse, acteur·ice de l'écosystème ou simplement curieux·se :
                 intégrez l'écosystème audio de la Région Sud.
               </p>
 
