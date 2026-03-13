@@ -611,6 +611,18 @@ const FormSection = () => {
                 </div>
               </div>
 
+              {/* Studio form — render dedicated component */}
+              {formData.typeProfil === "studio" && (
+                </motion.form>
+              )}
+
+              {formData.typeProfil === "studio" && (
+                <StudioFormSection onBack={() => setFormData(prev => ({ ...prev, typeProfil: "podcasteur" }))} />
+              )}
+
+              {formData.typeProfil !== "studio" && (
+              <>
+
               {/* SECTION Pro — Métier (conditionnel) */}
               {formData.typeProfil === "pro_podcast" && (
                 <div className={sectionCardClass}>
