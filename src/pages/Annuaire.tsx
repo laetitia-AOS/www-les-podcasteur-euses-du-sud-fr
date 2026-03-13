@@ -221,6 +221,7 @@ const Annuaire = () => {
                 <option value="">Tous les profils</option>
                 <option value="podcasteur">Podcasteurs</option>
                 <option value="pro_podcast">Acteurs de l'écosystème</option>
+                <option value="studio">Studios / Lieux</option>
                 <option value="soutien">Soutiens</option>
               </select>
               <select value={filterDept} onChange={(e) => setFilterDept(e.target.value)} className={selectClass}>
