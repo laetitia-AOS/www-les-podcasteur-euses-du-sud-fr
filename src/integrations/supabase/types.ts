@@ -229,6 +229,7 @@ export type Database = {
           services_3: string[] | null
           slug: string | null
           structure: string | null
+          studio_data: Json | null
           telephone: string | null
           thematique: string | null
           type_podcast: string | null
@@ -275,6 +276,7 @@ export type Database = {
           services_3?: string[] | null
           slug?: string | null
           structure?: string | null
+          studio_data?: Json | null
           telephone?: string | null
           thematique?: string | null
           type_podcast?: string | null
@@ -321,6 +323,7 @@ export type Database = {
           services_3?: string[] | null
           slug?: string | null
           structure?: string | null
+          studio_data?: Json | null
           telephone?: string | null
           thematique?: string | null
           type_podcast?: string | null
