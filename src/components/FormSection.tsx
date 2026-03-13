@@ -3,6 +3,7 @@ import { motion } from "framer-motion";
 import { toast } from "sonner";
 import { Send, X, Image, Check, Users, Sun, ArrowRight, Clock } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
+import StudioFormSection from "./StudioFormSection";
 import CityAutocomplete, { type CityResult } from "./CityAutocomplete";
 import BesoinsMultiSelect from "./BesoinsMultiSelect";
 import PrioriteSelect from "./PrioriteSelect";
@@ -578,10 +579,11 @@ const FormSection = () => {
                 <SectionHeader number={sn.profil} title="Votre profil" />
                 <div>
                   <label className={labelClass}>Je rejoins le collectif en tant que : <span className="text-primary">*</span></label>
-                  <select name="typeProfil" value={formData.typeProfil} onChange={handleChange} className={selectClass} required>
+                <select name="typeProfil" value={formData.typeProfil} onChange={handleChange} className={selectClass} required>
                     <option value="podcasteur">Podcasteur·euse (j'ai un podcast)</option>
                     <option value="pro_podcast">Acteur·ice de l'écosystème (je propose des compétences)</option>
                     <option value="soutien">Soutien / curieux (je veux suivre et contribuer)</option>
+                    <option value="studio">Studio podcast / lieu d'enregistrement</option>
                   </select>
                 </div>
                 <div>
@@ -608,6 +610,9 @@ const FormSection = () => {
                   </div>
                 </div>
               </div>
+
+              {formData.typeProfil !== "studio" && (
+              <>
 
               {/* SECTION Pro — Métier (conditionnel) */}
               {formData.typeProfil === "pro_podcast" && (
@@ -927,7 +932,13 @@ const FormSection = () => {
                 {uploading ? "Envoi en cours…" : "Rejoindre le collectif"}
                 {!uploading && <Send className="w-4 h-4 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />}
               </button>
+              </>
+              )}
             </motion.form>
+
+            {formData.typeProfil === "studio" && (
+              <StudioFormSection onBack={() => setFormData(prev => ({ ...prev, typeProfil: "podcasteur" }))} />
+            )}
           </>
         )}
       </div>
