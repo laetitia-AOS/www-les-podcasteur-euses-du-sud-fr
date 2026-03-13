@@ -329,7 +329,6 @@ const Annuaire = () => {
                           <h3 className="font-serif text-lg text-foreground truncate">
                               {profile.type_profil === "studio" ? profile.nom_podcast : `${profile.prenom} ${profile.nom}`}
                             </h3>
-                            </h3>
                           </div>
                           <span className={`inline-flex items-center gap-1 text-xs font-medium px-2 py-0.5 rounded-full border mt-1 ${badge.className}`}>
                             <BadgeIcon className="w-3 h-3" />
