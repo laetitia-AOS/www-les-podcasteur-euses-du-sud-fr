@@ -579,10 +579,11 @@ const FormSection = () => {
                 <SectionHeader number={sn.profil} title="Votre profil" />
                 <div>
                   <label className={labelClass}>Je rejoins le collectif en tant que : <span className="text-primary">*</span></label>
-                  <select name="typeProfil" value={formData.typeProfil} onChange={handleChange} className={selectClass} required>
+                <select name="typeProfil" value={formData.typeProfil} onChange={handleChange} className={selectClass} required>
                     <option value="podcasteur">Podcasteur·euse (j'ai un podcast)</option>
                     <option value="pro_podcast">Acteur·ice de l'écosystème (je propose des compétences)</option>
                     <option value="soutien">Soutien / curieux (je veux suivre et contribuer)</option>
+                    <option value="studio">Studio podcast / lieu d'enregistrement</option>
                   </select>
                 </div>
                 <div>
