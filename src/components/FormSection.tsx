@@ -932,7 +932,13 @@ const FormSection = () => {
                 {uploading ? "Envoi en cours…" : "Rejoindre le collectif"}
                 {!uploading && <Send className="w-4 h-4 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />}
               </button>
+              </>
+              )}
             </motion.form>
+
+            {formData.typeProfil === "studio" && (
+              <StudioFormSection onBack={() => setFormData(prev => ({ ...prev, typeProfil: "podcasteur" }))} />
+            )}
           </>
         )}
       </div>

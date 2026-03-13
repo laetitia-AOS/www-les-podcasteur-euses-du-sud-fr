@@ -27,6 +27,7 @@ import Annuaire from "./pages/Annuaire";
 import ProfilMembre from "./pages/ProfilMembre";
 import Bienvenue from "./pages/Bienvenue";
 import Formulaire from "./pages/Formulaire";
+import StudioProfile from "./pages/StudioProfile";
 
 const queryClient = new QueryClient();
 
