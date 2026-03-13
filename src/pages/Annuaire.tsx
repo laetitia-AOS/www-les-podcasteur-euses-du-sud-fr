@@ -396,6 +396,19 @@ const Annuaire = () => {
                         </div>
                       )}
 
+                      {profile.type_profil === "studio" && (
+                        <div className="space-y-1.5 mb-2">
+                          {profile.bio_750 && (
+                            <p className="text-sm text-muted-foreground line-clamp-2">{profile.bio_750}</p>
+                          )}
+                          {profile.services_3 && profile.services_3.length > 0 && (
+                            <p className="text-xs text-muted-foreground truncate">
+                              {profile.services_3.slice(0, 3).join(", ")}
+                            </p>
+                          )}
+                        </div>
+                      )}
+
                       <div className="flex items-center gap-2 mt-4">
                         <span className="text-xs font-medium text-primary flex items-center gap-1">
                           Voir la fiche <ArrowRight className="w-3 h-3" />
