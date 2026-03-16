@@ -35,6 +35,7 @@ const getProfilLabel = (type: string) => {
     case "pro_podcast": return "Acteur·ice";
     case "soutien": return "Soutien";
     case "studio": return "Studio";
+    case "structure_eco": return "Structure éco.";
     default: return type;
   }
 };
