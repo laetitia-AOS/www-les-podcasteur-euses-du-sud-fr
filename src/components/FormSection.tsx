@@ -937,8 +937,12 @@ const FormSection = () => {
               )}
             </motion.form>
 
-            {formData.typeProfil === "studio" && (
+              {formData.typeProfil === "studio" && (
               <StudioFormSection onBack={() => setFormData(prev => ({ ...prev, typeProfil: "podcasteur" }))} />
+            )}
+
+            {formData.typeProfil === "structure_eco" && (
+              <StructureEcoFormSection onBack={() => setFormData(prev => ({ ...prev, typeProfil: "podcasteur" }))} />
             )}
           </>
         )}
