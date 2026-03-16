@@ -584,6 +584,7 @@ const FormSection = () => {
                     <option value="pro_podcast">Acteur·ice de l'écosystème (je propose des compétences)</option>
                     <option value="soutien">Soutien / curieux (je veux suivre et contribuer)</option>
                     <option value="studio">Studio podcast / lieu d'enregistrement</option>
+                    <option value="structure_eco">Structure écosystème son/podcast (incubateur, radio, festival, institution…)</option>
                   </select>
                 </div>
                 <div>
