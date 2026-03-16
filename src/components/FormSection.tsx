@@ -612,7 +612,7 @@ const FormSection = () => {
                 </div>
               </div>
 
-              {formData.typeProfil !== "studio" && (
+              {formData.typeProfil !== "studio" && formData.typeProfil !== "structure_eco" && (
               <>
 
               {/* SECTION Pro — Métier (conditionnel) */}
