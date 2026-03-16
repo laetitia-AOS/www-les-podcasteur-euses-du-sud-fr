@@ -89,6 +89,8 @@ const profilBadge = (type: string) => {
       return { label: "Soutien", icon: Heart, className: "bg-primary/10 text-primary border-primary/30" };
     case "studio":
       return { label: "Studio / Lieu", icon: Building2, className: "bg-accent/15 text-accent-foreground border-accent/30" };
+    case "structure_eco":
+      return { label: "Structure écosystème", icon: Building2, className: "bg-secondary/10 text-secondary border-secondary/20" };
     default:
       return { label: "Podcasteur·euse", icon: Headphones, className: "bg-accent/15 text-accent-foreground border-accent/30" };
   }
@@ -222,6 +224,7 @@ const Annuaire = () => {
                 <option value="podcasteur">Podcasteurs</option>
                 <option value="pro_podcast">Acteurs de l'écosystème</option>
                 <option value="studio">Studios / Lieux</option>
+                <option value="structure_eco">Structures écosystème</option>
                 <option value="soutien">Soutiens</option>
               </select>
               <select value={filterDept} onChange={(e) => setFilterDept(e.target.value)} className={selectClass}>
@@ -298,7 +301,7 @@ const Annuaire = () => {
                     transition={{ duration: 0.4, delay: i * 0.03 }}
                   >
                     <Link
-                      to={profile.type_profil === "studio" ? `/annuaire/studios/${profile.slug || profile.id}` : `/profil/${profile.slug || profile.id}`}
+                      to={profile.type_profil === "studio" ? `/annuaire/studios/${profile.slug || profile.id}` : profile.type_profil === "structure_eco" ? `/annuaire/structures/${profile.slug || profile.id}` : `/profil/${profile.slug || profile.id}`}
                       className="block bg-card border border-border rounded-2xl p-6 hover:shadow-md hover:border-primary/20 transition-all duration-300 h-full relative"
                     >
                       {/* Collab badge */}
@@ -326,8 +329,8 @@ const Annuaire = () => {
                         </div>
                         <div className="flex-1 min-w-0">
                           <div className="flex items-start justify-between gap-2">
-                          <h3 className="font-serif text-lg text-foreground truncate">
-                              {profile.type_profil === "studio" ? profile.nom_podcast : `${profile.prenom} ${profile.nom}`}
+                    <h3 className="font-serif text-lg text-foreground truncate">
+                              {profile.type_profil === "studio" || profile.type_profil === "structure_eco" ? profile.nom_podcast : `${profile.prenom} ${profile.nom}`}
                             </h3>
                           </div>
                           <span className={`inline-flex items-center gap-1 text-xs font-medium px-2 py-0.5 rounded-full border mt-1 ${badge.className}`}>
@@ -405,6 +408,17 @@ const Annuaire = () => {
                             <p className="text-xs text-muted-foreground truncate">
                               {profile.services_3.slice(0, 3).join(", ")}
                             </p>
+                          )}
+                        </div>
+                      )}
+
+                      {profile.type_profil === "structure_eco" && (
+                        <div className="space-y-1.5 mb-2">
+                          {profile.metier_principal && (
+                            <p className="text-sm font-medium text-foreground">{profile.metier_principal}</p>
+                          )}
+                          {profile.bio_750 && (
+                            <p className="text-sm text-muted-foreground line-clamp-2">{profile.bio_750}</p>
                           )}
                         </div>
                       )}

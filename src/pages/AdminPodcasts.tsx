@@ -35,6 +35,7 @@ const getProfilLabel = (type: string) => {
     case "pro_podcast": return "Acteur·ice";
     case "soutien": return "Soutien";
     case "studio": return "Studio";
+    case "structure_eco": return "Structure éco.";
     default: return type;
   }
 };
@@ -321,6 +322,7 @@ const AdminPodcasts = () => {
               <Building2 className="w-3.5 h-3.5 mr-1" />
               Studios ({studioCount})
             </TabsTrigger>
+            <TabsTrigger value="structure_eco">Structures éco. ({podcasts?.filter(p => p.type_profil === "structure_eco").length ?? 0})</TabsTrigger>
             <TabsTrigger value="soutien">Soutiens ({podcasts?.filter(p => p.type_profil === "soutien").length ?? 0})</TabsTrigger>
           </TabsList>
         </Tabs>

@@ -52,6 +52,7 @@ const profilConfig: Record<string, { label: string; icon: typeof Headphones; gra
   podcasteur: { label: "Podcasteur·euse", icon: Headphones, gradient: "from-primary/20 via-secondary/10 to-accent/10", accent: "primary" },
   pro_podcast: { label: "Acteur·ice de l'écosystème", icon: Briefcase, gradient: "from-secondary/20 via-primary/10 to-accent/10", accent: "secondary" },
   soutien: { label: "Soutien / Curieux·se", icon: Heart, gradient: "from-accent/15 via-primary/10 to-secondary/10", accent: "primary" },
+  structure_eco: { label: "Structure écosystème", icon: Briefcase, gradient: "from-secondary/15 via-accent/10 to-primary/10", accent: "secondary" },
 };
 
 const besoinsLabels: Record<string, string> = {

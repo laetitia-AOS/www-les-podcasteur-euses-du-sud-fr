@@ -4,6 +4,7 @@ import { toast } from "sonner";
 import { Send, X, Image, Check, Users, Sun, ArrowRight, Clock } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import StudioFormSection from "./StudioFormSection";
+import StructureEcoFormSection from "./StructureEcoFormSection";
 import CityAutocomplete, { type CityResult } from "./CityAutocomplete";
 import BesoinsMultiSelect from "./BesoinsMultiSelect";
 import PrioriteSelect from "./PrioriteSelect";
@@ -584,6 +585,7 @@ const FormSection = () => {
                     <option value="pro_podcast">Acteur·ice de l'écosystème (je propose des compétences)</option>
                     <option value="soutien">Soutien / curieux (je veux suivre et contribuer)</option>
                     <option value="studio">Studio podcast / lieu d'enregistrement</option>
+                    <option value="structure_eco">Structure écosystème son/podcast (incubateur, radio, festival, institution…)</option>
                   </select>
                 </div>
                 <div>
@@ -611,7 +613,7 @@ const FormSection = () => {
                 </div>
               </div>
 
-              {formData.typeProfil !== "studio" && (
+              {formData.typeProfil !== "studio" && formData.typeProfil !== "structure_eco" && (
               <>
 
               {/* SECTION Pro — Métier (conditionnel) */}
@@ -936,8 +938,12 @@ const FormSection = () => {
               )}
             </motion.form>
 
-            {formData.typeProfil === "studio" && (
+              {formData.typeProfil === "studio" && (
               <StudioFormSection onBack={() => setFormData(prev => ({ ...prev, typeProfil: "podcasteur" }))} />
+            )}
+
+            {formData.typeProfil === "structure_eco" && (
+              <StructureEcoFormSection onBack={() => setFormData(prev => ({ ...prev, typeProfil: "podcasteur" }))} />
             )}
           </>
         )}
