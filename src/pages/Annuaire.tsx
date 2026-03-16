@@ -301,7 +301,7 @@ const Annuaire = () => {
                     transition={{ duration: 0.4, delay: i * 0.03 }}
                   >
                     <Link
-                      to={profile.type_profil === "studio" ? `/annuaire/studios/${profile.slug || profile.id}` : `/profil/${profile.slug || profile.id}`}
+                      to={profile.type_profil === "studio" ? `/annuaire/studios/${profile.slug || profile.id}` : profile.type_profil === "structure_eco" ? `/annuaire/structures/${profile.slug || profile.id}` : `/profil/${profile.slug || profile.id}`}
                       className="block bg-card border border-border rounded-2xl p-6 hover:shadow-md hover:border-primary/20 transition-all duration-300 h-full relative"
                     >
                       {/* Collab badge */}

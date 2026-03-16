@@ -4,6 +4,7 @@ import { toast } from "sonner";
 import { Send, X, Image, Check, Users, Sun, ArrowRight, Clock } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import StudioFormSection from "./StudioFormSection";
+import StructureEcoFormSection from "./StructureEcoFormSection";
 import CityAutocomplete, { type CityResult } from "./CityAutocomplete";
 import BesoinsMultiSelect from "./BesoinsMultiSelect";
 import PrioriteSelect from "./PrioriteSelect";
