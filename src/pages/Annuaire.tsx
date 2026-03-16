@@ -412,6 +412,17 @@ const Annuaire = () => {
                         </div>
                       )}
 
+                      {profile.type_profil === "structure_eco" && (
+                        <div className="space-y-1.5 mb-2">
+                          {profile.metier_principal && (
+                            <p className="text-sm font-medium text-foreground">{profile.metier_principal}</p>
+                          )}
+                          {profile.bio_750 && (
+                            <p className="text-sm text-muted-foreground line-clamp-2">{profile.bio_750}</p>
+                          )}
+                        </div>
+                      )}
+
                       <div className="flex items-center gap-2 mt-4">
                         <span className="text-xs font-medium text-primary flex items-center gap-1">
                           Voir la fiche <ArrowRight className="w-3 h-3" />
