@@ -28,6 +28,7 @@ import ProfilMembre from "./pages/ProfilMembre";
 import Bienvenue from "./pages/Bienvenue";
 import Formulaire from "./pages/Formulaire";
 import StudioProfile from "./pages/StudioProfile";
+import StructureEcoProfile from "./pages/StructureEcoProfile";
 
 const queryClient = new QueryClient();
 
