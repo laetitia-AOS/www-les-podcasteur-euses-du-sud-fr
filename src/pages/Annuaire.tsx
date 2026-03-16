@@ -89,6 +89,8 @@ const profilBadge = (type: string) => {
       return { label: "Soutien", icon: Heart, className: "bg-primary/10 text-primary border-primary/30" };
     case "studio":
       return { label: "Studio / Lieu", icon: Building2, className: "bg-accent/15 text-accent-foreground border-accent/30" };
+    case "structure_eco":
+      return { label: "Structure écosystème", icon: Building2, className: "bg-secondary/10 text-secondary border-secondary/20" };
     default:
       return { label: "Podcasteur·euse", icon: Headphones, className: "bg-accent/15 text-accent-foreground border-accent/30" };
   }
