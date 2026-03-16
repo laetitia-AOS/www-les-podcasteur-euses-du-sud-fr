@@ -329,8 +329,8 @@ const Annuaire = () => {
                         </div>
                         <div className="flex-1 min-w-0">
                           <div className="flex items-start justify-between gap-2">
-                          <h3 className="font-serif text-lg text-foreground truncate">
-                              {profile.type_profil === "studio" ? profile.nom_podcast : `${profile.prenom} ${profile.nom}`}
+                    <h3 className="font-serif text-lg text-foreground truncate">
+                              {profile.type_profil === "studio" || profile.type_profil === "structure_eco" ? profile.nom_podcast : `${profile.prenom} ${profile.nom}`}
                             </h3>
                           </div>
                           <span className={`inline-flex items-center gap-1 text-xs font-medium px-2 py-0.5 rounded-full border mt-1 ${badge.className}`}>
