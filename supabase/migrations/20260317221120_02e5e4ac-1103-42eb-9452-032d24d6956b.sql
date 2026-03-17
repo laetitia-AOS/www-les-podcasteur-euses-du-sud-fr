@@ -1,0 +1,1 @@
+UPDATE public.podcasts SET nom_podcast = nom_podcast WHERE type_profil = 'structure_eco' AND (slug IS NULL OR slug = id::text);
