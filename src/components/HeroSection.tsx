@@ -4,6 +4,8 @@ import { useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 
+interface ProfileCount { count: number }
+
 interface RecentProfile {
   id: string;
   slug: string | null;
