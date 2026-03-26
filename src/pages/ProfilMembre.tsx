@@ -159,7 +159,7 @@ const ProfilMembre = () => {
       <SEOHead
         title={seoTitle}
         description={seoDesc}
-        path={`/profil/${slug}`}
+        path={`/podcasteur/${slug}`}
         image={profile.vignette_url || undefined}
         type="profile"
         jsonLd={jsonLd}
