@@ -225,6 +225,18 @@ const StructureEcoFormSection = ({ onBack }: Props) => {
       vignetteUrl = urlData.publicUrl;
     }
 
+    // Upload gallery photos
+    const galleryUrls: string[] = [];
+    for (const f of galleryFiles) {
+      const ext = f.name.split(".").pop();
+      const fileName = `${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`;
+      const { error: gErr } = await supabase.storage.from("studio-galleries").upload(fileName, f, { contentType: f.type });
+      if (!gErr) {
+        const { data: gUrl } = supabase.storage.from("studio-galleries").getPublicUrl(fileName);
+        galleryUrls.push(gUrl.publicUrl);
+      }
+    }
+
     setUploading(true);
     const { error: dbError } = await supabase.from("podcasts").insert({
       type_profil: "structure_eco",
@@ -262,6 +274,7 @@ const StructureEcoFormSection = ({ onBack }: Props) => {
         domaines_action: domainesAction,
         public_cible: publicCible,
         collaborations: collaborations,
+        galerie_urls: galleryUrls,
       },
       slug: toSlug(`${form.nomStructure}-${form.typeStructure}-${selectedCity?.city_name || ""}`),
     } as any);
