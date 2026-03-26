@@ -1,7 +1,7 @@
 import { useState, useRef } from "react";
 import { motion } from "framer-motion";
 import { toast } from "sonner";
-import { Send, X, Image, Check, ArrowLeft } from "lucide-react";
+import { Send, X, Image, Check, ArrowLeft, Plus } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import CityAutocomplete, { type CityResult } from "./CityAutocomplete";
 
@@ -127,11 +127,14 @@ const StructureEcoFormSection = ({ onBack }: Props) => {
   const [collaborations, setCollaborations] = useState<string[]>([]);
   const [vignette, setVignette] = useState<File | null>(null);
   const [vignettePreview, setVignettePreview] = useState<string | null>(null);
+  const [galleryFiles, setGalleryFiles] = useState<File[]>([]);
+  const [galleryPreviews, setGalleryPreviews] = useState<string[]>([]);
   const [consentCGU, setConsentCGU] = useState(false);
   const [consentAnnuaire, setConsentAnnuaire] = useState(false);
   const [consentContact, setConsentContact] = useState(false);
   const [consentMiseEnRelation, setConsentMiseEnRelation] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const galleryInputRef = useRef<HTMLInputElement>(null);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
@@ -170,6 +173,29 @@ const StructureEcoFormSection = ({ onBack }: Props) => {
     if (fileInputRef.current) fileInputRef.current.value = "";
   };
 
+  const handleGalleryChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = Array.from(e.target.files || []);
+    const remaining = 6 - galleryFiles.length;
+    if (remaining <= 0) { toast.error("Maximum 6 photos atteint."); return; }
+    const toAdd = files.slice(0, remaining);
+    const validFiles: File[] = [];
+    const previews: string[] = [];
+    for (const file of toAdd) {
+      if (!file.type.startsWith("image/")) continue;
+      if (file.size > 5 * 1024 * 1024) { toast.error(`${file.name} dépasse 5 Mo.`); continue; }
+      validFiles.push(file);
+      previews.push(URL.createObjectURL(file));
+    }
+    setGalleryFiles((prev) => [...prev, ...validFiles]);
+    setGalleryPreviews((prev) => [...prev, ...previews]);
+    if (galleryInputRef.current) galleryInputRef.current.value = "";
+  };
+
+  const removeGalleryPhoto = (index: number) => {
+    setGalleryFiles((prev) => prev.filter((_, i) => i !== index));
+    setGalleryPreviews((prev) => prev.filter((_, i) => i !== index));
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!form.nomStructure || !form.typeStructure || !form.email || !form.contactNom) {
@@ -197,6 +223,18 @@ const StructureEcoFormSection = ({ onBack }: Props) => {
       if (error) { toast.error("Erreur lors de l'envoi de l'image."); return; }
       const { data: urlData } = supabase.storage.from("podcast-thumbnails").getPublicUrl(fileName);
       vignetteUrl = urlData.publicUrl;
+    }
+
+    // Upload gallery photos
+    const galleryUrls: string[] = [];
+    for (const f of galleryFiles) {
+      const ext = f.name.split(".").pop();
+      const fileName = `${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`;
+      const { error: gErr } = await supabase.storage.from("studio-galleries").upload(fileName, f, { contentType: f.type });
+      if (!gErr) {
+        const { data: gUrl } = supabase.storage.from("studio-galleries").getPublicUrl(fileName);
+        galleryUrls.push(gUrl.publicUrl);
+      }
     }
 
     setUploading(true);
@@ -236,6 +274,7 @@ const StructureEcoFormSection = ({ onBack }: Props) => {
         domaines_action: domainesAction,
         public_cible: publicCible,
         collaborations: collaborations,
+        galerie_urls: galleryUrls,
       },
       slug: toSlug(`${form.nomStructure}-${form.typeStructure}-${selectedCity?.city_name || ""}`),
     } as any);
@@ -355,6 +394,29 @@ const StructureEcoFormSection = ({ onBack }: Props) => {
             </button>
           )}
           <input ref={fileInputRef} type="file" accept="image/jpeg,image/png,image/webp" onChange={handleFileChange} className="hidden" />
+        </div>
+
+        {/* Gallery photos */}
+        <div>
+          <label className={labelClass}>Photos du lieu (max 6)</label>
+          <p className="text-xs text-muted-foreground mb-3">Ajoutez jusqu'à 6 photos pour illustrer votre structure. JPG, PNG ou WebP. Max 5 Mo chacune.</p>
+          <div className="grid grid-cols-3 sm:grid-cols-4 gap-3">
+            {galleryPreviews.map((preview, idx) => (
+              <div key={idx} className="relative aspect-[4/3] rounded-xl overflow-hidden border-2 border-border/40 shadow-sm">
+                <img src={preview} alt={`Photo ${idx + 1}`} className="w-full h-full object-cover" />
+                <button type="button" onClick={() => removeGalleryPhoto(idx)} className="absolute top-1.5 right-1.5 w-6 h-6 bg-destructive text-destructive-foreground rounded-full flex items-center justify-center shadow-md">
+                  <X className="w-3.5 h-3.5" />
+                </button>
+              </div>
+            ))}
+            {galleryFiles.length < 6 && (
+              <button type="button" onClick={() => galleryInputRef.current?.click()} className="aspect-[4/3] rounded-xl border-2 border-dashed border-border/60 hover:border-primary/40 bg-background hover:bg-primary/5 transition-all flex flex-col items-center justify-center gap-1.5 text-muted-foreground hover:text-foreground">
+                <Plus className="w-5 h-5" />
+                <span className="text-xs font-medium">Ajouter</span>
+              </button>
+            )}
+          </div>
+          <input ref={galleryInputRef} type="file" accept="image/jpeg,image/png,image/webp" multiple onChange={handleGalleryChange} className="hidden" />
         </div>
       </div>
 

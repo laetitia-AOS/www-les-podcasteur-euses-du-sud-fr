@@ -9,7 +9,7 @@ import { Badge } from "@/components/ui/badge";
 import { motion } from "framer-motion";
 import {
   MapPin, ArrowLeft, Building2, Globe, ExternalLink, CheckCircle,
-  Loader2, Mail, Phone, Sparkles, Handshake, Users
+  Loader2, Mail, Phone, Sparkles, Handshake, Users, ImageIcon
 } from "lucide-react";
 
 interface ProfileData {
@@ -94,6 +94,7 @@ const StructureEcoProfile = () => {
   const domainesAction = sd?.domaines_action || profile.services_3 || [];
   const publicCible = sd?.public_cible || profile.peut_apporter || [];
   const collaborations = sd?.collaborations || profile.cherche_collaboration || [];
+  const galerieUrls: string[] = sd?.galerie_urls || [];
   const showContact = profile.consent_contact && profile.consent_mise_en_relation;
 
   return (
@@ -175,6 +176,20 @@ const StructureEcoProfile = () => {
                   <h2 className="font-serif text-lg text-foreground mb-4 flex items-center gap-2"><Handshake className="w-4 h-4 text-primary" /> Ouvert·e à</h2>
                   <div className="flex flex-wrap gap-2">
                     {collaborations.map((c: string, i: number) => <Badge key={i} variant="outline">{c}</Badge>)}
+                  </div>
+                </motion.div>
+              )}
+
+              {/* Gallery */}
+              {galerieUrls.length > 0 && (
+                <motion.div initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.5 }} className="bg-card border border-border rounded-2xl p-6 md:p-8">
+                  <h2 className="font-serif text-lg text-foreground mb-4 flex items-center gap-2"><ImageIcon className="w-4 h-4 text-primary" /> Photos</h2>
+                  <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                    {galerieUrls.map((url: string, i: number) => (
+                      <div key={i} className="aspect-[4/3] rounded-xl overflow-hidden border border-border">
+                        <img src={url} alt={`${structureName} - Photo ${i + 1}`} className="w-full h-full object-cover hover:scale-105 transition-transform duration-300" loading="lazy" />
+                      </div>
+                    ))}
                   </div>
                 </motion.div>
               )}
