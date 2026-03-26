@@ -5,7 +5,7 @@ import { Menu, X, User } from "lucide-react";
 import logoPds from "@/assets/logo-pds.png";
 
 const links = [
-  { label: "Podcasts", href: "#flux" },
+  { label: "Podcasts", href: "/podcasts" },
   { label: "Annuaire", href: "/annuaire-podcasts" },
   { label: "Agences/Studios", href: "/agences-studios" },
   { label: "Événements", href: "/evenements" },

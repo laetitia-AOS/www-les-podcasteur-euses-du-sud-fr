@@ -31,6 +31,7 @@ import StudioProfile from "./pages/StudioProfile";
 import StructureEcoProfile from "./pages/StructureEcoProfile";
 import AgencesStudios from "./pages/AgencesStudios";
 import ProposerEvenement from "./pages/ProposerEvenement";
+import Podcasts from "./pages/Podcasts";
 
 const queryClient = new QueryClient();
 
@@ -49,6 +50,7 @@ const App = () => (
           <Route path="/conditions-utilisation" element={<CGU />} />
           <Route path="/politique-cookies" element={<PolitiqueCookies />} />
           <Route path="/evenements" element={<Evenements />} />
+          <Route path="/podcasts" element={<Podcasts />} />
           <Route path="/proposer-evenement" element={<ProposerEvenement />} />
           <Route path="/evenement/:slug" element={<EvenementDetail />} />
           <Route path="/adhesion" element={<Adhesion />} />
