@@ -5,8 +5,9 @@ import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import SEOHead from "@/components/SEOHead";
 import { motion } from "framer-motion";
-import { CalendarDays, MapPin, Clock, ExternalLink, Users, Ticket, ArrowRight } from "lucide-react";
+import { CalendarDays, MapPin, Clock, ExternalLink, Users, Ticket, ArrowRight, Plus } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 
 const TYPE_COLORS: Record<string, string> = {
   rencontre: "bg-primary/10 text-primary border-primary/20",
@@ -110,9 +111,15 @@ const Evenements = () => {
             <h1 id="events-heading" className="font-serif text-4xl md:text-5xl text-foreground mb-4">
               Rencontres & Événements
             </h1>
-            <p className="text-muted-foreground text-lg max-w-2xl mx-auto leading-relaxed">
+            <p className="text-muted-foreground text-lg max-w-2xl mx-auto leading-relaxed mb-6">
               Sessions d'écoute, ateliers pratiques et événements partenaires — retrouvez tous les rendez-vous de l'écosystème podcast en Région Sud.
             </p>
+            <Link to="/proposer-evenement">
+              <Button className="gap-2">
+                <Plus className="w-4 h-4" />
+                Proposer un événement
+              </Button>
+            </Link>
           </motion.header>
 
           {isLoading ? (
