@@ -35,11 +35,7 @@ import Podcasts from "./pages/Podcasts";
 
 const queryClient = new QueryClient();
 
-// Redirect helper for slug-based routes
-const RedirectWithSlug = ({ basePath }: { basePath: string }) => {
-  const { slug } = require("react-router-dom").useParams();
-  return <Navigate to={`${basePath}/${slug}`} replace />;
-};
+const queryClient = new QueryClient();
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
