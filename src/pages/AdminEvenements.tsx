@@ -200,6 +200,11 @@ const AdminEvenements = () => {
               </h1>
               <p className="text-muted-foreground">
                 {evenements?.length ?? 0} événement{(evenements?.length ?? 0) > 1 ? "s" : ""}
+                {evenements && evenements.filter((e: any) => !e.publie).length > 0 && (
+                  <span className="ml-2 inline-flex items-center gap-1 text-xs font-semibold px-2 py-0.5 rounded-full bg-amber-100 text-amber-700 border border-amber-200">
+                    {evenements.filter((e: any) => !e.publie).length} en attente
+                  </span>
+                )}
               </p>
             </div>
           </div>
