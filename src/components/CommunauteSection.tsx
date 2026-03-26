@@ -23,7 +23,7 @@ const CommunauteSection = () => {
           }} />
 
           <div className="relative">
-            <h2 className="font-serif text-3xl sm:text-4xl md:text-5xl text-white mb-6">
+            <h2 className="font-display font-bold text-3xl sm:text-4xl md:text-5xl text-white mb-6">
               Participer à la dynamique
             </h2>
             <p className="text-lg text-white/60 leading-relaxed max-w-xl mx-auto mb-10">

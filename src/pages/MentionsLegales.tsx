@@ -9,11 +9,11 @@ const MentionsLegales = () => {
       <Navbar />
       <main className="min-h-screen py-20 md:py-32 bg-background">
         <div className="container mx-auto px-6 max-w-3xl">
-          <h1 className="font-serif text-3xl sm:text-4xl mb-10">Mentions légales</h1>
+          <h1 className="font-display font-bold text-3xl sm:text-4xl mb-10">Mentions légales</h1>
 
           <div className="prose prose-sm max-w-none text-muted-foreground space-y-8">
             <section>
-              <h2 className="font-serif text-xl text-foreground">1. Identification de l'éditeur du site</h2>
+              <h2 className="font-display font-bold text-xl text-foreground">1. Identification de l'éditeur du site</h2>
               <p>
                 Le présent site internet est édité par :
               </p>
@@ -33,14 +33,14 @@ const MentionsLegales = () => {
             </section>
 
             <section>
-              <h2 className="font-serif text-xl text-foreground">2. Directeur de la publication</h2>
+              <h2 className="font-display font-bold text-xl text-foreground">2. Directeur de la publication</h2>
               <p>
                 Le directeur de la publication est <strong>Madame Armange Laetitia</strong>, en sa qualité de Présidente de l'association Les Podcasteur·euses du Sud.
               </p>
             </section>
 
             <section>
-              <h2 className="font-serif text-xl text-foreground">3. Hébergement du site</h2>
+              <h2 className="font-display font-bold text-xl text-foreground">3. Hébergement du site</h2>
               <p>
                 Le site est hébergé par <strong>Lovable / Supabase</strong>, infrastructure cloud sécurisée.
               </p>
@@ -50,7 +50,7 @@ const MentionsLegales = () => {
             </section>
 
             <section>
-              <h2 className="font-serif text-xl text-foreground">4. Propriété intellectuelle</h2>
+              <h2 className="font-display font-bold text-xl text-foreground">4. Propriété intellectuelle</h2>
               <p>
                 L'ensemble des éléments constituant le site (textes, photographies, illustrations, graphismes, logos, icônes, sons, logiciels, architecture et mise en page) est la propriété exclusive de l'association Les Podcasteur·euses du Sud ou fait l'objet d'une autorisation d'utilisation.
               </p>
@@ -66,7 +66,7 @@ const MentionsLegales = () => {
             </section>
 
             <section>
-              <h2 className="font-serif text-xl text-foreground">5. Responsabilité</h2>
+              <h2 className="font-display font-bold text-xl text-foreground">5. Responsabilité</h2>
               <p>
                 L'association s'efforce de fournir sur le site des informations aussi précises et actualisées que possible. Toutefois, elle ne saurait garantir l'exactitude, la complétude ou l'actualité des informations diffusées.
               </p>
@@ -79,7 +79,7 @@ const MentionsLegales = () => {
             </section>
 
             <section>
-              <h2 className="font-serif text-xl text-foreground">6. Liens hypertextes</h2>
+              <h2 className="font-display font-bold text-xl text-foreground">6. Liens hypertextes</h2>
               <p>
                 Le site peut contenir des liens hypertextes vers des sites tiers (plateformes d'écoute de podcasts, services de paiement HelloAsso, réseaux sociaux, etc.). L'association n'exerce aucun contrôle sur le contenu de ces sites et décline toute responsabilité quant à leur contenu, leurs pratiques en matière de protection des données ou les services qu'ils proposent.
               </p>
@@ -89,7 +89,7 @@ const MentionsLegales = () => {
             </section>
 
             <section>
-              <h2 className="font-serif text-xl text-foreground">7. Conditions de diffusion des podcasts</h2>
+              <h2 className="font-display font-bold text-xl text-foreground">7. Conditions de diffusion des podcasts</h2>
               <p>
                 L'association Les Podcasteur·euses du Sud met à disposition de ses membres un espace de visibilité sur le site internet pour la présentation de leurs podcasts. Les conditions suivantes régissent cette diffusion :
               </p>
@@ -116,7 +116,7 @@ const MentionsLegales = () => {
             </section>
 
             <section>
-              <h2 className="font-serif text-xl text-foreground">8. Droit applicable et juridiction compétente</h2>
+              <h2 className="font-display font-bold text-xl text-foreground">8. Droit applicable et juridiction compétente</h2>
               <p>
                 Les présentes mentions légales sont régies par le droit français. En cas de litige relatif à l'interprétation ou à l'exécution des présentes, et après tentative de résolution amiable, les tribunaux compétents seront ceux du ressort du Tribunal judiciaire de Marseille.
               </p>

@@ -146,7 +146,7 @@ const ProfilMembre = () => {
       <div className="min-h-screen bg-background">
         <Navbar />
         <main className="pt-24 pb-20 text-center">
-          <h1 className="font-serif text-2xl text-foreground mb-4">Profil introuvable</h1>
+          <h1 className="font-display font-bold text-2xl text-foreground mb-4">Profil introuvable</h1>
           <Link to="/annuaire-podcasts"><Button variant="outline">Retour à l'annuaire</Button></Link>
         </main>
         <Footer />
@@ -204,7 +204,7 @@ const ProfilMembre = () => {
                     {config.label}
                   </span>
                 </div>
-                <h1 className="font-serif text-3xl md:text-4xl text-foreground leading-tight mb-1">
+                <h1 className="font-display font-bold text-3xl md:text-4xl text-foreground leading-tight mb-1">
                   {fullName}
                 </h1>
                 {profile.type_profil === "pro_podcast" && profile.metier_principal && (
@@ -265,7 +265,7 @@ const ProfilMembre = () => {
                   transition={{ duration: 0.4, delay: 0.2 }}
                   className="bg-card border border-border rounded-2xl p-6 md:p-8"
                 >
-                  <h2 className="font-serif text-lg text-foreground mb-4 flex items-center gap-2">
+                  <h2 className="font-display font-bold text-lg text-foreground mb-4 flex items-center gap-2">
                     <Sparkles className="w-4 h-4 text-primary" /> Présentation
                   </h2>
                   <p className="text-foreground/80 leading-relaxed whitespace-pre-line text-[15px]">
@@ -282,7 +282,7 @@ const ProfilMembre = () => {
                   transition={{ duration: 0.4, delay: 0.3 }}
                   className="bg-card border border-border rounded-2xl p-6 md:p-8"
                 >
-                  <h2 className="font-serif text-lg text-foreground mb-5 flex items-center gap-2">
+                  <h2 className="font-display font-bold text-lg text-foreground mb-5 flex items-center gap-2">
                     <Mic className="w-4 h-4 text-primary" /> Le podcast
                   </h2>
                   <div className="flex items-start gap-5">
@@ -292,7 +292,7 @@ const ProfilMembre = () => {
                       </div>
                     )}
                     <div className="flex-1 min-w-0">
-                      <h3 className="font-serif text-xl text-foreground mb-1">{profile.nom_podcast}</h3>
+                      <h3 className="font-display font-bold text-xl text-foreground mb-1">{profile.nom_podcast}</h3>
                       <p className="text-sm text-muted-foreground leading-relaxed">{profile.description}</p>
                       {profile.lien_ecoute && (
                         <a href={profile.lien_ecoute} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1.5 text-sm text-primary font-medium mt-3 hover:underline">
@@ -352,13 +352,13 @@ const ProfilMembre = () => {
                   transition={{ duration: 0.4, delay: 0.3 }}
                   className="bg-card border border-border rounded-2xl p-6 md:p-8"
                 >
-                  <h2 className="font-serif text-lg text-foreground mb-5 flex items-center gap-2">
+                  <h2 className="font-display font-bold text-lg text-foreground mb-5 flex items-center gap-2">
                     <Briefcase className="w-4 h-4 text-primary" /> Expertise & Services
                   </h2>
                   {profile.metier_principal && (
                     <div className="mb-5">
                       <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1">Métier principal</p>
-                      <p className="text-lg font-serif text-foreground">{profile.metier_principal}</p>
+                      <p className="text-lg font-display font-bold text-foreground">{profile.metier_principal}</p>
                     </div>
                   )}
                   {profile.services_3 && profile.services_3.length > 0 && (
@@ -391,7 +391,7 @@ const ProfilMembre = () => {
                   transition={{ duration: 0.4, delay: 0.35 }}
                   className="bg-card border border-border rounded-2xl p-6 md:p-8"
                 >
-                  <h2 className="font-serif text-lg text-foreground mb-5 flex items-center gap-2">
+                  <h2 className="font-display font-bold text-lg text-foreground mb-5 flex items-center gap-2">
                     <Handshake className="w-4 h-4 text-primary" /> Collaborations
                   </h2>
 

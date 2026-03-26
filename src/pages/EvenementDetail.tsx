@@ -114,7 +114,7 @@ const EvenementDetail = () => {
         <main className="min-h-screen pt-24 pb-16 flex items-center justify-center">
           <div className="text-center">
             <CalendarDays className="w-16 h-16 text-muted-foreground/40 mx-auto mb-4" />
-            <h1 className="font-serif text-2xl text-foreground mb-2">Événement introuvable</h1>
+            <h1 className="font-display font-bold text-2xl text-foreground mb-2">Événement introuvable</h1>
             <p className="text-muted-foreground mb-6">Cet événement n'existe pas ou n'est plus disponible.</p>
             <Link to="/evenements-podcast">
               <Button variant="outline">
@@ -205,7 +205,7 @@ const EvenementDetail = () => {
                 </div>
 
                 {/* Title */}
-                <h1 className="font-serif text-3xl md:text-4xl text-foreground mb-2 leading-tight">
+                <h1 className="font-display font-bold text-3xl md:text-4xl text-foreground mb-2 leading-tight">
                   {evt.titre}
                 </h1>
                 {evt.sous_titre && (
@@ -259,7 +259,7 @@ const EvenementDetail = () => {
                 {/* Description */}
                 {evt.description && (
                   <div className="mb-8">
-                    <h2 className="font-serif text-xl text-foreground mb-3">À propos</h2>
+                    <h2 className="font-display font-bold text-xl text-foreground mb-3">À propos</h2>
                     <div className="text-muted-foreground leading-relaxed whitespace-pre-line">
                       {evt.description}
                     </div>

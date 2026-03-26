@@ -163,7 +163,7 @@ const SectionHeader = ({ number, title, icon }: { number: number; title: string;
     <span className="w-8 h-8 rounded-xl bg-gradient-to-br from-primary to-primary/70 text-primary-foreground text-sm flex items-center justify-center font-sans font-bold shadow-sm">
       {number}
     </span>
-    <h3 className="font-serif text-xl text-foreground">{title}</h3>
+    <h3 className="font-display font-bold text-xl text-foreground">{title}</h3>
     {icon && <span className="text-primary/50">{icon}</span>}
   </div>
 );
@@ -512,7 +512,7 @@ const StudioFormSection = ({ onBack }: StudioFormSectionProps) => {
               <div className="w-14 h-14 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-2">
                 <Check className="w-7 h-7 text-primary" />
               </div>
-              <h2 className="font-serif text-3xl sm:text-4xl">🏠 Lieu enregistré</h2>
+              <h2 className="font-display font-bold text-3xl sm:text-4xl">🏠 Lieu enregistré</h2>
               <p className="text-muted-foreground leading-relaxed max-w-lg mx-auto">
                 Votre studio / lieu d'enregistrement a bien été soumis.
               </p>
@@ -529,7 +529,7 @@ const StudioFormSection = ({ onBack }: StudioFormSectionProps) => {
               </div>
             </div>
             <div className="space-y-4 text-center">
-              <h3 className="font-serif text-xl text-foreground">✨ Visibilité dans l'annuaire</h3>
+              <h3 className="font-display font-bold text-xl text-foreground">✨ Visibilité dans l'annuaire</h3>
               <p className="text-muted-foreground text-sm leading-relaxed max-w-lg mx-auto">
                 Votre lieu sera visible dans l'annuaire comme une ressource territoriale de l'écosystème podcast. Les structures à jour de leur cotisation personne morale (100 €) sont mises en avant.
               </p>
@@ -559,7 +559,7 @@ const StudioFormSection = ({ onBack }: StudioFormSectionProps) => {
             <span className="text-xs font-semibold uppercase tracking-[0.2em] text-primary/70">Studio / Lieu</span>
             <div className="h-px w-8 bg-primary/30" />
           </div>
-          <h2 className="font-serif text-3xl sm:text-4xl md:text-5xl mb-5">
+          <h2 className="font-display font-bold text-3xl sm:text-4xl md:text-5xl mb-5">
             Référencer un studio podcast
           </h2>
           <p className="text-muted-foreground leading-relaxed max-w-lg mx-auto">

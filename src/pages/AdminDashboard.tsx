@@ -55,7 +55,7 @@ const AdminDashboard = () => {
             <Button variant="ghost" size="icon" onClick={() => navigate("/")}>
               <ArrowLeft className="w-5 h-5" />
             </Button>
-            <h1 className="font-serif text-3xl text-foreground">Administration</h1>
+            <h1 className="font-display font-bold text-3xl text-foreground">Administration</h1>
           </div>
           <Button variant="outline" size="sm" onClick={signOut}>
             <LogOut className="w-4 h-4 mr-2" /> Déconnexion

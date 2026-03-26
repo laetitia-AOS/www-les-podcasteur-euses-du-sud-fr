@@ -101,7 +101,7 @@ const AdminContacts = () => {
               <ArrowLeft className="w-5 h-5" />
             </Button>
             <div>
-              <h1 className="font-serif text-3xl text-foreground flex items-center gap-2">
+              <h1 className="font-display font-bold text-3xl text-foreground flex items-center gap-2">
                 <Mail className="w-7 h-7 text-primary" />
                 Messages de contact
               </h1>
