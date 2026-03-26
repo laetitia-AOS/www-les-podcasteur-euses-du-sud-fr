@@ -279,7 +279,7 @@ const Podcasts = () => {
               </p>
               {!search && !thematique && (
                 <a
-                  href="/formulaire"
+                  href="/referencer-mon-podcast"
                   className="inline-flex items-center gap-2 mt-6 text-sm font-medium text-primary hover:text-primary/80 transition-colors"
                 >
                   Référencer mon podcast

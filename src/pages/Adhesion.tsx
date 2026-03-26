@@ -31,7 +31,7 @@ const Adhesion = () => {
                 Région Sud. La publication est validée manuellement par notre équipe.
               </p>
               <a
-                href="/formulaire"
+                href="/referencer-mon-podcast"
                 className="inline-flex items-center gap-2 border border-border rounded-xl px-5 py-2.5 text-sm font-medium text-foreground hover:bg-accent/10 transition-colors"
               >
                 Créer mon profil →
