@@ -173,6 +173,29 @@ const StructureEcoFormSection = ({ onBack }: Props) => {
     if (fileInputRef.current) fileInputRef.current.value = "";
   };
 
+  const handleGalleryChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = Array.from(e.target.files || []);
+    const remaining = 6 - galleryFiles.length;
+    if (remaining <= 0) { toast.error("Maximum 6 photos atteint."); return; }
+    const toAdd = files.slice(0, remaining);
+    const validFiles: File[] = [];
+    const previews: string[] = [];
+    for (const file of toAdd) {
+      if (!file.type.startsWith("image/")) continue;
+      if (file.size > 5 * 1024 * 1024) { toast.error(`${file.name} dépasse 5 Mo.`); continue; }
+      validFiles.push(file);
+      previews.push(URL.createObjectURL(file));
+    }
+    setGalleryFiles((prev) => [...prev, ...validFiles]);
+    setGalleryPreviews((prev) => [...prev, ...previews]);
+    if (galleryInputRef.current) galleryInputRef.current.value = "";
+  };
+
+  const removeGalleryPhoto = (index: number) => {
+    setGalleryFiles((prev) => prev.filter((_, i) => i !== index));
+    setGalleryPreviews((prev) => prev.filter((_, i) => i !== index));
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!form.nomStructure || !form.typeStructure || !form.email || !form.contactNom) {
