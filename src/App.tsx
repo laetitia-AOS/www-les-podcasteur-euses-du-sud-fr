@@ -35,8 +35,6 @@ import Podcasts from "./pages/Podcasts";
 
 const queryClient = new QueryClient();
 
-const queryClient = new QueryClient();
-
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
