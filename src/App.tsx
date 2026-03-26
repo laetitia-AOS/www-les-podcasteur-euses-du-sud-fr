@@ -2,7 +2,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate, useParams } from "react-router-dom";
 import ScrollToTop from "./components/ScrollToTop";
 import Index from "./pages/Index";
 import Contact from "./pages/Contact";
@@ -35,6 +35,11 @@ import Podcasts from "./pages/Podcasts";
 
 const queryClient = new QueryClient();
 
+const SlugRedirect = ({ to }: { to: string }) => {
+  const { slug } = useParams();
+  return <Navigate to={`${to}/${slug}`} replace />;
+};
+
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
@@ -64,10 +69,10 @@ const App = () => (
           <Route path="/studios-podcast" element={<AgencesStudios />} />
           {/* Redirections anciennes URLs */}
           <Route path="/evenements" element={<Navigate to="/evenements-podcast" replace />} />
-          <Route path="/evenement/:slug" element={<Navigate to="/evenements-podcast" replace />} />
+          <Route path="/evenement/:slug" element={<SlugRedirect to="/evenement-podcast" />} />
           <Route path="/proposer-evenement" element={<Navigate to="/proposer-evenement-podcast" replace />} />
           <Route path="/adhesion" element={<Navigate to="/rejoindre-association" replace />} />
-          <Route path="/profil/:slug" element={<Navigate to="/annuaire-podcasts" replace />} />
+          <Route path="/profil/:slug" element={<SlugRedirect to="/podcasteur" />} />
           <Route path="/formulaire" element={<Navigate to="/referencer-mon-podcast" replace />} />
           <Route path="/agences-studios" element={<Navigate to="/studios-podcast" replace />} />
           <Route path="/admin" element={<AdminDashboard />} />
