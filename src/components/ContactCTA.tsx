@@ -23,7 +23,7 @@ const ContactCTA = () => {
         >
           <span className="text-xs font-semibold uppercase tracking-[0.2em] text-primary">Rejoindre</span>
 
-          <h2 className="font-display font-extrabold text-3xl sm:text-4xl md:text-5xl leading-tight text-foreground">
+          <h2 className="font-display font-bold text-2xl sm:text-3xl md:text-4xl leading-tight text-foreground">
             Ta voix a sa place<br />
             <span className="text-primary">dans le Sud.</span>
           </h2>

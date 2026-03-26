@@ -61,7 +61,7 @@ const DynamiqueSection = () => {
               <div className="h-px w-6 bg-primary/30" />
               <span className="text-xs font-semibold uppercase tracking-[0.2em] text-primary">Flux</span>
             </div>
-            <h2 className="font-display font-extrabold text-3xl sm:text-4xl md:text-5xl text-foreground">
+            <h2 className="font-display font-bold text-2xl sm:text-3xl md:text-4xl text-foreground">
               La dynamique audio du Sud
             </h2>
           </div>
