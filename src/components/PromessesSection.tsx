@@ -29,7 +29,7 @@ const PromessesSection = () => {
             <span className="text-xs font-semibold uppercase tracking-[0.2em] text-primary">Valeur</span>
             <div className="h-px w-8 bg-primary/30" />
           </div>
-          <h2 className="font-display font-black text-3xl sm:text-4xl md:text-5xl text-foreground">
+          <h2 className="font-display font-extrabold text-3xl sm:text-4xl md:text-5xl text-foreground">
             Ce que l'initiative permet
           </h2>
         </motion.div>

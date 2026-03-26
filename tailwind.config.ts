@@ -15,8 +15,7 @@ export default {
     extend: {
       fontFamily: {
         sans: ["DM Sans", "sans-serif"],
-        display: ["Cabinet Grotesk", "sans-serif"],
-        serif: ["Lora", "serif"],
+        display: ["Syne", "sans-serif"],
       },
       colors: {
         border: "hsl(var(--border))",
@@ -63,6 +62,7 @@ export default {
         turquoise: "hsl(var(--turquoise))",
         pin: "hsl(var(--pin))",
         "ocre-vif": "hsl(var(--ocre-vif))",
+        sable: "hsl(var(--sable))",
         footer: "hsl(var(--footer-bg))",
         sidebar: {
           DEFAULT: "hsl(var(--sidebar-background))",

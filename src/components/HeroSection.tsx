@@ -1,52 +1,59 @@
 import { motion } from "framer-motion";
-import { ArrowRight, Instagram, Linkedin } from "lucide-react";
+import { Search, Hand, ArrowRight, MapPin } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { supabase } from "@/integrations/supabase/client";
 
-const SoundWaves = () => (
-  <svg viewBox="0 0 400 300" className="w-full h-full" preserveAspectRatio="xMidYMid meet">
-    {[0, 1, 2, 3, 4].map((i) => (
-      <path
-        key={i}
-        d={`M ${30 + i * 15} 150 Q ${100 + i * 10} ${80 - i * 12}, ${200} ${150} T ${370 - i * 15} 150`}
-        fill="none"
-        stroke={i % 2 === 0 ? "rgba(200,116,42,0.25)" : "rgba(124,107,158,0.2)"}
-        strokeWidth={2 - i * 0.2}
-        className="animate-wave"
-        style={{ animationDelay: `${i * 0.5}s` }}
-      />
-    ))}
-  </svg>
-);
+interface RecentProfile {
+  id: string;
+  slug: string | null;
+  prenom: string | null;
+  nom: string | null;
+  type_profil: string;
+  city_name: string | null;
+  metier_principal: string | null;
+  consent_mise_en_relation: boolean;
+}
 
-const FloatingCard = ({ children, delay, className = "" }: { children: React.ReactNode; delay: number; className?: string }) => (
-  <motion.div
-    initial={{ opacity: 0, y: 20 }}
-    animate={{ opacity: 1, y: 0 }}
-    transition={{ duration: 0.6, delay }}
-    className={`animate-float bg-background-pure border border-primary/10 rounded-xl px-4 py-2.5 text-sm shadow-md ${className}`}
-    style={{ animationDelay: `${delay}s` }}
-  >
-    {children}
-  </motion.div>
-);
+const avatarColors: Record<string, string> = {
+  podcasteur: "bg-primary/20 text-primary",
+  pro_podcast: "bg-lavande/20 text-lavande",
+  studio: "bg-turquoise/20 text-turquoise",
+  structure_eco: "bg-pin/20 text-pin",
+  soutien: "bg-sable/20 text-terre",
+};
+
+const roleLabels: Record<string, string> = {
+  podcasteur: "Podcasteur·euse",
+  pro_podcast: "Pro écosystème",
+  studio: "Studio",
+  structure_eco: "Structure",
+  soutien: "Soutien",
+};
 
 const HeroSection = () => {
   const navigate = useNavigate();
+  const [recentProfiles, setRecentProfiles] = useState<RecentProfile[]>([]);
+
+  useEffect(() => {
+    const fetch = async () => {
+      const { data } = await supabase
+        .from("podcasts")
+        .select("id, slug, prenom, nom, type_profil, city_name, metier_principal, consent_mise_en_relation")
+        .eq("valide", true)
+        .order("created_at", { ascending: false })
+        .limit(3);
+      if (data) setRecentProfiles(data as RecentProfile[]);
+    };
+    fetch();
+  }, []);
 
   return (
-    <section
-      id="hero"
-      className="relative min-h-[100vh] flex items-center overflow-hidden bg-background"
-    >
-      {/* Decorative circle */}
-      <div className="absolute top-[-10%] right-[-5%] w-[600px] h-[600px] rounded-full opacity-[0.06]" style={{
-        background: "radial-gradient(circle, hsl(27 67% 47%) 0%, transparent 70%)"
-      }} />
-
-      <div className="relative z-10 container mx-auto px-6 max-w-6xl pt-24 pb-16">
-        <div className="grid lg:grid-cols-2 gap-12 lg:gap-16 items-center">
+    <section className="relative min-h-screen flex items-center overflow-hidden" style={{ backgroundColor: "hsl(40 20% 8%)" }}>
+      <div className="relative z-10 container mx-auto px-6 max-w-6xl pt-20 pb-12">
+        <div className="grid lg:grid-cols-2 gap-8 lg:gap-12 items-center min-h-[calc(100vh-8rem)]">
           {/* Left — Text */}
-          <div className="flex flex-col">
+          <div className="flex flex-col justify-center">
             <motion.div
               initial={{ opacity: 0, y: -10 }}
               animate={{ opacity: 1, y: 0 }}
@@ -57,11 +64,11 @@ const HeroSection = () => {
                 style={{
                   background: "rgba(200,116,42,0.10)",
                   borderColor: "rgba(200,116,42,0.25)",
-                  color: "hsl(22 68% 33%)",
+                  color: "hsl(33 40% 62%)",
                 }}
               >
                 <span className="w-2 h-2 rounded-full bg-primary animate-pulse" />
-                Écosystème podcast · Région Sud
+                Réseau pro · Région Sud PACA
               </span>
             </motion.div>
 
@@ -69,150 +76,151 @@ const HeroSection = () => {
               initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.9, delay: 0.1 }}
-              className="text-4xl sm:text-5xl md:text-6xl lg:text-[4.5rem] leading-[1.05] mb-7 tracking-tight"
+              className="text-4xl sm:text-5xl md:text-6xl lg:text-[4.2rem] leading-[1.08] mb-7 tracking-tight"
             >
-              <span className="font-display font-black text-ink">Ici on</span>
+              <span className="font-display font-extrabold text-white">Tu cherches.</span>
               <br />
-              <span className="font-serif italic text-primary text-[1.1em]">raconte.</span>
+              <span className="font-display font-extrabold text-white">Tu proposes.</span>
               <br />
-              <span className="font-display font-medium text-muted-foreground text-[0.6em]">On écoute. On crée.</span>
+              <span className="font-display font-extrabold text-sable">Tu crées.</span>
             </motion.h1>
 
             <motion.p
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.8, delay: 0.25 }}
-              className="text-lg text-muted-foreground max-w-[420px] leading-relaxed mb-10"
-              style={{ lineHeight: 1.7 }}
+              className="text-base max-w-[380px] leading-relaxed mb-10"
+              style={{ color: "rgba(255,255,255,0.55)", lineHeight: 1.7 }}
             >
-              Les Podcasteur·euses du Sud fédère, rend visibles et connecte les créateurs et productions audio ancrés en Région Sud.
+              Le réseau des podcasteur·euses et professionnel·les de l'audio en Région Sud. Trouvez, collaborez, créez.
             </motion.p>
 
             <motion.div
               initial={{ opacity: 0, y: 15 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6, delay: 0.4 }}
-              className="flex flex-wrap items-center gap-4"
+              className="grid grid-cols-2 gap-3 max-w-md"
             >
-              <button
-                onClick={() => navigate("/referencer-mon-podcast")}
-                className="group flex items-center gap-3 bg-primary text-primary-foreground px-8 py-4 rounded-full text-base font-bold hover:bg-primary-hover transition-all duration-300 shadow-lg shadow-primary/20 hover:-translate-y-0.5"
-              >
-                Référencer mon podcast
-                <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-              </button>
               <button
                 onClick={() => navigate("/annuaire-podcasts")}
-                className="flex items-center gap-2 text-base font-semibold text-foreground hover:text-primary transition-all duration-300"
-                style={{ borderBottom: "1.5px solid hsl(33 40% 62%)" }}
+                className="group flex flex-col items-start gap-2 bg-primary text-primary-foreground rounded-2xl p-5 hover:bg-primary-hover transition-all shadow-lg shadow-primary/20"
               >
-                Explorer l'annuaire
+                <Search className="w-5 h-5" />
+                <span className="font-display font-bold text-sm">Je cherche un profil</span>
+                <span className="text-xs opacity-70">Explorer l'annuaire</span>
               </button>
-            </motion.div>
-
-            <motion.div
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: 0.55 }}
-              className="mt-6 flex items-center gap-4"
-            >
-              <span className="text-sm text-muted-foreground font-medium">Suivez-nous</span>
-              <a
-                href="https://www.instagram.com/les_podcasteur.euses_du_sud/"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="group flex items-center justify-center w-10 h-10 rounded-xl bg-muted/60 hover:bg-primary/10 border border-primary/10 hover:border-primary/25 transition-all duration-300"
-                aria-label="Suivez-nous sur Instagram"
+              <button
+                onClick={() => navigate("/referencer-mon-podcast")}
+                className="group flex flex-col items-start gap-2 rounded-2xl p-5 transition-all"
+                style={{ background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.12)" }}
               >
-                <Instagram className="w-5 h-5 text-muted-foreground group-hover:text-primary transition-colors" />
-              </a>
-              <a
-                href="https://www.linkedin.com/company/les-podcasteur-euses-du-sud/"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="group flex items-center justify-center w-10 h-10 rounded-xl bg-muted/60 hover:bg-primary/10 border border-primary/10 hover:border-primary/25 transition-all duration-300"
-                aria-label="Suivez-nous sur LinkedIn"
-              >
-                <Linkedin className="w-5 h-5 text-muted-foreground group-hover:text-primary transition-colors" />
-              </a>
-            </motion.div>
-
-            {/* Stats */}
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ duration: 0.8, delay: 0.7 }}
-              className="mt-14 flex items-center gap-8 sm:gap-10 text-sm pt-6"
-              style={{ borderTop: "1px solid rgba(200,116,42,0.15)" }}
-            >
-              {[
-                { value: "14+", label: "CRÉATEURS" },
-                { value: "6", label: "DÉPARTEMENTS" },
-                { value: "∞", label: "FORMATS" },
-                { value: "1", label: "ÉCOSYSTÈME" },
-              ].map((stat) => (
-                <div key={stat.label} className="flex flex-col">
-                  <span className="text-2xl font-display font-black text-primary">{stat.value}</span>
-                  <span className="text-xs uppercase tracking-wider text-muted-foreground">{stat.label}</span>
-                </div>
-              ))}
+                <Hand className="w-5 h-5 text-sable" />
+                <span className="font-display font-bold text-sm text-white">Je veux être trouvé·e</span>
+                <span className="text-xs" style={{ color: "rgba(255,255,255,0.5)" }}>Créer mon profil</span>
+              </button>
             </motion.div>
           </div>
 
-          {/* Right — Poster card */}
+          {/* Right — Profiles + Search */}
           <motion.div
-            initial={{ opacity: 0, scale: 0.9 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 1, delay: 0.2 }}
-            className="relative hidden lg:flex items-center justify-center min-h-[500px]"
+            initial={{ opacity: 0, x: 30 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.8, delay: 0.3 }}
+            className="hidden lg:flex flex-col gap-5 relative"
           >
-            {/* Poster card */}
-            <div
-              className="relative w-[340px] h-[420px] rounded-3xl overflow-hidden"
-              style={{
-                backgroundColor: "hsl(36 22% 15%)",
-                boxShadow: "24px 24px 0px hsl(37 28% 88%)",
-              }}
-            >
-              {/* Badge */}
-              <div className="absolute top-4 left-4 z-10">
-                <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold bg-primary text-primary-foreground">
-                  Région Sud · PACA
-                </span>
-              </div>
+            {/* Radial glow */}
+            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[400px] h-[400px] rounded-full" style={{
+              background: "radial-gradient(circle, rgba(200,116,42,0.06) 0%, transparent 70%)"
+            }} />
 
-              {/* Sound waves */}
-              <div className="absolute inset-0 flex items-center justify-center">
-                <SoundWaves />
-              </div>
-
-              {/* Center mic */}
-              <div className="absolute inset-0 flex items-center justify-center">
-                <span className="text-6xl animate-micro-pulse drop-shadow-lg" style={{ filter: "drop-shadow(0 0 20px rgba(200,116,42,0.4))" }}>🎙</span>
-              </div>
-
-              {/* Bottom text */}
-              <div className="absolute bottom-0 left-0 right-0 p-6 bg-gradient-to-t from-ink/80 to-transparent">
-                <p className="font-serif italic text-white text-lg leading-snug">Les voix du territoire</p>
-                <p className="text-white/50 text-sm mt-1">Podcast · Création · Région Sud</p>
-              </div>
+            {/* Recent profiles */}
+            <div className="relative space-y-3">
+              <p className="text-xs font-medium uppercase tracking-wider mb-3" style={{ color: "rgba(255,255,255,0.4)" }}>Profils récents</p>
+              {recentProfiles.map((p, i) => {
+                const colorClass = avatarColors[p.type_profil] || "bg-primary/20 text-primary";
+                const initials = `${(p.prenom || "")[0] || ""}${(p.nom || "")[0] || ""}`.toUpperCase();
+                return (
+                  <button
+                    key={p.id}
+                    onClick={() => navigate(`/podcasteur/${p.slug || p.id}`)}
+                    className={`w-full flex items-center gap-3 rounded-xl p-3 transition-all hover:scale-[1.02] ${i === 0 ? "border border-primary/30" : ""}`}
+                    style={{ background: "rgba(255,255,255,0.04)" }}
+                  >
+                    <div className={`w-10 h-10 rounded-full flex items-center justify-center text-sm font-bold ${colorClass}`}>
+                      {initials}
+                    </div>
+                    <div className="flex-1 text-left min-w-0">
+                      <p className="text-sm font-medium text-white truncate">{p.prenom} {p.nom}</p>
+                      <p className="text-xs" style={{ color: "rgba(255,255,255,0.5)" }}>
+                        {roleLabels[p.type_profil] || p.type_profil}
+                        {p.city_name && ` · ${p.city_name.replace(/\s+\d+(er?|e)?\s+Arrondissement$/i, "").replace(/\s+\d+$/, "")}`}
+                      </p>
+                    </div>
+                    {p.consent_mise_en_relation && (
+                      <span className="flex items-center gap-1 text-[10px] font-semibold px-2 py-0.5 rounded-full" style={{ background: "rgba(61,107,79,0.2)", color: "hsl(148 28% 50%)" }}>
+                        ● Dispo
+                      </span>
+                    )}
+                  </button>
+                );
+              })}
             </div>
 
-            {/* Floating cards */}
-            <FloatingCard delay={0.8} className="absolute top-8 right-0">
-              <span className="text-muted-foreground">🎧</span>{" "}
-              <span className="text-foreground font-medium">Dernier épisode</span>
-            </FloatingCard>
-            <FloatingCard delay={1.0} className="absolute bottom-24 -left-4">
-              <span className="text-muted-foreground">📅</span>{" "}
-              <span className="text-foreground font-medium">Prochain événement</span>
-            </FloatingCard>
-            <FloatingCard delay={1.2} className="absolute bottom-8 right-4">
-              <span className="text-foreground font-medium">Ouvert·e aux collabs</span>{" "}
-              <span className="w-2 h-2 rounded-full bg-pin inline-block animate-pulse" />
-            </FloatingCard>
+            {/* Search bar */}
+            <div className="relative mt-4">
+              <div className="flex items-center gap-3 bg-background-pure rounded-xl p-3 shadow-lg">
+                <Search className="w-4 h-4 text-muted-foreground shrink-0" />
+                <input
+                  type="text"
+                  placeholder="Chercher un monteur son à Marseille…"
+                  className="flex-1 bg-transparent text-sm text-foreground placeholder:text-muted-foreground/60 focus:outline-none"
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter") navigate("/annuaire-podcasts");
+                  }}
+                />
+                <button
+                  onClick={() => navigate("/annuaire-podcasts")}
+                  className="px-4 py-2 rounded-lg bg-primary text-primary-foreground text-sm font-bold hover:bg-primary-hover transition-all"
+                >
+                  Rechercher
+                </button>
+              </div>
+              <div className="flex flex-wrap gap-2 mt-3">
+                {["Monteur·euse", "Studio Marseille", "Voix off", "Coach podcast"].map((tag) => (
+                  <button
+                    key={tag}
+                    onClick={() => navigate("/annuaire-podcasts")}
+                    className="px-3 py-1.5 rounded-full text-xs font-medium transition-all hover:bg-primary/15"
+                    style={{ background: "rgba(200,116,42,0.08)", color: "hsl(33 40% 62%)" }}
+                  >
+                    {tag}
+                  </button>
+                ))}
+              </div>
+            </div>
           </motion.div>
         </div>
+
+        {/* Stats */}
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.8, delay: 0.7 }}
+          className="flex items-center gap-8 sm:gap-12 text-sm pt-8 mt-4"
+          style={{ borderTop: "1px solid rgba(200,116,42,0.15)" }}
+        >
+          {[
+            { value: "14+", label: "CRÉATEURS" },
+            { value: "6", label: "DÉPARTEMENTS" },
+            { value: "∞", label: "FORMATS" },
+            { value: "1", label: "ÉCOSYSTÈME" },
+          ].map((stat) => (
+            <div key={stat.label} className="flex flex-col">
+              <span className="text-2xl font-display font-extrabold text-primary">{stat.value}</span>
+              <span className="text-xs uppercase tracking-wider" style={{ color: "rgba(255,255,255,0.4)" }}>{stat.label}</span>
+            </div>
+          ))}
+        </motion.div>
       </div>
     </section>
   );

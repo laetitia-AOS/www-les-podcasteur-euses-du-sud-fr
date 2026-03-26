@@ -23,9 +23,9 @@ const ContactCTA = () => {
         >
           <span className="text-xs font-semibold uppercase tracking-[0.2em] text-primary">Rejoindre</span>
 
-          <h2 className="font-display font-black text-3xl sm:text-4xl md:text-5xl leading-tight text-foreground">
+          <h2 className="font-display font-extrabold text-3xl sm:text-4xl md:text-5xl leading-tight text-foreground">
             Ta voix a sa place<br />
-            <span className="font-serif italic text-primary">dans le Sud.</span>
+            <span className="text-primary">dans le Sud.</span>
           </h2>
           <p className="text-muted-foreground leading-relaxed max-w-lg mx-auto" style={{ lineHeight: 1.7 }}>
             Vous développez un projet, une idée ou une initiative en lien avec le podcast
