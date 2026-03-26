@@ -116,7 +116,7 @@ const EvenementDetail = () => {
             <CalendarDays className="w-16 h-16 text-muted-foreground/40 mx-auto mb-4" />
             <h1 className="font-serif text-2xl text-foreground mb-2">Événement introuvable</h1>
             <p className="text-muted-foreground mb-6">Cet événement n'existe pas ou n'est plus disponible.</p>
-            <Link to="/evenements">
+            <Link to="/evenements-podcast">
               <Button variant="outline">
                 <ArrowLeft className="w-4 h-4 mr-2" />
                 Retour aux événements
@@ -138,7 +138,7 @@ const EvenementDetail = () => {
       <SEOHead
         title={seoTitle}
         description={seoDesc}
-        path={`/evenement/${slug}`}
+        path={`/evenement-podcast/${slug}`}
         image={evt.image_url || undefined}
         jsonLd={jsonLd}
       />
@@ -177,7 +177,7 @@ const EvenementDetail = () => {
           >
             {/* Back link */}
             <div className="mb-6">
-              <Link to="/evenements" className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-primary transition-colors">
+              <Link to="/evenements-podcast" className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-primary transition-colors">
                 <ArrowLeft className="w-4 h-4" />
                 Tous les événements
               </Link>

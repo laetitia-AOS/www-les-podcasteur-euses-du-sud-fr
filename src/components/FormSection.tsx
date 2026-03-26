@@ -474,7 +474,7 @@ const FormSection = () => {
                 <li className="flex items-start gap-2"><Check className="w-4 h-4 text-primary mt-0.5 shrink-0" /> contribuer à la dynamique régionale</li>
               </ul>
               <a
-                href="/adhesion"
+                href="/rejoindre-association"
                 className="text-primary hover:underline text-sm"
               >
                 Découvrir l'adhésion au collectif →
@@ -532,7 +532,7 @@ const FormSection = () => {
                       Les membres à jour de leur cotisation associative sont prioritairement mis en avant
                       dans l'annuaire et sur le flux du site.{" "}
                       <a
-                        href="/adhesion"
+                        href="/rejoindre-association"
                         className="text-primary font-medium hover:underline"
                       >
                         En savoir plus sur l'adhésion →

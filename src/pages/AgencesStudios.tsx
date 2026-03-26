@@ -110,7 +110,7 @@ const AgencesStudios = () => {
       <SEOHead
         title="Agences & Studios — Écosystème Podcast Région Sud"
         description="Radios, festivals, incubateurs, institutions : découvrez les structures de l'écosystème podcast en Provence-Alpes-Côte d'Azur."
-        path="/agences-studios"
+        path="/studios-podcast"
       />
       <Navbar />
       <main className="pt-24 pb-20">

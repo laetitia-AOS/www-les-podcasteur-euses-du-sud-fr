@@ -93,7 +93,7 @@ const Evenements = () => {
       <SEOHead
         title="Événements podcast Région Sud — Les Podcasteur·euses du Sud"
         description="Agenda des rencontres, ateliers et événements podcast en Provence-Alpes-Côte d'Azur. Rejoignez la communauté des créateurs audio du Sud."
-        path="/evenements"
+        path="/evenements-podcast"
         jsonLd={jsonLdEvents}
       />
       <Navbar />
@@ -114,7 +114,7 @@ const Evenements = () => {
             <p className="text-muted-foreground text-lg max-w-2xl mx-auto leading-relaxed mb-6">
               Sessions d'écoute, ateliers pratiques et événements partenaires — retrouvez tous les rendez-vous de l'écosystème podcast en Région Sud.
             </p>
-            <Link to="/proposer-evenement">
+            <Link to="/proposer-evenement-podcast">
               <Button className="gap-2">
                 <Plus className="w-4 h-4" />
                 Proposer un événement
@@ -145,7 +145,7 @@ const Evenements = () => {
                 const monthShort = new Date(evt.date_debut).toLocaleDateString("fr-FR", { month: "short" });
 
                 return (
-                  <Link to={`/evenement/${evt.slug || evt.id}`} className="block">
+                  <Link to={`/evenement-podcast/${evt.slug || evt.id}`} className="block">
                   <motion.article
                     key={evt.id}
                     role="listitem"
@@ -260,7 +260,7 @@ const Evenements = () => {
               </div>
               <div className="grid sm:grid-cols-2 gap-4">
                 {pastEvents.map((evt) => (
-                  <Link to={`/evenement/${evt.slug || evt.id}`} key={evt.id}>
+                  <Link to={`/evenement-podcast/${evt.slug || evt.id}`} key={evt.id}>
                   <article
                     className="flex items-center gap-4 bg-muted/20 border border-border/50 rounded-xl p-4 opacity-60 hover:opacity-90 transition-opacity"
                   >
