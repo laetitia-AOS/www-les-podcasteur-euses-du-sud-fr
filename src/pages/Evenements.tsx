@@ -10,10 +10,10 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 
 const TYPE_COLORS: Record<string, string> = {
-  rencontre: "bg-primary/10 text-primary border-primary/20",
-  atelier: "bg-secondary/10 text-secondary-foreground border-secondary/30",
-  evenement: "bg-accent/10 text-accent-foreground border-accent/30",
-  partenaire: "bg-muted text-muted-foreground border-border",
+  rencontre: "bg-primary/10 text-terre border-primary/20",
+  atelier: "bg-lavande/10 text-lavande border-lavande/20",
+  evenement: "bg-turquoise/10 text-turquoise border-turquoise/20",
+  partenaire: "bg-muted text-muted-foreground border-primary/10",
 };
 
 const TYPE_LABELS: Record<string, string> = {
@@ -108,7 +108,7 @@ const Evenements = () => {
             <span className="inline-block text-xs font-semibold uppercase tracking-wider text-primary bg-primary/10 px-3 py-1 rounded-full mb-4">
               Agenda
             </span>
-            <h1 id="events-heading" className="font-display font-extrabold text-4xl md:text-5xl text-foreground mb-4">
+            <h1 id="events-heading" className="font-display font-black text-4xl md:text-5xl text-foreground mb-4">
               Rencontres & Événements
             </h1>
             <p className="text-muted-foreground text-lg max-w-2xl mx-auto leading-relaxed mb-6">
@@ -152,10 +152,10 @@ const Evenements = () => {
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.5, delay: i * 0.08 }}
-                    className="group relative bg-card border border-border rounded-2xl overflow-hidden hover:shadow-xl hover:border-primary/20 transition-all duration-300"
+                    className="group relative bg-background-pure border border-primary/8 rounded-[20px] overflow-hidden hover:shadow-xl hover:border-primary/20 transition-all duration-300"
                   >
                     {/* Top accent line */}
-                    <div className="absolute top-0 left-0 right-0 h-0.5 bg-gradient-to-r from-primary via-secondary to-primary opacity-60" />
+                    <div className="absolute top-0 left-0 right-0 h-[3px] bg-gradient-to-r from-primary via-lavande to-primary opacity-60" />
 
                     {evt.image_url && (
                       <div className="relative h-52 md:h-64 overflow-hidden">
@@ -165,13 +165,13 @@ const Evenements = () => {
                           className="w-full h-full object-cover group-hover:scale-[1.03] transition-transform duration-700"
                           loading="lazy"
                         />
-                        <div className="absolute inset-0 bg-gradient-to-t from-card via-card/20 to-transparent" />
+                        <div className="absolute inset-0 bg-gradient-to-t from-background-pure via-background-pure/20 to-transparent" />
                         <div className="absolute bottom-4 left-6 flex items-center gap-2">
                           <Badge className={`text-xs border ${TYPE_COLORS[evt.type] || "bg-muted text-muted-foreground"}`}>
                             {TYPE_LABELS[evt.type] || evt.type}
                           </Badge>
                         </div>
-                        <div className="absolute top-4 right-4 w-16 h-16 bg-card/95 backdrop-blur-sm rounded-xl flex flex-col items-center justify-center shadow-lg" aria-hidden="true">
+                        <div className="absolute top-4 right-4 w-16 h-16 bg-background-pure/95 backdrop-blur-sm rounded-xl flex flex-col items-center justify-center shadow-lg" aria-hidden="true">
                           <span className="text-xl font-bold text-primary leading-none">{day}</span>
                           <span className="text-[10px] font-semibold uppercase text-primary/70">{monthShort}</span>
                         </div>
