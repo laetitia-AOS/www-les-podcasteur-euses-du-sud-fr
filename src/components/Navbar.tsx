@@ -9,7 +9,6 @@ const links = [
   { label: "Annuaire", href: "/annuaire-podcasts" },
   { label: "Agences/Studios", href: "/studios-podcast" },
   { label: "Événements", href: "/evenements-podcast" },
-  { label: "Contact", href: "/contact" },
 ];
 
 const Navbar = () => {
