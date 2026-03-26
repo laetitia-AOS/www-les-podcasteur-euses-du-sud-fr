@@ -1,11 +1,13 @@
 import { useMemo } from "react";
 import HeroSection from "@/components/HeroSection";
 import Navbar from "@/components/Navbar";
+import MarqueeBanner from "@/components/MarqueeBanner";
 import VisionSection from "@/components/VisionSection";
 import ObjectifsSection from "@/components/ObjectifsSection";
 import PromessesSection from "@/components/PromessesSection";
 import DynamiqueSection from "@/components/DynamiqueSection";
 import ProchainEvenement from "@/components/ProchainEvenement";
+import ContactCTA from "@/components/ContactCTA";
 import Footer from "@/components/Footer";
 import SEOHead from "@/components/SEOHead";
 
@@ -33,6 +35,7 @@ const Index = () => {
       <Navbar />
       <main className="min-h-screen">
         <HeroSection />
+        <MarqueeBanner />
         <article>
           <VisionSection />
           <ObjectifsSection />
@@ -40,6 +43,7 @@ const Index = () => {
         </article>
         <DynamiqueSection />
         <ProchainEvenement />
+        <ContactCTA />
       </main>
       <Footer />
     </>

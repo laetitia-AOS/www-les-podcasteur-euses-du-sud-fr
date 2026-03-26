@@ -95,7 +95,7 @@ const ContactSection = () => {
             </span>
             <div className="h-px w-8 bg-secondary/30" />
           </div>
-          <h2 className="font-serif text-3xl sm:text-4xl md:text-5xl mb-5">
+          <h2 className="font-display font-extrabold text-3xl sm:text-4xl md:text-5xl mb-5">
             Entrer en relation avec l'écosystème
           </h2>
           <p className="text-muted-foreground leading-relaxed max-w-lg mx-auto">
@@ -117,7 +117,7 @@ const ContactSection = () => {
           <div className={sectionCardClass}>
             <div className="flex items-center gap-3 mb-2">
               <span className="w-8 h-8 rounded-xl bg-gradient-to-br from-secondary to-secondary/70 text-secondary-foreground text-sm flex items-center justify-center font-sans font-bold shadow-sm">1</span>
-              <h3 className="font-serif text-xl text-foreground">Votre intention</h3>
+               <h3 className="font-display font-bold text-xl text-foreground">Votre intention</h3>
             </div>
 
             <div>
@@ -163,7 +163,7 @@ const ContactSection = () => {
           <div className={sectionCardClass}>
             <div className="flex items-center gap-3 mb-2">
               <span className="w-8 h-8 rounded-xl bg-gradient-to-br from-secondary to-secondary/70 text-secondary-foreground text-sm flex items-center justify-center font-sans font-bold shadow-sm">2</span>
-              <h3 className="font-serif text-xl text-foreground">Vos coordonnées</h3>
+               <h3 className="font-display font-bold text-xl text-foreground">Vos coordonnées</h3>
             </div>
 
             <div className="grid sm:grid-cols-2 gap-4">

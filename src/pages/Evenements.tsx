@@ -108,7 +108,7 @@ const Evenements = () => {
             <span className="inline-block text-xs font-semibold uppercase tracking-wider text-primary bg-primary/10 px-3 py-1 rounded-full mb-4">
               Agenda
             </span>
-            <h1 id="events-heading" className="font-serif text-4xl md:text-5xl text-foreground mb-4">
+            <h1 id="events-heading" className="font-display font-extrabold text-4xl md:text-5xl text-foreground mb-4">
               Rencontres & Événements
             </h1>
             <p className="text-muted-foreground text-lg max-w-2xl mx-auto leading-relaxed mb-6">
@@ -133,7 +133,7 @@ const Evenements = () => {
               <div className="w-16 h-16 bg-primary/10 rounded-2xl flex items-center justify-center mx-auto mb-5">
                 <CalendarDays className="w-8 h-8 text-primary/60" />
               </div>
-              <p className="text-foreground font-serif text-xl mb-2">Aucun événement à venir</p>
+              <p className="text-foreground font-display font-bold text-xl mb-2">Aucun événement à venir</p>
               <p className="text-sm text-muted-foreground max-w-md mx-auto">
                 Revenez bientôt pour découvrir nos prochains rendez-vous ! En attendant, explorez l'annuaire des podcasts du Sud.
               </p>
@@ -196,7 +196,7 @@ const Evenements = () => {
                             </div>
                           )}
 
-                          <h2 className="font-serif text-xl md:text-2xl text-foreground mb-1 leading-tight group-hover:text-primary transition-colors">
+                          <h2 className="font-display font-bold text-xl md:text-2xl text-foreground mb-1 leading-tight group-hover:text-primary transition-colors">
                             {evt.titre}
                           </h2>
                           {evt.sous_titre && (
@@ -253,7 +253,7 @@ const Evenements = () => {
             <section className="mt-20" aria-labelledby="past-events-heading">
               <div className="flex items-center gap-3 mb-8 justify-center">
                 <div className="h-px w-10 bg-border" />
-                <h2 id="past-events-heading" className="font-serif text-2xl text-foreground">
+                <h2 id="past-events-heading" className="font-display font-bold text-2xl text-foreground">
                   Événements passés
                 </h2>
                 <div className="h-px w-10 bg-border" />

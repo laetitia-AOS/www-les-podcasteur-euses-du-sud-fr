@@ -186,7 +186,7 @@ const Annuaire = () => {
             transition={{ duration: 0.6 }}
             className="text-center mb-12"
           >
-            <h1 className="font-serif text-3xl sm:text-4xl md:text-5xl mb-4">
+            <h1 className="font-display font-extrabold text-3xl sm:text-4xl md:text-5xl mb-4">
               Annuaire — Écosystème Podcast
             </h1>
             <p className="text-muted-foreground leading-relaxed max-w-2xl mx-auto mb-6">
@@ -302,11 +302,11 @@ const Annuaire = () => {
                   >
                     <Link
                       to={profile.type_profil === "studio" ? `/annuaire-podcasts/studios/${profile.slug || profile.id}` : profile.type_profil === "structure_eco" ? `/annuaire-podcasts/structures/${profile.slug || profile.id}` : `/podcasteur/${profile.slug || profile.id}`}
-                      className="block bg-card border border-border rounded-2xl p-6 hover:shadow-md hover:border-primary/20 transition-all duration-300 h-full relative"
+                      className="block bg-card border border-border rounded-2xl p-6 hover:shadow-lg hover:shadow-primary/5 hover:border-primary/30 hover:-translate-y-1 transition-all duration-300 h-full relative"
                     >
                       {/* Collab badge */}
                       {profile.consent_mise_en_relation && (
-                        <span className="absolute top-3 right-3 inline-flex items-center gap-1 text-[10px] font-semibold px-2 py-0.5 rounded-full bg-green-100 text-green-700 border border-green-200">
+                        <span className="absolute top-3 right-3 inline-flex items-center gap-1 text-[10px] font-semibold px-2 py-0.5 rounded-full bg-primary/15 text-primary border border-primary/25">
                           <Handshake className="w-3 h-3" /> Ouvert·e aux collabs
                         </span>
                       )}
@@ -329,7 +329,7 @@ const Annuaire = () => {
                         </div>
                         <div className="flex-1 min-w-0">
                           <div className="flex items-start justify-between gap-2">
-                    <h3 className="font-serif text-lg text-foreground truncate">
+                    <h3 className="font-display font-bold text-lg text-foreground truncate">
                               {profile.type_profil === "studio" || profile.type_profil === "structure_eco" ? profile.nom_podcast : `${profile.prenom} ${profile.nom}`}
                             </h3>
                           </div>
