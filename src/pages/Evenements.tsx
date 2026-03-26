@@ -92,7 +92,7 @@ const Evenements = () => {
         <section className="pt-24 pb-12" style={{ backgroundColor: "hsl(40 20% 8%)" }}>
           <div className="container mx-auto px-6 max-w-5xl">
             <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }}>
-              <h1 className="font-display font-extrabold text-4xl md:text-5xl text-white mb-3">Rencontres & Événements</h1>
+              <h1 className="font-display font-bold text-3xl md:text-4xl text-white mb-3">Rencontres & Événements</h1>
               <p className="text-base max-w-2xl leading-relaxed mb-6" style={{ color: "rgba(255,255,255,0.55)" }}>
                 Sessions d'écoute, ateliers pratiques et événements partenaires — retrouvez tous les rendez-vous de l'écosystème.
               </p>
@@ -134,7 +134,7 @@ const Evenements = () => {
                       >
                         {/* Date column */}
                         <div className={`shrink-0 w-full md:w-24 flex md:flex-col items-center justify-center gap-1 p-4 ${isLavande ? "bg-lavande/10" : "bg-primary/10"}`}>
-                          <span className={`text-3xl md:text-4xl font-display font-extrabold leading-none ${isLavande ? "text-lavande" : "text-primary"}`}>{day}</span>
+                          <span className={`text-3xl md:text-4xl font-display font-bold leading-none ${isLavande ? "text-lavande" : "text-primary"}`}>{day}</span>
                           <span className={`text-xs font-semibold uppercase ${isLavande ? "text-lavande/70" : "text-primary/70"}`}>{monthShort}</span>
                         </div>
 
@@ -145,7 +145,7 @@ const Evenements = () => {
                               {TYPE_LABELS[evt.type] || evt.type}
                             </Badge>
                           </div>
-                          <h2 className="font-display font-extrabold text-xl text-foreground mb-1 group-hover:text-primary transition-colors">{evt.titre}</h2>
+                          <h2 className="font-display font-bold text-xl text-foreground mb-1 group-hover:text-primary transition-colors">{evt.titre}</h2>
                           {evt.description && <p className="text-muted-foreground text-sm leading-relaxed mb-4 line-clamp-2">{evt.description}</p>}
                           <div className="flex flex-wrap gap-x-5 gap-y-2 text-sm text-muted-foreground">
                             <span className="flex items-center gap-1.5"><Clock className="w-4 h-4 text-primary/50" />{formatTime(evt.date_debut)}{evt.date_fin && ` – ${formatTime(evt.date_fin)}`}</span>

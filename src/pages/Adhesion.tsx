@@ -8,7 +8,7 @@ const Adhesion = () => {
       <Navbar />
       <main className="pt-24 pb-20">
         <div className="container mx-auto px-6 max-w-3xl">
-          <h1 className="font-serif text-3xl sm:text-4xl text-foreground mb-2 text-center">
+          <h1 className="font-display font-bold text-3xl sm:text-4xl text-foreground mb-2 text-center">
             Adhérer à l'association
           </h1>
           <p className="text-muted-foreground text-center mb-4">
@@ -25,7 +25,7 @@ const Adhesion = () => {
             {/* Carte 1 — Profil */}
             <div className="bg-card border border-border rounded-2xl p-6 space-y-3">
               <User className="w-8 h-8 text-primary mb-2" />
-              <h2 className="font-serif text-lg text-foreground font-semibold">Référencer mon profil</h2>
+              <h2 className="font-display font-bold text-lg text-foreground font-semibold">Référencer mon profil</h2>
               <p className="text-sm text-muted-foreground leading-relaxed">
                 Ouvert à toustes. Intégrez l'annuaire de l'écosystème podcast
                 Région Sud. La publication est validée manuellement par notre équipe.
@@ -41,7 +41,7 @@ const Adhesion = () => {
             {/* Carte 2 — Adhésion */}
             <div className="bg-card border border-border rounded-2xl p-6 space-y-3">
               <Users className="w-8 h-8 text-primary mb-2" />
-              <h2 className="font-serif text-lg text-foreground font-semibold">Adhérer au collectif</h2>
+              <h2 className="font-display font-bold text-lg text-foreground font-semibold">Adhérer au collectif</h2>
               <p className="text-sm text-muted-foreground leading-relaxed">
                 La cotisation associative vous donne accès aux rencontres, aux ressources
                 membres et à une mise en avant prioritaire dans l'annuaire et sur le flux.

@@ -21,7 +21,7 @@ const Bienvenue = () => {
             <div className="inline-flex items-center justify-center w-20 h-20 rounded-full bg-secondary/20 mb-6">
               <PartyPopper className="w-10 h-10 text-secondary" />
             </div>
-            <h1 className="font-serif text-3xl sm:text-4xl text-foreground mb-4">
+            <h1 className="font-display font-bold text-3xl sm:text-4xl text-foreground mb-4">
               Bienvenue dans le collectif !
             </h1>
             <p className="text-lg text-muted-foreground leading-relaxed mb-2">
@@ -38,7 +38,7 @@ const Bienvenue = () => {
             transition={{ duration: 0.5, delay: 0.3 }}
             className="bg-card border border-border rounded-2xl p-8 sm:p-10 mb-8"
           >
-            <h2 className="font-serif text-xl sm:text-2xl text-foreground mb-3">
+            <h2 className="font-display font-bold text-xl sm:text-2xl text-foreground mb-3">
               Complète ton profil
             </h2>
             <p className="text-muted-foreground leading-relaxed mb-6">

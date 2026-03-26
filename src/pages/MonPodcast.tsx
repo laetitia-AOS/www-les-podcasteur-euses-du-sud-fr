@@ -211,7 +211,7 @@ const MonEspace = () => {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center px-4">
         <div className="text-center space-y-4 max-w-sm">
-          <h1 className="font-serif text-2xl text-foreground">Aucune fiche trouvée</h1>
+          <h1 className="font-display font-bold text-2xl text-foreground">Aucune fiche trouvée</h1>
           <p className="text-muted-foreground text-sm">
             Aucune fiche n'est associée à <span className="font-medium text-foreground">{userEmail}</span>.
           </p>
@@ -241,7 +241,7 @@ const MonEspace = () => {
               <ArrowLeft className="w-5 h-5" />
             </Link>
             <div>
-              <h1 className="font-serif text-lg text-foreground">Espace membre</h1>
+              <h1 className="font-display font-bold text-lg text-foreground">Espace membre</h1>
               <p className="text-xs text-muted-foreground">{userEmail}</p>
             </div>
           </div>
@@ -282,7 +282,7 @@ const MonEspace = () => {
 
         {/* Photo */}
         <div className="bg-card border border-border rounded-2xl p-6 sm:p-8 space-y-4">
-          <h2 className="font-serif text-xl text-foreground">
+          <h2 className="font-display font-bold text-xl text-foreground">
             {isPodcasteur ? "Vignette du podcast" : "Photo de profil"}
           </h2>
           <p className="text-xs text-muted-foreground">JPG, PNG ou WebP. Max 5 Mo. L'image sera recadrée au format carré.</p>
@@ -312,7 +312,7 @@ const MonEspace = () => {
 
         {/* Coordonnées */}
         <div className="bg-card border border-border rounded-2xl p-6 sm:p-8 space-y-6">
-          <h2 className="font-serif text-xl text-foreground">Coordonnées</h2>
+          <h2 className="font-display font-bold text-xl text-foreground">Coordonnées</h2>
           <div className="space-y-4">
             <div className="grid sm:grid-cols-2 gap-4">
               <div>
@@ -333,7 +333,7 @@ const MonEspace = () => {
 
         {/* Présentation */}
         <div className="bg-card border border-border rounded-2xl p-6 sm:p-8 space-y-6">
-          <h2 className="font-serif text-xl text-foreground">Présentation</h2>
+          <h2 className="font-display font-bold text-xl text-foreground">Présentation</h2>
           <div className="space-y-4">
             <div>
               <label className={labelClass}>Bio (max 750 caractères)</label>
@@ -358,7 +358,7 @@ const MonEspace = () => {
         {/* Podcast (podcasteur) */}
         {isPodcasteur && (
           <div className="bg-card border border-border rounded-2xl p-6 sm:p-8 space-y-6">
-            <h2 className="font-serif text-xl text-foreground">Mon podcast</h2>
+            <h2 className="font-display font-bold text-xl text-foreground">Mon podcast</h2>
             <div className="space-y-4">
               <div>
                 <label className={labelClass}>Nom du podcast</label>
@@ -428,7 +428,7 @@ const MonEspace = () => {
         {/* Pro info */}
         {isPro && (
           <div className="bg-card border border-border rounded-2xl p-6 sm:p-8 space-y-6">
-            <h2 className="font-serif text-xl text-foreground">Informations professionnelles</h2>
+            <h2 className="font-display font-bold text-xl text-foreground">Informations professionnelles</h2>
             <div className="space-y-4">
               <div>
                 <label className={labelClass}>Métier principal</label>
@@ -470,7 +470,7 @@ const MonEspace = () => {
         {/* Localisation (read-only info) */}
         {(current.city_name || current.department_code) && (
           <div className="bg-card border border-border rounded-2xl p-6 sm:p-8 space-y-3">
-            <h2 className="font-serif text-xl text-foreground">Localisation</h2>
+            <h2 className="font-display font-bold text-xl text-foreground">Localisation</h2>
             <p className="text-sm text-muted-foreground">
               {current.city_name}{current.department_code ? ` (${current.department_code})` : ""}
             </p>
@@ -495,7 +495,7 @@ const MonEspace = () => {
         {/* Delete confirmation */}
         {showDeleteConfirm && (
           <div className="bg-destructive/5 border border-destructive/20 rounded-2xl p-6 space-y-4">
-            <h3 className="font-serif text-lg text-destructive">Confirmer la suppression</h3>
+            <h3 className="font-display font-bold text-lg text-destructive">Confirmer la suppression</h3>
             <p className="text-sm text-muted-foreground">
               Cette action est irréversible. Votre fiche sera définitivement supprimée du site et de l'annuaire.
             </p>

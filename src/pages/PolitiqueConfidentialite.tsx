@@ -9,14 +9,14 @@ const PolitiqueConfidentialite = () => {
       <Navbar />
       <main className="min-h-screen py-20 md:py-32 bg-background">
         <div className="container mx-auto px-6 max-w-3xl">
-          <h1 className="font-serif text-3xl sm:text-4xl mb-4">Politique de confidentialité</h1>
+          <h1 className="font-display font-bold text-3xl sm:text-4xl mb-4">Politique de confidentialité</h1>
           <p className="text-muted-foreground mb-10">
             La protection de vos données personnelles est une priorité pour l'association Les Podcasteur·euses du Sud. La présente politique vous informe de manière transparente sur la façon dont vos données sont collectées, utilisées et protégées.
           </p>
 
           <div className="prose prose-sm max-w-none text-muted-foreground space-y-8">
             <section>
-              <h2 className="font-serif text-xl text-foreground">1. Responsable du traitement</h2>
+              <h2 className="font-display font-bold text-xl text-foreground">1. Responsable du traitement</h2>
               <p>
                 Le responsable du traitement des données à caractère personnel est :
               </p>
@@ -30,7 +30,7 @@ const PolitiqueConfidentialite = () => {
             </section>
 
             <section>
-              <h2 className="font-serif text-xl text-foreground">2. Données susceptibles d'être collectées</h2>
+              <h2 className="font-display font-bold text-xl text-foreground">2. Données susceptibles d'être collectées</h2>
               <p>Dans le cadre de son activité et du fonctionnement du site, l'association est susceptible de collecter les catégories de données suivantes :</p>
 
               <h3 className="font-semibold text-foreground mt-4 mb-2">Via le formulaire de référencement de podcast :</h3>
@@ -54,7 +54,7 @@ const PolitiqueConfidentialite = () => {
             </section>
 
             <section>
-              <h2 className="font-serif text-xl text-foreground">3. Finalités des traitements</h2>
+              <h2 className="font-display font-bold text-xl text-foreground">3. Finalités des traitements</h2>
               <p>Les données personnelles collectées sont utilisées aux fins suivantes :</p>
               <ul className="list-disc pl-5 space-y-1">
                 <li>Référencement des podcasts dans le répertoire régional</li>
@@ -70,7 +70,7 @@ const PolitiqueConfidentialite = () => {
             </section>
 
             <section>
-              <h2 className="font-serif text-xl text-foreground">4. Base légale des traitements</h2>
+              <h2 className="font-display font-bold text-xl text-foreground">4. Base légale des traitements</h2>
               <p>
                 Conformément à l'article 6 du Règlement (UE) 2016/679 (RGPD), les traitements de données mis en œuvre par l'association reposent sur les bases légales suivantes :
               </p>
@@ -82,7 +82,7 @@ const PolitiqueConfidentialite = () => {
             </section>
 
             <section>
-              <h2 className="font-serif text-xl text-foreground">5. Durée de conservation des données</h2>
+              <h2 className="font-display font-bold text-xl text-foreground">5. Durée de conservation des données</h2>
               <p>Les données personnelles sont conservées pour les durées suivantes :</p>
               <ul className="list-disc pl-5 space-y-1">
                 <li><strong>Données de référencement podcast :</strong> pendant toute la durée du référencement et au maximum 3 ans après le dernier contact avec la personne concernée</li>
@@ -95,7 +95,7 @@ const PolitiqueConfidentialite = () => {
             </section>
 
             <section>
-              <h2 className="font-serif text-xl text-foreground">6. Destinataires des données</h2>
+              <h2 className="font-display font-bold text-xl text-foreground">6. Destinataires des données</h2>
               <p>
                 Les données personnelles sont accessibles exclusivement aux membres habilités du bureau de l'association, dans la stricte limite de ce qui est nécessaire à l'exercice de leurs fonctions.
               </p>
@@ -108,7 +108,7 @@ const PolitiqueConfidentialite = () => {
             </section>
 
             <section>
-              <h2 className="font-serif text-xl text-foreground">7. Sécurité des données</h2>
+              <h2 className="font-display font-bold text-xl text-foreground">7. Sécurité des données</h2>
               <p>
                 L'association met en œuvre les mesures techniques et organisationnelles appropriées pour garantir un niveau de sécurité adapté au risque, conformément à l'article 32 du RGPD :
               </p>
@@ -122,7 +122,7 @@ const PolitiqueConfidentialite = () => {
             </section>
 
             <section>
-              <h2 className="font-serif text-xl text-foreground">8. Vos droits</h2>
+              <h2 className="font-display font-bold text-xl text-foreground">8. Vos droits</h2>
               <p>
                 Conformément aux articles 15 à 22 du Règlement (UE) 2016/679 (RGPD) et aux articles 39 et suivants de la loi n° 78-17 du 6 janvier 1978 modifiée dite « Informatique et Libertés », vous disposez des droits suivants sur vos données personnelles :
               </p>
@@ -138,7 +138,7 @@ const PolitiqueConfidentialite = () => {
             </section>
 
             <section>
-              <h2 className="font-serif text-xl text-foreground">9. Modalités d'exercice des droits</h2>
+              <h2 className="font-display font-bold text-xl text-foreground">9. Modalités d'exercice des droits</h2>
               <p>
                 Vous pouvez exercer l'ensemble de vos droits en adressant votre demande par courriel à :
               </p>
@@ -162,14 +162,14 @@ const PolitiqueConfidentialite = () => {
             </section>
 
             <section>
-              <h2 className="font-serif text-xl text-foreground">10. Transferts de données hors de l'Union européenne</h2>
+              <h2 className="font-display font-bold text-xl text-foreground">10. Transferts de données hors de l'Union européenne</h2>
               <p>
                 En principe, l'ensemble des données collectées sont hébergées au sein de l'Union européenne. Dans l'hypothèse où un transfert vers un pays tiers serait rendu nécessaire par l'infrastructure technique, celui-ci serait encadré par des garanties appropriées au sens de l'article 46 du RGPD, notamment par des clauses contractuelles types approuvées par la Commission européenne.
               </p>
             </section>
 
             <section>
-              <h2 className="font-serif text-xl text-foreground">11. Mise à jour de la présente politique</h2>
+              <h2 className="font-display font-bold text-xl text-foreground">11. Mise à jour de la présente politique</h2>
               <p>
                 La présente politique de confidentialité peut être modifiée à tout moment afin de tenir compte des évolutions légales, réglementaires ou techniques. La version en vigueur est celle accessible sur le site à la date de votre consultation.
               </p>

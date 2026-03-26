@@ -142,7 +142,7 @@ const Annuaire = () => {
         <div className="container mx-auto px-6 max-w-6xl">
           {/* Header */}
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }} className="mb-8">
-            <h1 className="font-display font-extrabold text-3xl sm:text-4xl md:text-5xl mb-2 text-foreground">Annuaire</h1>
+            <h1 className="font-display font-bold text-2xl sm:text-3xl md:text-4xl mb-2 text-foreground">Annuaire</h1>
             <p className="text-muted-foreground text-sm">
               Podcasteurs, monteurs, studios, voix off, sound designers, consultants — l'écosystème podcast en région Sud.
             </p>
@@ -299,7 +299,7 @@ const Annuaire = () => {
                               ) : initials}
                             </div>
                             <div className="flex-1 min-w-0">
-                              <h3 className="font-display font-extrabold text-base text-foreground truncate">
+                              <h3 className="font-display font-bold text-base text-foreground truncate">
                                 {profile.type_profil === "studio" || profile.type_profil === "structure_eco" ? profile.nom_podcast : `${profile.prenom} ${profile.nom}`}
                               </h3>
                               {profile.metier_principal && (

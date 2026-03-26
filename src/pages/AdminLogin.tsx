@@ -76,7 +76,7 @@ const AdminLogin = () => {
           <div className="mx-auto w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center mb-4">
             <Lock className="w-6 h-6 text-primary" />
           </div>
-          <h1 className="font-serif text-2xl text-foreground">Espace admin</h1>
+          <h1 className="font-display font-bold text-2xl text-foreground">Espace admin</h1>
           <p className="text-muted-foreground mt-1">
             {resetMode ? "Réinitialisez votre mot de passe" : "Connectez-vous avec votre compte"}
           </p>

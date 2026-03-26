@@ -98,7 +98,7 @@ const SectionHeader = ({ number, title, icon }: { number: number; title: string;
     <span className="w-8 h-8 rounded-xl bg-gradient-to-br from-primary to-primary/70 text-primary-foreground text-sm flex items-center justify-center font-sans font-bold shadow-sm">
       {number}
     </span>
-    <h3 className="font-serif text-xl text-foreground">{title}</h3>
+    <h3 className="font-display font-bold text-xl text-foreground">{title}</h3>
     {icon && <span className="text-primary/50">{icon}</span>}
   </div>
 );
@@ -421,7 +421,7 @@ const FormSection = () => {
               <div className="w-14 h-14 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-2">
                 <Check className="w-7 h-7 text-primary" />
               </div>
-              <h2 className="font-serif text-3xl sm:text-4xl">🎙 Merci pour votre inscription</h2>
+              <h2 className="font-display font-bold text-3xl sm:text-4xl">🎙 Merci pour votre inscription</h2>
               <p className="text-muted-foreground leading-relaxed max-w-lg mx-auto">
                 Votre podcast a bien été enregistré dans notre base de données.
               </p>
@@ -447,7 +447,7 @@ const FormSection = () => {
 
             {/* Visibilité */}
             <div className="space-y-4">
-              <h3 className="font-serif text-xl text-foreground">✨ À propos de la visibilité dans l'annuaire</h3>
+              <h3 className="font-display font-bold text-xl text-foreground">✨ À propos de la visibilité dans l'annuaire</h3>
               <p className="text-muted-foreground leading-relaxed text-sm">
                 Votre profil sera publié dans l'annuaire après validation manuelle par notre équipe (48 à 72h). Les membres à jour de leur cotisation associative sont mis en avant en priorité — mais ce n'est pas une condition obligatoire pour apparaître.
               </p>
@@ -463,7 +463,7 @@ const FormSection = () => {
 
             {/* Rejoindre */}
             <div className="space-y-4">
-              <h3 className="font-serif text-xl text-foreground flex items-center gap-2">
+              <h3 className="font-display font-bold text-xl text-foreground flex items-center gap-2">
                 <Users className="w-5 h-5 text-primary" /> Rejoindre Les podcasteur·euses du Sud
               </h3>
               <p className="text-muted-foreground text-sm leading-relaxed">En devenant membre, vous pouvez notamment :</p>
@@ -485,7 +485,7 @@ const FormSection = () => {
 
             {/* Dynamique */}
             <div className="space-y-3 text-center">
-              <h3 className="font-serif text-xl text-foreground flex items-center gap-2 justify-center">
+              <h3 className="font-display font-bold text-xl text-foreground flex items-center gap-2 justify-center">
                 <Sun className="w-5 h-5 text-accent" /> Une dynamique construite par ses membres
               </h3>
               <p className="text-muted-foreground text-sm leading-relaxed max-w-lg mx-auto">
@@ -511,7 +511,7 @@ const FormSection = () => {
                 <span className="text-xs font-semibold uppercase tracking-[0.2em] text-primary/70">Référencement</span>
                 <div className="h-px w-8 bg-primary/30" />
               </div>
-              <h2 className="font-serif text-3xl sm:text-4xl md:text-5xl mb-5">
+              <h2 className="font-display font-bold text-3xl sm:text-4xl md:text-5xl mb-5">
                 Rejoindre le collectif
               </h2>
               <p className="text-muted-foreground leading-relaxed max-w-lg mx-auto">

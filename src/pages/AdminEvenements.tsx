@@ -194,7 +194,7 @@ const AdminEvenements = () => {
               <ArrowLeft className="w-5 h-5" />
             </Button>
             <div>
-              <h1 className="font-serif text-3xl text-foreground flex items-center gap-2">
+              <h1 className="font-display font-bold text-3xl text-foreground flex items-center gap-2">
                 <CalendarDays className="w-7 h-7 text-primary" />
                 Événements
               </h1>
@@ -224,7 +224,7 @@ const AdminEvenements = () => {
         {showForm && (
           <form onSubmit={handleSubmit} className="bg-card border border-border rounded-2xl p-6 mb-8 space-y-4">
             <div className="flex items-center justify-between mb-2">
-              <h2 className="font-serif text-xl text-foreground">{editingId ? "Modifier" : "Nouvel événement"}</h2>
+              <h2 className="font-display font-bold text-xl text-foreground">{editingId ? "Modifier" : "Nouvel événement"}</h2>
               <Button type="button" variant="ghost" size="icon" onClick={resetForm}><X className="w-4 h-4" /></Button>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">

@@ -99,7 +99,7 @@ const DynamiqueSection = () => {
                   </div>
 
                   <div className="p-5 flex flex-col flex-1">
-                    <h3 className="font-display font-extrabold text-lg text-primary mb-1 line-clamp-1">{p.nom_podcast}</h3>
+                    <h3 className="font-display font-bold text-lg text-primary mb-1 line-clamp-1">{p.nom_podcast}</h3>
                     {(p.prenom || p.nom) && <p className="font-medium text-sm text-foreground mb-1">{p.prenom} {p.nom}</p>}
                     {(p.ville || p.thematique) && (
                       <div className="flex items-center flex-wrap gap-1.5 text-xs text-muted-foreground mb-3">

@@ -49,7 +49,7 @@ const EspaceMembre = () => {
           <div className="mx-auto w-14 h-14 bg-primary/10 rounded-full flex items-center justify-center mb-4">
             <Mail className="w-7 h-7 text-primary" />
           </div>
-          <h1 className="font-serif text-2xl text-foreground">Espace membre</h1>
+          <h1 className="font-display font-bold text-2xl text-foreground">Espace membre</h1>
           <p className="text-muted-foreground mt-1 text-sm">
             Connectez-vous pour modifier vos fiches et vos photos
           </p>
@@ -60,7 +60,7 @@ const EspaceMembre = () => {
             <div className="mx-auto w-10 h-10 bg-primary/10 rounded-full flex items-center justify-center">
               <Check className="w-5 h-5 text-primary" />
             </div>
-            <h2 className="font-serif text-lg text-foreground">Lien envoyé !</h2>
+            <h2 className="font-display font-bold text-lg text-foreground">Lien envoyé !</h2>
             <p className="text-sm text-muted-foreground">
               Un lien de connexion a été envoyé à <span className="font-medium text-foreground">{email}</span>.
               Vérifiez votre boîte de réception (et vos spams).

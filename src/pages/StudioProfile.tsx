@@ -140,7 +140,7 @@ const StudioProfile = () => {
       <div className="min-h-screen bg-background">
         <Navbar />
         <main className="pt-24 pb-20 text-center">
-          <h1 className="font-serif text-2xl text-foreground mb-4">Studio introuvable</h1>
+          <h1 className="font-display font-bold text-2xl text-foreground mb-4">Studio introuvable</h1>
           <Link to="/annuaire-podcasts"><Button variant="outline">Retour à l'annuaire</Button></Link>
         </main>
         <Footer />
@@ -207,7 +207,7 @@ const StudioProfile = () => {
                   )}
                 </div>
 
-                <h1 className="font-serif text-3xl md:text-4xl text-foreground leading-tight mb-1">
+                <h1 className="font-display font-bold text-3xl md:text-4xl text-foreground leading-tight mb-1">
                   {profile.nom_podcast}
                 </h1>
 
@@ -251,7 +251,7 @@ const StudioProfile = () => {
               {/* Presentation */}
               <motion.div initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4, delay: 0.2 }}
                 className="bg-card border border-border rounded-2xl p-6 md:p-8">
-                <h2 className="font-serif text-lg text-foreground mb-4 flex items-center gap-2">
+                <h2 className="font-display font-bold text-lg text-foreground mb-4 flex items-center gap-2">
                   <Star className="w-4 h-4 text-primary" /> Présentation
                 </h2>
                 <p className="text-foreground/80 leading-relaxed whitespace-pre-line text-[15px]">
@@ -263,7 +263,7 @@ const StudioProfile = () => {
               {sd.services_studio && sd.services_studio.length > 0 && (
                 <motion.div initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4, delay: 0.25 }}
                   className="bg-card border border-border rounded-2xl p-6 md:p-8">
-                  <h2 className="font-serif text-lg text-foreground mb-5 flex items-center gap-2">
+                  <h2 className="font-display font-bold text-lg text-foreground mb-5 flex items-center gap-2">
                     <Wrench className="w-4 h-4 text-primary" /> Services proposés
                   </h2>
                   <div className="grid gap-2">
@@ -280,7 +280,7 @@ const StudioProfile = () => {
               {sd.usages && sd.usages.length > 0 && (
                 <motion.div initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4, delay: 0.3 }}
                   className="bg-card border border-border rounded-2xl p-6 md:p-8">
-                  <h2 className="font-serif text-lg text-foreground mb-5 flex items-center gap-2">
+                  <h2 className="font-display font-bold text-lg text-foreground mb-5 flex items-center gap-2">
                     <Mic className="w-4 h-4 text-primary" /> Formats & usages possibles
                   </h2>
                   <div className="flex flex-wrap gap-2">
@@ -300,7 +300,7 @@ const StudioProfile = () => {
               {sd.equipements && sd.equipements.length > 0 && (
                 <motion.div initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4, delay: 0.35 }}
                   className="bg-card border border-border rounded-2xl p-6 md:p-8">
-                  <h2 className="font-serif text-lg text-foreground mb-5 flex items-center gap-2">
+                  <h2 className="font-display font-bold text-lg text-foreground mb-5 flex items-center gap-2">
                     <Camera className="w-4 h-4 text-primary" /> Équipements
                   </h2>
                   <div className="flex flex-wrap gap-2 mb-4">
@@ -322,7 +322,7 @@ const StudioProfile = () => {
               {/* Reservation */}
               <motion.div initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4, delay: 0.4 }}
                 className="bg-card border border-border rounded-2xl p-6 md:p-8">
-                <h2 className="font-serif text-lg text-foreground mb-5 flex items-center gap-2">
+                <h2 className="font-display font-bold text-lg text-foreground mb-5 flex items-center gap-2">
                   <Calendar className="w-4 h-4 text-primary" /> Réservation & disponibilité
                 </h2>
                 <div className="grid sm:grid-cols-2 gap-4 text-sm">
@@ -362,7 +362,7 @@ const StudioProfile = () => {
               {(sd.accessibilite?.length || sd.infos_acces) && (
                 <motion.div initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4, delay: 0.45 }}
                   className="bg-card border border-border rounded-2xl p-6 md:p-8">
-                  <h2 className="font-serif text-lg text-foreground mb-5 flex items-center gap-2">
+                  <h2 className="font-display font-bold text-lg text-foreground mb-5 flex items-center gap-2">
                     <Accessibility className="w-4 h-4 text-primary" /> Accessibilité & infos pratiques
                   </h2>
                   {sd.accessibilite && sd.accessibilite.length > 0 && (
@@ -382,7 +382,7 @@ const StudioProfile = () => {
               {sd.galerie_urls && sd.galerie_urls.length > 0 && (
                 <motion.div initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4, delay: 0.5 }}
                   className="bg-card border border-border rounded-2xl p-6 md:p-8">
-                  <h2 className="font-serif text-lg text-foreground mb-5 flex items-center gap-2">
+                  <h2 className="font-display font-bold text-lg text-foreground mb-5 flex items-center gap-2">
                     <Camera className="w-4 h-4 text-primary" /> Galerie
                   </h2>
                   <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
@@ -399,7 +399,7 @@ const StudioProfile = () => {
               {(sd.ouvert_a?.length || sd.recherche_actuellement?.length) && (
                 <motion.div initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4, delay: 0.55 }}
                   className="bg-card border border-border rounded-2xl p-6 md:p-8">
-                  <h2 className="font-serif text-lg text-foreground mb-5 flex items-center gap-2">
+                  <h2 className="font-display font-bold text-lg text-foreground mb-5 flex items-center gap-2">
                     <Handshake className="w-4 h-4 text-primary" /> Collaborations
                   </h2>
                   {sd.ouvert_a && sd.ouvert_a.length > 0 && (

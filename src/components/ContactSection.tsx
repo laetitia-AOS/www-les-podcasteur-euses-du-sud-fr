@@ -95,7 +95,7 @@ const ContactSection = () => {
             </span>
             <div className="h-px w-8 bg-secondary/30" />
           </div>
-          <h2 className="font-display font-extrabold text-3xl sm:text-4xl md:text-5xl mb-5">
+          <h2 className="font-display font-bold text-2xl sm:text-3xl md:text-4xl mb-5">
             Entrer en relation avec l'écosystème
           </h2>
           <p className="text-muted-foreground leading-relaxed max-w-lg mx-auto">

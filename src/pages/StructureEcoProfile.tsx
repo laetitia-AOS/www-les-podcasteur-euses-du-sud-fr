@@ -84,7 +84,7 @@ const StructureEcoProfile = () => {
     <div className="min-h-screen bg-background">
       <Navbar />
       <main className="pt-24 pb-20 text-center">
-        <h1 className="font-serif text-2xl text-foreground mb-4">Structure introuvable</h1>
+        <h1 className="font-display font-bold text-2xl text-foreground mb-4">Structure introuvable</h1>
         <Link to="/annuaire-podcasts"><Button variant="outline">Retour à l'annuaire</Button></Link>
       </main>
       <Footer />
@@ -123,7 +123,7 @@ const StructureEcoProfile = () => {
                   </span>
                   {typeStructure && <Badge variant="secondary">{typeStructure}</Badge>}
                 </div>
-                <h1 className="font-serif text-3xl md:text-4xl text-foreground leading-tight mb-1">{structureName}</h1>
+                <h1 className="font-display font-bold text-3xl md:text-4xl text-foreground leading-tight mb-1">{structureName}</h1>
                 {sd?.phrase_accroche && <p className="text-base text-foreground/70 italic mb-2">{sd.phrase_accroche}</p>}
                 {cityClean && (
                   <p className="text-sm text-muted-foreground flex items-center gap-1.5">
@@ -153,14 +153,14 @@ const StructureEcoProfile = () => {
             <div className="md:col-span-2 space-y-6">
               {profile.bio_750 && (
                 <motion.div initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }} className="bg-card border border-border rounded-2xl p-6 md:p-8">
-                  <h2 className="font-serif text-lg text-foreground mb-4 flex items-center gap-2"><Sparkles className="w-4 h-4 text-primary" /> Présentation</h2>
+                  <h2 className="font-display font-bold text-lg text-foreground mb-4 flex items-center gap-2"><Sparkles className="w-4 h-4 text-primary" /> Présentation</h2>
                   <p className="text-foreground/80 leading-relaxed whitespace-pre-line text-[15px]">{profile.bio_750}</p>
                 </motion.div>
               )}
 
               {domainesAction.length > 0 && (
                 <motion.div initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }} className="bg-card border border-border rounded-2xl p-6 md:p-8">
-                  <h2 className="font-serif text-lg text-foreground mb-4 flex items-center gap-2"><CheckCircle className="w-4 h-4 text-primary" /> Domaines d'action</h2>
+                  <h2 className="font-display font-bold text-lg text-foreground mb-4 flex items-center gap-2"><CheckCircle className="w-4 h-4 text-primary" /> Domaines d'action</h2>
                   <div className="grid gap-2">
                     {domainesAction.map((d: string, i: number) => (
                       <div key={i} className="flex items-center gap-2.5 text-sm text-foreground/80 bg-muted/50 rounded-lg px-4 py-2.5">
@@ -173,7 +173,7 @@ const StructureEcoProfile = () => {
 
               {collaborations.length > 0 && (
                 <motion.div initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.4 }} className="bg-card border border-border rounded-2xl p-6 md:p-8">
-                  <h2 className="font-serif text-lg text-foreground mb-4 flex items-center gap-2"><Handshake className="w-4 h-4 text-primary" /> Ouvert·e à</h2>
+                  <h2 className="font-display font-bold text-lg text-foreground mb-4 flex items-center gap-2"><Handshake className="w-4 h-4 text-primary" /> Ouvert·e à</h2>
                   <div className="flex flex-wrap gap-2">
                     {collaborations.map((c: string, i: number) => <Badge key={i} variant="outline">{c}</Badge>)}
                   </div>
@@ -183,7 +183,7 @@ const StructureEcoProfile = () => {
               {/* Gallery */}
               {galerieUrls.length > 0 && (
                 <motion.div initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.5 }} className="bg-card border border-border rounded-2xl p-6 md:p-8">
-                  <h2 className="font-serif text-lg text-foreground mb-4 flex items-center gap-2"><ImageIcon className="w-4 h-4 text-primary" /> Photos</h2>
+                  <h2 className="font-display font-bold text-lg text-foreground mb-4 flex items-center gap-2"><ImageIcon className="w-4 h-4 text-primary" /> Photos</h2>
                   <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
                     {galerieUrls.map((url: string, i: number) => (
                       <div key={i} className="aspect-[4/3] rounded-xl overflow-hidden border border-border">
@@ -198,7 +198,7 @@ const StructureEcoProfile = () => {
             {/* Sidebar */}
             <div className="space-y-4">
               <div className="bg-card border border-border rounded-2xl p-5 space-y-4">
-                <h3 className="font-serif text-base text-foreground">Informations</h3>
+                <h3 className="font-display font-bold text-base text-foreground">Informations</h3>
                 {typeStructure && (
                   <div><p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1">Type</p><p className="text-sm text-foreground">{typeStructure}</p></div>
                 )}
@@ -215,7 +215,7 @@ const StructureEcoProfile = () => {
 
               {showContact && (
                 <div className="bg-card border border-border rounded-2xl p-5 space-y-3">
-                  <h3 className="font-serif text-base text-foreground">Contact</h3>
+                  <h3 className="font-display font-bold text-base text-foreground">Contact</h3>
                   <a href={`mailto:${profile.email}`} className="flex items-center gap-2 text-sm text-primary hover:underline"><Mail className="w-4 h-4" /> {profile.email}</a>
                   {profile.telephone && <p className="flex items-center gap-2 text-sm text-foreground"><Phone className="w-4 h-4 text-muted-foreground" /> {profile.telephone}</p>}
                 </div>

@@ -74,7 +74,7 @@ const SectionHeader = ({ number, title }: { number: number; title: string }) => 
     <span className="w-8 h-8 rounded-xl bg-gradient-to-br from-primary to-primary/70 text-primary-foreground text-sm flex items-center justify-center font-sans font-bold shadow-sm">
       {number}
     </span>
-    <h3 className="font-serif text-xl text-foreground">{title}</h3>
+    <h3 className="font-display font-bold text-xl text-foreground">{title}</h3>
   </div>
 );
 
@@ -296,7 +296,7 @@ const StructureEcoFormSection = ({ onBack }: Props) => {
         <div className="w-14 h-14 rounded-full bg-primary/10 flex items-center justify-center mx-auto">
           <Check className="w-7 h-7 text-primary" />
         </div>
-        <h2 className="font-serif text-3xl">🏛 Merci pour votre inscription</h2>
+        <h2 className="font-display font-bold text-3xl">🏛 Merci pour votre inscription</h2>
         <p className="text-muted-foreground max-w-lg mx-auto">Votre structure a bien été enregistrée. Elle sera visible dans l'annuaire après validation par notre équipe (48–72h).</p>
         <a href="/annuaire-podcasts" className="inline-flex items-center gap-2 text-primary font-medium hover:underline">Voir l'annuaire →</a>
       </motion.div>

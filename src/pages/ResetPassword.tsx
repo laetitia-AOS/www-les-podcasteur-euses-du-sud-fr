@@ -68,7 +68,7 @@ const ResetPassword = () => {
           <div className="mx-auto w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center mb-4">
             <Lock className="w-6 h-6 text-primary" />
           </div>
-          <h1 className="font-serif text-2xl text-foreground">Nouveau mot de passe</h1>
+          <h1 className="font-display font-bold text-2xl text-foreground">Nouveau mot de passe</h1>
           <p className="text-muted-foreground mt-1">Choisissez votre nouveau mot de passe</p>
         </div>
         <div className="space-y-3">

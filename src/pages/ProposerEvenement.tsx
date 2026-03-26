@@ -111,7 +111,7 @@ const ProposerEvenement = () => {
               <div className="w-14 h-14 rounded-full bg-primary/10 flex items-center justify-center mx-auto">
                 <Check className="w-7 h-7 text-primary" />
               </div>
-              <h2 className="font-serif text-3xl">🎉 Merci pour votre proposition !</h2>
+              <h2 className="font-display font-bold text-3xl">🎉 Merci pour votre proposition !</h2>
               <p className="text-muted-foreground max-w-lg mx-auto">
                 Votre événement a bien été soumis. Il sera visible sur le site après validation par notre équipe (sous 48–72h).
               </p>
@@ -145,7 +145,7 @@ const ProposerEvenement = () => {
             <span className="inline-block text-xs font-semibold uppercase tracking-wider text-primary bg-primary/10 px-3 py-1 rounded-full mb-4">
               Proposer
             </span>
-            <h1 className="font-serif text-3xl sm:text-4xl text-foreground mb-3">
+            <h1 className="font-display font-bold text-3xl sm:text-4xl text-foreground mb-3">
               Proposer un événement
             </h1>
             <p className="text-muted-foreground leading-relaxed max-w-lg mx-auto">
@@ -169,7 +169,7 @@ const ProposerEvenement = () => {
             <div className={sectionCardClass}>
               <div className="flex items-center gap-3 mb-2">
                 <span className="w-8 h-8 rounded-xl bg-gradient-to-br from-primary to-primary/70 text-primary-foreground text-sm flex items-center justify-center font-sans font-bold shadow-sm">1</span>
-                <h3 className="font-serif text-xl text-foreground">Votre événement</h3>
+                <h3 className="font-display font-bold text-xl text-foreground">Votre événement</h3>
               </div>
               <div>
                 <label className={labelClass}>Titre de l'événement <span className="text-primary">*</span></label>
@@ -195,7 +195,7 @@ const ProposerEvenement = () => {
             <div className={sectionCardClass}>
               <div className="flex items-center gap-3 mb-2">
                 <span className="w-8 h-8 rounded-xl bg-gradient-to-br from-primary to-primary/70 text-primary-foreground text-sm flex items-center justify-center font-sans font-bold shadow-sm">2</span>
-                <h3 className="font-serif text-xl text-foreground">Date & lieu</h3>
+                <h3 className="font-display font-bold text-xl text-foreground">Date & lieu</h3>
               </div>
               <div className="grid sm:grid-cols-2 gap-4">
                 <div>
@@ -233,7 +233,7 @@ const ProposerEvenement = () => {
             <div className={sectionCardClass}>
               <div className="flex items-center gap-3 mb-2">
                 <span className="w-8 h-8 rounded-xl bg-gradient-to-br from-primary to-primary/70 text-primary-foreground text-sm flex items-center justify-center font-sans font-bold shadow-sm">3</span>
-                <h3 className="font-serif text-xl text-foreground">Visuel</h3>
+                <h3 className="font-display font-bold text-xl text-foreground">Visuel</h3>
               </div>
               <div>
                 <label className={labelClass}>Image de couverture</label>
@@ -261,7 +261,7 @@ const ProposerEvenement = () => {
             <div className={sectionCardClass}>
               <div className="flex items-center gap-3 mb-2">
                 <span className="w-8 h-8 rounded-xl bg-gradient-to-br from-primary to-primary/70 text-primary-foreground text-sm flex items-center justify-center font-sans font-bold shadow-sm">4</span>
-                <h3 className="font-serif text-xl text-foreground">Vos coordonnées</h3>
+                <h3 className="font-display font-bold text-xl text-foreground">Vos coordonnées</h3>
               </div>
               <p className="text-xs text-muted-foreground">Ces informations ne seront pas publiées. Elles servent uniquement à vous contacter en cas de besoin.</p>
               <div className="grid sm:grid-cols-2 gap-4">
