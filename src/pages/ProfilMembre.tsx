@@ -610,7 +610,7 @@ const ProfilMembre = () => {
                 className="bg-gradient-to-br from-primary/10 to-secondary/10 border border-primary/15 rounded-2xl p-5 text-center"
               >
                 <p className="text-sm font-medium text-foreground mb-3">Vous aussi, rejoignez le collectif&nbsp;!</p>
-                <Link to="/adhesion">
+                <Link to="/rejoindre-association">
                   <Button size="sm" className="rounded-full w-full">Rejoindre</Button>
                 </Link>
               </motion.div>

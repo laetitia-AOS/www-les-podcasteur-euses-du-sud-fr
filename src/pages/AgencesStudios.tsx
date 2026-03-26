@@ -129,7 +129,7 @@ const AgencesStudios = () => {
               Radios, festivals, incubateurs, institutions, collectifs…
               Les structures qui font vivre l'écosystème podcast en région Sud.
             </p>
-            <Link to="/formulaire">
+            <Link to="/referencer-mon-podcast">
               <Button className="gap-2">
                 <Building2 className="w-4 h-4" />
                 Référencer ma structure

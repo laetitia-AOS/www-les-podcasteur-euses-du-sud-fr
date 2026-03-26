@@ -193,7 +193,7 @@ const Annuaire = () => {
               Podcasteurs, monteurs, studios, voix off, sound designers, consultants…
               L'écosystème podcast en région Sud, au même endroit.
             </p>
-            <a href="/adhesion">
+            <a href="/rejoindre-association">
               <Button className="gap-2">
                 <Users className="w-4 h-4" />
                 Rejoindre le collectif

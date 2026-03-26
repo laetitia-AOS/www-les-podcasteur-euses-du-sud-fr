@@ -533,7 +533,7 @@ const StudioFormSection = ({ onBack }: StudioFormSectionProps) => {
               <p className="text-muted-foreground text-sm leading-relaxed max-w-lg mx-auto">
                 Votre lieu sera visible dans l'annuaire comme une ressource territoriale de l'écosystème podcast. Les structures à jour de leur cotisation personne morale (100 €) sont mises en avant.
               </p>
-              <a href="/adhesion" className="text-primary hover:underline text-sm">
+              <a href="/rejoindre-association" className="text-primary hover:underline text-sm">
                 Découvrir l'adhésion →
               </a>
             </div>
@@ -579,7 +579,7 @@ const StudioFormSection = ({ onBack }: StudioFormSectionProps) => {
                 <p className="text-sm font-semibold text-foreground mb-1">Cotisation personne morale</p>
                 <p className="text-sm text-muted-foreground leading-relaxed">
                   Ce profil est dédié aux structures qui soutiennent le collectif via l'adhésion personne morale (100 €).{" "}
-                  <a href="/adhesion" className="text-primary font-medium hover:underline">En savoir plus →</a>
+                  <a href="/rejoindre-association" className="text-primary font-medium hover:underline">En savoir plus →</a>
                 </p>
               </div>
             </div>
