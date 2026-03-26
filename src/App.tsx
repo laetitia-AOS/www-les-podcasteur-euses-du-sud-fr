@@ -30,6 +30,7 @@ import Formulaire from "./pages/Formulaire";
 import StudioProfile from "./pages/StudioProfile";
 import StructureEcoProfile from "./pages/StructureEcoProfile";
 import AgencesStudios from "./pages/AgencesStudios";
+import ProposerEvenement from "./pages/ProposerEvenement";
 
 const queryClient = new QueryClient();
 
@@ -48,6 +49,7 @@ const App = () => (
           <Route path="/conditions-utilisation" element={<CGU />} />
           <Route path="/politique-cookies" element={<PolitiqueCookies />} />
           <Route path="/evenements" element={<Evenements />} />
+          <Route path="/proposer-evenement" element={<ProposerEvenement />} />
           <Route path="/evenement/:slug" element={<EvenementDetail />} />
           <Route path="/adhesion" element={<Adhesion />} />
           <Route path="/annuaire" element={<Annuaire />} />
