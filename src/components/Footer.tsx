@@ -7,7 +7,7 @@ const Footer = () => {
       <div className="container mx-auto px-6 max-w-5xl">
         <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-8">
           <div className="flex items-center gap-3">
-            <img src={logoPds} alt="Les Podcasteur·euses du Sud" className="w-10 h-10 rounded-xl object-cover" />
+            <img src={logoPds} alt="Les Podcasteur·euses du Sud" className="w-10 h-10 rounded-xl object-cover" loading="lazy" decoding="async" />
             <div>
               <span className="font-display font-bold text-lg block leading-tight" style={{ color: "rgba(247,242,232,0.9)" }}>
                 Les Podcasteur·euses du Sud
