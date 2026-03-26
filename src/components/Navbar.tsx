@@ -7,6 +7,7 @@ import logoPds from "@/assets/logo-pds.png";
 const links = [
   { label: "Podcasts", href: "#flux" },
   { label: "Annuaire", href: "/annuaire" },
+  { label: "Agences/Studios", href: "/agences-studios" },
   { label: "Événements", href: "/evenements" },
   { label: "Référencer", href: "/formulaire" },
   { label: "Contact", href: "/contact" },

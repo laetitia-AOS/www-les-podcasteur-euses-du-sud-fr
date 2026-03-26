@@ -29,6 +29,7 @@ import Bienvenue from "./pages/Bienvenue";
 import Formulaire from "./pages/Formulaire";
 import StudioProfile from "./pages/StudioProfile";
 import StructureEcoProfile from "./pages/StructureEcoProfile";
+import AgencesStudios from "./pages/AgencesStudios";
 
 const queryClient = new QueryClient();
 
