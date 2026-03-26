@@ -127,11 +127,14 @@ const StructureEcoFormSection = ({ onBack }: Props) => {
   const [collaborations, setCollaborations] = useState<string[]>([]);
   const [vignette, setVignette] = useState<File | null>(null);
   const [vignettePreview, setVignettePreview] = useState<string | null>(null);
+  const [galleryFiles, setGalleryFiles] = useState<File[]>([]);
+  const [galleryPreviews, setGalleryPreviews] = useState<string[]>([]);
   const [consentCGU, setConsentCGU] = useState(false);
   const [consentAnnuaire, setConsentAnnuaire] = useState(false);
   const [consentContact, setConsentContact] = useState(false);
   const [consentMiseEnRelation, setConsentMiseEnRelation] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const galleryInputRef = useRef<HTMLInputElement>(null);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
