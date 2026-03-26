@@ -52,10 +52,10 @@ const App = () => (
           <Route path="/proposer-evenement" element={<ProposerEvenement />} />
           <Route path="/evenement/:slug" element={<EvenementDetail />} />
           <Route path="/adhesion" element={<Adhesion />} />
-          <Route path="/annuaire" element={<Annuaire />} />
+          <Route path="/annuaire-podcasts" element={<Annuaire />} />
           <Route path="/profil/:slug" element={<ProfilMembre />} />
-          <Route path="/annuaire/studios/:slug" element={<StudioProfile />} />
-          <Route path="/annuaire/structures/:slug" element={<StructureEcoProfile />} />
+          <Route path="/annuaire-podcasts/studios/:slug" element={<StudioProfile />} />
+          <Route path="/annuaire-podcasts/structures/:slug" element={<StructureEcoProfile />} />
           <Route path="/bienvenue" element={<Bienvenue />} />
           <Route path="/formulaire" element={<Formulaire />} />
           <Route path="/agences-studios" element={<AgencesStudios />} />
