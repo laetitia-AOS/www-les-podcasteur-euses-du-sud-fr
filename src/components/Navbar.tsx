@@ -81,7 +81,7 @@ const Navbar = () => {
           ))}
           <button
             onClick={() => handleClick("/referencer-mon-podcast")}
-            className="ml-3 px-5 py-2 rounded-full bg-primary text-primary-foreground text-sm font-extrabold hover:bg-primary-hover transition-all shadow-md shadow-primary/15"
+            className="ml-3 px-5 py-2 rounded-full bg-primary text-primary-foreground text-sm font-bold hover:bg-primary-hover transition-all shadow-md shadow-primary/15"
           >
             Créer mon profil
           </button>
@@ -127,7 +127,7 @@ const Navbar = () => {
               ))}
               <button
                 onClick={() => handleClick("/referencer-mon-podcast")}
-                className="block w-full text-left px-3 py-2.5 rounded-md text-sm font-extrabold text-primary hover:bg-primary/5 transition-colors"
+                className="block w-full text-left px-3 py-2.5 rounded-md text-sm font-bold text-primary hover:bg-primary/5 transition-colors"
               >
                 Créer mon profil
               </button>

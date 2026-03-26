@@ -34,7 +34,7 @@ const VisionSection = () => {
 
           <div className="pt-4">
             <p className="text-xl sm:text-2xl text-center">
-              <span className="font-display font-extrabold text-primary">Les Podcasteur·euses du Sud</span>{" "}
+              <span className="font-display font-bold text-primary">Les Podcasteur·euses du Sud</span>{" "}
               <span className="font-display font-bold text-foreground">est né·e de cette réalité.</span>
             </p>
           </div>

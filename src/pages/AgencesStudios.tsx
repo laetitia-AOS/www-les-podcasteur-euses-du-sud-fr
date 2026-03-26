@@ -113,7 +113,7 @@ const AgencesStudios = () => {
         <div className="container mx-auto px-6 max-w-6xl">
           {/* Header */}
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }} className="mb-8">
-            <h1 className="font-display font-extrabold text-3xl sm:text-4xl md:text-5xl mb-2 text-foreground">Agences & Studios</h1>
+            <h1 className="font-display font-bold text-2xl sm:text-3xl md:text-4xl mb-2 text-foreground">Agences & Studios</h1>
             <p className="text-muted-foreground text-sm max-w-2xl mb-4">
               Radios, festivals, incubateurs, institutions, collectifs — les structures qui font vivre l'écosystème podcast en région Sud.
             </p>
@@ -181,7 +181,7 @@ const AgencesStudios = () => {
                         {profile.metier_principal && (
                           <p className="text-xs font-semibold uppercase tracking-wider text-primary mb-1">{profile.metier_principal}</p>
                         )}
-                        <h3 className="font-display font-extrabold text-lg text-foreground mb-0.5 truncate">{profile.nom_podcast}</h3>
+                        <h3 className="font-display font-bold text-lg text-foreground mb-0.5 truncate">{profile.nom_podcast}</h3>
                         {cityClean && (
                           <p className="text-xs text-muted-foreground flex items-center gap-1 mb-2">
                             <MapPin className="w-3 h-3" />{cityClean}

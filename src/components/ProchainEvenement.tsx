@@ -62,7 +62,7 @@ const ProchainEvenement = () => {
 
             <div className="relative p-8 md:p-10 flex flex-col md:flex-row gap-8 items-start">
               <div className="shrink-0 w-24 h-24 rounded-2xl flex flex-col items-center justify-center" style={{ background: "rgba(200,116,42,0.15)", border: "1px solid rgba(200,116,42,0.25)" }}>
-                <span className="text-4xl font-display font-extrabold text-primary leading-none">{day}</span>
+                <span className="text-3xl font-display font-bold text-primary leading-none">{day}</span>
                 <span className="text-xs font-semibold uppercase mt-1 text-sable">{month}</span>
               </div>
 
@@ -70,7 +70,7 @@ const ProchainEvenement = () => {
                 <span className="inline-block text-xs font-semibold px-3 py-1 rounded-full mb-3" style={{ background: "rgba(255,255,255,0.06)", color: "rgba(255,255,255,0.8)" }}>
                   {TYPE_LABELS[evt.type] || evt.type}
                 </span>
-                <h2 id="next-event-heading" className="font-display font-extrabold text-2xl md:text-3xl text-white mb-2 leading-tight">{evt.titre}</h2>
+                <h2 id="next-event-heading" className="font-display font-bold text-xl md:text-2xl text-white mb-2 leading-tight">{evt.titre}</h2>
                 {evt.sous_titre && <p className="text-base mb-4" style={{ color: "rgba(255,255,255,0.65)" }}>{evt.sous_titre}</p>}
                 <div className="flex flex-wrap gap-4 text-sm" style={{ color: "rgba(255,255,255,0.65)" }}>
                   <span className="flex items-center gap-1.5 rounded-lg px-3 py-1.5" style={{ background: "rgba(255,255,255,0.06)" }}>

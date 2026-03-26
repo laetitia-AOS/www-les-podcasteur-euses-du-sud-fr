@@ -93,7 +93,7 @@ const Podcasts = () => {
           {/* Header */}
           <div className="border-b border-primary/10 pb-8 mb-8">
             <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }}>
-              <h1 className="font-display font-extrabold text-3xl sm:text-4xl md:text-5xl mb-2 text-foreground">Flux podcasts</h1>
+              <h1 className="font-display font-bold text-2xl sm:text-3xl md:text-4xl mb-2 text-foreground">Flux podcasts</h1>
               {!loading && <p className="text-muted-foreground text-sm">{filtered.length} show{filtered.length > 1 ? "s" : ""} référencé{filtered.length > 1 ? "s" : ""}</p>}
             </motion.div>
 
@@ -170,7 +170,7 @@ const Podcasts = () => {
                       </a>
                     </div>
                     <div className="p-4 flex flex-col flex-1">
-                      <h2 className="font-display font-extrabold text-base text-foreground mb-0.5 line-clamp-1">{p.nom_podcast}</h2>
+                      <h2 className="font-display font-bold text-base text-foreground mb-0.5 line-clamp-1">{p.nom_podcast}</h2>
                       {(p.prenom || p.nom) && <p className="text-sm text-primary font-medium mb-1">{p.prenom} {p.nom}</p>}
                       {(p.ville || p.thematique) && (
                         <div className="flex items-center flex-wrap gap-1.5 text-xs text-muted-foreground mb-2">
