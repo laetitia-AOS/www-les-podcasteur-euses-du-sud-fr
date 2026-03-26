@@ -151,6 +151,11 @@ const ProposerEvenement = () => {
             <p className="text-muted-foreground leading-relaxed max-w-lg mx-auto">
               Vous organisez un événement lié au podcast en Région Sud ? Soumettez-le pour qu'il apparaisse dans notre agenda après validation.
             </p>
+            <div className="mt-5 bg-muted/50 border border-border rounded-xl px-5 py-4 text-left max-w-lg mx-auto">
+              <p className="text-sm text-muted-foreground leading-relaxed">
+                <strong className="text-foreground">À noter :</strong> l'association n'a aucune obligation de publier les événements soumis. La priorité de diffusion est accordée aux membres à jour de leur cotisation.
+              </p>
+            </div>
           </motion.div>
 
           <motion.form
