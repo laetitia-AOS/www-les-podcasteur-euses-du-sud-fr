@@ -62,7 +62,7 @@ const Bienvenue = () => {
             className="flex flex-col sm:flex-row items-center justify-center gap-4 text-sm"
           >
             <button
-              onClick={() => navigate("/annuaire")}
+              onClick={() => navigate("/annuaire-podcasts")}
               className="inline-flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors"
             >
               <Users className="w-4 h-4" />

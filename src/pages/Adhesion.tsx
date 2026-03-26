@@ -15,7 +15,7 @@ const Adhesion = () => {
             Rejoignez Les Podcasteur·euses du Sud et participez à la dynamique podcast régionale.
           </p>
           <a
-            href="/annuaire"
+            href="/annuaire-podcasts"
             className="text-sm text-muted-foreground hover:text-foreground transition-colors block text-center mb-10"
           >
             ← Retour à l'annuaire
