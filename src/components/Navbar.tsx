@@ -61,7 +61,7 @@ const Navbar = () => {
           onClick={() => handleClick("/")}
           className="flex items-center gap-2.5 transition-colors"
         >
-          <img src={logoPds} alt="Les Podcasteur·euses du Sud" className="w-9 h-9 rounded-xl object-cover shadow-sm" />
+          <img src={logoPds} alt="Les Podcasteur·euses du Sud" className="w-9 h-9 rounded-xl object-cover shadow-sm" width="36" height="36" decoding="async" />
           <div className="hidden sm:flex flex-col items-start leading-tight">
             <span className="font-display font-bold text-sm text-foreground">Les Podcasteur·euses du Sud</span>
             <span className="text-[10px] text-primary font-medium tracking-wide">Réseau pro · Région Sud PACA</span>
