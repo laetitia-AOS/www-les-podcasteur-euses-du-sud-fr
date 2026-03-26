@@ -36,18 +36,26 @@ const roleLabels: Record<string, string> = {
 const HeroSection = () => {
   const navigate = useNavigate();
   const [recentProfiles, setRecentProfiles] = useState<RecentProfile[]>([]);
+  const [profileCount, setProfileCount] = useState<number>(0);
 
   useEffect(() => {
-    const fetch = async () => {
-      const { data } = await supabase
-        .from("podcasts")
-        .select("id, slug, prenom, nom, type_profil, city_name, metier_principal, consent_mise_en_relation")
-        .eq("valide", true)
-        .order("created_at", { ascending: false })
-        .limit(3);
+    const fetchData = async () => {
+      const [{ data }, { count }] = await Promise.all([
+        supabase
+          .from("podcasts")
+          .select("id, slug, prenom, nom, type_profil, city_name, metier_principal, consent_mise_en_relation")
+          .eq("valide", true)
+          .order("created_at", { ascending: false })
+          .limit(3),
+        supabase
+          .from("podcasts")
+          .select("*", { count: "exact", head: true })
+          .eq("valide", true),
+      ]);
       if (data) setRecentProfiles(data as RecentProfile[]);
+      if (count !== null) setProfileCount(count);
     };
-    fetch();
+    fetchData();
   }, []);
 
   return (
