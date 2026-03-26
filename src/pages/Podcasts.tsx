@@ -236,7 +236,7 @@ const Podcasts = () => {
                           <ArrowUpRight className="w-3.5 h-3.5" />
                         </a>
                         <Link
-                          to={`/profil/${p.slug || p.id}`}
+                          to={`/podcasteur/${p.slug || p.id}`}
                           className="inline-flex items-center gap-1 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
                         >
                           Voir le profil
