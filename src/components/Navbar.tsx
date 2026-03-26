@@ -55,7 +55,7 @@ const Navbar = () => {
           ? "bg-background-pure/95 backdrop-blur-md shadow-sm"
           : "bg-background-pure/80 backdrop-blur-sm border-transparent"
       }`}
-      style={{ borderColor: scrolled ? "rgba(200,116,42,0.15)" : "transparent" }}
+      style={{ borderColor: scrolled ? "rgba(200,116,42,0.12)" : "transparent" }}
     >
       <div className="container mx-auto px-6 max-w-6xl flex items-center justify-between h-16">
         <button
@@ -65,7 +65,7 @@ const Navbar = () => {
           <img src={logoPds} alt="Les Podcasteur·euses du Sud" className="w-9 h-9 rounded-xl object-cover shadow-sm" />
           <div className="hidden sm:flex flex-col items-start leading-tight">
             <span className="font-display font-bold text-sm text-foreground">Les Podcasteur·euses du Sud</span>
-            <span className="text-[10px] text-primary font-medium tracking-wide">Écosystème podcast · Région Sud</span>
+            <span className="text-[10px] text-primary font-medium tracking-wide">Réseau pro · Région Sud PACA</span>
           </div>
         </button>
 
@@ -81,10 +81,10 @@ const Navbar = () => {
             </button>
           ))}
           <button
-            onClick={() => handleClick("/rejoindre-association")}
+            onClick={() => handleClick("/referencer-mon-podcast")}
             className="ml-3 px-5 py-2 rounded-full bg-primary text-primary-foreground text-sm font-extrabold hover:bg-primary-hover transition-all shadow-md shadow-primary/15"
           >
-            Rejoindre le collectif
+            Créer mon profil
           </button>
           <button
             onClick={() => handleClick("/espace-membre")}
@@ -114,7 +114,7 @@ const Navbar = () => {
             animate={{ opacity: 1, height: "auto" }}
             exit={{ opacity: 0, height: 0 }}
             className="md:hidden bg-background-pure/95 backdrop-blur-md overflow-hidden"
-            style={{ borderBottom: "1px solid rgba(200,116,42,0.15)" }}
+            style={{ borderBottom: "1px solid rgba(200,116,42,0.12)" }}
           >
             <div className="px-6 py-4 space-y-1">
               {links.map((l) => (
@@ -127,10 +127,10 @@ const Navbar = () => {
                 </button>
               ))}
               <button
-                onClick={() => handleClick("/rejoindre-association")}
+                onClick={() => handleClick("/referencer-mon-podcast")}
                 className="block w-full text-left px-3 py-2.5 rounded-md text-sm font-extrabold text-primary hover:bg-primary/5 transition-colors"
               >
-                Rejoindre le collectif
+                Créer mon profil
               </button>
               <button
                 onClick={() => handleClick("/espace-membre")}

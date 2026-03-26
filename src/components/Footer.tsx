@@ -13,35 +13,23 @@ const Footer = () => {
                 Les Podcasteur·euses du Sud
               </span>
               <span className="text-xs" style={{ color: "rgba(247,242,232,0.4)" }}>
-                Écosystème podcast · Région Sud
+                Réseau pro · Région Sud PACA
               </span>
             </div>
           </div>
 
           <div className="flex flex-wrap items-center gap-x-6 gap-y-2 text-sm" style={{ color: "rgba(247,242,232,0.35)" }}>
-            <Link to="/evenements-podcast" className="hover:text-primary transition-colors">
-              Événements
-            </Link>
+            <Link to="/evenements-podcast" className="hover:text-primary transition-colors">Événements</Link>
             <span className="w-1 h-1 rounded-full bg-white/10 hidden sm:block" />
-            <Link to="/contact" className="hover:text-primary transition-colors">
-              Contact
-            </Link>
+            <Link to="/contact" className="hover:text-primary transition-colors">Contact</Link>
             <span className="w-1 h-1 rounded-full bg-white/10 hidden sm:block" />
-            <Link to="/mentions-legales" className="hover:text-primary transition-colors">
-              Mentions légales
-            </Link>
+            <Link to="/mentions-legales" className="hover:text-primary transition-colors">Mentions légales</Link>
             <span className="w-1 h-1 rounded-full bg-white/10 hidden sm:block" />
-            <Link to="/politique-de-confidentialite" className="hover:text-primary transition-colors">
-              Confidentialité
-            </Link>
+            <Link to="/politique-de-confidentialite" className="hover:text-primary transition-colors">Confidentialité</Link>
             <span className="w-1 h-1 rounded-full bg-white/10 hidden sm:block" />
-            <Link to="/conditions-utilisation" className="hover:text-primary transition-colors">
-              CGU
-            </Link>
+            <Link to="/conditions-utilisation" className="hover:text-primary transition-colors">CGU</Link>
             <span className="w-1 h-1 rounded-full bg-white/10 hidden sm:block" />
-            <Link to="/politique-cookies" className="hover:text-primary transition-colors">
-              Cookies
-            </Link>
+            <Link to="/politique-cookies" className="hover:text-primary transition-colors">Cookies</Link>
           </div>
         </div>
       </div>

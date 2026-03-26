@@ -1,7 +1,6 @@
 const items = [
   "Podcasts", "Annuaire", "Agences & Studios", "Événements", "Région Sud",
   "PACA", "Créateurs audio", "Voix off", "Sound design", "Montage",
-  "Interviews", "Documentaires", "Fiction", "Marseille", "Nice", "Toulon",
   "Studio",
 ];
 

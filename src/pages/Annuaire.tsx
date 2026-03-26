@@ -4,9 +4,8 @@ import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import SEOHead from "@/components/SEOHead";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
 import { motion } from "framer-motion";
-import { MapPin, Headphones, ArrowRight, Search, Users, Briefcase, Heart, Handshake, BarChart3, Building2 } from "lucide-react";
+import { MapPin, Headphones, ArrowRight, Search, Users, Briefcase, Heart, Handshake, Building2 } from "lucide-react";
 import { Link } from "react-router-dom";
 
 const departements = [
@@ -16,34 +15,6 @@ const departements = [
   { code: "13", label: "Bouches-du-Rhône" },
   { code: "83", label: "Var" },
   { code: "84", label: "Vaucluse" },
-];
-
-const metiers = [
-  "Studio / enregistrement",
-  "Montage / mixage",
-  "Réalisation / production",
-  "Sound design / composition",
-  "Voix off",
-  "Vidéo / teasers / motion",
-  "Identité sonore / branding",
-  "Copywriting / éditorial",
-  "Diffusion / marketing / RP",
-  "Stratégie / monétisation",
-  "Formation / coaching",
-  "Régie pub / partenariats",
-  "Autre",
-];
-
-const thematiques = [
-  "Conversations & société",
-  "Business & parcours de vie",
-  "Culture, création & récits",
-  "Sport & dépassement",
-  "Santé, mental & équilibre",
-  "Transmission & éducation",
-  "Tech, médias & nouveaux usages",
-  "Territoires, initiatives & regards",
-  "Autre",
 ];
 
 const chercheCollaborationOptions = [
@@ -58,12 +29,6 @@ const chercheCollaborationOptions = [
   "Des sponsors / partenaires commerciaux",
   "Un·e coach ou mentor·e",
 ];
-
-const niveauLabels: Record<string, string> = {
-  lancement: "Lancement",
-  croissance: "Croissance",
-  installe: "Installé",
-};
 
 const normalize = (str: string) =>
   str.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
@@ -84,15 +49,15 @@ const fuzzyMatch = (haystack: string, needle: string) => {
 const profilBadge = (type: string) => {
   switch (type) {
     case "pro_podcast":
-      return { label: "Acteur·ice de l'écosystème", icon: Briefcase, className: "bg-lavande/10 text-lavande border-lavande/20" };
+      return { label: "Acteur·ice de l'écosystème", icon: Briefcase, color: "bg-lavande/10 text-lavande border-lavande/20", avatarColor: "bg-lavande/20 text-lavande" };
     case "soutien":
-      return { label: "Soutien", icon: Heart, className: "bg-primary/10 text-terre border-primary/20" };
+      return { label: "Soutien", icon: Heart, color: "bg-primary/10 text-terre border-primary/20", avatarColor: "bg-primary/20 text-primary" };
     case "studio":
-      return { label: "Studio / Lieu", icon: Building2, className: "bg-turquoise/10 text-turquoise border-turquoise/20" };
+      return { label: "Studio / Lieu", icon: Building2, color: "bg-turquoise/10 text-turquoise border-turquoise/20", avatarColor: "bg-turquoise/20 text-turquoise" };
     case "structure_eco":
-      return { label: "Structure écosystème", icon: Building2, className: "bg-pin/10 text-pin border-pin/20" };
+      return { label: "Structure écosystème", icon: Building2, color: "bg-pin/10 text-pin border-pin/20", avatarColor: "bg-pin/20 text-pin" };
     default:
-      return { label: "Podcasteur·euse", icon: Headphones, className: "bg-primary/10 text-terre border-primary/20" };
+      return { label: "Podcasteur·euse", icon: Headphones, color: "bg-primary/10 text-terre border-primary/20", avatarColor: "bg-primary/20 text-primary" };
   }
 };
 
@@ -125,8 +90,6 @@ const Annuaire = () => {
   const [loading, setLoading] = useState(true);
   const [filterDept, setFilterDept] = useState("");
   const [filterType, setFilterType] = useState("");
-  const [filterMetier, setFilterMetier] = useState("");
-  const [filterThematique, setFilterThematique] = useState("");
   const [searchQuery, setSearchQuery] = useState("");
   const [filterCollab, setFilterCollab] = useState(false);
   const [filterChercheCollab, setFilterChercheCollab] = useState("");
@@ -149,8 +112,6 @@ const Annuaire = () => {
     return profiles.filter((p) => {
       if (filterDept && p.department_code !== filterDept) return false;
       if (filterType && p.type_profil !== filterType) return false;
-      if (filterMetier && p.metier_principal !== filterMetier) return false;
-      if (filterThematique && p.thematique !== filterThematique) return false;
       if (filterCollab && !p.consent_mise_en_relation) return false;
       if (filterChercheCollab && (!p.cherche_collaboration || !p.cherche_collaboration.includes(filterChercheCollab))) return false;
       if (filterFormat && p.format_collaboration !== filterFormat) return false;
@@ -165,9 +126,9 @@ const Annuaire = () => {
       }
       return true;
     });
-  }, [profiles, filterDept, filterType, filterMetier, filterThematique, searchQuery, filterCollab, filterChercheCollab, filterFormat]);
+  }, [profiles, filterDept, filterType, searchQuery, filterCollab, filterChercheCollab, filterFormat]);
 
-  const selectClass = "rounded-xl border border-primary/12 bg-background-pure px-3 py-2.5 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all";
+  const collabCount = useMemo(() => profiles.filter(p => p.consent_mise_en_relation).length, [profiles]);
 
   return (
     <div className="min-h-screen bg-background">
@@ -180,271 +141,217 @@ const Annuaire = () => {
       <main className="pt-24 pb-20">
         <div className="container mx-auto px-6 max-w-6xl">
           {/* Header */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6 }}
-            className="text-center mb-12"
-          >
-            <h1 className="font-display font-black text-3xl sm:text-4xl md:text-5xl mb-4 text-foreground">
-              Annuaire — Écosystème Podcast
-            </h1>
-            <p className="text-muted-foreground leading-relaxed max-w-2xl mx-auto mb-6">
-              Podcasteurs, monteurs, studios, voix off, sound designers, consultants…
-              L'écosystème podcast en région Sud, au même endroit.
+          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }} className="mb-8">
+            <h1 className="font-display font-extrabold text-3xl sm:text-4xl md:text-5xl mb-2 text-foreground">Annuaire</h1>
+            <p className="text-muted-foreground text-sm">
+              Podcasteurs, monteurs, studios, voix off, sound designers, consultants — l'écosystème podcast en région Sud.
             </p>
-            <a href="/rejoindre-association">
-              <Button className="gap-2">
-                <Users className="w-4 h-4" />
-                Rejoindre le collectif
-              </Button>
-            </a>
           </motion.div>
 
-          {/* Filters */}
-          <motion.div
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: 0.15 }}
-            className="bg-background-pure border border-primary/10 rounded-2xl p-5 mb-8 space-y-4"
-          >
-            <div className="flex items-center gap-2 mb-2">
-              <Search className="w-4 h-4 text-muted-foreground" />
-              <input
-                type="text"
-                placeholder="Rechercher un nom, podcast, métier, ville…"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="flex-1 bg-transparent text-sm text-foreground placeholder:text-muted-foreground/50 focus:outline-none"
-              />
-            </div>
-            <div className="flex flex-wrap gap-3">
-              <select value={filterType} onChange={(e) => { setFilterType(e.target.value); setFilterMetier(""); setFilterThematique(""); }} className={selectClass}>
-                <option value="">Tous les profils</option>
-                <option value="podcasteur">Podcasteurs</option>
-                <option value="pro_podcast">Acteurs de l'écosystème</option>
-                <option value="studio">Studios / Lieux</option>
-                <option value="structure_eco">Structures écosystème</option>
-                <option value="soutien">Soutiens</option>
-              </select>
-              <select value={filterDept} onChange={(e) => setFilterDept(e.target.value)} className={selectClass}>
-                <option value="">Tous les départements</option>
-                {departements.map((d) => <option key={d.code} value={d.code}>{d.label}</option>)}
-              </select>
-              {filterType === "pro_podcast" && (
-                <select value={filterMetier} onChange={(e) => setFilterMetier(e.target.value)} className={selectClass}>
-                  <option value="">Tous les métiers</option>
-                  {metiers.map((m) => <option key={m} value={m}>{m}</option>)}
-                </select>
-              )}
-              {filterType === "podcasteur" && (
-                <select value={filterThematique} onChange={(e) => setFilterThematique(e.target.value)} className={selectClass}>
-                  <option value="">Toutes les thématiques</option>
-                  {thematiques.map((t) => <option key={t} value={t}>{t}</option>)}
-                </select>
-              )}
-            </div>
-
-            {/* Matching filters */}
-            <div className="pt-3 border-t border-border">
-              <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-3">Matching</p>
-              <div className="flex flex-wrap gap-3 items-center">
-                <label className="flex items-center gap-2 cursor-pointer text-sm text-foreground">
+          <div className="flex flex-col lg:flex-row gap-8">
+            {/* Sidebar Filters */}
+            <motion.aside
+              initial={{ opacity: 0, x: -20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.5, delay: 0.15 }}
+              className="lg:w-[260px] shrink-0"
+            >
+              <div className="bg-background-pure border-r border-primary/10 rounded-2xl lg:rounded-none lg:border-r lg:border-l-0 lg:border-t-0 lg:border-b-0 p-5 lg:pr-6 space-y-5 lg:sticky lg:top-20">
+                {/* Search */}
+                <div className="flex items-center gap-2 border-b border-primary/10 pb-4">
+                  <Search className="w-4 h-4 text-muted-foreground" />
                   <input
-                    type="checkbox"
-                    checked={filterCollab}
-                    onChange={(e) => setFilterCollab(e.target.checked)}
-                    className="h-4 w-4 rounded border-border text-primary accent-primary focus:ring-primary/30"
+                    type="text"
+                    placeholder="Rechercher…"
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    className="flex-1 bg-transparent text-sm text-foreground placeholder:text-muted-foreground/50 focus:outline-none"
                   />
-                  Ouvert·e aux collaborations
-                </label>
-                <select value={filterChercheCollab} onChange={(e) => setFilterChercheCollab(e.target.value)} className={selectClass}>
-                  <option value="">Cherche à collaborer avec…</option>
-                  {chercheCollaborationOptions.map((o) => <option key={o} value={o}>{o}</option>)}
-                </select>
-                <select value={filterFormat} onChange={(e) => setFilterFormat(e.target.value)} className={selectClass}>
-                  <option value="">Format</option>
-                  <option value="En présentiel (Marseille / région)">En présentiel</option>
-                  <option value="À distance">À distance</option>
-                  <option value="Présentiel et à distance">Présentiel et à distance</option>
-                </select>
-              </div>
-            </div>
-          </motion.div>
+                </div>
 
-          {/* Results count */}
-          <p className="text-sm text-muted-foreground mb-6">
-            {filtered.length} profil{filtered.length !== 1 ? "s" : ""} trouvé{filtered.length !== 1 ? "s" : ""}
-          </p>
+                {/* Type filter pills */}
+                <div>
+                  <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-3">Type</p>
+                  <div className="flex flex-wrap gap-2">
+                    {[
+                      { value: "", label: "Tous" },
+                      { value: "podcasteur", label: "Podcasteur·euse" },
+                      { value: "pro_podcast", label: "Pro écosystème" },
+                      { value: "studio", label: "Studio" },
+                      { value: "structure_eco", label: "Structure" },
+                    ].map((t) => (
+                      <button
+                        key={t.value}
+                        onClick={() => setFilterType(t.value)}
+                        className={`px-3 py-1.5 rounded-full text-xs font-medium transition-all ${filterType === t.value ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground hover:text-foreground"}`}
+                      >
+                        {t.label}
+                      </button>
+                    ))}
+                  </div>
+                </div>
 
-          {/* Grid */}
-          {loading ? (
-            <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
-              {[...Array(6)].map((_, i) => (
-                <div key={i} className="bg-background-pure border border-primary/8 rounded-2xl p-6 animate-pulse h-56" />
-              ))}
-            </div>
-          ) : filtered.length === 0 ? (
-            <div className="text-center py-20 text-muted-foreground">
-              <p>Aucun profil ne correspond à vos critères.</p>
-            </div>
-          ) : (
-            <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
-              {filtered.map((profile, i) => {
-                const badge = profilBadge(profile.type_profil);
-                const BadgeIcon = badge.icon;
-                return (
-                  <motion.div
-                    key={profile.id}
-                    initial={{ opacity: 0, y: 15 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.4, delay: i * 0.03 }}
-                  >
-                    <Link
-                      to={profile.type_profil === "studio" ? `/annuaire-podcasts/studios/${profile.slug || profile.id}` : profile.type_profil === "structure_eco" ? `/annuaire-podcasts/structures/${profile.slug || profile.id}` : `/podcasteur/${profile.slug || profile.id}`}
-                      className="block bg-background-pure border border-primary/8 rounded-[20px] p-6 hover:shadow-lg hover:shadow-primary/5 hover:border-primary/20 hover:-translate-y-1 transition-all duration-300 h-full relative"
+                {/* Département */}
+                <div>
+                  <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-3">Département</p>
+                  <div className="flex flex-wrap gap-2">
+                    <button
+                      onClick={() => setFilterDept("")}
+                      className={`px-3 py-1.5 rounded-full text-xs font-medium transition-all ${!filterDept ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground hover:text-foreground"}`}
                     >
-                      {/* Collab badge */}
-                      {profile.consent_mise_en_relation && (
-                        <span className="absolute top-3 right-3 inline-flex items-center gap-1 text-[10px] font-semibold px-2 py-0.5 rounded-full bg-primary/10 text-terre border border-primary/20">
-                          <Handshake className="w-3 h-3" /> Ouvert·e aux collabs
-                        </span>
-                      )}
+                      Tous
+                    </button>
+                    {departements.map((d) => (
+                      <button
+                        key={d.code}
+                        onClick={() => setFilterDept(d.code === filterDept ? "" : d.code)}
+                        className={`px-3 py-1.5 rounded-full text-xs font-medium transition-all ${filterDept === d.code ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground hover:text-foreground"}`}
+                      >
+                        {d.code}
+                      </button>
+                    ))}
+                  </div>
+                </div>
 
-                      <div className="flex items-start gap-4 mb-3">
-                        {/* Photo */}
-                        <div className="w-14 h-14 rounded-xl overflow-hidden bg-muted flex-shrink-0">
-                          {profile.vignette_url ? (
-                            <img
-                              src={profile.vignette_url}
-                              alt={`${profile.prenom ?? ""} ${profile.nom ?? ""}`}
-                              className="w-full h-full object-cover"
-                              loading="lazy"
-                            />
-                          ) : (
-                            <div className="w-full h-full flex items-center justify-center bg-primary/5">
-                              <BadgeIcon className="w-6 h-6 text-primary/30" />
+                {/* Disponibilité */}
+                <div className="border-t border-primary/10 pt-4">
+                  <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-3">Disponibilité</p>
+                  <label className="flex items-center gap-2 cursor-pointer text-sm text-foreground">
+                    <input
+                      type="checkbox"
+                      checked={filterCollab}
+                      onChange={(e) => setFilterCollab(e.target.checked)}
+                      className="h-4 w-4 rounded border-border text-primary accent-primary focus:ring-primary/30"
+                    />
+                    Ouvert·e aux collabs ({collabCount})
+                  </label>
+                </div>
+
+                {/* Cherche */}
+                <div className="border-t border-primary/10 pt-4">
+                  <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-3">Cherche à collaborer avec</p>
+                  <select value={filterChercheCollab} onChange={(e) => setFilterChercheCollab(e.target.value)} className="w-full rounded-xl border border-primary/12 bg-background px-3 py-2 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-primary/20">
+                    <option value="">Tous</option>
+                    {chercheCollaborationOptions.map((o) => <option key={o} value={o}>{o}</option>)}
+                  </select>
+                </div>
+
+                {/* Format */}
+                <div className="border-t border-primary/10 pt-4">
+                  <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-3">Format de travail</p>
+                  <select value={filterFormat} onChange={(e) => setFilterFormat(e.target.value)} className="w-full rounded-xl border border-primary/12 bg-background px-3 py-2 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-primary/20">
+                    <option value="">Tous</option>
+                    <option value="En présentiel (Marseille / région)">Présentiel</option>
+                    <option value="À distance">À distance</option>
+                    <option value="Présentiel et à distance">Présentiel et à distance</option>
+                  </select>
+                </div>
+              </div>
+            </motion.aside>
+
+            {/* Results */}
+            <div className="flex-1 min-w-0">
+              <p className="text-sm text-muted-foreground mb-5">
+                {filtered.length} profil{filtered.length !== 1 ? "s" : ""} trouvé{filtered.length !== 1 ? "s" : ""}
+              </p>
+
+              {loading ? (
+                <div className="grid sm:grid-cols-2 xl:grid-cols-3 gap-5">
+                  {[...Array(6)].map((_, i) => (
+                    <div key={i} className="bg-background-pure border border-primary/8 rounded-2xl p-6 animate-pulse h-56" />
+                  ))}
+                </div>
+              ) : filtered.length === 0 ? (
+                <div className="text-center py-20 text-muted-foreground">
+                  <p>Aucun profil ne correspond à vos critères.</p>
+                </div>
+              ) : (
+                <div className="grid sm:grid-cols-2 xl:grid-cols-3 gap-5">
+                  {filtered.map((profile, i) => {
+                    const badge = profilBadge(profile.type_profil);
+                    const BadgeIcon = badge.icon;
+                    const initials = `${(profile.prenom || "")[0] || ""}${(profile.nom || "")[0] || ""}`.toUpperCase();
+                    const cityClean = profile.city_name?.replace(/\s+\d+(er?|e)?\s+Arrondissement$/i, "").replace(/\s+\d+$/, "") || "";
+
+                    return (
+                      <motion.div
+                        key={profile.id}
+                        initial={{ opacity: 0, y: 15 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.4, delay: i * 0.03 }}
+                      >
+                        <Link
+                          to={profile.type_profil === "studio" ? `/annuaire-podcasts/studios/${profile.slug || profile.id}` : profile.type_profil === "structure_eco" ? `/annuaire-podcasts/structures/${profile.slug || profile.id}` : `/podcasteur/${profile.slug || profile.id}`}
+                          className="block bg-background-pure border border-primary/8 rounded-2xl p-5 hover:shadow-lg hover:shadow-primary/5 hover:border-primary/20 hover:-translate-y-[3px] transition-all duration-300 h-full relative"
+                        >
+                          {/* Dispo badge */}
+                          {profile.consent_mise_en_relation && (
+                            <span className="absolute top-3 right-3 inline-flex items-center gap-1 text-[10px] font-semibold px-2 py-0.5 rounded-full" style={{ background: "rgba(61,107,79,0.1)", color: "hsl(148 28% 40%)" }}>
+                              ● Dispo
+                            </span>
+                          )}
+
+                          <div className="flex items-start gap-3 mb-3">
+                            {/* Avatar */}
+                            <div className={`w-12 h-12 rounded-full flex items-center justify-center text-sm font-bold shrink-0 ${badge.avatarColor}`}>
+                              {profile.vignette_url ? (
+                                <img src={profile.vignette_url} alt="" className="w-full h-full rounded-full object-cover" loading="lazy" />
+                              ) : initials}
                             </div>
-                          )}
-                        </div>
-                        <div className="flex-1 min-w-0">
-                          <div className="flex items-start justify-between gap-2">
-                    <h3 className="font-display font-bold text-lg text-foreground truncate">
-                              {profile.type_profil === "studio" || profile.type_profil === "structure_eco" ? profile.nom_podcast : `${profile.prenom} ${profile.nom}`}
-                            </h3>
+                            <div className="flex-1 min-w-0">
+                              <h3 className="font-display font-extrabold text-base text-foreground truncate">
+                                {profile.type_profil === "studio" || profile.type_profil === "structure_eco" ? profile.nom_podcast : `${profile.prenom} ${profile.nom}`}
+                              </h3>
+                              {profile.metier_principal && (
+                                <p className="text-sm text-primary font-medium truncate">{profile.metier_principal}</p>
+                              )}
+                              {cityClean && (
+                                <p className="text-xs text-muted-foreground flex items-center gap-1 mt-0.5">
+                                  <MapPin className="w-3 h-3" />{cityClean}
+                                </p>
+                              )}
+                            </div>
                           </div>
-                          <span className={`inline-flex items-center gap-1 text-xs font-medium px-2 py-0.5 rounded-full border mt-1 ${badge.className}`}>
-                            <BadgeIcon className="w-3 h-3" />
-                            {badge.label}
-                          </span>
-                          {profile.city_name && (
-                            <p className="text-xs text-muted-foreground flex items-center gap-1 mt-1">
-                              <MapPin className="w-3 h-3" />
-                              {profile.city_name.replace(/\s+\d+(er?|e)?\s+Arrondissement$/i, "").replace(/\s+\d+$/,"")}{profile.department_label ? `, ${profile.department_label.split(" — ")[1] || profile.department_label}` : ""}
-                            </p>
-                          )}
-                        </div>
-                      </div>
 
-                      {/* Conditional content per type */}
-                      {profile.type_profil === "podcasteur" && (
-                        <div className="space-y-1.5 mb-2">
-                          {profile.nom_podcast && (
-                            <p className="text-sm font-medium text-foreground truncate">{profile.nom_podcast}</p>
-                          )}
-                          <div className="flex flex-wrap gap-1.5">
+                          {/* Tags */}
+                          <div className="flex flex-wrap gap-1.5 mb-3">
+                            <span className={`inline-flex items-center gap-1 text-xs font-medium px-2 py-0.5 rounded-full border ${badge.color}`}>
+                              <BadgeIcon className="w-3 h-3" />{badge.label}
+                            </span>
                             {profile.thematique && (
-                              <Badge variant="secondary" className="text-xs">{profile.thematique}</Badge>
+                              <span className="inline-flex px-2 py-0.5 rounded-full text-xs text-terre" style={{ background: "rgba(200,116,42,0.08)" }}>{profile.thematique}</span>
                             )}
                           </div>
+
+                          {/* Collab info */}
                           {profile.cherche_collaboration && profile.cherche_collaboration.length > 0 && (
-                            <p className="text-xs text-muted-foreground mt-1">
+                            <p className="text-xs text-muted-foreground mb-2 line-clamp-1">
                               Cherche : {profile.cherche_collaboration.slice(0, 2).join(", ")}
                             </p>
-                          )}
-                        </div>
-                      )}
-
-                      {profile.type_profil === "pro_podcast" && (
-                        <div className="space-y-1.5 mb-2">
-                          {profile.metier_principal && (
-                            <p className="text-sm font-medium text-foreground">{profile.metier_principal}</p>
-                          )}
-                          {profile.services_3 && profile.services_3.length > 0 && (
-                            <p className="text-xs text-muted-foreground truncate">
-                              {profile.services_3.slice(0, 2).join(", ")}
-                            </p>
-                          )}
-                          {profile.disponibilite && (
-                            <p className="text-xs text-muted-foreground">{profile.disponibilite}</p>
                           )}
                           {profile.peut_apporter && profile.peut_apporter.length > 0 && (
-                            <p className="text-xs text-muted-foreground mt-1">
-                              Peut apporter : {profile.peut_apporter.slice(0, 2).join(", ")}
+                            <p className="text-xs mb-2 line-clamp-1" style={{ color: "hsl(148 28% 40%)" }}>
+                              Apporte : {profile.peut_apporter.slice(0, 2).join(", ")}
                             </p>
                           )}
-                        </div>
-                      )}
 
-                      {profile.type_profil === "soutien" && (
-                        <div className="space-y-1.5 mb-2">
-                          {profile.bio_750 && (
-                            <p className="text-sm text-muted-foreground line-clamp-3">{profile.bio_750}</p>
-                          )}
-                          {profile.cherche_collaboration && profile.cherche_collaboration.length > 0 && (
-                            <p className="text-xs text-muted-foreground mt-1">
-                              Cherche : {profile.cherche_collaboration.slice(0, 2).join(", ")}
-                            </p>
-                          )}
-                        </div>
-                      )}
-
-                      {profile.type_profil === "studio" && (
-                        <div className="space-y-1.5 mb-2">
-                          {profile.bio_750 && (
-                            <p className="text-sm text-muted-foreground line-clamp-2">{profile.bio_750}</p>
-                          )}
-                          {profile.services_3 && profile.services_3.length > 0 && (
-                            <p className="text-xs text-muted-foreground truncate">
-                              {profile.services_3.slice(0, 3).join(", ")}
-                            </p>
-                          )}
-                        </div>
-                      )}
-
-                      {profile.type_profil === "structure_eco" && (
-                        <div className="space-y-1.5 mb-2">
-                          {profile.metier_principal && (
-                            <p className="text-sm font-medium text-foreground">{profile.metier_principal}</p>
-                          )}
-                          {profile.bio_750 && (
-                            <p className="text-sm text-muted-foreground line-clamp-2">{profile.bio_750}</p>
-                          )}
-                        </div>
-                      )}
-
-                      <div className="flex items-center gap-2 mt-4">
-                        <span className="text-xs font-medium text-primary flex items-center gap-1">
-                          Voir la fiche <ArrowRight className="w-3 h-3" />
-                        </span>
-                        {profile.type_profil === "podcasteur" && profile.lien_ecoute && (
-                          <a
-                            href={profile.lien_ecoute}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            onClick={(e) => e.stopPropagation()}
-                            className="ml-auto text-xs font-medium text-secondary flex items-center gap-1 hover:underline"
-                          >
-                            <Headphones className="w-3 h-3" /> Écouter
-                          </a>
-                        )}
-                      </div>
-                    </Link>
-                  </motion.div>
-                );
-              })}
+                          {/* Footer */}
+                          <div className="flex items-center gap-2 mt-3 pt-3 border-t border-primary/8">
+                            {profile.type_profil === "podcasteur" && profile.nom_podcast && (
+                              <span className="text-xs text-muted-foreground italic truncate flex-1">{profile.nom_podcast}</span>
+                            )}
+                            <span className="text-xs font-medium text-primary flex items-center gap-1 ml-auto shrink-0">
+                              Voir <ArrowRight className="w-3 h-3" />
+                            </span>
+                          </div>
+                        </Link>
+                      </motion.div>
+                    );
+                  })}
+                </div>
+              )}
             </div>
-          )}
+          </div>
         </div>
       </main>
       <Footer />
