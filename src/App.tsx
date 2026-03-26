@@ -56,6 +56,7 @@ const App = () => (
           <Route path="/annuaire/structures/:slug" element={<StructureEcoProfile />} />
           <Route path="/bienvenue" element={<Bienvenue />} />
           <Route path="/formulaire" element={<Formulaire />} />
+          <Route path="/agences-studios" element={<AgencesStudios />} />
           <Route path="/admin" element={<AdminDashboard />} />
           <Route path="/admin/login" element={<AdminLogin />} />
           <Route path="/admin/adhesions" element={<AdminAdhesions />} />
