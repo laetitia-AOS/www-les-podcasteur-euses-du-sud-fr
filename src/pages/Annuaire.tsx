@@ -84,15 +84,15 @@ const fuzzyMatch = (haystack: string, needle: string) => {
 const profilBadge = (type: string) => {
   switch (type) {
     case "pro_podcast":
-      return { label: "Acteur·ice de l'écosystème", icon: Briefcase, className: "bg-secondary/15 text-secondary border-secondary/30" };
+      return { label: "Acteur·ice de l'écosystème", icon: Briefcase, className: "bg-lavande/10 text-lavande border-lavande/20" };
     case "soutien":
-      return { label: "Soutien", icon: Heart, className: "bg-primary/10 text-primary border-primary/30" };
+      return { label: "Soutien", icon: Heart, className: "bg-primary/10 text-terre border-primary/20" };
     case "studio":
-      return { label: "Studio / Lieu", icon: Building2, className: "bg-accent/15 text-accent-foreground border-accent/30" };
+      return { label: "Studio / Lieu", icon: Building2, className: "bg-turquoise/10 text-turquoise border-turquoise/20" };
     case "structure_eco":
-      return { label: "Structure écosystème", icon: Building2, className: "bg-secondary/10 text-secondary border-secondary/20" };
+      return { label: "Structure écosystème", icon: Building2, className: "bg-pin/10 text-pin border-pin/20" };
     default:
-      return { label: "Podcasteur·euse", icon: Headphones, className: "bg-accent/15 text-accent-foreground border-accent/30" };
+      return { label: "Podcasteur·euse", icon: Headphones, className: "bg-primary/10 text-terre border-primary/20" };
   }
 };
 
@@ -167,7 +167,7 @@ const Annuaire = () => {
     });
   }, [profiles, filterDept, filterType, filterMetier, filterThematique, searchQuery, filterCollab, filterChercheCollab, filterFormat]);
 
-  const selectClass = "rounded-xl border border-border bg-card px-3 py-2.5 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-primary/30 transition-all";
+  const selectClass = "rounded-xl border border-primary/12 bg-background-pure px-3 py-2.5 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all";
 
   return (
     <div className="min-h-screen bg-background">
@@ -186,7 +186,7 @@ const Annuaire = () => {
             transition={{ duration: 0.6 }}
             className="text-center mb-12"
           >
-            <h1 className="font-display font-extrabold text-3xl sm:text-4xl md:text-5xl mb-4">
+            <h1 className="font-display font-black text-3xl sm:text-4xl md:text-5xl mb-4 text-foreground">
               Annuaire — Écosystème Podcast
             </h1>
             <p className="text-muted-foreground leading-relaxed max-w-2xl mx-auto mb-6">
@@ -206,7 +206,7 @@ const Annuaire = () => {
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.15 }}
-            className="bg-card border border-border rounded-2xl p-5 mb-8 space-y-4"
+            className="bg-background-pure border border-primary/10 rounded-2xl p-5 mb-8 space-y-4"
           >
             <div className="flex items-center gap-2 mb-2">
               <Search className="w-4 h-4 text-muted-foreground" />
@@ -281,7 +281,7 @@ const Annuaire = () => {
           {loading ? (
             <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
               {[...Array(6)].map((_, i) => (
-                <div key={i} className="bg-card border border-border rounded-2xl p-6 animate-pulse h-56" />
+                <div key={i} className="bg-background-pure border border-primary/8 rounded-2xl p-6 animate-pulse h-56" />
               ))}
             </div>
           ) : filtered.length === 0 ? (
@@ -302,11 +302,11 @@ const Annuaire = () => {
                   >
                     <Link
                       to={profile.type_profil === "studio" ? `/annuaire-podcasts/studios/${profile.slug || profile.id}` : profile.type_profil === "structure_eco" ? `/annuaire-podcasts/structures/${profile.slug || profile.id}` : `/podcasteur/${profile.slug || profile.id}`}
-                      className="block bg-card border border-border rounded-2xl p-6 hover:shadow-lg hover:shadow-primary/5 hover:border-primary/30 hover:-translate-y-1 transition-all duration-300 h-full relative"
+                      className="block bg-background-pure border border-primary/8 rounded-[20px] p-6 hover:shadow-lg hover:shadow-primary/5 hover:border-primary/20 hover:-translate-y-1 transition-all duration-300 h-full relative"
                     >
                       {/* Collab badge */}
                       {profile.consent_mise_en_relation && (
-                        <span className="absolute top-3 right-3 inline-flex items-center gap-1 text-[10px] font-semibold px-2 py-0.5 rounded-full bg-primary/15 text-primary border border-primary/25">
+                        <span className="absolute top-3 right-3 inline-flex items-center gap-1 text-[10px] font-semibold px-2 py-0.5 rounded-full bg-primary/10 text-terre border border-primary/20">
                           <Handshake className="w-3 h-3" /> Ouvert·e aux collabs
                         </span>
                       )}

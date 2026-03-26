@@ -52,19 +52,20 @@ const Navbar = () => {
       transition={{ duration: 0.5, delay: 0.3 }}
       className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 border-b ${
         scrolled
-          ? "bg-background/95 backdrop-blur-md border-primary/20 shadow-lg shadow-primary/5"
-          : "bg-background/60 backdrop-blur-sm border-transparent"
+          ? "bg-background-pure/95 backdrop-blur-md shadow-sm"
+          : "bg-background-pure/80 backdrop-blur-sm border-transparent"
       }`}
+      style={{ borderColor: scrolled ? "rgba(200,116,42,0.15)" : "transparent" }}
     >
       <div className="container mx-auto px-6 max-w-6xl flex items-center justify-between h-16">
         <button
           onClick={() => handleClick("/")}
-          className="flex items-center gap-2.5 transition-colors text-foreground"
+          className="flex items-center gap-2.5 transition-colors"
         >
           <img src={logoPds} alt="Les Podcasteur·euses du Sud" className="w-9 h-9 rounded-xl object-cover shadow-sm" />
           <div className="hidden sm:flex flex-col items-start leading-tight">
             <span className="font-display font-bold text-sm text-foreground">Les Podcasteur·euses du Sud</span>
-            <span className="text-[10px] text-secondary font-medium tracking-wide">Écosystème podcast · Région Sud</span>
+            <span className="text-[10px] text-primary font-medium tracking-wide">Écosystème podcast · Région Sud</span>
           </div>
         </button>
 
@@ -74,20 +75,20 @@ const Navbar = () => {
             <button
               key={l.href}
               onClick={() => handleClick(l.href)}
-              className="px-3 py-2 rounded-md text-sm font-medium transition-colors text-muted-foreground hover:text-secondary"
+              className="px-3 py-2 rounded-md text-sm font-medium transition-colors text-muted-foreground hover:text-primary"
             >
               {l.label}
             </button>
           ))}
           <button
             onClick={() => handleClick("/rejoindre-association")}
-            className="ml-3 px-5 py-2 rounded-full bg-primary text-primary-foreground text-sm font-semibold hover:brightness-110 transition-all shadow-md shadow-primary/20"
+            className="ml-3 px-5 py-2 rounded-full bg-primary text-primary-foreground text-sm font-extrabold hover:bg-primary-hover transition-all shadow-md shadow-primary/15"
           >
             Rejoindre le collectif
           </button>
           <button
             onClick={() => handleClick("/espace-membre")}
-            className="ml-2 p-2 rounded-full transition-colors text-muted-foreground hover:text-secondary hover:bg-muted/50"
+            className="ml-2 p-2 rounded-full transition-colors text-muted-foreground hover:text-primary hover:bg-primary/5"
             aria-label="Espace membre"
             title="Espace membre"
           >
@@ -112,27 +113,28 @@ const Navbar = () => {
             initial={{ opacity: 0, height: 0 }}
             animate={{ opacity: 1, height: "auto" }}
             exit={{ opacity: 0, height: 0 }}
-            className="md:hidden bg-background/95 backdrop-blur-md border-b border-primary/20 overflow-hidden"
+            className="md:hidden bg-background-pure/95 backdrop-blur-md overflow-hidden"
+            style={{ borderBottom: "1px solid rgba(200,116,42,0.15)" }}
           >
             <div className="px-6 py-4 space-y-1">
               {links.map((l) => (
                 <button
                   key={l.href}
                   onClick={() => handleClick(l.href)}
-                  className="block w-full text-left px-3 py-2.5 rounded-md text-sm font-medium text-foreground hover:text-secondary hover:bg-muted/50 transition-colors"
+                  className="block w-full text-left px-3 py-2.5 rounded-md text-sm font-medium text-foreground hover:text-primary hover:bg-primary/5 transition-colors"
                 >
                   {l.label}
                 </button>
               ))}
               <button
                 onClick={() => handleClick("/rejoindre-association")}
-                className="block w-full text-left px-3 py-2.5 rounded-md text-sm font-semibold text-primary hover:bg-muted/50 transition-colors"
+                className="block w-full text-left px-3 py-2.5 rounded-md text-sm font-extrabold text-primary hover:bg-primary/5 transition-colors"
               >
                 Rejoindre le collectif
               </button>
               <button
                 onClick={() => handleClick("/espace-membre")}
-                className="flex items-center gap-2 w-full text-left px-3 py-2.5 rounded-md text-sm font-medium text-muted-foreground hover:text-secondary hover:bg-muted/50 transition-colors"
+                className="flex items-center gap-2 w-full text-left px-3 py-2.5 rounded-md text-sm font-medium text-muted-foreground hover:text-primary hover:bg-primary/5 transition-colors"
               >
                 <User className="w-4 h-4" />
                 Espace membre

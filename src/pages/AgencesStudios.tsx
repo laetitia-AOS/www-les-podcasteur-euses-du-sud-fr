@@ -103,7 +103,7 @@ const AgencesStudios = () => {
     });
   }, [profiles, filterDept, filterTypeStructure, searchQuery, filterCollab]);
 
-  const selectClass = "rounded-xl border border-border bg-card px-3 py-2.5 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-primary/30 transition-all";
+  const selectClass = "rounded-xl border border-primary/12 bg-background-pure px-3 py-2.5 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all";
 
   return (
     <div className="min-h-screen bg-background">
@@ -122,7 +122,7 @@ const AgencesStudios = () => {
             transition={{ duration: 0.6 }}
             className="text-center mb-12"
           >
-            <h1 className="font-display font-extrabold text-3xl sm:text-4xl md:text-5xl mb-4">
+            <h1 className="font-display font-black text-3xl sm:text-4xl md:text-5xl mb-4 text-foreground">
               Agences & Studios
             </h1>
             <p className="text-muted-foreground leading-relaxed max-w-2xl mx-auto mb-6">
@@ -142,7 +142,7 @@ const AgencesStudios = () => {
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.15 }}
-            className="bg-card border border-border rounded-2xl p-5 mb-8 space-y-4"
+            className="bg-background-pure border border-primary/10 rounded-2xl p-5 mb-8 space-y-4"
           >
             <div className="flex items-center gap-2 mb-2">
               <Search className="w-4 h-4 text-muted-foreground" />
@@ -184,7 +184,7 @@ const AgencesStudios = () => {
           {loading ? (
             <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
               {[...Array(6)].map((_, i) => (
-                <div key={i} className="bg-card border border-border rounded-2xl p-6 animate-pulse h-56" />
+                <div key={i} className="bg-background-pure border border-primary/8 rounded-2xl p-6 animate-pulse h-56" />
               ))}
             </div>
           ) : filtered.length === 0 ? (
@@ -208,7 +208,7 @@ const AgencesStudios = () => {
                   >
                     <Link
                       to={`/annuaire-podcasts/structures/${profile.slug || profile.id}`}
-                      className="group block bg-card border border-border rounded-2xl overflow-hidden hover:shadow-lg hover:border-primary/20 transition-all duration-300 h-full"
+                      className="group block bg-background-pure border border-primary/8 rounded-[20px] overflow-hidden hover:shadow-lg hover:border-primary/20 transition-all duration-300 h-full"
                     >
                       {/* Cover image */}
                       <div className="relative aspect-[16/9] bg-muted overflow-hidden">

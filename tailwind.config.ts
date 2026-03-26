@@ -15,18 +15,20 @@ export default {
     extend: {
       fontFamily: {
         sans: ["DM Sans", "sans-serif"],
-        display: ["Syne", "sans-serif"],
+        display: ["Cabinet Grotesk", "sans-serif"],
+        serif: ["Lora", "serif"],
       },
       colors: {
         border: "hsl(var(--border))",
         input: "hsl(var(--input))",
         ring: "hsl(var(--ring))",
         background: "hsl(var(--background))",
+        "background-pure": "hsl(var(--background-pure))",
         foreground: "hsl(var(--foreground))",
         primary: {
           DEFAULT: "hsl(var(--primary))",
           foreground: "hsl(var(--primary-foreground))",
-          glow: "hsl(var(--primary-glow))",
+          hover: "hsl(var(--primary-hover))",
         },
         secondary: {
           DEFAULT: "hsl(var(--secondary))",
@@ -52,6 +54,15 @@ export default {
           DEFAULT: "hsl(var(--card))",
           foreground: "hsl(var(--card-foreground))",
         },
+        ink: {
+          DEFAULT: "hsl(var(--ink))",
+          soft: "hsl(var(--ink-soft))",
+        },
+        terre: "hsl(var(--terre))",
+        lavande: "hsl(var(--lavande))",
+        turquoise: "hsl(var(--turquoise))",
+        pin: "hsl(var(--pin))",
+        "ocre-vif": "hsl(var(--ocre-vif))",
         footer: "hsl(var(--footer-bg))",
         sidebar: {
           DEFAULT: "hsl(var(--sidebar-background))",
@@ -79,7 +90,7 @@ export default {
           to: { height: "0" },
         },
         "fade-up": {
-          from: { opacity: "0", transform: "translateY(30px)" },
+          from: { opacity: "0", transform: "translateY(24px)" },
           to: { opacity: "1", transform: "translateY(0)" },
         },
         "fade-in": {

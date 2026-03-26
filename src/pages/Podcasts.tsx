@@ -95,7 +95,7 @@ const Podcasts = () => {
               <div className="h-px w-6 bg-primary/30" />
               <span className="text-xs font-semibold uppercase tracking-[0.2em] text-primary">Flux</span>
             </div>
-            <h1 className="font-display font-extrabold text-3xl sm:text-4xl md:text-5xl mb-3">La dynamique audio du Sud</h1>
+            <h1 className="font-display font-black text-3xl sm:text-4xl md:text-5xl mb-3 text-foreground">La dynamique audio du Sud</h1>
             <p className="text-muted-foreground max-w-lg text-sm leading-relaxed">Explorez tous les podcasts référencés en Région Sud.</p>
           </motion.div>
 
@@ -108,7 +108,7 @@ const Podcasts = () => {
                 placeholder="Rechercher un podcast, un nom, une ville…"
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
-                className="w-full pl-9 pr-8 py-2.5 rounded-full border border-border bg-card text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/30 transition-all"
+                className="w-full pl-9 pr-8 py-2.5 rounded-full border border-primary/12 bg-background-pure text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all"
               />
               {search && (
                 <button onClick={() => setSearch("")} className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground">
@@ -117,7 +117,7 @@ const Podcasts = () => {
               )}
             </div>
             {thematiques.length > 0 && (
-              <select value={thematique} onChange={(e) => setThematique(e.target.value)} className="rounded-full border border-border bg-card px-4 py-2.5 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-primary/30 transition-all">
+              <select value={thematique} onChange={(e) => setThematique(e.target.value)} className="rounded-full border border-primary/12 bg-background-pure px-4 py-2.5 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all">
                 <option value="">Toutes les thématiques</option>
                 {thematiques.map((t) => <option key={t} value={t}>{t}</option>)}
               </select>
@@ -137,31 +137,30 @@ const Podcasts = () => {
                     initial={{ opacity: 0, y: 25 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.5, delay: (i % LOAD_MORE_COUNT) * 0.04 }}
-                    className="group bg-card rounded-2xl border border-border overflow-hidden hover:border-primary/30 hover:-translate-y-1 hover:shadow-xl hover:shadow-primary/5 transition-all duration-300 flex flex-col relative"
+                    className="group bg-background-pure rounded-[20px] border border-primary/8 overflow-hidden hover:border-primary/20 hover:-translate-y-1 hover:shadow-xl hover:shadow-primary/5 transition-all duration-300 flex flex-col relative"
                   >
-                    <div className="absolute top-0 left-0 right-0 h-0.5 bg-gradient-to-r from-primary to-secondary scale-x-0 group-hover:scale-x-100 transition-transform duration-500 origin-left" />
+                    <div className="absolute top-0 left-0 right-0 h-[3px] bg-gradient-to-r from-primary to-lavande scale-x-0 group-hover:scale-x-100 transition-transform duration-500 origin-left" />
                     <div className="aspect-square bg-muted relative overflow-hidden">
                       {p.vignette_url ? (
                         <img src={p.vignette_url} alt={`Vignette de ${p.nom_podcast}`} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" loading="lazy" />
                       ) : (
-                        <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-primary/10 to-primary/5">
+                        <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-primary/8 to-lavande/5">
                           <Mic2 className="w-12 h-12 text-primary/30" />
                         </div>
                       )}
                     </div>
                     <div className="p-5 flex flex-col flex-1">
-                      <h2 className="font-display font-bold text-lg text-secondary mb-1 line-clamp-1">{p.nom_podcast}</h2>
+                      <h2 className="font-serif italic text-lg text-primary mb-1 line-clamp-1">{p.nom_podcast}</h2>
+                      {(p.prenom || p.nom) && <p className="font-display font-bold text-sm text-foreground mb-1">{p.prenom} {p.nom}</p>}
                       {(p.ville || p.thematique) && (
-                        <div className="flex items-center gap-1.5 text-xs text-muted-foreground mb-3">
+                        <div className="flex items-center flex-wrap gap-1.5 text-xs text-muted-foreground mb-3">
                           {p.ville && <span className="flex items-center gap-1"><MapPin className="w-3 h-3" />{p.ville}</span>}
-                          {p.ville && p.thematique && <span>—</span>}
-                          {p.thematique && <span>{p.thematique}</span>}
+                          {p.thematique && <span className="inline-flex px-2 py-0.5 rounded-full text-terre" style={{ background: "rgba(200,116,42,0.08)" }}>{p.thematique}</span>}
                         </div>
                       )}
                       <p className="text-muted-foreground text-sm leading-relaxed line-clamp-2 mb-2">{p.description}</p>
-                      {(p.prenom || p.nom) && <p className="text-xs text-muted-foreground mb-1">par {p.prenom} {p.nom}</p>}
                       <div className="flex items-center gap-3 mt-auto pt-2">
-                        <a href={p.lien_ecoute} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1.5 text-sm font-medium text-primary hover:text-primary-glow transition-colors">
+                        <a href={p.lien_ecoute} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1.5 text-sm font-medium text-primary hover:text-primary-hover transition-colors">
                           Écouter <ArrowUpRight className="w-3.5 h-3.5" />
                         </a>
                         <Link to={`/podcasteur/${p.slug || p.id}`} className="inline-flex items-center gap-1 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">Voir le profil</Link>
@@ -172,7 +171,7 @@ const Podcasts = () => {
               </div>
               {hasMore && (
                 <div className="flex justify-center mt-10">
-                  <button onClick={() => setVisible((v) => v + LOAD_MORE_COUNT)} className="group inline-flex items-center gap-2 px-6 py-3 rounded-full border border-border bg-card text-sm font-medium text-muted-foreground hover:text-foreground hover:border-primary/30 transition-all duration-300">
+                  <button onClick={() => setVisible((v) => v + LOAD_MORE_COUNT)} className="group inline-flex items-center gap-2 px-6 py-3 rounded-full border border-primary/15 bg-background-pure text-sm font-medium text-muted-foreground hover:text-foreground hover:border-primary/30 transition-all duration-300">
                     Voir plus ({filtered.length - visible} restants) <ChevronDown className="w-4 h-4 group-hover:translate-y-0.5 transition-transform" />
                   </button>
                 </div>
@@ -180,7 +179,7 @@ const Podcasts = () => {
             </>
           ) : (
             <div className="text-center py-16">
-              <div className="w-16 h-16 rounded-2xl bg-primary/10 flex items-center justify-center mx-auto mb-5"><Mic2 className="w-7 h-7 text-primary/50" /></div>
+              <div className="w-16 h-16 rounded-2xl bg-primary/8 flex items-center justify-center mx-auto mb-5"><Mic2 className="w-7 h-7 text-primary/50" /></div>
               <h2 className="font-display font-bold text-xl mb-2 text-foreground">{search || thematique ? "Aucun résultat" : "Les premiers podcasts arrivent bientôt"}</h2>
               <p className="text-muted-foreground text-sm max-w-md mx-auto">{search || thematique ? "Ajustez votre recherche." : "Le flux se construit en temps réel."}</p>
             </div>

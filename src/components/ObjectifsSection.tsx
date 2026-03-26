@@ -11,7 +11,7 @@ const objectifs = [
 
 const ObjectifsSection = () => {
   return (
-    <section id="objectifs" className="py-20 md:py-32 bg-card">
+    <section id="objectifs" className="py-20 md:py-32 bg-muted/40">
       <div className="container mx-auto px-6 max-w-5xl">
         <div className="grid md:grid-cols-[1fr_1.5fr] gap-12 md:gap-20 items-start">
           <motion.div
@@ -25,7 +25,7 @@ const ObjectifsSection = () => {
               <div className="h-px w-6 bg-primary/30" />
               <span className="text-xs font-semibold uppercase tracking-[0.2em] text-primary">Objectifs</span>
             </div>
-            <h2 className="font-display font-extrabold text-3xl sm:text-4xl md:text-[2.6rem] leading-tight mb-4">
+            <h2 className="font-display font-black text-3xl sm:text-4xl md:text-[2.6rem] leading-tight mb-4 text-foreground">
               Pourquoi cette initiative existe
             </h2>
             <p className="text-muted-foreground leading-relaxed">
@@ -41,9 +41,9 @@ const ObjectifsSection = () => {
                 whileInView={{ opacity: 1, x: 0 }}
                 viewport={{ once: true, margin: "-40px" }}
                 transition={{ duration: 0.5, delay: i * 0.06 }}
-                className="group flex items-center gap-5 bg-background rounded-xl px-6 py-5 border border-border hover:border-primary/30 hover:-translate-y-0.5 hover:shadow-lg hover:shadow-primary/5 transition-all duration-300"
+                className="group flex items-center gap-5 bg-background-pure rounded-xl px-6 py-5 border border-primary/8 hover:border-primary/20 hover:-translate-y-0.5 hover:shadow-lg hover:shadow-primary/5 transition-all duration-300"
               >
-                <div className="shrink-0 w-11 h-11 rounded-xl bg-primary/10 flex items-center justify-center group-hover:bg-primary/20 transition-colors">
+                <div className="shrink-0 w-11 h-11 rounded-xl bg-primary/8 flex items-center justify-center group-hover:bg-primary/15 transition-colors">
                   <o.icon className="w-5 h-5 text-primary" />
                 </div>
                 <p className="text-foreground leading-snug font-medium">{o.text}</p>
