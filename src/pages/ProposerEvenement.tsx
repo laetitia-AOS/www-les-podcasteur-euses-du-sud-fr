@@ -103,7 +103,7 @@ const ProposerEvenement = () => {
   if (submitted) {
     return (
       <div className="min-h-screen bg-background">
-        <SEOHead title="Événement proposé — Les Podcasteur·euses du Sud" description="Votre événement a été soumis avec succès." path="/proposer-evenement" />
+        <SEOHead title="Événement proposé — Les Podcasteur·euses du Sud" description="Votre événement a été soumis avec succès." path="/proposer-evenement-podcast" />
         <Navbar />
         <main className="pt-24 pb-20">
           <div className="container mx-auto px-6 max-w-2xl">
@@ -115,7 +115,7 @@ const ProposerEvenement = () => {
               <p className="text-muted-foreground max-w-lg mx-auto">
                 Votre événement a bien été soumis. Il sera visible sur le site après validation par notre équipe (sous 48–72h).
               </p>
-              <Link to="/evenements" className="inline-flex items-center gap-2 text-primary font-medium hover:underline">
+              <Link to="/evenements-podcast" className="inline-flex items-center gap-2 text-primary font-medium hover:underline">
                 Voir l'agenda →
               </Link>
             </motion.div>
@@ -131,7 +131,7 @@ const ProposerEvenement = () => {
       <SEOHead
         title="Proposer un événement — Les Podcasteur·euses du Sud"
         description="Proposez un événement podcast en Région Sud : rencontre, atelier, session d'écoute. Soumettez votre événement pour qu'il soit référencé sur l'agenda."
-        path="/proposer-evenement"
+        path="/proposer-evenement-podcast"
       />
       <Navbar />
       <main className="pt-24 pb-20">

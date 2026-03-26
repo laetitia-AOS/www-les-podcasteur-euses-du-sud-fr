@@ -216,7 +216,7 @@ const MonEspace = () => {
             Aucune fiche n'est associée à <span className="font-medium text-foreground">{userEmail}</span>.
           </p>
           <div className="flex flex-col gap-2">
-            <Link to="/formulaire"><Button className="w-full">Remplir le formulaire</Button></Link>
+            <Link to="/referencer-mon-podcast"><Button className="w-full">Remplir le formulaire</Button></Link>
             <Button variant="outline" onClick={handleLogout}>Se déconnecter</Button>
           </div>
         </div>

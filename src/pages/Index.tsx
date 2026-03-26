@@ -16,8 +16,8 @@ const Index = () => {
     "itemListElement": [
       { "@type": "ListItem", position: 1, name: "Accueil", item: "https://www.les-podcasteur-euses-du-sud.fr/" },
       { "@type": "ListItem", position: 2, name: "Annuaire", item: "https://www.les-podcasteur-euses-du-sud.fr/annuaire-podcasts" },
-      { "@type": "ListItem", position: 3, name: "Événements", item: "https://www.les-podcasteur-euses-du-sud.fr/evenements" },
-      { "@type": "ListItem", position: 4, name: "Référencer", item: "https://www.les-podcasteur-euses-du-sud.fr/formulaire" },
+      { "@type": "ListItem", position: 3, name: "Événements", item: "https://www.les-podcasteur-euses-du-sud.fr/evenements-podcast" },
+      { "@type": "ListItem", position: 4, name: "Référencer", item: "https://www.les-podcasteur-euses-du-sud.fr/referencer-mon-podcast" },
       { "@type": "ListItem", position: 5, name: "Contact", item: "https://www.les-podcasteur-euses-du-sud.fr/contact" },
     ],
   }), []);

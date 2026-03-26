@@ -122,7 +122,7 @@ const ProchainEvenement = () => {
 
               <div className="flex shrink-0 gap-3">
                 <button
-                  onClick={() => navigate(evt.slug ? `/evenement/${evt.slug}` : "/evenements")}
+                  onClick={() => navigate(evt.slug ? `/evenement-podcast/${evt.slug}` : "/evenements-podcast")}
                   className="inline-flex items-center gap-2 text-sm font-semibold text-primary-foreground bg-primary px-5 py-2.5 rounded-xl hover:brightness-110 transition-all shadow-sm"
                 >
                   Découvrir

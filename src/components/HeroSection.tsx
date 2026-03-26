@@ -55,7 +55,7 @@ const HeroSection = () => {
               className="flex flex-col items-start gap-3"
             >
               <button
-                onClick={() => navigate("/formulaire")}
+                onClick={() => navigate("/referencer-mon-podcast")}
                 className="group flex items-center gap-3 bg-primary text-primary-foreground px-8 py-4 rounded-xl text-base font-semibold hover:brightness-110 transition-all duration-300 shadow-md hover:shadow-lg hover:-translate-y-0.5"
               >
                 Référencer mon podcast

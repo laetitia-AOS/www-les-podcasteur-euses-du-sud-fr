@@ -46,7 +46,7 @@ const Bienvenue = () => {
               et être visible par toute la communauté.
             </p>
             <button
-              onClick={() => navigate("/formulaire")}
+              onClick={() => navigate("/referencer-mon-podcast")}
               className="group inline-flex items-center gap-3 bg-primary text-primary-foreground px-8 py-4 rounded-xl font-semibold hover:brightness-110 transition-all duration-300 shadow-md hover:shadow-lg"
             >
               <Mic className="w-5 h-5" />

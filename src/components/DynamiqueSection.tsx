@@ -147,7 +147,7 @@ const DynamiqueSection = () => {
                         <ArrowUpRight className="w-3.5 h-3.5" />
                       </a>
                       <Link
-                        to={`/profil/${p.slug || p.id}`}
+                        to={`/podcasteur/${p.slug || p.id}`}
                         className="inline-flex items-center gap-1 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
                       >
                         Voir le profil
@@ -189,7 +189,7 @@ const DynamiqueSection = () => {
               Soyez parmi les premiers à apparaître.
             </p>
             <a
-              href="/formulaire"
+              href="/referencer-mon-podcast"
               className="inline-flex items-center gap-2 mt-6 text-sm font-medium text-primary hover:text-primary/80 transition-colors"
             >
               Référencer mon podcast
