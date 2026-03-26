@@ -102,7 +102,7 @@ const StudioProfile = () => {
       "@context": "https://schema.org",
       "@type": "LocalBusiness",
       name: profile.nom_podcast,
-      url: `https://www.les-podcasteur-euses-du-sud.fr/annuaire/studios/${slug}`,
+      url: `https://www.les-podcasteur-euses-du-sud.fr/annuaire-podcasts/studios/${slug}`,
       ...(profile.description && { description: profile.description }),
       ...(profile.vignette_url && { image: profile.vignette_url }),
       ...(profile.city_name && {
@@ -141,7 +141,7 @@ const StudioProfile = () => {
         <Navbar />
         <main className="pt-24 pb-20 text-center">
           <h1 className="font-serif text-2xl text-foreground mb-4">Studio introuvable</h1>
-          <Link to="/annuaire"><Button variant="outline">Retour à l'annuaire</Button></Link>
+          <Link to="/annuaire-podcasts"><Button variant="outline">Retour à l'annuaire</Button></Link>
         </main>
         <Footer />
       </div>
@@ -155,7 +155,7 @@ const StudioProfile = () => {
       <SEOHead
         title={seoTitle}
         description={seoDesc}
-        path={`/annuaire/studios/${slug}`}
+        path={`/annuaire-podcasts/studios/${slug}`}
         image={profile.vignette_url || undefined}
         type="place"
         jsonLd={jsonLd}
@@ -166,7 +166,7 @@ const StudioProfile = () => {
         <div className="relative bg-gradient-to-br from-primary/15 via-secondary/10 to-accent/10 border-b border-border">
           <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_20%,hsl(var(--primary)/0.08),transparent_50%)]" />
           <div className="container mx-auto px-6 max-w-5xl relative">
-            <Link to="/annuaire" className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors pt-6">
+            <Link to="/annuaire-podcasts" className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors pt-6">
               <ArrowLeft className="w-4 h-4" /> Retour à l'annuaire
             </Link>
 

@@ -70,7 +70,7 @@ const StructureEcoProfile = () => {
       "@context": "https://schema.org",
       "@type": "Organization",
       name: structureName,
-      url: profile.lien_principal || `https://www.les-podcasteur-euses-du-sud.fr/annuaire/structures/${slug}`,
+      url: profile.lien_principal || `https://www.les-podcasteur-euses-du-sud.fr/annuaire-podcasts/structures/${slug}`,
       description: profile.bio_750 || undefined,
       image: profile.vignette_url || undefined,
       address: cityClean ? { "@type": "PostalAddress", addressLocality: cityClean, addressRegion: "Provence-Alpes-Côte d'Azur", addressCountry: "FR" } : undefined,
@@ -85,7 +85,7 @@ const StructureEcoProfile = () => {
       <Navbar />
       <main className="pt-24 pb-20 text-center">
         <h1 className="font-serif text-2xl text-foreground mb-4">Structure introuvable</h1>
-        <Link to="/annuaire"><Button variant="outline">Retour à l'annuaire</Button></Link>
+        <Link to="/annuaire-podcasts"><Button variant="outline">Retour à l'annuaire</Button></Link>
       </main>
       <Footer />
     </div>
@@ -99,13 +99,13 @@ const StructureEcoProfile = () => {
 
   return (
     <div className="min-h-screen bg-background">
-      <SEOHead title={seoTitle} description={seoDesc} path={`/annuaire/structures/${slug}`} image={profile.vignette_url || undefined} type="profile" jsonLd={jsonLd} />
+      <SEOHead title={seoTitle} description={seoDesc} path={`/annuaire-podcasts/structures/${slug}`} image={profile.vignette_url || undefined} type="profile" jsonLd={jsonLd} />
       <Navbar />
       <main className="pt-16 pb-20">
         {/* Hero */}
         <div className="relative bg-gradient-to-br from-secondary/15 via-primary/10 to-accent/10 border-b border-border">
           <div className="container mx-auto px-6 max-w-5xl relative">
-            <Link to="/annuaire" className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors pt-6">
+            <Link to="/annuaire-podcasts" className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors pt-6">
               <ArrowLeft className="w-4 h-4" /> Retour à l'annuaire
             </Link>
             <div className="flex flex-col md:flex-row items-start gap-6 md:gap-8 pt-6 pb-10">
