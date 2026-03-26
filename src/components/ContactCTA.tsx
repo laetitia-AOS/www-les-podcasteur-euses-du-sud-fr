@@ -4,10 +4,13 @@ import { Link } from "react-router-dom";
 
 const ContactCTA = () => {
   return (
-    <section id="contact" className="py-20 md:py-28 bg-background relative overflow-hidden">
-      {/* Radial glow */}
-      <div className="absolute inset-0" style={{
-        background: "radial-gradient(circle at 50% 50%, hsl(229 88% 50% / 0.1) 0%, transparent 60%)"
+    <section id="contact" className="py-20 md:py-28 bg-muted relative overflow-hidden">
+      {/* Decorative circles */}
+      <div className="absolute top-10 left-10 w-80 h-80 rounded-full opacity-[0.08]" style={{
+        background: "radial-gradient(circle, hsl(27 67% 47%), transparent 70%)"
+      }} />
+      <div className="absolute bottom-10 right-10 w-64 h-64 rounded-full opacity-[0.06]" style={{
+        background: "radial-gradient(circle, hsl(265 20% 52%), transparent 70%)"
       }} />
 
       <div className="container mx-auto px-6 max-w-2xl relative">
@@ -18,28 +21,27 @@ const ContactCTA = () => {
           transition={{ duration: 0.7 }}
           className="text-center space-y-6"
         >
-          {/* Animated sun */}
-          <div className="text-6xl animate-sun inline-block mb-4">☀️</div>
+          <span className="text-xs font-semibold uppercase tracking-[0.2em] text-primary">Rejoindre</span>
 
-          <h2 className="font-display font-extrabold text-3xl sm:text-4xl md:text-5xl leading-tight">
+          <h2 className="font-display font-black text-3xl sm:text-4xl md:text-5xl leading-tight text-foreground">
             Ta voix a sa place<br />
-            <span className="text-secondary">dans le Sud.</span>
+            <span className="font-serif italic text-primary">dans le Sud.</span>
           </h2>
-          <p className="text-muted-foreground leading-relaxed max-w-lg mx-auto">
+          <p className="text-muted-foreground leading-relaxed max-w-lg mx-auto" style={{ lineHeight: 1.7 }}>
             Vous développez un projet, une idée ou une initiative en lien avec le podcast
             ou la création audio ? Contactez-nous pour faciliter les connexions et opportunités.
           </p>
           <div className="flex flex-wrap items-center justify-center gap-4 pt-2">
             <Link
               to="/referencer-mon-podcast"
-              className="group inline-flex items-center gap-3 bg-secondary text-secondary-foreground px-8 py-4 rounded-full text-base font-bold hover:brightness-110 transition-all duration-300 shadow-lg shadow-secondary/25"
+              className="group inline-flex items-center gap-3 bg-primary text-primary-foreground px-8 py-4 rounded-full text-base font-bold hover:bg-primary-hover transition-all duration-300 shadow-lg shadow-primary/15"
             >
               Référencer mon podcast
               <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
             </Link>
             <Link
               to="/contact"
-              className="inline-flex items-center gap-2 px-6 py-4 rounded-full text-base font-semibold border border-foreground/20 text-foreground hover:border-foreground/40 transition-all"
+              className="inline-flex items-center gap-2 px-6 py-4 rounded-full text-base font-semibold border border-foreground/20 text-foreground hover:border-primary hover:text-primary transition-all"
             >
               Nous contacter
             </Link>

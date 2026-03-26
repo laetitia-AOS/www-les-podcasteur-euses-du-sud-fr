@@ -47,7 +47,7 @@ const DynamiqueSection = () => {
   const hasMore = visible < podcasts.length;
 
   return (
-    <section id="flux" className="py-20 md:py-32 bg-card">
+    <section id="flux" className="py-20 md:py-32 bg-muted/40">
       <div className="container mx-auto px-6 max-w-5xl">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -61,7 +61,7 @@ const DynamiqueSection = () => {
               <div className="h-px w-6 bg-primary/30" />
               <span className="text-xs font-semibold uppercase tracking-[0.2em] text-primary">Flux</span>
             </div>
-            <h2 className="font-display font-extrabold text-3xl sm:text-4xl md:text-5xl">
+            <h2 className="font-display font-black text-3xl sm:text-4xl md:text-5xl text-foreground">
               La dynamique audio du Sud
             </h2>
           </div>
@@ -84,10 +84,10 @@ const DynamiqueSection = () => {
                   whileInView={{ opacity: 1, y: 0 }}
                   viewport={{ once: true, margin: "-40px" }}
                   transition={{ duration: 0.5, delay: (i % LOAD_MORE_COUNT) * 0.06 }}
-                  className="group bg-background rounded-2xl border border-border overflow-hidden hover:border-primary/30 hover:-translate-y-1 hover:shadow-xl hover:shadow-primary/5 transition-all duration-300 flex flex-col relative"
+                  className="group bg-background-pure rounded-[20px] border border-primary/8 overflow-hidden hover:border-primary/20 hover:-translate-y-1 hover:shadow-xl hover:shadow-primary/5 transition-all duration-300 flex flex-col relative"
                 >
                   {/* Gradient bar on hover */}
-                  <div className="absolute top-0 left-0 right-0 h-0.5 bg-gradient-to-r from-primary to-secondary scale-x-0 group-hover:scale-x-100 transition-transform duration-500 origin-left" />
+                  <div className="absolute top-0 left-0 right-0 h-[3px] bg-gradient-to-r from-primary to-lavande scale-x-0 group-hover:scale-x-100 transition-transform duration-500 origin-left" />
 
                   <div className="aspect-square bg-muted relative overflow-hidden">
                     {p.vignette_url ? (
@@ -98,27 +98,36 @@ const DynamiqueSection = () => {
                         loading="lazy"
                       />
                     ) : (
-                      <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-primary/10 to-primary/5">
+                      <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-primary/8 to-lavande/5">
                         <Mic2 className="w-12 h-12 text-primary/30" />
                       </div>
                     )}
                   </div>
 
                   <div className="p-5 flex flex-col flex-1">
-                    <h3 className="font-display font-bold text-lg text-secondary mb-1 line-clamp-1">
+                    <h3 className="font-serif italic text-lg text-primary mb-1 line-clamp-1">
                       {p.nom_podcast}
                     </h3>
 
+                    {(p.prenom || p.nom) && (
+                      <p className="font-display font-bold text-sm text-foreground mb-1">
+                        {p.prenom} {p.nom}
+                      </p>
+                    )}
+
                     {(p.ville || p.thematique) && (
-                      <div className="flex items-center gap-1.5 text-xs text-muted-foreground mb-3">
+                      <div className="flex items-center flex-wrap gap-1.5 text-xs text-muted-foreground mb-3">
                         {p.ville && (
                           <span className="flex items-center gap-1">
                             <MapPin className="w-3 h-3" />
                             {p.ville}
                           </span>
                         )}
-                        {p.ville && p.thematique && <span>—</span>}
-                        {p.thematique && <span>{p.thematique}</span>}
+                        {p.thematique && (
+                          <span className="inline-flex px-2 py-0.5 rounded-full text-terre" style={{ background: "rgba(200,116,42,0.08)" }}>
+                            {p.thematique}
+                          </span>
+                        )}
                       </div>
                     )}
 
@@ -126,16 +135,12 @@ const DynamiqueSection = () => {
                       {p.description}
                     </p>
 
-                    {(p.prenom || p.nom) && (
-                      <p className="text-xs text-muted-foreground mb-1">par {p.prenom} {p.nom}</p>
-                    )}
-
                     <div className="flex items-center gap-3 mt-auto pt-2">
                       <a
                         href={p.lien_ecoute}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="inline-flex items-center gap-1.5 text-sm font-medium text-primary hover:text-primary-glow transition-colors"
+                        className="inline-flex items-center gap-1.5 text-sm font-medium text-primary hover:text-primary-hover transition-colors"
                       >
                         Écouter
                         <ArrowUpRight className="w-3.5 h-3.5" />
@@ -156,7 +161,7 @@ const DynamiqueSection = () => {
               <div className="flex justify-center mt-10">
                 <button
                   onClick={() => setVisible((v) => v + LOAD_MORE_COUNT)}
-                  className="group inline-flex items-center gap-2 px-6 py-3 rounded-full border border-border bg-card text-sm font-medium text-muted-foreground hover:text-foreground hover:border-primary/30 hover:shadow-lg hover:shadow-primary/5 transition-all duration-300"
+                  className="group inline-flex items-center gap-2 px-6 py-3 rounded-full border border-primary/15 bg-background-pure text-sm font-medium text-muted-foreground hover:text-foreground hover:border-primary/30 hover:shadow-lg hover:shadow-primary/5 transition-all duration-300"
                 >
                   Voir plus de podcasts ({podcasts.length - visible} restants)
                   <ChevronDown className="w-4 h-4 group-hover:translate-y-0.5 transition-transform" />
@@ -172,7 +177,7 @@ const DynamiqueSection = () => {
             transition={{ duration: 0.6 }}
             className="text-center py-16"
           >
-            <div className="w-16 h-16 rounded-2xl bg-primary/10 flex items-center justify-center mx-auto mb-5">
+            <div className="w-16 h-16 rounded-2xl bg-primary/8 flex items-center justify-center mx-auto mb-5">
               <Mic2 className="w-7 h-7 text-primary/50" />
             </div>
             <h3 className="font-display font-bold text-xl mb-2 text-foreground">
@@ -183,7 +188,7 @@ const DynamiqueSection = () => {
             </p>
             <a
               href="/referencer-mon-podcast"
-              className="inline-flex items-center gap-2 mt-6 text-sm font-medium text-primary hover:text-primary-glow transition-colors"
+              className="inline-flex items-center gap-2 mt-6 text-sm font-medium text-primary hover:text-primary-hover transition-colors"
             >
               Référencer mon podcast
               <ArrowUpRight className="w-3.5 h-3.5" />
