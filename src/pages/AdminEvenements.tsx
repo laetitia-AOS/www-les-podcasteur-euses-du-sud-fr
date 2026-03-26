@@ -5,7 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
-import { CalendarDays, ArrowLeft, Plus, Pencil, Trash2, X, LogOut, Loader2, Download, Image, Users } from "lucide-react";
+import { CalendarDays, ArrowLeft, Plus, Pencil, Trash2, X, LogOut, Loader2, Download, Image, Users, Eye, EyeOff } from "lucide-react";
 import { useNavigate, Navigate } from "react-router-dom";
 import { toast } from "sonner";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -83,6 +83,18 @@ const AdminEvenements = () => {
       resetForm();
     },
     onError: () => toast.error("Erreur lors de l'enregistrement"),
+  });
+
+  const togglePublish = useMutation({
+    mutationFn: async ({ id, publie }: { id: string; publie: boolean }) => {
+      const { error } = await supabase.from("evenements").update({ publie }).eq("id", id);
+      if (error) throw error;
+    },
+    onSuccess: (_, { publie }) => {
+      queryClient.invalidateQueries({ queryKey: ["admin-evenements"] });
+      toast.success(publie ? "Événement publié" : "Événement dépublié");
+    },
+    onError: () => toast.error("Erreur lors de la mise à jour"),
   });
 
   const deleteMutation = useMutation({
