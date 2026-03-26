@@ -220,7 +220,7 @@ const HeroSection = () => {
           style={{ borderTop: "1px solid rgba(200,116,42,0.15)" }}
         >
           {[
-            { value: "14+", label: "CRÉATEURS" },
+            { value: `${profileCount}+`, label: "CRÉATEURS" },
             { value: "6", label: "DÉPARTEMENTS" },
             { value: "∞", label: "FORMATS" },
             { value: "1", label: "ÉCOSYSTÈME" },
