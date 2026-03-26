@@ -192,9 +192,13 @@ const AgencesStudios = () => {
               <p>Aucune structure ne correspond à vos critères.</p>
             </div>
           ) : (
-            <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
+            <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
               {filtered.map((profile, i) => {
                 const cityClean = profile.city_name?.replace(/\s+\d+(er?|e)?\s+Arrondissement$/i, "").replace(/\s+\d+$/, "") || "";
+                const sd = profile.studio_data ? (typeof profile.studio_data === "string" ? JSON.parse(profile.studio_data) : profile.studio_data) : {};
+                const accroche = sd?.phrase_accroche || profile.bio_750?.slice(0, 100) || "";
+                const coverUrl = (sd?.galerie_urls && sd.galerie_urls.length > 0) ? sd.galerie_urls[0] : profile.vignette_url;
+
                 return (
                   <motion.div
                     key={profile.id}
@@ -204,59 +208,74 @@ const AgencesStudios = () => {
                   >
                     <Link
                       to={`/annuaire/structures/${profile.slug || profile.id}`}
-                      className="block bg-card border border-border rounded-2xl p-6 hover:shadow-md hover:border-primary/20 transition-all duration-300 h-full relative"
+                      className="group block bg-card border border-border rounded-2xl overflow-hidden hover:shadow-lg hover:border-primary/20 transition-all duration-300 h-full"
                     >
-                      {profile.consent_mise_en_relation && (
-                        <span className="absolute top-3 right-3 inline-flex items-center gap-1 text-[10px] font-semibold px-2 py-0.5 rounded-full bg-green-100 text-green-700 border border-green-200">
-                          <Handshake className="w-3 h-3" /> Ouvert·e aux collabs
-                        </span>
-                      )}
-
-                      <div className="flex items-start gap-4 mb-3">
-                        <div className="w-14 h-14 rounded-xl overflow-hidden bg-muted flex-shrink-0">
-                          {profile.vignette_url ? (
-                            <img
-                              src={profile.vignette_url}
-                              alt={profile.nom_podcast}
-                              className="w-full h-full object-cover"
-                              loading="lazy"
-                            />
-                          ) : (
-                            <div className="w-full h-full flex items-center justify-center bg-secondary/5">
-                              <Building2 className="w-6 h-6 text-secondary/30" />
-                            </div>
-                          )}
-                        </div>
-                        <div className="flex-1 min-w-0">
-                          <h3 className="font-serif text-lg text-foreground truncate">{profile.nom_podcast}</h3>
-                          {profile.metier_principal && (
-                            <Badge variant="secondary" className="text-xs mt-1">{profile.metier_principal}</Badge>
-                          )}
+                      {/* Cover image */}
+                      <div className="relative aspect-[16/9] bg-muted overflow-hidden">
+                        {coverUrl ? (
+                          <img
+                            src={coverUrl}
+                            alt={profile.nom_podcast}
+                            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                            loading="lazy"
+                          />
+                        ) : (
+                          <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-secondary/10 to-primary/10">
+                            <Building2 className="w-12 h-12 text-muted-foreground/30" />
+                          </div>
+                        )}
+                        {/* Gradient overlay */}
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
+                        {/* Name on cover */}
+                        <div className="absolute bottom-0 left-0 right-0 p-4">
+                          <h3 className="font-serif text-lg text-white leading-snug drop-shadow-md">{profile.nom_podcast}</h3>
                           {cityClean && (
-                            <p className="text-xs text-muted-foreground flex items-center gap-1 mt-1">
+                            <p className="text-xs text-white/80 flex items-center gap-1 mt-1 drop-shadow">
                               <MapPin className="w-3 h-3" />
                               {cityClean}{profile.department_label ? `, ${profile.department_label.split(" — ")[1] || profile.department_label}` : ""}
                             </p>
                           )}
                         </div>
+                        {/* Logo overlay */}
+                        {profile.vignette_url && sd?.galerie_urls && sd.galerie_urls.length > 0 && (
+                          <div className="absolute top-3 left-3 w-10 h-10 rounded-lg overflow-hidden border-2 border-white/80 shadow-md bg-white">
+                            <img src={profile.vignette_url} alt="" className="w-full h-full object-cover" />
+                          </div>
+                        )}
+                        {profile.consent_mise_en_relation && (
+                          <span className="absolute top-3 right-3 inline-flex items-center gap-1 text-[10px] font-semibold px-2 py-0.5 rounded-full bg-white/90 text-green-700 border border-green-200 shadow-sm backdrop-blur-sm">
+                            <Handshake className="w-3 h-3" /> Collabs
+                          </span>
+                        )}
                       </div>
 
-                      {profile.bio_750 && (
-                        <p className="text-sm text-muted-foreground line-clamp-3 mb-3">{profile.bio_750}</p>
-                      )}
+                      {/* Content */}
+                      <div className="p-4">
+                        {profile.metier_principal && (
+                          <Badge variant="secondary" className="text-xs mb-2">{profile.metier_principal}</Badge>
+                        )}
+                        {accroche && (
+                          <p className="text-sm text-muted-foreground line-clamp-2 leading-relaxed">
+                            {sd?.phrase_accroche ? <em>{accroche}</em> : accroche}
+                          </p>
+                        )}
 
-                      {profile.services_3 && profile.services_3.length > 0 && (
-                        <div className="flex flex-wrap gap-1.5 mb-3">
-                          {profile.services_3.slice(0, 3).map((s, j) => (
-                            <Badge key={j} variant="outline" className="text-xs">{s}</Badge>
-                          ))}
+                        {profile.services_3 && profile.services_3.length > 0 && (
+                          <div className="flex flex-wrap gap-1.5 mt-3">
+                            {profile.services_3.slice(0, 2).map((s, j) => (
+                              <Badge key={j} variant="outline" className="text-[11px]">{s}</Badge>
+                            ))}
+                            {profile.services_3.length > 2 && (
+                              <Badge variant="outline" className="text-[11px]">+{profile.services_3.length - 2}</Badge>
+                            )}
+                          </div>
+                        )}
+
+                        <div className="flex items-center gap-2 mt-3 pt-2 border-t border-border/50">
+                          <span className="text-xs font-medium text-primary flex items-center gap-1">
+                            Voir la fiche <ArrowRight className="w-3 h-3" />
+                          </span>
                         </div>
-                      )}
-
-                      <div className="flex items-center gap-2 mt-auto pt-2">
-                        <span className="text-xs font-medium text-primary flex items-center gap-1">
-                          Voir la fiche <ArrowRight className="w-3 h-3" />
-                        </span>
                       </div>
                     </Link>
                   </motion.div>
