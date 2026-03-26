@@ -341,7 +341,8 @@ const AdminEvenements = () => {
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2">
                     <p className="font-medium text-foreground truncate">{evt.titre}</p>
-                    {!evt.publie && <Badge variant="outline" className="text-xs">Brouillon</Badge>}
+                    {!evt.publie && <Badge variant="outline" className="text-xs border-amber-300 text-amber-700 bg-amber-50">En attente</Badge>}
+                    {evt.publie && <Badge variant="outline" className="text-xs border-green-300 text-green-700 bg-green-50">Publié</Badge>}
                   </div>
                   {evt.sous_titre && <p className="text-xs text-muted-foreground">{evt.sous_titre}</p>}
                   <p className="text-xs text-muted-foreground">
@@ -350,6 +351,14 @@ const AdminEvenements = () => {
                   </p>
                 </div>
                 <div className="flex gap-1 shrink-0">
+                  <Button
+                    variant={evt.publie ? "outline" : "default"}
+                    size="sm"
+                    className="text-xs gap-1"
+                    onClick={() => togglePublish.mutate({ id: evt.id, publie: !evt.publie })}
+                  >
+                    {evt.publie ? <><EyeOff className="w-3.5 h-3.5" /> Dépublier</> : <><Eye className="w-3.5 h-3.5" /> Publier</>}
+                  </Button>
                   <Button variant="ghost" size="icon" onClick={() => startEdit(evt)}><Pencil className="w-4 h-4" /></Button>
                   <Button variant="ghost" size="icon" onClick={() => { if (confirm("Supprimer cet événement ?")) deleteMutation.mutate(evt.id); }}>
                     <Trash2 className="w-4 h-4 text-destructive" />
