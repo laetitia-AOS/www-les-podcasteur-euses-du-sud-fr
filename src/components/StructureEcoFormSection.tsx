@@ -298,7 +298,7 @@ const StructureEcoFormSection = ({ onBack }: Props) => {
         </div>
         <h2 className="font-serif text-3xl">🏛 Merci pour votre inscription</h2>
         <p className="text-muted-foreground max-w-lg mx-auto">Votre structure a bien été enregistrée. Elle sera visible dans l'annuaire après validation par notre équipe (48–72h).</p>
-        <a href="/annuaire" className="inline-flex items-center gap-2 text-primary font-medium hover:underline">Voir l'annuaire →</a>
+        <a href="/annuaire-podcasts" className="inline-flex items-center gap-2 text-primary font-medium hover:underline">Voir l'annuaire →</a>
       </motion.div>
     );
   }

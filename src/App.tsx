@@ -2,7 +2,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import ScrollToTop from "./components/ScrollToTop";
 import Index from "./pages/Index";
 import Contact from "./pages/Contact";
@@ -52,10 +52,11 @@ const App = () => (
           <Route path="/proposer-evenement" element={<ProposerEvenement />} />
           <Route path="/evenement/:slug" element={<EvenementDetail />} />
           <Route path="/adhesion" element={<Adhesion />} />
-          <Route path="/annuaire" element={<Annuaire />} />
+          <Route path="/annuaire-podcasts" element={<Annuaire />} />
+          <Route path="/annuaire" element={<Navigate to="/annuaire-podcasts" replace />} />
           <Route path="/profil/:slug" element={<ProfilMembre />} />
-          <Route path="/annuaire/studios/:slug" element={<StudioProfile />} />
-          <Route path="/annuaire/structures/:slug" element={<StructureEcoProfile />} />
+          <Route path="/annuaire-podcasts/studios/:slug" element={<StudioProfile />} />
+          <Route path="/annuaire-podcasts/structures/:slug" element={<StructureEcoProfile />} />
           <Route path="/bienvenue" element={<Bienvenue />} />
           <Route path="/formulaire" element={<Formulaire />} />
           <Route path="/agences-studios" element={<AgencesStudios />} />

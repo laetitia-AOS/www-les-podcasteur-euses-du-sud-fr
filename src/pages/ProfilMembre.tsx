@@ -147,7 +147,7 @@ const ProfilMembre = () => {
         <Navbar />
         <main className="pt-24 pb-20 text-center">
           <h1 className="font-serif text-2xl text-foreground mb-4">Profil introuvable</h1>
-          <Link to="/annuaire"><Button variant="outline">Retour à l'annuaire</Button></Link>
+          <Link to="/annuaire-podcasts"><Button variant="outline">Retour à l'annuaire</Button></Link>
         </main>
         <Footer />
       </div>
@@ -170,7 +170,7 @@ const ProfilMembre = () => {
         <div className={`relative bg-gradient-to-br ${config.gradient} border-b border-border`}>
           <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_20%,hsl(var(--primary)/0.08),transparent_50%)]" />
           <div className="container mx-auto px-6 max-w-5xl relative">
-            <Link to="/annuaire" className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors pt-6">
+            <Link to="/annuaire-podcasts" className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors pt-6">
               <ArrowLeft className="w-4 h-4" /> Retour à l'annuaire
             </Link>
 

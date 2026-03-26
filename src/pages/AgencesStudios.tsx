@@ -207,7 +207,7 @@ const AgencesStudios = () => {
                     transition={{ duration: 0.4, delay: i * 0.03 }}
                   >
                     <Link
-                      to={`/annuaire/structures/${profile.slug || profile.id}`}
+                      to={`/annuaire-podcasts/structures/${profile.slug || profile.id}`}
                       className="group block bg-card border border-border rounded-2xl overflow-hidden hover:shadow-lg hover:border-primary/20 transition-all duration-300 h-full"
                     >
                       {/* Cover image */}
