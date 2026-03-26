@@ -29,6 +29,7 @@ import Bienvenue from "./pages/Bienvenue";
 import Formulaire from "./pages/Formulaire";
 import StudioProfile from "./pages/StudioProfile";
 import StructureEcoProfile from "./pages/StructureEcoProfile";
+import AgencesStudios from "./pages/AgencesStudios";
 
 const queryClient = new QueryClient();
 
@@ -55,6 +56,7 @@ const App = () => (
           <Route path="/annuaire/structures/:slug" element={<StructureEcoProfile />} />
           <Route path="/bienvenue" element={<Bienvenue />} />
           <Route path="/formulaire" element={<Formulaire />} />
+          <Route path="/agences-studios" element={<AgencesStudios />} />
           <Route path="/admin" element={<AdminDashboard />} />
           <Route path="/admin/login" element={<AdminLogin />} />
           <Route path="/admin/adhesions" element={<AdminAdhesions />} />
