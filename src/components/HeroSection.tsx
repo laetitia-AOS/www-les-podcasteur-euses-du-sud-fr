@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import { ArrowRight, Play } from "lucide-react";
+import { ArrowRight, Play, Instagram, Linkedin } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import heroPodcast from "@/assets/hero-podcast.jpg";
 
@@ -70,15 +70,27 @@ const HeroSection = () => {
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5, delay: 0.55 }}
-              className="mt-4"
+              className="mt-5 flex items-center gap-4"
             >
-              <button
-                onClick={() => document.getElementById("dynamique")?.scrollIntoView({ behavior: "smooth" })}
-                className="group flex items-center gap-2 text-muted-foreground hover:text-foreground text-sm font-medium transition-colors"
+              <span className="text-sm text-muted-foreground font-medium">Suivez-nous</span>
+              <a
+                href="https://www.instagram.com/les_podcasteur.euses_du_sud/"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="group flex items-center justify-center w-11 h-11 rounded-xl bg-muted/60 hover:bg-primary/15 border border-border hover:border-primary/30 transition-all duration-300 hover:-translate-y-0.5"
+                aria-label="Suivez-nous sur Instagram"
               >
-                <Play className="w-4 h-4" />
-                Découvrir les podcasts
-              </button>
+                <Instagram className="w-5 h-5 text-muted-foreground group-hover:text-primary transition-colors" />
+              </a>
+              <a
+                href="https://www.linkedin.com/company/les-podcasteur-euses-du-sud/"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="group flex items-center justify-center w-11 h-11 rounded-xl bg-muted/60 hover:bg-primary/15 border border-border hover:border-primary/30 transition-all duration-300 hover:-translate-y-0.5"
+                aria-label="Suivez-nous sur LinkedIn"
+              >
+                <Linkedin className="w-5 h-5 text-muted-foreground group-hover:text-primary transition-colors" />
+              </a>
             </motion.div>
 
             {/* Stats */}
