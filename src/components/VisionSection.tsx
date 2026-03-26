@@ -2,8 +2,8 @@ import { motion } from "framer-motion";
 
 const VisionSection = () => {
   return (
-    <section id="vision" className="py-20 md:py-32 bg-background">
-      <div className="container mx-auto px-6 max-w-3xl">
+    <section id="vision" className="py-20 md:py-32 bg-background bg-grid relative">
+      <div className="container mx-auto px-6 max-w-3xl relative">
         <motion.div
           initial={{ opacity: 0, y: 25 }}
           whileInView={{ opacity: 1, y: 0 }}
@@ -13,11 +13,11 @@ const VisionSection = () => {
         >
           <div className="flex items-center gap-3 justify-center mb-2">
             <div className="h-px w-8 bg-primary/30" />
-            <span className="text-xs font-semibold uppercase tracking-[0.2em] text-primary/70">Vision</span>
+            <span className="text-xs font-semibold uppercase tracking-[0.2em] text-primary">Vision</span>
             <div className="h-px w-8 bg-primary/30" />
           </div>
 
-          <h2 className="font-serif text-3xl sm:text-4xl md:text-5xl text-center leading-snug">
+          <h2 className="font-display font-extrabold text-3xl sm:text-4xl md:text-5xl text-center leading-snug">
             Le podcast transforme<br />les territoires
           </h2>
 
@@ -33,8 +33,8 @@ const VisionSection = () => {
           </div>
 
           <div className="pt-4">
-            <p className="text-foreground font-serif text-xl sm:text-2xl text-center italic">
-              Les Podcasteur·euses du Sud est né de cette réalité.
+            <p className="text-foreground font-display font-bold text-xl sm:text-2xl text-center italic">
+              Les Podcasteur·euses du Sud est né·e de cette réalité.
             </p>
           </div>
         </motion.div>

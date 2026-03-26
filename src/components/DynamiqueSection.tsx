@@ -2,7 +2,6 @@ import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { Mic2, ArrowUpRight, MapPin, Loader2, ChevronDown } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
-
 import { Link } from "react-router-dom";
 
 interface Podcast {
@@ -60,11 +59,9 @@ const DynamiqueSection = () => {
           <div>
             <div className="flex items-center gap-3 mb-4">
               <div className="h-px w-6 bg-primary/30" />
-              <span className="text-xs font-semibold uppercase tracking-[0.2em] text-primary/70">
-                Flux
-              </span>
+              <span className="text-xs font-semibold uppercase tracking-[0.2em] text-primary">Flux</span>
             </div>
-            <h2 className="font-serif text-3xl sm:text-4xl md:text-5xl">
+            <h2 className="font-display font-extrabold text-3xl sm:text-4xl md:text-5xl">
               La dynamique audio du Sud
             </h2>
           </div>
@@ -87,9 +84,11 @@ const DynamiqueSection = () => {
                   whileInView={{ opacity: 1, y: 0 }}
                   viewport={{ once: true, margin: "-40px" }}
                   transition={{ duration: 0.5, delay: (i % LOAD_MORE_COUNT) * 0.06 }}
-                  className="group bg-background rounded-2xl border border-border overflow-hidden hover:border-primary/20 hover:shadow-lg transition-all duration-300 flex flex-col"
+                  className="group bg-background rounded-2xl border border-border overflow-hidden hover:border-primary/30 hover:-translate-y-1 hover:shadow-xl hover:shadow-primary/5 transition-all duration-300 flex flex-col relative"
                 >
-                  {/* Vignette */}
+                  {/* Gradient bar on hover */}
+                  <div className="absolute top-0 left-0 right-0 h-0.5 bg-gradient-to-r from-primary to-secondary scale-x-0 group-hover:scale-x-100 transition-transform duration-500 origin-left" />
+
                   <div className="aspect-square bg-muted relative overflow-hidden">
                     {p.vignette_url ? (
                       <img
@@ -105,9 +104,8 @@ const DynamiqueSection = () => {
                     )}
                   </div>
 
-                  {/* Content */}
                   <div className="p-5 flex flex-col flex-1">
-                    <h3 className="font-serif text-lg text-foreground mb-1 line-clamp-1">
+                    <h3 className="font-display font-bold text-lg text-secondary mb-1 line-clamp-1">
                       {p.nom_podcast}
                     </h3>
 
@@ -132,16 +130,12 @@ const DynamiqueSection = () => {
                       <p className="text-xs text-muted-foreground mb-1">par {p.prenom} {p.nom}</p>
                     )}
 
-                    {p.bio_750 && (
-                      <p className="text-xs text-muted-foreground/70 line-clamp-2 mb-3">{p.bio_750}</p>
-                    )}
-
-                    <div className="flex items-center gap-3 mt-auto">
+                    <div className="flex items-center gap-3 mt-auto pt-2">
                       <a
                         href={p.lien_ecoute}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="inline-flex items-center gap-1.5 text-sm font-medium text-primary hover:text-primary/80 transition-colors"
+                        className="inline-flex items-center gap-1.5 text-sm font-medium text-primary hover:text-primary-glow transition-colors"
                       >
                         Écouter
                         <ArrowUpRight className="w-3.5 h-3.5" />
@@ -162,7 +156,7 @@ const DynamiqueSection = () => {
               <div className="flex justify-center mt-10">
                 <button
                   onClick={() => setVisible((v) => v + LOAD_MORE_COUNT)}
-                  className="group inline-flex items-center gap-2 px-6 py-3 rounded-xl border border-border bg-background text-sm font-medium text-muted-foreground hover:text-foreground hover:border-primary/20 hover:shadow-md transition-all duration-300"
+                  className="group inline-flex items-center gap-2 px-6 py-3 rounded-full border border-border bg-card text-sm font-medium text-muted-foreground hover:text-foreground hover:border-primary/30 hover:shadow-lg hover:shadow-primary/5 transition-all duration-300"
                 >
                   Voir plus de podcasts ({podcasts.length - visible} restants)
                   <ChevronDown className="w-4 h-4 group-hover:translate-y-0.5 transition-transform" />
@@ -181,16 +175,15 @@ const DynamiqueSection = () => {
             <div className="w-16 h-16 rounded-2xl bg-primary/10 flex items-center justify-center mx-auto mb-5">
               <Mic2 className="w-7 h-7 text-primary/50" />
             </div>
-            <h3 className="font-serif text-xl mb-2 text-foreground">
+            <h3 className="font-display font-bold text-xl mb-2 text-foreground">
               Les premiers podcasts arrivent bientôt
             </h3>
             <p className="text-muted-foreground text-sm max-w-md mx-auto leading-relaxed">
               Le flux se construit en temps réel grâce aux créateurs qui référencent leurs podcasts.
-              Soyez parmi les premiers à apparaître.
             </p>
             <a
               href="/referencer-mon-podcast"
-              className="inline-flex items-center gap-2 mt-6 text-sm font-medium text-primary hover:text-primary/80 transition-colors"
+              className="inline-flex items-center gap-2 mt-6 text-sm font-medium text-primary hover:text-primary-glow transition-colors"
             >
               Référencer mon podcast
               <ArrowUpRight className="w-3.5 h-3.5" />
