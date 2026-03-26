@@ -25,7 +25,7 @@ const ObjectifsSection = () => {
               <div className="h-px w-6 bg-primary/30" />
               <span className="text-xs font-semibold uppercase tracking-[0.2em] text-primary">Objectifs</span>
             </div>
-            <h2 className="font-display font-extrabold text-3xl sm:text-4xl md:text-[2.6rem] leading-tight mb-4 text-foreground">
+            <h2 className="font-display font-bold text-2xl sm:text-3xl md:text-[2.2rem] leading-tight mb-4 text-foreground">
               Pourquoi cette initiative existe
             </h2>
             <p className="text-muted-foreground leading-relaxed">

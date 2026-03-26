@@ -17,7 +17,7 @@ const VisionSection = () => {
             <div className="h-px w-8 bg-primary/30" />
           </div>
 
-          <h2 className="font-display font-extrabold text-3xl sm:text-4xl md:text-5xl text-center leading-snug text-foreground">
+          <h2 className="font-display font-bold text-2xl sm:text-3xl md:text-4xl text-center leading-snug text-foreground">
             Le podcast transforme<br />les territoires
           </h2>
 
