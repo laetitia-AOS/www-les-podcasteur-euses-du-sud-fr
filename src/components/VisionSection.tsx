@@ -2,7 +2,7 @@ import { motion } from "framer-motion";
 
 const VisionSection = () => {
   return (
-    <section id="vision" className="py-20 md:py-32 bg-background bg-grid relative">
+    <section id="vision" className="py-20 md:py-32 relative" style={{ backgroundColor: "#F6F1E8" }}>
       <div className="container mx-auto px-6 max-w-3xl relative">
         <motion.div
           initial={{ opacity: 0, y: 25 }}

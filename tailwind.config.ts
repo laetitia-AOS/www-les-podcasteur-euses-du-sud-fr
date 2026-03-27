@@ -14,8 +14,8 @@ export default {
     },
     extend: {
       fontFamily: {
-        sans: ["DM Sans", "sans-serif"],
-        display: ["Syne", "sans-serif"],
+        sans: ["Instrument Sans", "sans-serif"],
+        display: ["Fraunces", "serif"],
       },
       colors: {
         border: "hsl(var(--border))",
@@ -63,6 +63,12 @@ export default {
         pin: "hsl(var(--pin))",
         "ocre-vif": "hsl(var(--ocre-vif))",
         sable: "hsl(var(--sable))",
+        coral: "hsl(var(--coral))",
+        bleu: {
+          DEFAULT: "hsl(var(--bleu))",
+          dark: "hsl(var(--bleu2))",
+        },
+        olive: "hsl(var(--olive))",
         footer: "hsl(var(--footer-bg))",
         sidebar: {
           DEFAULT: "hsl(var(--sidebar-background))",
@@ -79,6 +85,7 @@ export default {
         lg: "var(--radius)",
         md: "calc(var(--radius) - 2px)",
         sm: "calc(var(--radius) - 4px)",
+        pill: "100px",
       },
       keyframes: {
         "accordion-down": {

@@ -51,20 +51,23 @@ const Navbar = () => {
       transition={{ duration: 0.5, delay: 0.3 }}
       className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 border-b ${
         scrolled
-          ? "bg-background-pure/95 backdrop-blur-md shadow-sm"
-          : "bg-background-pure/80 backdrop-blur-sm border-transparent"
+          ? "shadow-sm backdrop-blur-md"
+          : "backdrop-blur-sm border-transparent"
       }`}
-      style={{ borderColor: scrolled ? "rgba(200,116,42,0.12)" : "transparent" }}
+      style={{
+        backgroundColor: scrolled ? "rgba(253,250,245,0.95)" : "rgba(253,250,245,0.80)",
+        borderColor: scrolled ? "rgba(184,92,56,0.12)" : "transparent",
+      }}
     >
       <div className="container mx-auto px-6 max-w-6xl flex items-center justify-between h-16">
         <button
           onClick={() => handleClick("/")}
           className="flex items-center gap-2.5 transition-colors"
         >
-          <img src={logoPds} alt="Les Podcasteur·euses du Sud" className="w-9 h-9 rounded-xl object-cover shadow-sm" width="36" height="36" decoding="async" />
+          <img src={logoPds} alt="Les Podcasteur·euses du Sud" className="w-9 h-9 rounded-xl object-cover shadow-sm" width="36" height="36" decoding="async" loading="lazy" />
           <div className="hidden sm:flex flex-col items-start leading-tight">
-            <span className="font-display font-bold text-sm text-foreground">Les Podcasteur·euses du Sud</span>
-            <span className="text-[10px] text-primary font-medium tracking-wide">Réseau pro · Région Sud PACA</span>
+            <span className="font-display font-semibold text-sm text-foreground">Les Podcasteur·euses du Sud</span>
+            <span className="text-[10px] text-primary font-medium tracking-wider uppercase">Réseau pro · Région Sud PACA</span>
           </div>
         </button>
 
@@ -81,7 +84,8 @@ const Navbar = () => {
           ))}
           <button
             onClick={() => handleClick("/referencer-mon-podcast")}
-            className="ml-3 px-5 py-2 rounded-full bg-primary text-primary-foreground text-sm font-bold hover:bg-primary-hover transition-all shadow-md shadow-primary/15"
+            className="ml-3 px-6 py-2 rounded-pill bg-primary text-primary-foreground text-sm font-semibold hover:bg-primary-hover transition-all shadow-md"
+            style={{ boxShadow: "0 4px 14px rgba(184,92,56,0.2)" }}
           >
             Créer mon profil
           </button>
@@ -112,8 +116,12 @@ const Navbar = () => {
             initial={{ opacity: 0, height: 0 }}
             animate={{ opacity: 1, height: "auto" }}
             exit={{ opacity: 0, height: 0 }}
-            className="md:hidden bg-background-pure/95 backdrop-blur-md overflow-hidden"
-            style={{ borderBottom: "1px solid rgba(200,116,42,0.12)" }}
+            className="md:hidden overflow-hidden"
+            style={{
+              backgroundColor: "rgba(253,250,245,0.97)",
+              backdropFilter: "blur(12px)",
+              borderBottom: "1px solid rgba(184,92,56,0.12)",
+            }}
           >
             <div className="px-6 py-4 space-y-1">
               {links.map((l) => (
@@ -127,7 +135,7 @@ const Navbar = () => {
               ))}
               <button
                 onClick={() => handleClick("/referencer-mon-podcast")}
-                className="block w-full text-left px-3 py-2.5 rounded-md text-sm font-bold text-primary hover:bg-primary/5 transition-colors"
+                className="block w-full text-left px-3 py-2.5 rounded-md text-sm font-semibold text-primary hover:bg-primary/5 transition-colors"
               >
                 Créer mon profil
               </button>

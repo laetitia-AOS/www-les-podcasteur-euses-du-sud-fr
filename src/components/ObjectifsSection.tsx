@@ -11,7 +11,7 @@ const objectifs = [
 
 const ObjectifsSection = () => {
   return (
-    <section id="objectifs" className="py-20 md:py-32 bg-muted/40">
+    <section id="objectifs" className="py-20 md:py-32" style={{ backgroundColor: "#EDE3D3" }}>
       <div className="container mx-auto px-6 max-w-5xl">
         <div className="grid md:grid-cols-[1fr_1.5fr] gap-12 md:gap-20 items-start">
           <motion.div
@@ -41,7 +41,20 @@ const ObjectifsSection = () => {
                 whileInView={{ opacity: 1, x: 0 }}
                 viewport={{ once: true, margin: "-40px" }}
                 transition={{ duration: 0.5, delay: i * 0.06 }}
-                className="group flex items-center gap-5 bg-background-pure rounded-xl px-6 py-5 border border-primary/8 hover:border-primary/20 hover:-translate-y-0.5 hover:shadow-lg hover:shadow-primary/5 transition-all duration-300"
+                className="group flex items-center gap-5 rounded-[16px] px-6 py-5 hover:-translate-y-0.5 transition-all duration-300"
+                style={{
+                  backgroundColor: "#FDFAF5",
+                  border: "1px solid rgba(184,92,56,0.08)",
+                  boxShadow: "0 1px 3px rgba(184,92,56,0.03)",
+                }}
+                onMouseEnter={(e) => {
+                  (e.currentTarget as HTMLElement).style.borderColor = "rgba(184,92,56,0.2)";
+                  (e.currentTarget as HTMLElement).style.boxShadow = "0 8px 24px rgba(184,92,56,0.08)";
+                }}
+                onMouseLeave={(e) => {
+                  (e.currentTarget as HTMLElement).style.borderColor = "rgba(184,92,56,0.08)";
+                  (e.currentTarget as HTMLElement).style.boxShadow = "0 1px 3px rgba(184,92,56,0.03)";
+                }}
               >
                 <div className="shrink-0 w-11 h-11 rounded-xl bg-primary/8 flex items-center justify-center group-hover:bg-primary/15 transition-colors">
                   <o.icon className="w-5 h-5 text-primary" />
