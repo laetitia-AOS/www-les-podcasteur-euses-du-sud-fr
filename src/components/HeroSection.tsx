@@ -13,6 +13,7 @@ interface RecentProfile {
   city_name: string | null;
   metier_principal: string | null;
   consent_mise_en_relation: boolean;
+  vignette_url: string | null;
 }
 
 const avatarColors: Record<string, string> = {
