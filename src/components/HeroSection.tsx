@@ -166,8 +166,12 @@ const HeroSection = () => {
                     boxShadow: "0 2px 8px rgba(184,92,56,0.04)",
                   }}
                 >
-                  <div className={`w-10 h-10 rounded-full flex items-center justify-center text-xs font-bold ${colorClass}`}>
-                    {initials}
+                  <div className={`w-10 h-10 rounded-full flex items-center justify-center text-xs font-bold overflow-hidden ${colorClass}`}>
+                    {p.vignette_url ? (
+                      <img src={p.vignette_url} alt={`${p.prenom} ${p.nom}`} className="w-full h-full object-cover" loading="lazy" />
+                    ) : (
+                      initials
+                    )}
                   </div>
                   <div className="flex-1 text-left min-w-0">
                     <p className="text-sm font-display font-semibold text-foreground truncate">{p.prenom} {p.nom}</p>
