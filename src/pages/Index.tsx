@@ -1,5 +1,5 @@
 import { useMemo } from "react";
-import HeroSection from "@/components/HeroSection";
+import HeroSection, { HeroSearchBar } from "@/components/HeroSection";
 import Navbar from "@/components/Navbar";
 import MarqueeBanner from "@/components/MarqueeBanner";
 import VisionSection from "@/components/VisionSection";
@@ -35,6 +35,7 @@ const Index = () => {
       <Navbar />
       <main className="min-h-screen">
         <HeroSection />
+        <HeroSearchBar />
         <MarqueeBanner />
         <article>
           <VisionSection />
