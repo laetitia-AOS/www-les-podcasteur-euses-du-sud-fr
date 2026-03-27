@@ -11,11 +11,7 @@ const promesses = [
 
 const PromessesSection = () => {
   return (
-    <section id="promesses" className="py-20 md:py-32 bg-background relative overflow-hidden">
-      <div className="absolute top-0 right-0 w-96 h-96 opacity-[0.06]" style={{
-        backgroundImage: `radial-gradient(circle, hsl(27 67% 47%) 0%, transparent 70%)`
-      }} />
-
+    <section id="promesses" className="py-20 md:py-32 relative overflow-hidden" style={{ backgroundColor: "#F6F1E8" }}>
       <div className="container mx-auto px-6 max-w-5xl relative">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -42,9 +38,22 @@ const PromessesSection = () => {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true, margin: "-40px" }}
               transition={{ duration: 0.5, delay: i * 0.06 }}
-              className="group relative flex flex-col items-center text-center p-6 sm:p-5 rounded-2xl hover:bg-muted/40 hover:-translate-y-1 transition-all duration-300"
+              className="group relative flex flex-col items-center text-center p-6 sm:p-5 rounded-[18px] hover:-translate-y-1 transition-all duration-300"
+              style={{ backgroundColor: "transparent" }}
+              onMouseEnter={(e) => {
+                (e.currentTarget as HTMLElement).style.backgroundColor = "rgba(184,92,56,0.04)";
+              }}
+              onMouseLeave={(e) => {
+                (e.currentTarget as HTMLElement).style.backgroundColor = "transparent";
+              }}
             >
-              <div className="w-14 h-14 rounded-2xl bg-background-pure border border-primary/10 flex items-center justify-center mb-5 group-hover:border-primary/25 group-hover:shadow-md group-hover:shadow-primary/5 transition-all">
+              <div
+                className="w-14 h-14 rounded-[16px] flex items-center justify-center mb-5 group-hover:shadow-md transition-all"
+                style={{
+                  backgroundColor: "#FDFAF5",
+                  border: "1px solid rgba(184,92,56,0.1)",
+                }}
+              >
                 <p.icon className="w-6 h-6 text-primary" />
               </div>
               <h3 className="font-display font-bold text-lg mb-1 text-foreground">{p.title}</h3>
