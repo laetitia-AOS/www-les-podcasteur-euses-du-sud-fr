@@ -41,7 +41,7 @@ const HeroSection = () => {
       const [{ data }, { count }] = await Promise.all([
         supabase
           .from("podcasts")
-          .select("id, slug, prenom, nom, type_profil, city_name, metier_principal, consent_mise_en_relation")
+          .select("id, slug, prenom, nom, type_profil, city_name, metier_principal, consent_mise_en_relation, vignette_url")
           .eq("valide", true)
           .order("created_at", { ascending: false })
           .limit(3),
