@@ -136,11 +136,27 @@ Deno.serve(async (req) => {
             }
           }
 
+          const importEmail = payer.email || item.user?.email || null;
+          let telephone = payer.phone || null;
+
+          // If no phone from HelloAsso, try the member's podcast profile
+          if (!telephone && importEmail) {
+            const { data: podcast } = await supabaseService
+              .from("podcasts")
+              .select("telephone")
+              .ilike("email", importEmail)
+              .not("telephone", "is", null)
+              .maybeSingle();
+            if (podcast?.telephone) {
+              telephone = podcast.telephone;
+            }
+          }
+
           const adhesion = {
-            email: payer.email || item.user?.email || null,
+            email: importEmail,
             prenom: payer.firstName || item.user?.firstName || null,
             nom: payer.lastName || item.user?.lastName || null,
-            telephone: payer.phone || null,
+            telephone,
             montant: item.amount ? item.amount / 100 : null,
             type_adhesion: item.name || form.title || "adhesion",
             statut: "active",
