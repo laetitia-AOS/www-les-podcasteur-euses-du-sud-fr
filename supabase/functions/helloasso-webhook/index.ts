@@ -45,7 +45,11 @@ Deno.serve(async (req) => {
     const payer = data.payer || {};
     const items = data.items || [];
     const firstItem = items[0] || {};
-    const amountCents = data.amount ?? firstItem.amount ?? null;
+    // data.amount can be an object {total, vat, discount} or a number
+    const rawAmount = data.amount;
+    const amountCents = typeof rawAmount === 'number' ? rawAmount
+      : typeof rawAmount === 'object' && rawAmount?.total != null ? rawAmount.total
+      : firstItem.amount ?? null;
 
     const adhesion = {
       email: payer.email || data.email || null,
