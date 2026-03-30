@@ -128,7 +128,7 @@ const HeroSection = () => {
               className="flex items-center gap-4 mt-4"
             >
               <a
-                href="https://www.instagram.com/lespodcasteusesdusud/"
+                href="https://www.instagram.com/les_podcasteur.euses_du_sud/"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-primary transition-colors"
