@@ -146,6 +146,7 @@ const Evenements = () => {
                             </Badge>
                           </div>
                           <h2 className="font-display font-bold text-xl text-foreground mb-1 group-hover:text-primary transition-colors">{evt.titre}</h2>
+                          {evt.sous_titre && <p className="text-sm font-medium text-muted-foreground/80 mb-1">{evt.sous_titre}</p>}
                           {evt.description && <p className="text-muted-foreground text-sm leading-relaxed mb-4 line-clamp-2">{evt.description}</p>}
                           <div className="flex flex-wrap gap-x-5 gap-y-2 text-sm text-muted-foreground">
                             <span className="flex items-center gap-1.5"><Clock className="w-4 h-4 text-primary/50" />{formatTime(evt.date_debut)}{evt.date_fin && ` – ${formatTime(evt.date_fin)}`}</span>
