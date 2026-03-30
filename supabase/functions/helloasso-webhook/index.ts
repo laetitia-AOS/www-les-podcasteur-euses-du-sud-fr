@@ -51,12 +51,28 @@ Deno.serve(async (req) => {
       : typeof rawAmount === 'object' && rawAmount?.total != null ? rawAmount.total
       : firstItem.amount ?? null;
 
+    const adhesionEmail = payer.email || data.email || null;
+    let telephone = payer.phone || null;
+
+    // If no phone from HelloAsso, try to find it from the member's podcast profile
+    if (!telephone && adhesionEmail) {
+      const { data: podcast } = await supabase
+        .from("podcasts")
+        .select("telephone")
+        .ilike("email", adhesionEmail)
+        .not("telephone", "is", null)
+        .maybeSingle();
+      if (podcast?.telephone) {
+        telephone = podcast.telephone;
+      }
+    }
+
     const adhesion = {
-      email: payer.email || data.email || null,
+      email: adhesionEmail,
       prenom: payer.firstName || data.firstName || null,
       nom: payer.lastName || data.lastName || null,
-      telephone: payer.phone || null,
-      montant: amountCents ? amountCents / 100 : null, // HelloAsso amounts in cents
+      telephone,
+      montant: amountCents ? amountCents / 100 : null,
       type_adhesion: firstItem.name || eventType || "adhesion",
       statut: "active",
       date_adhesion: data.order?.date || data.date || new Date().toISOString(),
