@@ -270,7 +270,7 @@ const EvenementDetail = () => {
                 {/* CTA */}
                 {evt.lien_externe && !isPast && (
                   <a
-                    href={evt.lien_externe}
+                    href={withUtm(evt.lien_externe, "evenement")}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="inline-flex items-center gap-2 text-sm font-semibold text-primary-foreground bg-primary px-6 py-3 rounded-xl hover:brightness-110 transition-all shadow-md hover:shadow-lg"
