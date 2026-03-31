@@ -1,5 +1,6 @@
 import { useState, useEffect, useMemo } from "react";
 import { useParams, Link } from "react-router-dom";
+import { withUtm } from "@/lib/utm";
 import { supabase } from "@/integrations/supabase/client";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
@@ -225,7 +226,7 @@ const StudioProfile = () => {
 
                 <div className="flex flex-wrap gap-2 mt-4">
                   {profile.lien_principal && (vis.show_reservation_link !== false) && (
-                    <a href={profile.lien_principal} target="_blank" rel="noopener noreferrer">
+                    <a href={withUtm(profile.lien_principal!, "fiche-studio")} target="_blank" rel="noopener noreferrer">
                       <Button size="sm" className="gap-2 rounded-full">
                         <ExternalLink className="w-4 h-4" /> Voir le site / Réserver
                       </Button>
@@ -461,7 +462,7 @@ const StudioProfile = () => {
                       </>
                     )}
                     {profile.lien_principal && (
-                      <a href={profile.lien_principal} target="_blank" rel="noopener noreferrer" className="flex items-center gap-3 text-sm text-foreground hover:text-primary transition-colors group">
+                      <a href={withUtm(profile.lien_principal!, "fiche-studio")} target="_blank" rel="noopener noreferrer" className="flex items-center gap-3 text-sm text-foreground hover:text-primary transition-colors group">
                         <div className="w-9 h-9 rounded-lg bg-primary/10 flex items-center justify-center group-hover:bg-primary/20 transition-colors">
                           <Globe className="w-4 h-4 text-primary" />
                         </div>
