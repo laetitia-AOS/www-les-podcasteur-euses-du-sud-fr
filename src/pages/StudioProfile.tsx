@@ -10,7 +10,8 @@ import { motion } from "framer-motion";
 import {
   MapPin, ExternalLink, ArrowLeft, Loader2, Mail, Phone, Globe,
   Building2, Mic, CheckCircle, Calendar, Users, Wrench, Camera,
-  Clock, DollarSign, Handshake, Accessibility, ChevronRight, Star
+  Clock, DollarSign, Handshake, Accessibility, ChevronRight, Star,
+  ChevronLeft, X
 } from "lucide-react";
 
 interface StudioData {
@@ -259,6 +260,23 @@ const StudioProfile = () => {
                 </p>
               </motion.div>
 
+              {/* Gallery — right after Présentation */}
+              {sd.galerie_urls && sd.galerie_urls.length > 0 && (
+                <motion.div initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4, delay: 0.22 }}
+                  className="bg-card border border-border rounded-2xl p-6 md:p-8">
+                  <h2 className="font-display font-bold text-lg text-foreground mb-5 flex items-center gap-2">
+                    <Camera className="w-4 h-4 text-primary" /> Galerie
+                  </h2>
+                  <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                    {sd.galerie_urls.map((url, i) => (
+                      <button key={i} onClick={() => setSelectedPhoto(url)} className="rounded-xl overflow-hidden border border-border hover:shadow-md transition-shadow">
+                        <img src={url} alt={`${profile.nom_podcast} - photo ${i + 1}`} className="w-full h-32 object-cover" loading="lazy" />
+                      </button>
+                    ))}
+                  </div>
+                </motion.div>
+              )}
+
               {/* Services */}
               {sd.services_studio && sd.services_studio.length > 0 && (
                 <motion.div initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4, delay: 0.25 }}
@@ -378,22 +396,7 @@ const StudioProfile = () => {
                 </motion.div>
               )}
 
-              {/* Gallery */}
-              {sd.galerie_urls && sd.galerie_urls.length > 0 && (
-                <motion.div initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4, delay: 0.5 }}
-                  className="bg-card border border-border rounded-2xl p-6 md:p-8">
-                  <h2 className="font-display font-bold text-lg text-foreground mb-5 flex items-center gap-2">
-                    <Camera className="w-4 h-4 text-primary" /> Galerie
-                  </h2>
-                  <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-                    {sd.galerie_urls.map((url, i) => (
-                      <button key={i} onClick={() => setSelectedPhoto(url)} className="rounded-xl overflow-hidden border border-border hover:shadow-md transition-shadow">
-                        <img src={url} alt={`${profile.nom_podcast} - photo ${i + 1}`} className="w-full h-32 object-cover" loading="lazy" />
-                      </button>
-                    ))}
-                  </div>
-                </motion.div>
-              )}
+              {/* Gallery removed — now after Présentation */}
 
               {/* Collaborations */}
               {(sd.ouvert_a?.length || sd.recherche_actuellement?.length) && (
@@ -555,13 +558,50 @@ const StudioProfile = () => {
           </div>
         </div>
 
-        {/* Photo lightbox */}
-        {selectedPhoto && (
+        {/* Photo lightbox with navigation */}
+        {selectedPhoto && sd.galerie_urls && (
           <div
-            className="fixed inset-0 z-50 bg-black/80 flex items-center justify-center p-4"
+            className="fixed inset-0 z-50 bg-black/90 flex items-center justify-center p-4"
             onClick={() => setSelectedPhoto(null)}
           >
-            <img src={selectedPhoto} alt="Photo agrandie" className="max-w-full max-h-[90vh] rounded-2xl" />
+            <button
+              onClick={(e) => { e.stopPropagation(); setSelectedPhoto(null); }}
+              className="absolute top-4 right-4 w-10 h-10 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center text-white transition-colors"
+            >
+              <X className="w-5 h-5" />
+            </button>
+            {sd.galerie_urls.length > 1 && (
+              <>
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    const idx = sd.galerie_urls!.indexOf(selectedPhoto!);
+                    const prev = (idx - 1 + sd.galerie_urls!.length) % sd.galerie_urls!.length;
+                    setSelectedPhoto(sd.galerie_urls![prev]);
+                  }}
+                  className="absolute left-4 w-10 h-10 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center text-white transition-colors"
+                >
+                  <ChevronLeft className="w-5 h-5" />
+                </button>
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    const idx = sd.galerie_urls!.indexOf(selectedPhoto!);
+                    const next = (idx + 1) % sd.galerie_urls!.length;
+                    setSelectedPhoto(sd.galerie_urls![next]);
+                  }}
+                  className="absolute right-4 w-10 h-10 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center text-white transition-colors"
+                >
+                  <ChevronRight className="w-5 h-5" />
+                </button>
+              </>
+            )}
+            <img src={selectedPhoto} alt="Photo agrandie" className="max-w-full max-h-[85vh] rounded-2xl" onClick={(e) => e.stopPropagation()} />
+            {sd.galerie_urls.length > 1 && (
+              <p className="absolute bottom-6 text-white/60 text-sm">
+                {sd.galerie_urls.indexOf(selectedPhoto!) + 1} / {sd.galerie_urls.length}
+              </p>
+            )}
           </div>
         )}
       </main>

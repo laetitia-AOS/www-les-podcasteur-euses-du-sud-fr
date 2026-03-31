@@ -9,7 +9,8 @@ import { Badge } from "@/components/ui/badge";
 import { motion } from "framer-motion";
 import {
   MapPin, ArrowLeft, Building2, Globe, ExternalLink, CheckCircle,
-  Loader2, Mail, Phone, Sparkles, Handshake, Users, ImageIcon
+  Loader2, Mail, Phone, Sparkles, Handshake, Users, ImageIcon,
+  ChevronLeft, ChevronRight, X
 } from "lucide-react";
 
 interface ProfileData {
@@ -38,6 +39,7 @@ const StructureEcoProfile = () => {
   const { slug } = useParams<{ slug: string }>();
   const [profile, setProfile] = useState<ProfileData | null>(null);
   const [loading, setLoading] = useState(true);
+  const [selectedPhoto, setSelectedPhoto] = useState<string | null>(null);
 
   useEffect(() => {
     const fetch = async () => {
@@ -158,6 +160,20 @@ const StructureEcoProfile = () => {
                 </motion.div>
               )}
 
+              {/* Gallery — right after Présentation */}
+              {galerieUrls.length > 0 && (
+                <motion.div initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.25 }} className="bg-card border border-border rounded-2xl p-6 md:p-8">
+                  <h2 className="font-display font-bold text-lg text-foreground mb-4 flex items-center gap-2"><ImageIcon className="w-4 h-4 text-primary" /> Photos</h2>
+                  <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                    {galerieUrls.map((url: string, i: number) => (
+                      <button key={i} onClick={() => setSelectedPhoto(url)} className="aspect-[4/3] rounded-xl overflow-hidden border border-border hover:shadow-md transition-shadow">
+                        <img src={url} alt={`${structureName} - Photo ${i + 1}`} className="w-full h-full object-cover hover:scale-105 transition-transform duration-300" loading="lazy" />
+                      </button>
+                    ))}
+                  </div>
+                </motion.div>
+              )}
+
               {domainesAction.length > 0 && (
                 <motion.div initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }} className="bg-card border border-border rounded-2xl p-6 md:p-8">
                   <h2 className="font-display font-bold text-lg text-foreground mb-4 flex items-center gap-2"><CheckCircle className="w-4 h-4 text-primary" /> Domaines d'action</h2>
@@ -180,19 +196,7 @@ const StructureEcoProfile = () => {
                 </motion.div>
               )}
 
-              {/* Gallery */}
-              {galerieUrls.length > 0 && (
-                <motion.div initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.5 }} className="bg-card border border-border rounded-2xl p-6 md:p-8">
-                  <h2 className="font-display font-bold text-lg text-foreground mb-4 flex items-center gap-2"><ImageIcon className="w-4 h-4 text-primary" /> Photos</h2>
-                  <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-                    {galerieUrls.map((url: string, i: number) => (
-                      <div key={i} className="aspect-[4/3] rounded-xl overflow-hidden border border-border">
-                        <img src={url} alt={`${structureName} - Photo ${i + 1}`} className="w-full h-full object-cover hover:scale-105 transition-transform duration-300" loading="lazy" />
-                      </div>
-                    ))}
-                  </div>
-                </motion.div>
-              )}
+              {/* Gallery removed — now after Présentation */}
             </div>
 
             {/* Sidebar */}
@@ -223,6 +227,28 @@ const StructureEcoProfile = () => {
             </div>
           </div>
         </div>
+        {/* Photo lightbox with navigation */}
+        {selectedPhoto && galerieUrls.length > 0 && (
+          <div className="fixed inset-0 z-50 bg-black/90 flex items-center justify-center p-4" onClick={() => setSelectedPhoto(null)}>
+            <button onClick={(e) => { e.stopPropagation(); setSelectedPhoto(null); }} className="absolute top-4 right-4 w-10 h-10 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center text-white transition-colors">
+              <X className="w-5 h-5" />
+            </button>
+            {galerieUrls.length > 1 && (
+              <>
+                <button onClick={(e) => { e.stopPropagation(); const idx = galerieUrls.indexOf(selectedPhoto!); setSelectedPhoto(galerieUrls[(idx - 1 + galerieUrls.length) % galerieUrls.length]); }} className="absolute left-4 w-10 h-10 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center text-white transition-colors">
+                  <ChevronLeft className="w-5 h-5" />
+                </button>
+                <button onClick={(e) => { e.stopPropagation(); const idx = galerieUrls.indexOf(selectedPhoto!); setSelectedPhoto(galerieUrls[(idx + 1) % galerieUrls.length]); }} className="absolute right-4 w-10 h-10 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center text-white transition-colors">
+                  <ChevronRight className="w-5 h-5" />
+                </button>
+              </>
+            )}
+            <img src={selectedPhoto} alt="Photo agrandie" className="max-w-full max-h-[85vh] rounded-2xl" onClick={(e) => e.stopPropagation()} />
+            {galerieUrls.length > 1 && (
+              <p className="absolute bottom-6 text-white/60 text-sm">{galerieUrls.indexOf(selectedPhoto!) + 1} / {galerieUrls.length}</p>
+            )}
+          </div>
+        )}
       </main>
       <Footer />
     </div>
