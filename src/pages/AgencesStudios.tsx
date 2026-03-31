@@ -75,7 +75,7 @@ const AgencesStudios = () => {
         .from("podcasts")
         .select("id, slug, type_profil, city_name, department_label, department_code, bio_750, nom_podcast, metier_principal, services_3, vignette_url, consent_mise_en_relation, cherche_collaboration, studio_data")
         .eq("valide", true)
-        .eq("type_profil", "structure_eco")
+        .in("type_profil", ["structure_eco", "studio"])
         .order("created_at", { ascending: false });
       if (!error && data) setProfiles(data as unknown as Profile[]);
       setLoading(false);
