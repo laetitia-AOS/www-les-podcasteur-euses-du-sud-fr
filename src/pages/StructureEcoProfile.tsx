@@ -196,19 +196,7 @@ const StructureEcoProfile = () => {
                 </motion.div>
               )}
 
-              {/* Gallery */}
-              {galerieUrls.length > 0 && (
-                <motion.div initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.5 }} className="bg-card border border-border rounded-2xl p-6 md:p-8">
-                  <h2 className="font-display font-bold text-lg text-foreground mb-4 flex items-center gap-2"><ImageIcon className="w-4 h-4 text-primary" /> Photos</h2>
-                  <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-                    {galerieUrls.map((url: string, i: number) => (
-                      <div key={i} className="aspect-[4/3] rounded-xl overflow-hidden border border-border">
-                        <img src={url} alt={`${structureName} - Photo ${i + 1}`} className="w-full h-full object-cover hover:scale-105 transition-transform duration-300" loading="lazy" />
-                      </div>
-                    ))}
-                  </div>
-                </motion.div>
-              )}
+              {/* Gallery removed — now after Présentation */}
             </div>
 
             {/* Sidebar */}
