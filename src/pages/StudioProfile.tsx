@@ -558,13 +558,50 @@ const StudioProfile = () => {
           </div>
         </div>
 
-        {/* Photo lightbox */}
-        {selectedPhoto && (
+        {/* Photo lightbox with navigation */}
+        {selectedPhoto && sd.galerie_urls && (
           <div
-            className="fixed inset-0 z-50 bg-black/80 flex items-center justify-center p-4"
+            className="fixed inset-0 z-50 bg-black/90 flex items-center justify-center p-4"
             onClick={() => setSelectedPhoto(null)}
           >
-            <img src={selectedPhoto} alt="Photo agrandie" className="max-w-full max-h-[90vh] rounded-2xl" />
+            <button
+              onClick={(e) => { e.stopPropagation(); setSelectedPhoto(null); }}
+              className="absolute top-4 right-4 w-10 h-10 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center text-white transition-colors"
+            >
+              <X className="w-5 h-5" />
+            </button>
+            {sd.galerie_urls.length > 1 && (
+              <>
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    const idx = sd.galerie_urls!.indexOf(selectedPhoto!);
+                    const prev = (idx - 1 + sd.galerie_urls!.length) % sd.galerie_urls!.length;
+                    setSelectedPhoto(sd.galerie_urls![prev]);
+                  }}
+                  className="absolute left-4 w-10 h-10 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center text-white transition-colors"
+                >
+                  <ChevronLeft className="w-5 h-5" />
+                </button>
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    const idx = sd.galerie_urls!.indexOf(selectedPhoto!);
+                    const next = (idx + 1) % sd.galerie_urls!.length;
+                    setSelectedPhoto(sd.galerie_urls![next]);
+                  }}
+                  className="absolute right-4 w-10 h-10 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center text-white transition-colors"
+                >
+                  <ChevronRight className="w-5 h-5" />
+                </button>
+              </>
+            )}
+            <img src={selectedPhoto} alt="Photo agrandie" className="max-w-full max-h-[85vh] rounded-2xl" onClick={(e) => e.stopPropagation()} />
+            {sd.galerie_urls.length > 1 && (
+              <p className="absolute bottom-6 text-white/60 text-sm">
+                {sd.galerie_urls.indexOf(selectedPhoto!) + 1} / {sd.galerie_urls.length}
+              </p>
+            )}
           </div>
         )}
       </main>

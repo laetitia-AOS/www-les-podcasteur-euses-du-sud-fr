@@ -227,6 +227,28 @@ const StructureEcoProfile = () => {
             </div>
           </div>
         </div>
+        {/* Photo lightbox with navigation */}
+        {selectedPhoto && galerieUrls.length > 0 && (
+          <div className="fixed inset-0 z-50 bg-black/90 flex items-center justify-center p-4" onClick={() => setSelectedPhoto(null)}>
+            <button onClick={(e) => { e.stopPropagation(); setSelectedPhoto(null); }} className="absolute top-4 right-4 w-10 h-10 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center text-white transition-colors">
+              <X className="w-5 h-5" />
+            </button>
+            {galerieUrls.length > 1 && (
+              <>
+                <button onClick={(e) => { e.stopPropagation(); const idx = galerieUrls.indexOf(selectedPhoto!); setSelectedPhoto(galerieUrls[(idx - 1 + galerieUrls.length) % galerieUrls.length]); }} className="absolute left-4 w-10 h-10 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center text-white transition-colors">
+                  <ChevronLeft className="w-5 h-5" />
+                </button>
+                <button onClick={(e) => { e.stopPropagation(); const idx = galerieUrls.indexOf(selectedPhoto!); setSelectedPhoto(galerieUrls[(idx + 1) % galerieUrls.length]); }} className="absolute right-4 w-10 h-10 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center text-white transition-colors">
+                  <ChevronRight className="w-5 h-5" />
+                </button>
+              </>
+            )}
+            <img src={selectedPhoto} alt="Photo agrandie" className="max-w-full max-h-[85vh] rounded-2xl" onClick={(e) => e.stopPropagation()} />
+            {galerieUrls.length > 1 && (
+              <p className="absolute bottom-6 text-white/60 text-sm">{galerieUrls.indexOf(selectedPhoto!) + 1} / {galerieUrls.length}</p>
+            )}
+          </div>
+        )}
       </main>
       <Footer />
     </div>
