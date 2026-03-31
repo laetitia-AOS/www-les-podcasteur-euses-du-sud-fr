@@ -6,7 +6,7 @@ import SEOHead from "@/components/SEOHead";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { motion } from "framer-motion";
-import { MapPin, ArrowRight, Search, Building2, Handshake } from "lucide-react";
+import { MapPin, ArrowRight, Search, Building2, Handshake, Mic } from "lucide-react";
 import { Link } from "react-router-dom";
 
 const departements = [
@@ -27,6 +27,19 @@ const typesStructure = [
   "Association / collectif",
   "Autre",
 ];
+
+const typesStudio = [
+  "Studio podcast équipé",
+  "Studio audio polyvalent",
+  "Plateau vidéo podcast",
+  "Cabine voix off",
+  "Lieu d'enregistrement mobile",
+  "Salle de formation / atelier",
+  "Lieu événementiel avec captation possible",
+  "Autre",
+];
+
+type TabValue = "studios" | "structures";
 
 const normalize = (str: string) =>
   str.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
@@ -64,10 +77,10 @@ interface Profile {
 const AgencesStudios = () => {
   const [profiles, setProfiles] = useState<Profile[]>([]);
   const [loading, setLoading] = useState(true);
+  const [activeTab, setActiveTab] = useState<TabValue>("studios");
   const [filterDept, setFilterDept] = useState("");
-  const [filterTypeStructure, setFilterTypeStructure] = useState("");
+  const [filterType, setFilterType] = useState("");
   const [searchQuery, setSearchQuery] = useState("");
-  const [filterCollab, setFilterCollab] = useState(false);
 
   useEffect(() => {
     const fetchProfiles = async () => {
@@ -83,44 +96,88 @@ const AgencesStudios = () => {
     fetchProfiles();
   }, []);
 
+  // Reset type filter when switching tabs
+  useEffect(() => {
+    setFilterType("");
+  }, [activeTab]);
+
   const filtered = useMemo(() => {
+    const targetType = activeTab === "studios" ? "studio" : "structure_eco";
     return profiles.filter((p) => {
+      if (p.type_profil !== targetType) return false;
       if (filterDept && p.department_code !== filterDept) return false;
-      if (filterTypeStructure && p.metier_principal !== filterTypeStructure) return false;
-      if (filterCollab && !p.consent_mise_en_relation) return false;
+      if (filterType) {
+        if (activeTab === "studios") {
+          const sd = p.studio_data ? (typeof p.studio_data === "string" ? JSON.parse(p.studio_data) : p.studio_data) : {};
+          if (sd?.type_lieu !== filterType) return false;
+        } else {
+          if (p.metier_principal !== filterType) return false;
+        }
+      }
       if (searchQuery) {
         const q = searchQuery.trim();
+        const sd = p.studio_data ? (typeof p.studio_data === "string" ? JSON.parse(p.studio_data) : p.studio_data) : {};
         const searchable = [
           p.nom_podcast, p.bio_750, p.metier_principal,
           p.city_name, p.department_label,
+          sd?.phrase_accroche, sd?.type_lieu,
           ...(p.services_3 || [])
         ].filter(Boolean).join(" ");
         if (!fuzzyMatch(searchable, q)) return false;
       }
       return true;
     });
-  }, [profiles, filterDept, filterTypeStructure, searchQuery, filterCollab]);
+  }, [profiles, activeTab, filterDept, filterType, searchQuery]);
+
+  const typeOptions = activeTab === "studios" ? typesStudio : typesStructure;
+  const typeLabel = activeTab === "studios" ? "Type de lieu" : "Type de structure";
 
   return (
     <div className="min-h-screen bg-background">
       <SEOHead
         title="Agences & Studios — Écosystème Podcast Région Sud"
-        description="Radios, festivals, incubateurs, institutions : découvrez les structures de l'écosystème podcast en Provence-Alpes-Côte d'Azur."
+        description="Studios, agences, radios, festivals, incubateurs : découvrez les structures de l'écosystème podcast en Provence-Alpes-Côte d'Azur."
         path="/studios-podcast"
       />
       <Navbar />
       <main className="pt-24 pb-20">
         <div className="container mx-auto px-6 max-w-6xl">
           {/* Header */}
-          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }} className="mb-8">
+          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }} className="mb-6">
             <h1 className="font-display font-bold text-2xl sm:text-3xl md:text-4xl mb-2 text-foreground">Agences & Studios</h1>
             <p className="text-muted-foreground text-sm max-w-2xl mb-4">
-              Radios, festivals, incubateurs, institutions, collectifs — les structures qui font vivre l'écosystème podcast en région Sud.
+              Studios, agences, radios, festivals, incubateurs — les lieux et structures qui font vivre l'écosystème podcast en région Sud.
             </p>
             <Link to="/referencer-mon-podcast">
               <Button className="gap-2 rounded-full font-bold"><Building2 className="w-4 h-4" />Référencer ma structure</Button>
             </Link>
           </motion.div>
+
+          {/* Tabs */}
+          <div className="flex gap-2 mb-6">
+            <button
+              onClick={() => setActiveTab("studios")}
+              className={`flex items-center gap-2 px-5 py-2.5 rounded-full text-sm font-semibold transition-all duration-200 ${
+                activeTab === "studios"
+                  ? "bg-primary text-primary-foreground shadow-md"
+                  : "bg-muted/50 text-muted-foreground hover:bg-muted"
+              }`}
+            >
+              <Mic className="w-4 h-4" />
+              Studios & Lieux
+            </button>
+            <button
+              onClick={() => setActiveTab("structures")}
+              className={`flex items-center gap-2 px-5 py-2.5 rounded-full text-sm font-semibold transition-all duration-200 ${
+                activeTab === "structures"
+                  ? "bg-primary text-primary-foreground shadow-md"
+                  : "bg-muted/50 text-muted-foreground hover:bg-muted"
+              }`}
+            >
+              <Building2 className="w-4 h-4" />
+              Structures écosystème
+            </button>
+          </div>
 
           {/* Filters */}
           <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, delay: 0.15 }} className="flex flex-wrap gap-3 mb-8">
@@ -134,9 +191,9 @@ const AgencesStudios = () => {
                 className="w-full pl-9 pr-4 py-2.5 rounded-xl border border-primary/12 bg-background-pure text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/20"
               />
             </div>
-            <select value={filterTypeStructure} onChange={(e) => setFilterTypeStructure(e.target.value)} className="rounded-xl border border-primary/12 bg-background-pure px-3 py-2.5 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-primary/20">
-              <option value="">Tous les types</option>
-              {typesStructure.map((t) => <option key={t} value={t}>{t}</option>)}
+            <select value={filterType} onChange={(e) => setFilterType(e.target.value)} className="rounded-xl border border-primary/12 bg-background-pure px-3 py-2.5 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-primary/20">
+              <option value="">Tous les {activeTab === "studios" ? "lieux" : "types"}</option>
+              {typeOptions.map((t) => <option key={t} value={t}>{t}</option>)}
             </select>
             <select value={filterDept} onChange={(e) => setFilterDept(e.target.value)} className="rounded-xl border border-primary/12 bg-background-pure px-3 py-2.5 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-primary/20">
               <option value="">Tous les départements</option>
@@ -144,9 +201,9 @@ const AgencesStudios = () => {
             </select>
           </motion.div>
 
-          <p className="text-sm text-muted-foreground mb-6">{filtered.length} structure{filtered.length !== 1 ? "s" : ""} trouvée{filtered.length !== 1 ? "s" : ""}</p>
+          <p className="text-sm text-muted-foreground mb-6">{filtered.length} {activeTab === "studios" ? "studio" : "structure"}{filtered.length !== 1 ? "s" : ""} trouvé{activeTab === "studios" ? "" : "e"}{filtered.length !== 1 ? "s" : ""}</p>
 
-          {/* Grid — horizontal cards */}
+          {/* Grid */}
           {loading ? (
             <div className="space-y-4">
               {[...Array(4)].map((_, i) => (
@@ -154,13 +211,14 @@ const AgencesStudios = () => {
               ))}
             </div>
           ) : filtered.length === 0 ? (
-            <div className="text-center py-20 text-muted-foreground"><p>Aucune structure ne correspond à vos critères.</p></div>
+            <div className="text-center py-20 text-muted-foreground"><p>Aucun résultat ne correspond à vos critères.</p></div>
           ) : (
             <div className="grid md:grid-cols-2 gap-5">
               {filtered.map((profile, i) => {
                 const cityClean = profile.city_name?.replace(/\s+\d+(er?|e)?\s+Arrondissement$/i, "").replace(/\s+\d+$/, "") || "";
                 const sd = profile.studio_data ? (typeof profile.studio_data === "string" ? JSON.parse(profile.studio_data) : profile.studio_data) : {};
                 const accroche = sd?.phrase_accroche || profile.bio_750?.slice(0, 120) || "";
+                const typeLabel = activeTab === "studios" ? sd?.type_lieu : profile.metier_principal;
 
                 return (
                   <motion.div key={profile.id} initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4, delay: i * 0.03 }}>
@@ -168,18 +226,17 @@ const AgencesStudios = () => {
                       to={profile.type_profil === "studio" ? `/annuaire-podcasts/studios/${profile.slug || profile.id}` : `/annuaire-podcasts/structures/${profile.slug || profile.id}`}
                       className="group flex items-start gap-4 bg-background-pure border border-primary/8 rounded-2xl p-5 hover:shadow-lg hover:border-primary/20 hover:-translate-y-[3px] transition-all duration-300"
                     >
-                      {/* Logo */}
                       <div className="shrink-0 w-16 h-16 rounded-xl overflow-hidden bg-muted flex items-center justify-center">
                         {profile.vignette_url ? (
                           <img src={profile.vignette_url} alt={profile.nom_podcast} className="w-full h-full object-cover" loading="lazy" />
                         ) : (
-                          <Building2 className="w-7 h-7 text-muted-foreground/30" />
+                          activeTab === "studios" ? <Mic className="w-7 h-7 text-muted-foreground/30" /> : <Building2 className="w-7 h-7 text-muted-foreground/30" />
                         )}
                       </div>
 
                       <div className="flex-1 min-w-0">
-                        {profile.metier_principal && (
-                          <p className="text-xs font-semibold uppercase tracking-wider text-primary mb-1">{profile.metier_principal}</p>
+                        {typeLabel && (
+                          <p className="text-xs font-semibold uppercase tracking-wider text-primary mb-1">{typeLabel}</p>
                         )}
                         <h3 className="font-display font-bold text-lg text-foreground mb-0.5 truncate">{profile.nom_podcast}</h3>
                         {cityClean && (
