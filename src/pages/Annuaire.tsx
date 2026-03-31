@@ -83,6 +83,7 @@ interface Profile {
   cherche_collaboration: string[] | null;
   peut_apporter: string[] | null;
   format_collaboration: string | null;
+  studio_data: any;
 }
 
 const Annuaire = () => {
@@ -99,7 +100,7 @@ const Annuaire = () => {
     const fetchProfiles = async () => {
       const { data, error } = await supabase
         .from("podcasts")
-        .select("id, slug, prenom, nom, type_profil, city_name, department_label, department_code, bio_750, nom_podcast, lien_ecoute, metier_principal, services_3, thematique, vignette_url, consent_mise_en_relation, niveau_avancement, disponibilite, cherche_collaboration, peut_apporter, format_collaboration")
+        .select("id, slug, prenom, nom, type_profil, city_name, department_label, department_code, bio_750, nom_podcast, lien_ecoute, metier_principal, services_3, thematique, vignette_url, consent_mise_en_relation, niveau_avancement, disponibilite, cherche_collaboration, peut_apporter, format_collaboration, studio_data")
         .eq("valide", true)
         .order("created_at", { ascending: false });
       if (!error && data) setProfiles(data as unknown as Profile[]);
@@ -323,17 +324,32 @@ const Annuaire = () => {
                             )}
                           </div>
 
-                          {/* Collab info */}
-                          {profile.cherche_collaboration && profile.cherche_collaboration.length > 0 && (
-                            <p className="text-xs text-muted-foreground mb-2 line-clamp-1">
-                              Cherche : {profile.cherche_collaboration.slice(0, 2).join(", ")}
-                            </p>
-                          )}
-                          {profile.peut_apporter && profile.peut_apporter.length > 0 && (
-                            <p className="text-xs mb-2 line-clamp-1" style={{ color: "hsl(148 28% 40%)" }}>
-                              Apporte : {profile.peut_apporter.slice(0, 2).join(", ")}
-                            </p>
-                          )}
+                          {/* Collab info — works for all profile types */}
+                          {(() => {
+                            const sd = profile.studio_data ? (typeof profile.studio_data === "string" ? JSON.parse(profile.studio_data) : profile.studio_data) : {};
+                            const isStudioOrStructure = profile.type_profil === "studio" || profile.type_profil === "structure_eco";
+                            const cherche = isStudioOrStructure
+                              ? (sd.recherche_actuellement || sd.collaborations || profile.cherche_collaboration || [])
+                              : (profile.cherche_collaboration || []);
+                            const apporte = isStudioOrStructure
+                              ? (sd.services_studio || sd.domaines_action || profile.services_3 || profile.peut_apporter || [])
+                              : (profile.peut_apporter || []);
+
+                            return (
+                              <>
+                                {cherche.length > 0 && (
+                                  <p className="text-xs text-muted-foreground mb-2 line-clamp-1">
+                                    Cherche : {cherche.slice(0, 2).join(", ")}
+                                  </p>
+                                )}
+                                {apporte.length > 0 && (
+                                  <p className="text-xs mb-2 line-clamp-1" style={{ color: "hsl(148 28% 40%)" }}>
+                                    {isStudioOrStructure ? "Propose" : "Apporte"} : {apporte.slice(0, 2).join(", ")}
+                                  </p>
+                                )}
+                              </>
+                            );
+                          })()}
 
                           {/* Footer */}
                           <div className="flex items-center gap-2 mt-3 pt-3 border-t border-primary/8">
