@@ -83,6 +83,7 @@ interface Profile {
   cherche_collaboration: string[] | null;
   peut_apporter: string[] | null;
   format_collaboration: string | null;
+  studio_data: any;
 }
 
 const Annuaire = () => {
