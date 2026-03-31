@@ -165,7 +165,7 @@ const AgencesStudios = () => {
                 return (
                   <motion.div key={profile.id} initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4, delay: i * 0.03 }}>
                     <Link
-                      to={`/annuaire-podcasts/structures/${profile.slug || profile.id}`}
+                      to={profile.type_profil === "studio" ? `/annuaire-podcasts/studios/${profile.slug || profile.id}` : `/annuaire-podcasts/structures/${profile.slug || profile.id}`}
                       className="group flex items-start gap-4 bg-background-pure border border-primary/8 rounded-2xl p-5 hover:shadow-lg hover:border-primary/20 hover:-translate-y-[3px] transition-all duration-300"
                     >
                       {/* Logo */}
