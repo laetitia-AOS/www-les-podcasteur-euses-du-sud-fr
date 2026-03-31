@@ -9,7 +9,8 @@ import { Badge } from "@/components/ui/badge";
 import { motion } from "framer-motion";
 import {
   MapPin, ArrowLeft, Building2, Globe, ExternalLink, CheckCircle,
-  Loader2, Mail, Phone, Sparkles, Handshake, Users, ImageIcon
+  Loader2, Mail, Phone, Sparkles, Handshake, Users, ImageIcon,
+  ChevronLeft, ChevronRight, X
 } from "lucide-react";
 
 interface ProfileData {
