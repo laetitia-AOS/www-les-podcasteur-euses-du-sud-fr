@@ -10,7 +10,8 @@ import { motion } from "framer-motion";
 import {
   MapPin, ExternalLink, ArrowLeft, Loader2, Mail, Phone, Globe,
   Building2, Mic, CheckCircle, Calendar, Users, Wrench, Camera,
-  Clock, DollarSign, Handshake, Accessibility, ChevronRight, Star
+  Clock, DollarSign, Handshake, Accessibility, ChevronRight, Star,
+  ChevronLeft, X
 } from "lucide-react";
 
 interface StudioData {
