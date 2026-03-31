@@ -227,21 +227,21 @@ const ProfilMembre = () => {
                 {/* Quick action buttons */}
                 <div className="flex flex-wrap gap-2 mt-4">
                   {profile.lien_ecoute && profile.type_profil === "podcasteur" && (
-                    <a href={profile.lien_ecoute} target="_blank" rel="noopener noreferrer">
+                    <a href={withUtm(profile.lien_ecoute, "fiche-membre")} target="_blank" rel="noopener noreferrer">
                       <Button size="sm" className="gap-2 rounded-full">
                         <Headphones className="w-4 h-4" /> Écouter le podcast
                       </Button>
                     </a>
                   )}
                   {profile.lien_linkedin && (
-                    <a href={profile.lien_linkedin} target="_blank" rel="noopener noreferrer">
+                    <a href={withUtm(profile.lien_linkedin!, "fiche-membre")} target="_blank" rel="noopener noreferrer">
                       <Button variant="outline" size="sm" className="gap-2 rounded-full">
                         <Globe className="w-4 h-4" /> LinkedIn
                       </Button>
                     </a>
                   )}
                   {profile.lien_principal && (
-                    <a href={profile.lien_principal} target="_blank" rel="noopener noreferrer">
+                    <a href={withUtm(profile.lien_principal!, "fiche-membre")} target="_blank" rel="noopener noreferrer">
                       <Button variant="outline" size="sm" className="gap-2 rounded-full">
                         <Globe className="w-4 h-4" /> Site web
                       </Button>
@@ -296,7 +296,7 @@ const ProfilMembre = () => {
                       <h3 className="font-display font-bold text-xl text-foreground mb-1">{profile.nom_podcast}</h3>
                       <p className="text-sm text-muted-foreground leading-relaxed">{profile.description}</p>
                       {profile.lien_ecoute && (
-                        <a href={profile.lien_ecoute} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1.5 text-sm text-primary font-medium mt-3 hover:underline">
+                        <a href={withUtm(profile.lien_ecoute, "fiche-membre")} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1.5 text-sm text-primary font-medium mt-3 hover:underline">
                           <Headphones className="w-4 h-4" /> Écouter
                         </a>
                       )}
@@ -474,7 +474,7 @@ const ProfilMembre = () => {
                     )}
 
                     {profile.lien_linkedin && (
-                      <a href={profile.lien_linkedin} target="_blank" rel="noopener noreferrer" className="flex items-center gap-3 text-sm text-foreground hover:text-primary transition-colors group">
+                      <a href={withUtm(profile.lien_linkedin!, "fiche-membre")} target="_blank" rel="noopener noreferrer" className="flex items-center gap-3 text-sm text-foreground hover:text-primary transition-colors group">
                         <div className="w-9 h-9 rounded-lg bg-primary/10 flex items-center justify-center group-hover:bg-primary/20 transition-colors">
                           <Globe className="w-4 h-4 text-primary" />
                         </div>
@@ -482,7 +482,7 @@ const ProfilMembre = () => {
                       </a>
                     )}
                     {profile.lien_principal && (
-                      <a href={profile.lien_principal} target="_blank" rel="noopener noreferrer" className="flex items-center gap-3 text-sm text-foreground hover:text-primary transition-colors group">
+                      <a href={withUtm(profile.lien_principal!, "fiche-membre")} target="_blank" rel="noopener noreferrer" className="flex items-center gap-3 text-sm text-foreground hover:text-primary transition-colors group">
                         <div className="w-9 h-9 rounded-lg bg-primary/10 flex items-center justify-center group-hover:bg-primary/20 transition-colors">
                           <Globe className="w-4 h-4 text-primary" />
                         </div>
