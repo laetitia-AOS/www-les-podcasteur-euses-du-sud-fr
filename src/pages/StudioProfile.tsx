@@ -396,22 +396,7 @@ const StudioProfile = () => {
                 </motion.div>
               )}
 
-              {/* Gallery */}
-              {sd.galerie_urls && sd.galerie_urls.length > 0 && (
-                <motion.div initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4, delay: 0.5 }}
-                  className="bg-card border border-border rounded-2xl p-6 md:p-8">
-                  <h2 className="font-display font-bold text-lg text-foreground mb-5 flex items-center gap-2">
-                    <Camera className="w-4 h-4 text-primary" /> Galerie
-                  </h2>
-                  <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-                    {sd.galerie_urls.map((url, i) => (
-                      <button key={i} onClick={() => setSelectedPhoto(url)} className="rounded-xl overflow-hidden border border-border hover:shadow-md transition-shadow">
-                        <img src={url} alt={`${profile.nom_podcast} - photo ${i + 1}`} className="w-full h-32 object-cover" loading="lazy" />
-                      </button>
-                    ))}
-                  </div>
-                </motion.div>
-              )}
+              {/* Gallery removed — now after Présentation */}
 
               {/* Collaborations */}
               {(sd.ouvert_a?.length || sd.recherche_actuellement?.length) && (
