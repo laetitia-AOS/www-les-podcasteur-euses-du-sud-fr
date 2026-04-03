@@ -27,8 +27,8 @@ const Index = () => {
   return (
     <>
       <SEOHead
-        title="Les Podcasteur·euses du Sud — Écosystème podcast Région Sud"
-        description="Découvrez, référencez et connectez les podcasts et créateurs audio de la Région Sud : Marseille, Nice, Toulon, Aix-en-Provence et au-delà."
+        title="Podcast Marseille & Région Sud — Podcasts, livres audio, vodcasts, fictions sonores"
+        description="Annuaire des podcasts à Marseille et en Région Sud : podcasts, livres audio, vodcasts, fictions sonores et créations musicales. Trouvez et connectez les créateurs audio de Provence-Alpes-Côte d'Azur."
         path="/"
         jsonLd={breadcrumbLd}
       />

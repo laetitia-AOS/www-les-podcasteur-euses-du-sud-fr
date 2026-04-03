@@ -29,9 +29,10 @@ const LOAD_MORE_COUNT = 12;
 const jsonLd = {
   "@context": "https://schema.org",
   "@type": "CollectionPage",
-  name: "Podcasts du Sud — Tous les podcasts de la Région Sud",
-  description: "Découvrez les podcasts créés en Provence-Alpes-Côte d'Azur.",
+  name: "Podcasts Marseille & Région Sud — Podcasts, livres audio, vodcasts, fictions sonores",
+  description: "Annuaire des podcasts à Marseille et en Région Sud : podcasts, livres audio, vodcasts, fictions sonores et créations musicales audio en Provence-Alpes-Côte d'Azur.",
   url: "https://www.les-podcasteur-euses-du-sud.fr/podcasts",
+  about: ["podcast", "livre audio", "vodcast", "fiction sonore", "musique création", "création audio"],
 };
 
 const Podcasts = () => {
@@ -86,7 +87,7 @@ const Podcasts = () => {
 
   return (
     <div className="min-h-screen bg-background">
-      <SEOHead title="Podcasts — Tous les podcasts de la Région Sud" description="Découvrez les podcasts créés en Provence-Alpes-Côte d'Azur." path="/podcasts" jsonLd={jsonLd} />
+      <SEOHead title="Podcasts Marseille & Région Sud — Podcasts, livres audio, vodcasts" description="Tous les podcasts, livres audio, vodcasts et fictions sonores créés à Marseille, Nice, Toulon et en Région Sud PACA." path="/podcasts" jsonLd={jsonLd} />
       <Navbar />
       <main className="pt-24 pb-20">
         <div className="container mx-auto px-6 max-w-6xl">

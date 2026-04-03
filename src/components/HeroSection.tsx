@@ -95,7 +95,7 @@ const HeroSection = () => {
               className="text-base max-w-[400px] leading-relaxed mb-8 text-muted-foreground"
               style={{ lineHeight: 1.8 }}
             >
-              Le réseau des podcasteur·euses et professionnel·les de l'audio en Région Sud. Trouvez, collaborez, créez.
+              Podcasts, livres audio, vodcasts, fictions sonores, créations musicales — le réseau des créateur·ices audio à Marseille et en Région Sud.
             </motion.p>
 
             <motion.div
