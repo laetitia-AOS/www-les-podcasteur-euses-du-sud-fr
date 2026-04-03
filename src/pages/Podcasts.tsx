@@ -87,7 +87,7 @@ const Podcasts = () => {
 
   return (
     <div className="min-h-screen bg-background">
-      <SEOHead title="Podcasts — Tous les podcasts de la Région Sud" description="Découvrez les podcasts créés en Provence-Alpes-Côte d'Azur." path="/podcasts" jsonLd={jsonLd} />
+      <SEOHead title="Podcasts Marseille & Région Sud — Podcasts, livres audio, vodcasts" description="Tous les podcasts, livres audio, vodcasts et fictions sonores créés à Marseille, Nice, Toulon et en Région Sud PACA." path="/podcasts" jsonLd={jsonLd} />
       <Navbar />
       <main className="pt-24 pb-20">
         <div className="container mx-auto px-6 max-w-6xl">
