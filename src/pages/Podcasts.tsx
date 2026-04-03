@@ -29,9 +29,10 @@ const LOAD_MORE_COUNT = 12;
 const jsonLd = {
   "@context": "https://schema.org",
   "@type": "CollectionPage",
-  name: "Podcasts du Sud — Tous les podcasts de la Région Sud",
-  description: "Découvrez les podcasts créés en Provence-Alpes-Côte d'Azur.",
+  name: "Podcasts Marseille & Région Sud — Podcasts, livres audio, vodcasts, fictions sonores",
+  description: "Annuaire des podcasts à Marseille et en Région Sud : podcasts, livres audio, vodcasts, fictions sonores et créations musicales audio en Provence-Alpes-Côte d'Azur.",
   url: "https://www.les-podcasteur-euses-du-sud.fr/podcasts",
+  about: ["podcast", "livre audio", "vodcast", "fiction sonore", "musique création", "création audio"],
 };
 
 const Podcasts = () => {
