@@ -23,12 +23,12 @@ const VisionSection = () => {
 
           <div className="space-y-5 text-lg text-muted-foreground leading-relaxed text-center" style={{ lineHeight: 1.7 }}>
             <p>
-              Le podcast est devenu un média à part entière — un espace d'expression,
-              de création et de transmission.
+              Podcast, livre audio, vodcast, fiction sonore, création musicale — l'audio
+              est devenu un média à part entière, un espace d'expression et de transmission.
             </p>
             <p>
-              En Région Sud, une diversité de voix, de récits et d'initiatives audio émerge,
-              souvent dispersée et encore peu visible.
+              À Marseille et en Région Sud, une diversité de voix, de récits et d'initiatives
+              audio émerge, souvent dispersée et encore peu visible.
             </p>
           </div>
 
