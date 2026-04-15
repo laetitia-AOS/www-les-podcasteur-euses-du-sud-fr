@@ -7,17 +7,10 @@ import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import SEOHead from "@/components/SEOHead";
 import { motion } from "framer-motion";
-import { CalendarDays, MapPin, Clock, ExternalLink, Ticket, ArrowLeft, Share2 } from "lucide-react";
+import { CalendarDays, MapPin, Clock, ExternalLink, Ticket, ArrowLeft, Share2, Sun, Navigation } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
-
-const TYPE_COLORS: Record<string, string> = {
-  rencontre: "bg-primary/10 text-primary border-primary/20",
-  atelier: "bg-secondary/10 text-secondary-foreground border-secondary/30",
-  evenement: "bg-accent/10 text-accent-foreground border-accent/30",
-  partenaire: "bg-muted text-muted-foreground border-border",
-};
 
 const TYPE_LABELS: Record<string, string> = {
   rencontre: "Rencontre",
@@ -37,7 +30,7 @@ const formatTime = (iso: string) =>
 const EvenementDetail = () => {
   const { slug } = useParams<{ slug: string }>();
 
-  const { data: evt, isLoading, error } = useQuery({
+  const { data: evt, isLoading } = useQuery({
     queryKey: ["evenement-detail", slug],
     queryFn: async () => {
       const { data, error } = await supabase
@@ -98,7 +91,7 @@ const EvenementDetail = () => {
         <Navbar />
         <main className="min-h-screen pt-24 pb-16">
           <div className="container mx-auto px-6 max-w-4xl">
-            <div className="h-72 bg-muted/50 rounded-2xl animate-pulse mb-8" />
+            <div className="h-72 bg-muted/50 rounded-[20px] animate-pulse mb-8" />
             <div className="h-8 bg-muted/50 rounded-xl animate-pulse w-2/3 mb-4" />
             <div className="h-4 bg-muted/50 rounded-lg animate-pulse w-1/3" />
           </div>
@@ -130,9 +123,8 @@ const EvenementDetail = () => {
     );
   }
 
-  const day = new Date(evt.date_debut).getDate();
-  const monthShort = new Date(evt.date_debut).toLocaleDateString("fr-FR", { month: "short" });
   const isPast = new Date(evt.date_debut) < new Date();
+  const mapsQuery = evt.adresse ? encodeURIComponent(evt.adresse) : evt.lieu ? encodeURIComponent(evt.lieu) : null;
 
   return (
     <>
@@ -144,143 +136,151 @@ const EvenementDetail = () => {
         jsonLd={jsonLd}
       />
       <Navbar />
-      <main className="min-h-screen pt-20 pb-16">
-        {/* Hero image */}
-        {evt.image_url ? (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: 0.6 }}
-            className="relative w-full h-64 sm:h-80 md:h-[420px] overflow-hidden"
-          >
-            <img
-              src={evt.image_url}
-              alt={`Illustration : ${evt.titre}`}
-              className="w-full h-full object-cover"
-            />
-            <div className="absolute inset-0 bg-gradient-to-t from-background via-background/40 to-transparent" />
-            {/* Date badge on image */}
-            <div className="absolute top-6 right-6 w-18 h-18 bg-card/95 backdrop-blur-sm rounded-2xl flex flex-col items-center justify-center shadow-xl px-4 py-3" aria-hidden="true">
-              <span className="text-2xl font-bold text-primary leading-none">{day}</span>
-              <span className="text-xs font-semibold uppercase text-primary/70 mt-0.5">{monthShort}</span>
-            </div>
-          </motion.div>
-        ) : (
-          <div className="pt-4" />
-        )}
-
-        <div className="container mx-auto px-6 max-w-4xl">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: 0.15 }}
-            className={evt.image_url ? "-mt-16 relative z-10" : "mt-8"}
-          >
-            {/* Back link */}
-            <div className="mb-6">
-              <Link to="/evenements-podcast" className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-primary transition-colors">
+      <main className="min-h-screen">
+        {/* Blue header band — style template Apéro Écoute */}
+        <section className="pt-24 pb-10 bg-bleu-dark relative overflow-hidden">
+          <div className="absolute top-6 right-8 md:right-16">
+            <Sun className="w-7 h-7 text-soleil" strokeWidth={2.5} />
+          </div>
+          <div className="container mx-auto px-6 max-w-4xl relative z-10">
+            <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}>
+              <Link to="/evenements-podcast" className="inline-flex items-center gap-1.5 text-sm text-white/50 hover:text-white/80 transition-colors mb-6">
                 <ArrowLeft className="w-4 h-4" />
                 Tous les événements
               </Link>
-            </div>
 
-            {/* Main card */}
-            <div className="bg-card border border-border rounded-2xl overflow-hidden shadow-lg">
-              <div className="p-6 md:p-10">
-                {/* Type badge + share */}
-                <div className="flex items-center justify-between mb-4">
-                  <div className="flex items-center gap-2">
-                    <Badge className={`text-xs border ${TYPE_COLORS[evt.type] || "bg-muted text-muted-foreground"}`}>
-                      {TYPE_LABELS[evt.type] || evt.type}
-                    </Badge>
-                    {isPast && (
-                      <Badge variant="outline" className="text-xs text-muted-foreground">
-                        Événement passé
-                      </Badge>
+              <span className="text-[10px] font-semibold uppercase tracking-[0.2em] text-soleil block mb-2">
+                {TYPE_LABELS[evt.type] || evt.type} · {new Date(evt.date_debut).toLocaleDateString("fr-FR", { month: "long", year: "numeric" })}
+              </span>
+
+              <h1 className="font-display font-bold text-3xl md:text-4xl text-white mb-2 leading-tight">
+                {evt.titre}
+              </h1>
+              {evt.sous_titre && (
+                <p className="text-base text-white/60 max-w-2xl leading-relaxed">{evt.sous_titre}</p>
+              )}
+            </motion.div>
+          </div>
+        </section>
+
+        {/* Event image */}
+        {evt.image_url && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.6, delay: 0.1 }}
+            className="container mx-auto px-6 max-w-4xl -mt-2"
+          >
+            <div className="rounded-[20px] overflow-hidden shadow-xl">
+              <img
+                src={evt.image_url}
+                alt={`Illustration : ${evt.titre}`}
+                className="w-full h-56 sm:h-72 md:h-[400px] object-cover"
+              />
+            </div>
+          </motion.div>
+        )}
+
+        {/* Content */}
+        <div className="container mx-auto px-6 max-w-4xl py-8">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 0.2 }}
+          >
+            {/* Info blocks — inspired by template */}
+            <div className="space-y-4 mb-8">
+              {/* Date / time */}
+              <div className="flex items-start gap-4">
+                <div className="w-11 h-11 bg-bleu/10 rounded-xl flex items-center justify-center shrink-0 mt-0.5">
+                  <CalendarDays className="w-5 h-5 text-bleu" />
+                </div>
+                <div>
+                  <p className="text-base font-semibold text-foreground capitalize">
+                    <time dateTime={evt.date_debut}>{formatDate(evt.date_debut)}</time>
+                  </p>
+                  <p className="text-sm text-muted-foreground">
+                    De {formatTime(evt.date_debut)}{evt.date_fin && ` à ${formatTime(evt.date_fin)}`}
+                  </p>
+                </div>
+              </div>
+
+              {/* Location */}
+              {evt.lieu && (
+                <div className="flex items-start gap-4">
+                  <div className="w-11 h-11 bg-bleu/10 rounded-xl flex items-center justify-center shrink-0 mt-0.5">
+                    <MapPin className="w-5 h-5 text-bleu" />
+                  </div>
+                  <div>
+                    <p className="text-base font-semibold text-foreground">{evt.lieu}</p>
+                    {evt.adresse && <p className="text-sm text-muted-foreground">{evt.adresse}</p>}
+                    {mapsQuery && (
+                      <a
+                        href={`https://www.google.com/maps/search/?api=1&query=${mapsQuery}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center gap-1 text-sm font-semibold text-bleu hover:text-bleu-dark mt-1 transition-colors"
+                      >
+                        <Navigation className="w-3.5 h-3.5" />
+                        Voir l'itinéraire →
+                      </a>
                     )}
                   </div>
-                  <Button variant="ghost" size="sm" onClick={handleShare} className="text-muted-foreground hover:text-primary">
-                    <Share2 className="w-4 h-4 mr-1.5" />
-                    Partager
-                  </Button>
                 </div>
+              )}
 
-                {/* Title */}
-                <h1 className="font-display font-bold text-3xl md:text-4xl text-foreground mb-2 leading-tight">
-                  {evt.titre}
-                </h1>
-                {evt.sous_titre && (
-                  <p className="text-lg font-semibold text-primary/80 mb-6 leading-snug">
-                    {evt.sous_titre}
-                  </p>
-                )}
-
-                {/* Info grid */}
-                <div className="grid sm:grid-cols-2 gap-4 mb-8">
-                  <div className="flex items-center gap-3 bg-muted/30 rounded-xl p-4">
-                    <div className="w-10 h-10 bg-primary/10 rounded-xl flex items-center justify-center shrink-0">
-                      <CalendarDays className="w-5 h-5 text-primary" />
-                    </div>
-                    <div>
-                      <p className="text-sm font-medium text-foreground capitalize">
-                        <time dateTime={evt.date_debut}>{formatDate(evt.date_debut)}</time>
-                      </p>
-                      <p className="text-xs text-muted-foreground">
-                        {formatTime(evt.date_debut)}
-                        {evt.date_fin && ` – ${formatTime(evt.date_fin)}`}
-                      </p>
-                    </div>
+              {/* Places */}
+              {evt.places && (
+                <div className="flex items-start gap-4">
+                  <div className="w-11 h-11 bg-bleu/10 rounded-xl flex items-center justify-center shrink-0 mt-0.5">
+                    <Ticket className="w-5 h-5 text-bleu" />
                   </div>
-
-                  {evt.lieu && (
-                    <div className="flex items-center gap-3 bg-muted/30 rounded-xl p-4">
-                      <div className="w-10 h-10 bg-primary/10 rounded-xl flex items-center justify-center shrink-0">
-                        <MapPin className="w-5 h-5 text-primary" />
-                      </div>
-                      <div>
-                        <p className="text-sm font-medium text-foreground">{evt.lieu}</p>
-                        {evt.adresse && <p className="text-xs text-muted-foreground">{evt.adresse}</p>}
-                      </div>
-                    </div>
-                  )}
-
-                  {evt.places && (
-                    <div className="flex items-center gap-3 bg-muted/30 rounded-xl p-4">
-                      <div className="w-10 h-10 bg-primary/10 rounded-xl flex items-center justify-center shrink-0">
-                        <Ticket className="w-5 h-5 text-primary" />
-                      </div>
-                      <div>
-                        <p className="text-sm font-medium text-foreground">{evt.places} place{evt.places > 1 ? "s" : ""}</p>
-                        <p className="text-xs text-muted-foreground">Capacité de l'événement</p>
-                      </div>
-                    </div>
-                  )}
+                  <div>
+                    <p className="text-base font-semibold text-foreground">{evt.places} place{evt.places > 1 ? "s" : ""}</p>
+                    <p className="text-sm text-muted-foreground">Capacité de l'événement</p>
+                  </div>
                 </div>
+              )}
+            </div>
 
-                {/* Description */}
-                {evt.description && (
-                  <div className="mb-8">
-                    <h2 className="font-display font-bold text-xl text-foreground mb-3">À propos</h2>
-                    <div className="text-muted-foreground leading-relaxed whitespace-pre-line">
-                      {evt.description}
-                    </div>
-                  </div>
-                )}
+            {/* Separator */}
+            <div className="h-px bg-border mb-8" />
 
-                {/* CTA */}
-                {evt.lien_externe && !isPast && (
-                  <a
-                    href={withUtm(evt.lien_externe, "evenement")}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="inline-flex items-center gap-2 text-sm font-semibold text-primary-foreground bg-primary px-6 py-3 rounded-xl hover:brightness-110 transition-all shadow-md hover:shadow-lg"
-                  >
+            {/* Description */}
+            {evt.description && (
+              <div className="mb-8">
+                <h2 className="font-display font-bold text-xl text-foreground mb-4">À propos de l'événement</h2>
+                <div className="text-muted-foreground leading-relaxed whitespace-pre-line text-[15px]">
+                  {evt.description}
+                </div>
+              </div>
+            )}
+
+            {/* Actions */}
+            <div className="flex flex-wrap gap-3">
+              {evt.lien_externe && !isPast && (
+                <a
+                  href={withUtm(evt.lien_externe, "evenement")}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  <Button className="gap-2 rounded-pill font-bold bg-bleu text-white hover:bg-bleu-dark">
                     S'inscrire / Plus d'infos
                     <ExternalLink className="w-4 h-4" />
-                  </a>
-                )}
-              </div>
+                  </Button>
+                </a>
+              )}
+              <Button variant="outline" onClick={handleShare} className="gap-2 rounded-pill">
+                <Share2 className="w-4 h-4" />
+                Partager
+              </Button>
             </div>
+
+            {isPast && (
+              <Badge variant="outline" className="mt-6 text-muted-foreground">
+                Cet événement est passé
+              </Badge>
+            )}
           </motion.div>
         </div>
       </main>

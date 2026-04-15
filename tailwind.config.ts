@@ -69,6 +69,7 @@ export default {
           dark: "hsl(var(--bleu2))",
         },
         olive: "hsl(var(--olive))",
+        soleil: "hsl(var(--soleil))",
         footer: "hsl(var(--footer-bg))",
         sidebar: {
           DEFAULT: "hsl(var(--sidebar-background))",
