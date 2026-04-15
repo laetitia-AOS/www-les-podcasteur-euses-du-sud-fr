@@ -5,16 +5,9 @@ import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import SEOHead from "@/components/SEOHead";
 import { motion } from "framer-motion";
-import { CalendarDays, MapPin, Clock, Users, Ticket, ArrowRight, Plus } from "lucide-react";
+import { CalendarDays, MapPin, Clock, Ticket, ArrowRight, Plus, Sun } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-
-const TYPE_COLORS: Record<string, string> = {
-  rencontre: "bg-primary/10 text-terre border-primary/20",
-  atelier: "bg-lavande/10 text-lavande border-lavande/20",
-  evenement: "bg-turquoise/10 text-turquoise border-turquoise/20",
-  partenaire: "bg-muted text-muted-foreground border-primary/10",
-};
 
 const TYPE_LABELS: Record<string, string> = {
   rencontre: "Rencontre",
@@ -30,6 +23,88 @@ const formatDate = (iso: string) =>
 
 const formatTime = (iso: string) =>
   new Date(iso).toLocaleTimeString("fr-FR", { hour: "2-digit", minute: "2-digit" });
+
+const EventCard = ({ evt, index }: { evt: any; index: number }) => {
+  const day = new Date(evt.date_debut).getDate();
+  const monthShort = new Date(evt.date_debut).toLocaleDateString("fr-FR", { month: "short" });
+
+  return (
+    <Link to={`/evenement-podcast/${evt.slug || evt.id}`} className="block group">
+      <motion.article
+        initial={{ opacity: 0, y: 24 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5, delay: index * 0.08 }}
+        className="bg-background-pure border border-border rounded-[20px] overflow-hidden hover:shadow-xl hover:-translate-y-1 transition-all duration-300"
+      >
+        {/* Image hero */}
+        {evt.image_url && (
+          <div className="relative h-48 sm:h-56 overflow-hidden">
+            <img
+              src={evt.image_url}
+              alt={`Illustration : ${evt.titre}`}
+              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+              loading="lazy"
+            />
+            <div className="absolute inset-0 bg-gradient-to-t from-black/30 to-transparent" />
+            {/* Date badge on image */}
+            <div className="absolute top-4 right-4 w-16 h-16 bg-background-pure/95 backdrop-blur-sm rounded-2xl flex flex-col items-center justify-center shadow-lg">
+              <span className="text-xl font-display font-bold text-bleu leading-none">{day}</span>
+              <span className="text-[10px] font-semibold uppercase text-bleu/60 mt-0.5">{monthShort}</span>
+            </div>
+          </div>
+        )}
+
+        <div className="p-5 md:p-6">
+          {/* Type + date row when no image */}
+          <div className="flex items-center gap-2 mb-3">
+            {!evt.image_url && (
+              <div className="shrink-0 w-12 h-12 bg-bleu/10 rounded-xl flex flex-col items-center justify-center mr-2">
+                <span className="text-lg font-display font-bold text-bleu leading-none">{day}</span>
+                <span className="text-[9px] font-semibold uppercase text-bleu/50">{monthShort}</span>
+              </div>
+            )}
+            <Badge className="text-[10px] font-semibold uppercase tracking-wider border-0 bg-bleu/10 text-bleu px-2.5 py-1 rounded-full">
+              {TYPE_LABELS[evt.type] || evt.type}
+            </Badge>
+          </div>
+
+          <h2 className="font-display font-bold text-xl text-foreground mb-1 group-hover:text-bleu transition-colors leading-tight">
+            {evt.titre}
+          </h2>
+          {evt.sous_titre && (
+            <p className="text-sm font-medium text-muted-foreground/80 mb-1">{evt.sous_titre}</p>
+          )}
+          {evt.description && (
+            <p className="text-muted-foreground text-sm leading-relaxed mb-4 line-clamp-2">{evt.description}</p>
+          )}
+
+          {/* Info pills */}
+          <div className="flex flex-wrap gap-2 text-xs text-muted-foreground mb-4">
+            <span className="flex items-center gap-1.5 bg-muted/50 rounded-lg px-2.5 py-1.5">
+              <Clock className="w-3.5 h-3.5 text-bleu/50" />
+              {formatTime(evt.date_debut)}{evt.date_fin && ` – ${formatTime(evt.date_fin)}`}
+            </span>
+            {evt.lieu && (
+              <span className="flex items-center gap-1.5 bg-muted/50 rounded-lg px-2.5 py-1.5">
+                <MapPin className="w-3.5 h-3.5 text-bleu/50" />{evt.lieu}
+              </span>
+            )}
+            {evt.places && (
+              <span className="flex items-center gap-1.5 bg-muted/50 rounded-lg px-2.5 py-1.5">
+                <Ticket className="w-3.5 h-3.5 text-bleu/50" />{evt.places} places
+              </span>
+            )}
+          </div>
+
+          {/* CTA */}
+          <span className="inline-flex items-center gap-1.5 text-sm font-bold text-bleu group-hover:gap-2.5 transition-all">
+            Découvrir <ArrowRight className="w-4 h-4" />
+          </span>
+        </div>
+      </motion.article>
+    </Link>
+  );
+};
 
 const Evenements = () => {
   const { data: evenements, isLoading } = useQuery({
@@ -88,16 +163,28 @@ const Evenements = () => {
       />
       <Navbar />
       <main className="min-h-screen">
-        {/* Hero dark */}
-        <section className="pt-24 pb-12" style={{ backgroundColor: "hsl(40 20% 8%)" }}>
-          <div className="container mx-auto px-6 max-w-5xl">
+        {/* Hero bold blue — inspiré du template Apéro Écoute */}
+        <section className="pt-24 pb-14 bg-bleu-dark relative overflow-hidden">
+          {/* Decorative sun */}
+          <div className="absolute top-6 right-8 md:right-16">
+            <Sun className="w-8 h-8 text-soleil" strokeWidth={2.5} />
+          </div>
+          <div className="container mx-auto px-6 max-w-5xl relative z-10">
             <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }}>
-              <h1 className="font-display font-bold text-3xl md:text-4xl text-white mb-3">Rencontres & Événements</h1>
-              <p className="text-base max-w-2xl leading-relaxed mb-6" style={{ color: "rgba(255,255,255,0.55)" }}>
-                Sessions d'écoute, ateliers pratiques et événements partenaires — retrouvez tous les rendez-vous de l'écosystème.
+              <span className="text-xs font-semibold uppercase tracking-[0.2em] text-soleil mb-3 block">
+                Les Podcasteur·euses du Sud
+              </span>
+              <h1 className="font-display font-bold text-3xl md:text-5xl text-white mb-3 leading-tight">
+                Rencontres &{" "}
+                <span className="text-soleil">Événements</span>
+              </h1>
+              <p className="text-base max-w-2xl leading-relaxed mb-8 text-white/55">
+                Sessions d'écoute, ateliers pratiques et événements partenaires — retrouvez tous les rendez-vous de l'écosystème podcast en Région Sud.
               </p>
               <Link to="/proposer-evenement-podcast">
-                <Button className="gap-2 rounded-full font-bold"><Plus className="w-4 h-4" />Proposer un événement</Button>
+                <Button className="gap-2 rounded-pill font-bold bg-white text-bleu-dark hover:bg-white/90">
+                  <Plus className="w-4 h-4" />Proposer un événement
+                </Button>
               </Link>
             </motion.div>
           </div>
@@ -106,73 +193,22 @@ const Evenements = () => {
         <section className="py-12">
           <div className="container mx-auto px-6 max-w-5xl">
             {isLoading ? (
-              <div className="space-y-6">
-                {[1, 2, 3].map((i) => <div key={i} className="h-48 bg-muted/50 rounded-2xl animate-pulse" />)}
+              <div className="grid sm:grid-cols-2 gap-6">
+                {[1, 2, 3, 4].map((i) => <div key={i} className="h-72 bg-muted/50 rounded-[20px] animate-pulse" />)}
               </div>
             ) : !evenements?.length ? (
               <div className="text-center py-20">
-                <div className="w-16 h-16 bg-primary/10 rounded-2xl flex items-center justify-center mx-auto mb-5">
-                  <CalendarDays className="w-8 h-8 text-primary/60" />
+                <div className="w-16 h-16 bg-bleu/10 rounded-2xl flex items-center justify-center mx-auto mb-5">
+                  <CalendarDays className="w-8 h-8 text-bleu/60" />
                 </div>
                 <p className="text-foreground font-display font-bold text-xl mb-2">Aucun événement à venir</p>
                 <p className="text-sm text-muted-foreground max-w-md mx-auto">Revenez bientôt !</p>
               </div>
             ) : (
-              <div className="space-y-6">
-                {evenements.map((evt, i) => {
-                  const day = new Date(evt.date_debut).getDate();
-                  const monthShort = new Date(evt.date_debut).toLocaleDateString("fr-FR", { month: "short" });
-                  const isLavande = evt.type === "evenement" || evt.type === "partenaire";
-
-                  return (
-                    <Link to={`/evenement-podcast/${evt.slug || evt.id}`} key={evt.id} className="block">
-                      <motion.article
-                        initial={{ opacity: 0, y: 20 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ duration: 0.5, delay: i * 0.08 }}
-                        className="group flex flex-col md:flex-row gap-0 bg-background-pure border border-primary/8 rounded-2xl overflow-hidden hover:shadow-xl hover:border-primary/20 hover:-translate-y-[3px] transition-all duration-300"
-                      >
-                        {/* Date column */}
-                        <div className={`shrink-0 w-full md:w-24 flex md:flex-col items-center justify-center gap-1 p-4 ${isLavande ? "bg-lavande/10" : "bg-primary/10"}`}>
-                          <span className={`text-3xl md:text-4xl font-display font-bold leading-none ${isLavande ? "text-lavande" : "text-primary"}`}>{day}</span>
-                          <span className={`text-xs font-semibold uppercase ${isLavande ? "text-lavande/70" : "text-primary/70"}`}>{monthShort}</span>
-                        </div>
-
-                        {/* Content */}
-                        <div className="flex-1 p-5 md:p-6">
-                          <div className="flex items-center gap-2 mb-2">
-                            <Badge className={`text-xs border ${TYPE_COLORS[evt.type] || "bg-muted text-muted-foreground"}`}>
-                              {TYPE_LABELS[evt.type] || evt.type}
-                            </Badge>
-                          </div>
-                          <h2 className="font-display font-bold text-xl text-foreground mb-1 group-hover:text-primary transition-colors">{evt.titre}</h2>
-                          {evt.sous_titre && <p className="text-sm font-medium text-muted-foreground/80 mb-1">{evt.sous_titre}</p>}
-                          {evt.description && <p className="text-muted-foreground text-sm leading-relaxed mb-4 line-clamp-2">{evt.description}</p>}
-                          <div className="flex flex-wrap gap-x-5 gap-y-2 text-sm text-muted-foreground">
-                            <span className="flex items-center gap-1.5"><Clock className="w-4 h-4 text-primary/50" />{formatTime(evt.date_debut)}{evt.date_fin && ` – ${formatTime(evt.date_fin)}`}</span>
-                            {evt.lieu && <span className="flex items-center gap-1.5"><MapPin className="w-4 h-4 text-primary/50" />{evt.lieu}</span>}
-                            {evt.places && <span className="flex items-center gap-1.5"><Ticket className="w-4 h-4 text-primary/50" />{evt.places} places</span>}
-                          </div>
-                        </div>
-
-                        {/* Actions column */}
-                        <div className="shrink-0 flex md:flex-col items-center justify-center gap-3 p-4 md:p-6 border-t md:border-t-0 md:border-l border-primary/8">
-                          {evt.places && (
-                            <div className="text-center">
-                              <div className="w-24 h-2 bg-muted rounded-full overflow-hidden mb-1">
-                                <div className="h-full bg-primary rounded-full animate-fill" style={{ "--fill-to": "73%" } as any} />
-                              </div>
-                              <span className="text-xs text-muted-foreground">Places restantes</span>
-                            </div>
-                          )}
-                          <span className="text-sm font-bold text-primary flex items-center gap-1 group-hover:gap-2 transition-all">
-                            Détails <ArrowRight className="w-4 h-4" />
-                          </span>
-                        </div>
-                      </motion.article>
-                    </Link>
-                  );
-                })}
+              <div className="grid sm:grid-cols-2 gap-6">
+                {evenements.map((evt, i) => (
+                  <EventCard key={evt.id} evt={evt} index={i} />
+                ))}
               </div>
             )}
 
@@ -191,9 +227,9 @@ const Evenements = () => {
                         {evt.image_url ? (
                           <img src={evt.image_url} alt="" className="shrink-0 w-14 h-14 rounded-xl object-cover" loading="lazy" />
                         ) : (
-                          <div className="shrink-0 w-14 h-14 bg-muted rounded-xl flex flex-col items-center justify-center">
-                            <span className="text-sm font-bold text-muted-foreground leading-none">{new Date(evt.date_debut).getDate()}</span>
-                            <span className="text-[10px] uppercase text-muted-foreground/70">{new Date(evt.date_debut).toLocaleDateString("fr-FR", { month: "short" })}</span>
+                          <div className="shrink-0 w-14 h-14 bg-bleu/10 rounded-xl flex flex-col items-center justify-center">
+                            <span className="text-sm font-bold text-bleu leading-none">{new Date(evt.date_debut).getDate()}</span>
+                            <span className="text-[10px] uppercase text-bleu/50">{new Date(evt.date_debut).toLocaleDateString("fr-FR", { month: "short" })}</span>
                           </div>
                         )}
                         <div className="min-w-0">
