@@ -7,9 +7,15 @@ import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import SEOHead from "@/components/SEOHead";
 import { motion } from "framer-motion";
-import { CalendarDays, MapPin, Clock, ExternalLink, Ticket, ArrowLeft, Share2, Sun, Navigation } from "lucide-react";
+import { CalendarDays, MapPin, Clock, ExternalLink, Ticket, ArrowLeft, Share2, Sun, Navigation, Linkedin, Facebook, Mail, MessageCircle, Link2 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { toast } from "sonner";
 
 const TYPE_LABELS: Record<string, string> = {
@@ -45,16 +51,38 @@ const EvenementDetail = () => {
     enabled: !!slug,
   });
 
-  const handleShare = async () => {
-    const url = window.location.href;
+  const shareUrl = typeof window !== "undefined" ? window.location.href : "";
+  const shareText = evt ? `${evt.titre} — Les Podcasteur·euses du Sud` : "";
+
+  const handleCopy = async () => {
+    try {
+      await navigator.clipboard.writeText(shareUrl);
+      toast.success("Lien copié !");
+    } catch {
+      toast.error("Impossible de copier le lien");
+    }
+  };
+
+  const handleNativeShare = async () => {
     if (navigator.share) {
       try {
-        await navigator.share({ title: evt?.titre, url });
+        await navigator.share({ title: evt?.titre, text: shareText, url: shareUrl });
       } catch {}
     } else {
-      await navigator.clipboard.writeText(url);
-      toast.success("Lien copié !");
+      handleCopy();
     }
+  };
+
+  const openShare = (url: string) => {
+    window.open(url, "_blank", "noopener,noreferrer,width=600,height=600");
+  };
+
+  const shareLinks = {
+    linkedin: `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(shareUrl)}`,
+    facebook: `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(shareUrl)}`,
+    twitter: `https://twitter.com/intent/tweet?url=${encodeURIComponent(shareUrl)}&text=${encodeURIComponent(shareText)}`,
+    whatsapp: `https://wa.me/?text=${encodeURIComponent(`${shareText} ${shareUrl}`)}`,
+    email: `mailto:?subject=${encodeURIComponent(shareText)}&body=${encodeURIComponent(`Je te partage cet événement : ${shareUrl}`)}`,
   };
 
   const jsonLd = useMemo(() => evt ? {
@@ -270,10 +298,40 @@ const EvenementDetail = () => {
                   </Button>
                 </a>
               )}
-              <Button variant="outline" onClick={handleShare} className="gap-2 rounded-pill">
-                <Share2 className="w-4 h-4" />
-                Partager
-              </Button>
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="outline" className="gap-2 rounded-pill">
+                    <Share2 className="w-4 h-4" />
+                    Partager
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="start" className="w-56">
+                  <DropdownMenuItem onClick={() => openShare(shareLinks.linkedin)} className="gap-2 cursor-pointer">
+                    <Linkedin className="w-4 h-4 text-bleu" />
+                    LinkedIn
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => openShare(shareLinks.facebook)} className="gap-2 cursor-pointer">
+                    <Facebook className="w-4 h-4 text-bleu" />
+                    Facebook
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => openShare(shareLinks.twitter)} className="gap-2 cursor-pointer">
+                    <svg className="w-4 h-4" viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+                    X (Twitter)
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => openShare(shareLinks.whatsapp)} className="gap-2 cursor-pointer">
+                    <MessageCircle className="w-4 h-4 text-bleu" />
+                    WhatsApp
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => window.location.href = shareLinks.email} className="gap-2 cursor-pointer">
+                    <Mail className="w-4 h-4 text-bleu" />
+                    Email
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={handleCopy} className="gap-2 cursor-pointer border-t mt-1 pt-2">
+                    <Link2 className="w-4 h-4 text-bleu" />
+                    Copier le lien
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
             </div>
 
             {isPast && (
