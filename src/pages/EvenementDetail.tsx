@@ -51,13 +51,14 @@ const EvenementDetail = () => {
     enabled: !!slug,
   });
 
-  const shareUrl = typeof window !== "undefined" ? window.location.href : "";
+  const SITE_URL = "https://www.les-podcasteur-euses-du-sud.fr";
+  const publicEventUrl = slug ? `${SITE_URL}/evenement-podcast/${slug}` : (typeof window !== "undefined" ? window.location.href : "");
   // URL servie par l'edge function : sert un HTML pré-rendu avec OG personnalisées aux crawlers,
   // redirige les humains vers la SPA. Indispensable pour LinkedIn/FB/X qui n'exécutent pas le JS.
   const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL;
   const ogShareUrl = slug
     ? `${SUPABASE_URL}/functions/v1/og-evenement/${slug}`
-    : shareUrl;
+    : publicEventUrl;
   // Anti-cache : force LinkedIn/Facebook à recharger l'aperçu à chaque partage
   // (les plateformes mettent en cache les previews ~7 jours par URL exacte)
   const ogShareUrlWithBuster = slug
@@ -67,7 +68,7 @@ const EvenementDetail = () => {
 
   const handleCopy = async () => {
     try {
-      await navigator.clipboard.writeText(shareUrl);
+      await navigator.clipboard.writeText(ogShareUrlWithBuster);
       toast.success("Lien copié !");
     } catch {
       toast.error("Impossible de copier le lien");
@@ -77,7 +78,7 @@ const EvenementDetail = () => {
   const handleNativeShare = async () => {
     if (navigator.share) {
       try {
-        await navigator.share({ title: evt?.titre, text: shareText, url: shareUrl });
+         await navigator.share({ title: evt?.titre, text: shareText, url: ogShareUrlWithBuster });
       } catch {}
     } else {
       handleCopy();
