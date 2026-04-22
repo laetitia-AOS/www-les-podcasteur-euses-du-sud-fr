@@ -67,7 +67,8 @@ Deno.serve(async (req) => {
       .eq("publie", true)
       .maybeSingle();
 
-    const requestUrl = url.toString();
+    const publicFunctionBase = `${Deno.env.get("SUPABASE_URL")!}/functions/v1/og-evenement`;
+    const requestUrl = `${publicFunctionBase}/${encodeURIComponent(slug)}${url.search}`;
     const targetUrl = `${SITE_URL}/evenement-podcast/${slug}`;
 
     // Crawlers : serve a minimal HTML with OG tags
@@ -88,7 +89,8 @@ Deno.serve(async (req) => {
 <meta charset="utf-8" />
 <title>${escapeHtml(title)}</title>
 <meta name="description" content="${escapeHtml(description)}" />
-<link rel="canonical" href="${targetUrl}" />
+<link rel="canonical" href="${requestUrl}" />
+<meta name="robots" content="noindex, nofollow" />
 
 <meta property="og:type" content="event" />
 <meta property="og:url" content="${requestUrl}" />
