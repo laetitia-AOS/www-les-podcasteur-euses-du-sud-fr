@@ -5,3 +5,6 @@ verify_jwt = false
 
 [functions.helloasso-import]
 verify_jwt = false
+
+[functions.og-evenement]
+verify_jwt = false
