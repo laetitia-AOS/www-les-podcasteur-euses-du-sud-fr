@@ -11,6 +11,32 @@ const corsHeaders = {
 const SITE_URL = "https://www.les-podcasteur-euses-du-sud.fr";
 const DEFAULT_OG = `${SITE_URL}/og-image.jpg`;
 
+// Optimise l'URL d'image pour les crawlers sociaux :
+// - Si l'image est dans le bucket Supabase Storage, on utilise la Storage Image Transformation
+//   (redimensionnement + compression WebP côté serveur, mis en cache CDN automatiquement).
+//   Cela garantit < 5 Mo et un format optimal sans dépendance ni traitement dans l'edge function.
+// - Sinon, on retourne l'URL telle quelle.
+const optimizeOgImage = (rawUrl: string): string => {
+  try {
+    const u = new URL(rawUrl);
+    // Pattern: /storage/v1/object/public/<bucket>/<path>
+    const publicMatch = u.pathname.match(/^\/storage\/v1\/object\/public\/(.+)$/);
+    if (publicMatch && u.hostname.endsWith("supabase.co")) {
+      // Bascule vers l'endpoint /render/image/public qui supporte les transformations
+      u.pathname = `/storage/v1/render/image/public/${publicMatch[1]}`;
+      u.searchParams.set("width", "1200");
+      u.searchParams.set("height", "630");
+      u.searchParams.set("resize", "cover");
+      u.searchParams.set("quality", "75");
+      // format=origin par défaut ; on laisse Supabase négocier (WebP si supporté)
+      return u.toString();
+    }
+    return rawUrl;
+  } catch {
+    return rawUrl;
+  }
+};
+
 const escapeHtml = (s: string) =>
   s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#39;");
 
