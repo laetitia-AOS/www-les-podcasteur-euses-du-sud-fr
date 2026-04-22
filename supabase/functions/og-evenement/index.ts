@@ -95,7 +95,8 @@ Deno.serve(async (req) => {
       ? (evt.sous_titre || evt.description?.slice(0, 200) || `Rejoignez-nous le ${new Date(evt.date_debut).toLocaleDateString("fr-FR", { day: "numeric", month: "long", year: "numeric" })}${evt.lieu ? ` à ${evt.lieu}` : ""}.`)
       : "Événement podcast en Région Sud.";
 
-    const image = evt?.image_url || DEFAULT_OG;
+    const rawImage = evt?.image_url || DEFAULT_OG;
+    const image = optimizeOgImage(rawImage);
 
     const html = `<!DOCTYPE html>
 <html lang="fr">
