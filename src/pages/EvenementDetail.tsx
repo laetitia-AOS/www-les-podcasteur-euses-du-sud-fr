@@ -52,6 +52,12 @@ const EvenementDetail = () => {
   });
 
   const shareUrl = typeof window !== "undefined" ? window.location.href : "";
+  // URL servie par l'edge function : sert un HTML pré-rendu avec OG personnalisées aux crawlers,
+  // redirige les humains vers la SPA. Indispensable pour LinkedIn/FB/X qui n'exécutent pas le JS.
+  const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL;
+  const ogShareUrl = slug
+    ? `${SUPABASE_URL}/functions/v1/og-evenement/${slug}`
+    : shareUrl;
   const shareText = evt ? `${evt.titre} — Les Podcasteur·euses du Sud` : "";
 
   const handleCopy = async () => {
@@ -78,11 +84,11 @@ const EvenementDetail = () => {
   };
 
   const shareLinks = {
-    linkedin: `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(shareUrl)}`,
-    facebook: `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(shareUrl)}`,
-    twitter: `https://twitter.com/intent/tweet?url=${encodeURIComponent(shareUrl)}&text=${encodeURIComponent(shareText)}`,
-    whatsapp: `https://wa.me/?text=${encodeURIComponent(`${shareText} ${shareUrl}`)}`,
-    email: `mailto:?subject=${encodeURIComponent(shareText)}&body=${encodeURIComponent(`Je te partage cet événement : ${shareUrl}`)}`,
+    linkedin: `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(ogShareUrl)}`,
+    facebook: `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(ogShareUrl)}`,
+    twitter: `https://twitter.com/intent/tweet?url=${encodeURIComponent(ogShareUrl)}&text=${encodeURIComponent(shareText)}`,
+    whatsapp: `https://wa.me/?text=${encodeURIComponent(`${shareText} ${ogShareUrl}`)}`,
+    email: `mailto:?subject=${encodeURIComponent(shareText)}&body=${encodeURIComponent(`Je te partage cet événement : ${ogShareUrl}`)}`,
   };
 
   const jsonLd = useMemo(() => evt ? {
