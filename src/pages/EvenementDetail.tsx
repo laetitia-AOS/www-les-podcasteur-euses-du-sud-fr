@@ -58,6 +58,11 @@ const EvenementDetail = () => {
   const ogShareUrl = slug
     ? `${SUPABASE_URL}/functions/v1/og-evenement/${slug}`
     : shareUrl;
+  // Anti-cache : force LinkedIn/Facebook à recharger l'aperçu à chaque partage
+  // (les plateformes mettent en cache les previews ~7 jours par URL exacte)
+  const ogShareUrlWithBuster = slug
+    ? `${ogShareUrl}?v=${Date.now()}`
+    : ogShareUrl;
   const shareText = evt ? `${evt.titre} — Les Podcasteur·euses du Sud` : "";
 
   const handleCopy = async () => {
