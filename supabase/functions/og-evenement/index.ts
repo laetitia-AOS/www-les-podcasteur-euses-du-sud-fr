@@ -40,17 +40,6 @@ const optimizeOgImage = (rawUrl: string): string => {
 const escapeHtml = (s: string) =>
   s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#39;");
 
-const isCrawler = (ua: string) => {
-  const bots = [
-    "facebookexternalhit", "facebot", "twitterbot", "linkedinbot", "slackbot",
-    "whatsapp", "telegrambot", "discordbot", "pinterest", "redditbot",
-    "googlebot", "bingbot", "applebot", "embedly", "quora link preview",
-    "outbrain", "vkshare", "w3c_validator", "skypeuripreview", "iframely",
-  ];
-  const lower = ua.toLowerCase();
-  return bots.some((b) => lower.includes(b));
-};
-
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
@@ -78,13 +67,9 @@ Deno.serve(async (req) => {
       .eq("publie", true)
       .maybeSingle();
 
+    const publicFunctionBase = `${Deno.env.get("SUPABASE_URL")!}/functions/v1/og-evenement`;
+    const requestUrl = `${publicFunctionBase}/${encodeURIComponent(slug)}${url.search}`;
     const targetUrl = `${SITE_URL}/evenement-podcast/${slug}`;
-    const ua = req.headers.get("user-agent") || "";
-
-    // Humans : redirect to the SPA
-    if (!isCrawler(ua)) {
-      return Response.redirect(targetUrl, 302);
-    }
 
     // Crawlers : serve a minimal HTML with OG tags
     const title = evt
@@ -104,10 +89,11 @@ Deno.serve(async (req) => {
 <meta charset="utf-8" />
 <title>${escapeHtml(title)}</title>
 <meta name="description" content="${escapeHtml(description)}" />
-<link rel="canonical" href="${targetUrl}" />
+<link rel="canonical" href="${requestUrl}" />
+<meta name="robots" content="noindex, nofollow" />
 
 <meta property="og:type" content="event" />
-<meta property="og:url" content="${targetUrl}" />
+<meta property="og:url" content="${requestUrl}" />
 <meta property="og:title" content="${escapeHtml(title)}" />
 <meta property="og:description" content="${escapeHtml(description)}" />
 <meta property="og:image" content="${image}" />
@@ -120,11 +106,10 @@ Deno.serve(async (req) => {
 <meta name="twitter:title" content="${escapeHtml(title)}" />
 <meta name="twitter:description" content="${escapeHtml(description)}" />
 <meta name="twitter:image" content="${image}" />
-
-<meta http-equiv="refresh" content="0; url=${targetUrl}" />
+<script>window.location.replace(${JSON.stringify(targetUrl)});</script>
 </head>
 <body>
-<p><a href="${targetUrl}">${escapeHtml(title)}</a></p>
+<p>Redirection… <a href="${targetUrl}">${escapeHtml(title)}</a></p>
 </body>
 </html>`;
 
@@ -132,7 +117,7 @@ Deno.serve(async (req) => {
       headers: {
         ...corsHeaders,
         "Content-Type": "text/html; charset=utf-8",
-        "Cache-Control": "public, max-age=300, s-maxage=300",
+        "Cache-Control": "no-store, max-age=0",
       },
     });
   } catch (err) {
