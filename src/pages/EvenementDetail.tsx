@@ -58,6 +58,11 @@ const EvenementDetail = () => {
   const ogShareUrl = slug
     ? `${SUPABASE_URL}/functions/v1/og-evenement/${slug}`
     : shareUrl;
+  // Anti-cache : force LinkedIn/Facebook à recharger l'aperçu à chaque partage
+  // (les plateformes mettent en cache les previews ~7 jours par URL exacte)
+  const ogShareUrlWithBuster = slug
+    ? `${ogShareUrl}?v=${Date.now()}`
+    : ogShareUrl;
   const shareText = evt ? `${evt.titre} — Les Podcasteur·euses du Sud` : "";
 
   const handleCopy = async () => {
@@ -84,11 +89,11 @@ const EvenementDetail = () => {
   };
 
   const shareLinks = {
-    linkedin: `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(ogShareUrl)}`,
-    facebook: `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(ogShareUrl)}`,
-    twitter: `https://twitter.com/intent/tweet?url=${encodeURIComponent(ogShareUrl)}&text=${encodeURIComponent(shareText)}`,
-    whatsapp: `https://wa.me/?text=${encodeURIComponent(`${shareText} ${ogShareUrl}`)}`,
-    email: `mailto:?subject=${encodeURIComponent(shareText)}&body=${encodeURIComponent(`Je te partage cet événement : ${ogShareUrl}`)}`,
+    linkedin: `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(ogShareUrlWithBuster)}`,
+    facebook: `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(ogShareUrlWithBuster)}`,
+    twitter: `https://twitter.com/intent/tweet?url=${encodeURIComponent(ogShareUrlWithBuster)}&text=${encodeURIComponent(shareText)}`,
+    whatsapp: `https://wa.me/?text=${encodeURIComponent(`${shareText} ${ogShareUrlWithBuster}`)}`,
+    email: `mailto:?subject=${encodeURIComponent(shareText)}&body=${encodeURIComponent(`Je te partage cet événement : ${ogShareUrlWithBuster}`)}`,
   };
 
   const jsonLd = useMemo(() => evt ? {
