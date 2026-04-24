@@ -91,6 +91,9 @@ const AdminEvenements = () => {
         image_url: values.image_url || null,
         places: values.places ? parseInt(values.places) : null,
         inscription_activee: values.inscription_activee,
+        podcasts_invites: (values.podcasts_invites || []).filter(
+          (p) => p && (p.nom_podcast || p.host || p.vignette_url)
+        ) as any,
       };
       if (editingId) {
         const { error } = await supabase.from("evenements").update(payload).eq("id", editingId);
