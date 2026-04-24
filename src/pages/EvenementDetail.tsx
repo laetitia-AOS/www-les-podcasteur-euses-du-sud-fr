@@ -17,6 +17,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { toast } from "sonner";
+import EvenementInscriptionForm from "@/components/EvenementInscriptionForm";
 
 const TYPE_LABELS: Record<string, string> = {
   rencontre: "Rencontre",
