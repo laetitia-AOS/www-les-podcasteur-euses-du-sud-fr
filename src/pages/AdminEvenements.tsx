@@ -153,6 +153,7 @@ const AdminEvenements = () => {
       publie: evt.publie, image_url: evt.image_url || "",
       places: evt.places ? String(evt.places) : "",
       inscription_activee: !!evt.inscription_activee,
+      podcasts_invites: Array.isArray(evt.podcasts_invites) ? evt.podcasts_invites : [],
     });
     setEditingId(evt.id);
     setShowForm(true);
