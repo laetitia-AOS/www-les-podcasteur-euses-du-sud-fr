@@ -10,6 +10,7 @@ import { useNavigate, Navigate } from "react-router-dom";
 import { toast } from "sonner";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useAdminAuth } from "@/hooks/useAdminAuth";
+import EvenementInscriptionsDialog from "@/components/EvenementInscriptionsDialog";
 
 type EventForm = {
   titre: string;
