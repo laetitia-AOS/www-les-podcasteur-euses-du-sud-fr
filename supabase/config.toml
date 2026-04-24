@@ -8,3 +8,6 @@ verify_jwt = false
 
 [functions.og-evenement]
 verify_jwt = false
+
+[functions.evenement-inscription-confirmation]
+verify_jwt = false
