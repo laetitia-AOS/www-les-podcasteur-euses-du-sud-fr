@@ -546,40 +546,60 @@ const FormSection = () => {
             >
               <div className="flex items-center gap-3 justify-center mb-4">
                 <div className="h-px w-8 bg-primary/30" />
-                <span className="text-xs font-semibold uppercase tracking-[0.2em] text-primary/70">Référencement</span>
+                <span className="text-xs font-semibold uppercase tracking-[0.2em] text-primary/70">
+                  {isAjoutPodcast ? "Ajouter un podcast" : "Référencement"}
+                </span>
                 <div className="h-px w-8 bg-primary/30" />
               </div>
               <h2 className="font-display font-bold text-3xl sm:text-4xl md:text-5xl mb-5">
-                Rejoindre le collectif
+                {isAjoutPodcast ? "Référencer votre podcast" : "Rejoindre le collectif"}
               </h2>
               <p className="text-muted-foreground leading-relaxed max-w-lg mx-auto">
-                Podcasteur·euse, acteur·ice de l'écosystème ou simplement curieux·se :
-                intégrez l'écosystème audio de la Région Sud.
+                {isAjoutPodcast
+                  ? "Votre fiche existe déjà — ce formulaire crée une fiche podcast supplémentaire associée à votre email. Elle viendra alimenter l'onglet Podcasts."
+                  : <>Podcasteur·euse, acteur·ice de l'écosystème ou simplement curieux·se : intégrez l'écosystème audio de la Région Sud.</>}
               </p>
 
-              <div className="mt-8 bg-secondary/10 border border-secondary/20 rounded-2xl p-5 text-left max-w-lg mx-auto">
-                <div className="flex items-start gap-3">
-                  <Users className="w-5 h-5 text-secondary mt-0.5 shrink-0" />
-                  <div>
-                    <p className="text-sm font-semibold text-foreground mb-1">
-                      Visibilité dans l'annuaire et sur le flux
-                    </p>
-                    <p className="text-sm text-muted-foreground leading-relaxed">
-                      Créer votre profil est ouvert à toustes.
-                      La publication dans l'annuaire est validée manuellement par notre équipe.
-                      Les membres à jour de leur cotisation associative sont prioritairement mis en avant
-                      dans l'annuaire et sur le flux du site.{" "}
-                      <a
-                        href="/rejoindre-association"
-                        className="text-primary font-medium hover:underline"
-                      >
-                        En savoir plus sur l'adhésion →
-                      </a>
-                    </p>
+              {isAjoutPodcast ? (
+                <div className="mt-8 bg-primary/5 border border-primary/20 rounded-2xl p-5 text-left max-w-lg mx-auto">
+                  <div className="flex items-start gap-3">
+                    <Mic className="w-5 h-5 text-primary mt-0.5 shrink-0" />
+                    <div>
+                      <p className="text-sm font-semibold text-foreground mb-1">
+                        Nouvelle fiche podcast
+                      </p>
+                      <p className="text-sm text-muted-foreground leading-relaxed">
+                        Vos informations personnelles ont été pré-remplies pour vous faire gagner du temps. Complétez les champs spécifiques à votre podcast (nom, lien d'écoute, vignette, thématique…).
+                      </p>
+                    </div>
                   </div>
                 </div>
-              </div>
+              ) : (
+                <div className="mt-8 bg-secondary/10 border border-secondary/20 rounded-2xl p-5 text-left max-w-lg mx-auto">
+                  <div className="flex items-start gap-3">
+                    <Users className="w-5 h-5 text-secondary mt-0.5 shrink-0" />
+                    <div>
+                      <p className="text-sm font-semibold text-foreground mb-1">
+                        Visibilité dans l'annuaire et sur le flux
+                      </p>
+                      <p className="text-sm text-muted-foreground leading-relaxed">
+                        Créer votre profil est ouvert à toustes.
+                        La publication dans l'annuaire est validée manuellement par notre équipe.
+                        Les membres à jour de leur cotisation associative sont prioritairement mis en avant
+                        dans l'annuaire et sur le flux du site.{" "}
+                        <a
+                          href="/rejoindre-association"
+                          className="text-primary font-medium hover:underline"
+                        >
+                          En savoir plus sur l'adhésion →
+                        </a>
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              )}
             </motion.div>
+
 
             <motion.form
               onSubmit={handleSubmit}
