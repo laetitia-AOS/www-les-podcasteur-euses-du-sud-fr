@@ -193,6 +193,7 @@ export type Database = {
           lien_externe: string | null
           lieu: string | null
           places: number | null
+          podcasts_invites: Json | null
           publie: boolean
           slug: string | null
           sous_titre: string | null
@@ -211,6 +212,7 @@ export type Database = {
           lien_externe?: string | null
           lieu?: string | null
           places?: number | null
+          podcasts_invites?: Json | null
           publie?: boolean
           slug?: string | null
           sous_titre?: string | null
@@ -229,6 +231,7 @@ export type Database = {
           lien_externe?: string | null
           lieu?: string | null
           places?: number | null
+          podcasts_invites?: Json | null
           publie?: boolean
           slug?: string | null
           sous_titre?: string | null
