@@ -312,6 +312,10 @@ const AdminEvenements = () => {
                 <input type="checkbox" checked={form.publie} onChange={(e) => setForm({ ...form, publie: e.target.checked })} className="rounded border-border" id="publie" />
                 <label htmlFor="publie" className="text-sm text-foreground">Publié (visible sur le site)</label>
               </div>
+              <div className="flex items-center gap-2 md:col-span-2">
+                <input type="checkbox" checked={form.inscription_activee} onChange={(e) => setForm({ ...form, inscription_activee: e.target.checked })} className="rounded border-border" id="inscription_activee" />
+                <label htmlFor="inscription_activee" className="text-sm text-foreground">Activer le formulaire d'inscription sur la page de l'événement</label>
+              </div>
             </div>
             <div className="flex gap-3 pt-2">
               <Button type="submit" disabled={saveMutation.isPending}>
