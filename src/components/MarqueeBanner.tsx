@@ -7,13 +7,13 @@ const items = [
 const MarqueeBanner = () => {
   const content = items.map((item, i) => (
     <span key={i} className="flex items-center gap-4 shrink-0">
-      <span className="uppercase font-display font-semibold text-sm tracking-wider" style={{ color: "rgba(253,250,245,0.5)" }}>{item}</span>
+      <span className="uppercase font-display font-semibold text-sm tracking-wider text-background-pure/50">{item}</span>
       <span className="text-primary text-xs">◆</span>
     </span>
   ));
 
   return (
-    <div className="py-3 overflow-hidden select-none" style={{ backgroundColor: "hsl(197 47% 15%)" }} aria-hidden="true">
+    <div className="bg-footer py-3 overflow-hidden select-none" aria-hidden="true">
       <div className="flex gap-4 animate-marquee whitespace-nowrap">
         {content}
         {content}
