@@ -97,9 +97,14 @@ const EvenementInscriptionForm = ({ evenementId, titre, date_debut, lieu, adress
 
   return (
     <form onSubmit={handleSubmit} className="bg-card border border-border rounded-2xl p-6 space-y-4">
-      <div className="flex items-center gap-2 mb-1">
-        <UserPlus className="w-5 h-5 text-bleu" />
-        <h3 className="font-display font-bold text-lg text-foreground">S'inscrire à cet événement</h3>
+      <div className="flex items-center justify-between gap-2 mb-1 flex-wrap">
+        <div className="flex items-center gap-2">
+          <UserPlus className="w-5 h-5 text-bleu" />
+          <h3 className="font-display font-bold text-lg text-foreground">S'inscrire à cet événement</h3>
+        </div>
+        <span className="inline-flex items-center rounded-full bg-bleu/10 text-bleu text-xs font-semibold px-3 py-1">
+          Inscription gratuite
+        </span>
       </div>
       <p className="text-sm text-muted-foreground -mt-2">
         Remplissez ce formulaire pour réserver votre place. Un email de confirmation vous sera envoyé.
