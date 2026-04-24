@@ -17,6 +17,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { toast } from "sonner";
+import EvenementInscriptionForm from "@/components/EvenementInscriptionForm";
 
 const TYPE_LABELS: Record<string, string> = {
   rencontre: "Rencontre",
@@ -293,6 +294,20 @@ const EvenementDetail = () => {
                 <div className="text-muted-foreground leading-relaxed whitespace-pre-line text-[15px]">
                   {evt.description}
                 </div>
+              </div>
+            )}
+
+            {/* Formulaire d'inscription */}
+            {evt.inscription_activee && !isPast && (
+              <div className="mb-8">
+                <EvenementInscriptionForm
+                  evenementId={evt.id}
+                  titre={evt.titre}
+                  date_debut={evt.date_debut}
+                  lieu={evt.lieu}
+                  adresse={evt.adresse}
+                  slug={evt.slug}
+                />
               </div>
             )}
 

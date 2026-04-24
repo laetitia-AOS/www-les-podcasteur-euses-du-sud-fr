@@ -10,6 +10,7 @@ import { useNavigate, Navigate } from "react-router-dom";
 import { toast } from "sonner";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useAdminAuth } from "@/hooks/useAdminAuth";
+import EvenementInscriptionsDialog from "@/components/EvenementInscriptionsDialog";
 
 type EventForm = {
   titre: string;
@@ -24,12 +25,13 @@ type EventForm = {
   publie: boolean;
   image_url: string;
   places: string;
+  inscription_activee: boolean;
 };
 
 const emptyForm: EventForm = {
   titre: "", sous_titre: "", description: "", date_debut: "", date_fin: "",
   lieu: "", adresse: "", type: "rencontre", lien_externe: "", publie: true,
-  image_url: "", places: "",
+  image_url: "", places: "", inscription_activee: false,
 };
 
 const AdminEvenements = () => {
@@ -38,6 +40,7 @@ const AdminEvenements = () => {
   const [form, setForm] = useState<EventForm>(emptyForm);
   const [uploading, setUploading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const [inscriptionsOpen, setInscriptionsOpen] = useState<{ id: string; titre: string } | null>(null);
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const { user, isAdmin, loading: authLoading, signOut } = useAdminAuth();
@@ -49,6 +52,22 @@ const AdminEvenements = () => {
         .from("evenements").select("*").order("date_debut", { ascending: false });
       if (error) throw error;
       return data;
+    },
+    enabled: isAdmin,
+  });
+
+  const { data: inscriptionsCounts } = useQuery({
+    queryKey: ["inscriptions-counts"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("evenement_inscriptions")
+        .select("evenement_id");
+      if (error) throw error;
+      const counts: Record<string, number> = {};
+      (data || []).forEach((r: any) => {
+        counts[r.evenement_id] = (counts[r.evenement_id] || 0) + 1;
+      });
+      return counts;
     },
     enabled: isAdmin,
   });
@@ -68,6 +87,7 @@ const AdminEvenements = () => {
         publie: values.publie,
         image_url: values.image_url || null,
         places: values.places ? parseInt(values.places) : null,
+        inscription_activee: values.inscription_activee,
       };
       if (editingId) {
         const { error } = await supabase.from("evenements").update(payload).eq("id", editingId);
@@ -126,6 +146,7 @@ const AdminEvenements = () => {
       type: evt.type || "rencontre", lien_externe: evt.lien_externe || "",
       publie: evt.publie, image_url: evt.image_url || "",
       places: evt.places ? String(evt.places) : "",
+      inscription_activee: !!evt.inscription_activee,
     });
     setEditingId(evt.id);
     setShowForm(true);
@@ -309,6 +330,10 @@ const AdminEvenements = () => {
                 <input type="checkbox" checked={form.publie} onChange={(e) => setForm({ ...form, publie: e.target.checked })} className="rounded border-border" id="publie" />
                 <label htmlFor="publie" className="text-sm text-foreground">Publié (visible sur le site)</label>
               </div>
+              <div className="flex items-center gap-2 md:col-span-2">
+                <input type="checkbox" checked={form.inscription_activee} onChange={(e) => setForm({ ...form, inscription_activee: e.target.checked })} className="rounded border-border" id="inscription_activee" />
+                <label htmlFor="inscription_activee" className="text-sm text-foreground">Activer le formulaire d'inscription sur la page de l'événement</label>
+              </div>
             </div>
             <div className="flex gap-3 pt-2">
               <Button type="submit" disabled={saveMutation.isPending}>
@@ -350,7 +375,18 @@ const AdminEvenements = () => {
                     {evt.places && ` · ${evt.places} places`}
                   </p>
                 </div>
-                <div className="flex gap-1 shrink-0">
+                <div className="flex gap-1 shrink-0 items-center">
+                  {evt.inscription_activee && (
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="text-xs gap-1"
+                      onClick={() => setInscriptionsOpen({ id: evt.id, titre: evt.titre })}
+                    >
+                      <Users className="w-3.5 h-3.5" />
+                      {inscriptionsCounts?.[evt.id] ?? 0} inscrit{(inscriptionsCounts?.[evt.id] ?? 0) > 1 ? "s" : ""}
+                    </Button>
+                  )}
                   <Button
                     variant={evt.publie ? "outline" : "default"}
                     size="sm"
@@ -369,6 +405,13 @@ const AdminEvenements = () => {
           </div>
         )}
       </div>
+
+      <EvenementInscriptionsDialog
+        evenementId={inscriptionsOpen?.id ?? null}
+        evenementTitre={inscriptionsOpen?.titre}
+        open={!!inscriptionsOpen}
+        onClose={() => setInscriptionsOpen(null)}
+      />
     </div>
   );
 };
