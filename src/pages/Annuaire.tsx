@@ -5,7 +5,7 @@ import Footer from "@/components/Footer";
 import SEOHead from "@/components/SEOHead";
 import { Badge } from "@/components/ui/badge";
 import { motion } from "framer-motion";
-import { MapPin, Headphones, ArrowRight, Search, Users, Briefcase, Heart, Handshake, Building2 } from "lucide-react";
+import { MapPin, Headphones, ArrowRight, Search, Users, Briefcase, Heart, Handshake, Building2, Mic } from "lucide-react";
 import { Link } from "react-router-dom";
 
 const departements = [
@@ -144,9 +144,13 @@ const Annuaire = () => {
           {/* Header */}
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }} className="mb-8">
             <h1 className="font-display font-bold text-2xl sm:text-3xl md:text-4xl mb-2 text-foreground">Annuaire</h1>
-            <p className="text-muted-foreground text-sm">
+            <p className="text-muted-foreground text-sm mb-3">
               Podcasteurs, monteurs, studios, voix off, sound designers, consultants — l'écosystème podcast en région Sud.
             </p>
+            <Link to="/espace-membre" className="text-sm text-muted-foreground hover:text-primary transition-colors inline-flex items-center gap-1.5">
+              <Mic className="w-3.5 h-3.5" />
+              Déjà référencé·e ? Ajoutez votre podcast à votre fiche →
+            </Link>
           </motion.div>
 
           <div className="flex flex-col lg:flex-row gap-8">
