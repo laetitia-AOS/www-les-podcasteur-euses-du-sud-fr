@@ -147,9 +147,12 @@ const Annuaire = () => {
             <p className="text-muted-foreground text-sm mb-3">
               Podcasteurs, monteurs, studios, voix off, sound designers, consultants — l'écosystème podcast en région Sud.
             </p>
-            <Link to="/espace-membre" className="text-sm text-muted-foreground hover:text-primary transition-colors inline-flex items-center gap-1.5">
-              <Mic className="w-3.5 h-3.5" />
-              Déjà référencé·e ? Ajoutez votre podcast à votre fiche →
+            <Link
+              to="/espace-membre"
+              className="inline-flex items-center gap-2 px-4 py-2.5 rounded-full border border-primary/30 bg-primary/5 text-sm font-medium text-foreground hover:bg-primary/10 hover:border-primary/50 transition-colors"
+            >
+              <Mic className="w-4 h-4 text-primary" />
+              Déjà référencé·e ? <span className="text-primary font-semibold">Ajoutez votre podcast à votre fiche →</span>
             </Link>
           </motion.div>
 
