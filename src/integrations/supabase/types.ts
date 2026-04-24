@@ -136,6 +136,50 @@ export type Database = {
         }
         Relationships: []
       }
+      evenement_inscriptions: {
+        Row: {
+          created_at: string
+          email: string
+          evenement_id: string
+          id: string
+          nom: string
+          prenom: string
+          statut: string
+          structure: string | null
+          telephone: string | null
+        }
+        Insert: {
+          created_at?: string
+          email: string
+          evenement_id: string
+          id?: string
+          nom: string
+          prenom: string
+          statut?: string
+          structure?: string | null
+          telephone?: string | null
+        }
+        Update: {
+          created_at?: string
+          email?: string
+          evenement_id?: string
+          id?: string
+          nom?: string
+          prenom?: string
+          statut?: string
+          structure?: string | null
+          telephone?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "evenement_inscriptions_evenement_id_fkey"
+            columns: ["evenement_id"]
+            isOneToOne: false
+            referencedRelation: "evenements"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       evenements: {
         Row: {
           adresse: string | null
@@ -145,6 +189,7 @@ export type Database = {
           description: string | null
           id: string
           image_url: string | null
+          inscription_activee: boolean
           lien_externe: string | null
           lieu: string | null
           places: number | null
@@ -162,6 +207,7 @@ export type Database = {
           description?: string | null
           id?: string
           image_url?: string | null
+          inscription_activee?: boolean
           lien_externe?: string | null
           lieu?: string | null
           places?: number | null
@@ -179,6 +225,7 @@ export type Database = {
           description?: string | null
           id?: string
           image_url?: string | null
+          inscription_activee?: boolean
           lien_externe?: string | null
           lieu?: string | null
           places?: number | null
