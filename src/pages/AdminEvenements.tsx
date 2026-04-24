@@ -40,6 +40,7 @@ const AdminEvenements = () => {
   const [form, setForm] = useState<EventForm>(emptyForm);
   const [uploading, setUploading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const [inscriptionsOpen, setInscriptionsOpen] = useState<{ id: string; titre: string } | null>(null);
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const { user, isAdmin, loading: authLoading, signOut } = useAdminAuth();
