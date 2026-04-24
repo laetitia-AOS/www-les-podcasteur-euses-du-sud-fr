@@ -481,6 +481,27 @@ const FormSection = () => {
               </div>
             </div>
 
+            {/* CTA "J'ai aussi un podcast" pour acteurs écosystème / soutien */}
+            {(formData.typeProfil === "pro_podcast" || formData.typeProfil === "soutien") && (
+              <div className="bg-primary/5 border border-primary/20 rounded-2xl p-5">
+                <div className="flex items-start gap-3">
+                  <Mic className="w-5 h-5 text-primary mt-0.5 shrink-0" />
+                  <div className="flex-1">
+                    <p className="text-sm font-semibold text-foreground mb-1">Vous avez aussi un podcast ?</p>
+                    <p className="text-sm text-muted-foreground leading-relaxed mb-3">
+                      Référencez-le pour qu'il apparaisse dans le flux des podcasts du Sud. Vos informations personnelles seront pré-remplies.
+                    </p>
+                    <a
+                      href={`/referencer-mon-podcast?profil=podcasteur&ajout=1&email=${encodeURIComponent(formData.email)}`}
+                      className="inline-flex items-center gap-2 text-primary font-medium hover:underline text-sm"
+                    >
+                      Référencer mon podcast <ArrowRight className="w-4 h-4" />
+                    </a>
+                  </div>
+                </div>
+              </div>
+            )}
+
             <div className="h-px bg-border" />
 
             {/* Visibilité */}
