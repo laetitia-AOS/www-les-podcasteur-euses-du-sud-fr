@@ -148,9 +148,15 @@ const AgencesStudios = () => {
             <p className="text-muted-foreground text-sm max-w-2xl mb-4">
               Studios, agences, radios, festivals, incubateurs — les lieux et structures qui font vivre l'écosystème podcast en région Sud.
             </p>
-            <Link to="/referencer-mon-podcast">
-              <Button className="gap-2 rounded-full font-bold"><Building2 className="w-4 h-4" />Référencer ma structure</Button>
-            </Link>
+            <div className="flex flex-wrap items-center gap-3">
+              <Link to="/referencer-mon-podcast">
+                <Button className="gap-2 rounded-full font-bold"><Building2 className="w-4 h-4" />Référencer ma structure</Button>
+              </Link>
+              <Link to="/espace-membre" className="text-sm text-muted-foreground hover:text-primary transition-colors inline-flex items-center gap-1.5">
+                <Mic className="w-3.5 h-3.5" />
+                Déjà référencé·e ? Ajoutez votre podcast à votre fiche →
+              </Link>
+            </div>
           </motion.div>
 
           {/* Tabs */}
