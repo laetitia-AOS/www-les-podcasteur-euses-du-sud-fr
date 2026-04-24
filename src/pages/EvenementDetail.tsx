@@ -18,6 +18,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { toast } from "sonner";
 import EvenementInscriptionForm from "@/components/EvenementInscriptionForm";
+import PodcastsInvitesDisplay from "@/components/PodcastsInvitesDisplay";
 
 const TYPE_LABELS: Record<string, string> = {
   rencontre: "Rencontre",
@@ -296,6 +297,11 @@ const EvenementDetail = () => {
                 </div>
               </div>
             )}
+
+            {/* Podcasts à l'écoute */}
+            <PodcastsInvitesDisplay
+              podcasts={Array.isArray((evt as any).podcasts_invites) ? (evt as any).podcasts_invites : []}
+            />
 
             {/* Formulaire d'inscription */}
             {evt.inscription_activee && !isPast && (
