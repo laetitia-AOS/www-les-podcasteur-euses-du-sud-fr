@@ -56,10 +56,7 @@ const ProchainEvenement = () => {
             </span>
           </div>
 
-          <article
-            className="relative rounded-[20px] overflow-hidden"
-            style={{ backgroundColor: "hsl(197 47% 15%)" }}
-          >
+          <article className="relative rounded-[20px] overflow-hidden bg-footer">
             <div className="absolute top-0 right-0 w-64 h-64 rounded-full -translate-y-1/3 translate-x-1/3" style={{ background: "rgba(184,92,56,0.08)" }} />
 
             <div className="relative p-8 md:p-10 flex flex-col md:flex-row gap-8 items-start">
