@@ -69,6 +69,7 @@ const AdminEvenements = () => {
         publie: values.publie,
         image_url: values.image_url || null,
         places: values.places ? parseInt(values.places) : null,
+        inscription_activee: values.inscription_activee,
       };
       if (editingId) {
         const { error } = await supabase.from("evenements").update(payload).eq("id", editingId);
