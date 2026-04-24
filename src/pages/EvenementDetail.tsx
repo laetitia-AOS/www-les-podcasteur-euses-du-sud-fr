@@ -294,6 +294,7 @@ const EvenementDetail = () => {
                 <div className="text-muted-foreground leading-relaxed whitespace-pre-line text-[15px]">
                   {evt.description}
                 </div>
+              </div>
             )}
 
             {/* Formulaire d'inscription */}
