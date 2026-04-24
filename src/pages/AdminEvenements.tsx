@@ -341,6 +341,13 @@ const AdminEvenements = () => {
                 <input type="checkbox" checked={form.inscription_activee} onChange={(e) => setForm({ ...form, inscription_activee: e.target.checked })} className="rounded border-border" id="inscription_activee" />
                 <label htmlFor="inscription_activee" className="text-sm text-foreground">Activer le formulaire d'inscription sur la page de l'événement</label>
               </div>
+
+              <div className="md:col-span-2 pt-2 border-t border-border">
+                <PodcastsInvitesEditor
+                  value={form.podcasts_invites}
+                  onChange={(next) => setForm({ ...form, podcasts_invites: next })}
+                />
+              </div>
             </div>
             <div className="flex gap-3 pt-2">
               <Button type="submit" disabled={saveMutation.isPending}>
