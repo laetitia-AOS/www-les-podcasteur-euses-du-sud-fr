@@ -11,6 +11,7 @@ import { toast } from "sonner";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useAdminAuth } from "@/hooks/useAdminAuth";
 import EvenementInscriptionsDialog from "@/components/EvenementInscriptionsDialog";
+import PodcastsInvitesEditor, { type PodcastInvite } from "@/components/PodcastsInvitesEditor";
 
 type EventForm = {
   titre: string;
@@ -26,12 +27,14 @@ type EventForm = {
   image_url: string;
   places: string;
   inscription_activee: boolean;
+  podcasts_invites: PodcastInvite[];
 };
 
 const emptyForm: EventForm = {
   titre: "", sous_titre: "", description: "", date_debut: "", date_fin: "",
   lieu: "", adresse: "", type: "rencontre", lien_externe: "", publie: true,
   image_url: "", places: "", inscription_activee: false,
+  podcasts_invites: [],
 };
 
 const AdminEvenements = () => {
@@ -88,6 +91,9 @@ const AdminEvenements = () => {
         image_url: values.image_url || null,
         places: values.places ? parseInt(values.places) : null,
         inscription_activee: values.inscription_activee,
+        podcasts_invites: (values.podcasts_invites || []).filter(
+          (p) => p && (p.nom_podcast || p.host || p.vignette_url)
+        ) as any,
       };
       if (editingId) {
         const { error } = await supabase.from("evenements").update(payload).eq("id", editingId);
@@ -147,6 +153,7 @@ const AdminEvenements = () => {
       publie: evt.publie, image_url: evt.image_url || "",
       places: evt.places ? String(evt.places) : "",
       inscription_activee: !!evt.inscription_activee,
+      podcasts_invites: Array.isArray(evt.podcasts_invites) ? evt.podcasts_invites : [],
     });
     setEditingId(evt.id);
     setShowForm(true);
@@ -333,6 +340,13 @@ const AdminEvenements = () => {
               <div className="flex items-center gap-2 md:col-span-2">
                 <input type="checkbox" checked={form.inscription_activee} onChange={(e) => setForm({ ...form, inscription_activee: e.target.checked })} className="rounded border-border" id="inscription_activee" />
                 <label htmlFor="inscription_activee" className="text-sm text-foreground">Activer le formulaire d'inscription sur la page de l'événement</label>
+              </div>
+
+              <div className="md:col-span-2 pt-2 border-t border-border">
+                <PodcastsInvitesEditor
+                  value={form.podcasts_invites}
+                  onChange={(next) => setForm({ ...form, podcasts_invites: next })}
+                />
               </div>
             </div>
             <div className="flex gap-3 pt-2">
