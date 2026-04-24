@@ -624,7 +624,21 @@ const FormSection = () => {
                 </div>
                 <div>
                   <label className={labelClass}>Email <span className="text-primary">*</span></label>
-                  <input name="email" type="email" value={formData.email} onChange={handleChange} className={inputClass} placeholder="vous@exemple.com" required />
+                  <input
+                    name="email"
+                    type="email"
+                    value={formData.email}
+                    onChange={handleChange}
+                    className={inputClass + (isAjoutPodcast ? " bg-muted/40 cursor-not-allowed" : "")}
+                    placeholder="vous@exemple.com"
+                    required
+                    readOnly={isAjoutPodcast}
+                  />
+                  {isAjoutPodcast && (
+                    <p className="text-xs text-muted-foreground mt-2">
+                      Cet email doit rester identique à celui de votre fiche existante pour lier les deux profils.
+                    </p>
+                  )}
                 </div>
                 <div>
                   <label className={labelClass}>Téléphone / WhatsApp</label>
@@ -638,7 +652,14 @@ const FormSection = () => {
                 <SectionHeader number={sn.profil} title="Votre profil" />
                 <div>
                   <label className={labelClass}>Je rejoins le collectif en tant que : <span className="text-primary">*</span></label>
-                <select name="typeProfil" value={formData.typeProfil} onChange={handleChange} className={selectClass} required>
+                <select
+                  name="typeProfil"
+                  value={formData.typeProfil}
+                  onChange={handleChange}
+                  className={selectClass + (isAjoutPodcast ? " bg-muted/40 cursor-not-allowed" : "")}
+                  required
+                  disabled={isAjoutPodcast}
+                >
                     <option value="podcasteur">Podcasteur·euse (j'ai un podcast)</option>
                     <option value="pro_podcast">Acteur·ice de l'écosystème (je propose des compétences)</option>
                     <option value="soutien">Soutien / curieux (je veux suivre et contribuer)</option>
