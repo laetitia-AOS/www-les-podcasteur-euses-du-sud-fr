@@ -142,17 +142,19 @@ const Annuaire = () => {
       <main className="pt-24 pb-20">
         <div className="container mx-auto px-6 max-w-6xl">
           {/* Header */}
-          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }} className="mb-8">
-            <h1 className="font-display font-bold text-2xl sm:text-3xl md:text-4xl mb-2 text-foreground">Annuaire</h1>
-            <p className="text-muted-foreground text-sm mb-3">
-              Podcasteurs, monteurs, studios, voix off, sound designers, consultants — l'écosystème podcast en région Sud.
-            </p>
+          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }} className="mb-8 flex flex-col md:flex-row md:items-start md:justify-between gap-4">
+            <div className="flex-1">
+              <h1 className="font-display font-bold text-2xl sm:text-3xl md:text-4xl mb-2 text-foreground">Annuaire</h1>
+              <p className="text-muted-foreground text-sm">
+                Podcasteurs, monteurs, studios, voix off, sound designers, consultants — l'écosystème podcast en région Sud.
+              </p>
+            </div>
             <Link
               to="/espace-membre"
-              className="inline-flex items-center gap-2 px-4 py-2.5 rounded-full border border-primary/30 bg-primary/5 text-sm font-medium text-foreground hover:bg-primary/10 hover:border-primary/50 transition-colors"
+              className="shrink-0 inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-full border border-primary/30 bg-primary/5 text-xs font-medium text-foreground hover:bg-primary/10 hover:border-primary/50 transition-colors"
             >
-              <Mic className="w-4 h-4 text-primary" />
-              Déjà référencé·e ? <span className="text-primary font-semibold">Ajoutez votre podcast à votre fiche →</span>
+              <Mic className="w-3.5 h-3.5 text-primary" />
+              Déjà référencé·e ? <span className="text-primary font-semibold">Ajouter mon podcast →</span>
             </Link>
           </motion.div>
 

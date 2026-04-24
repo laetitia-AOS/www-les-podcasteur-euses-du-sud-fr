@@ -143,23 +143,25 @@ const AgencesStudios = () => {
       <main className="pt-24 pb-20">
         <div className="container mx-auto px-6 max-w-6xl">
           {/* Header */}
-          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }} className="mb-6">
-            <h1 className="font-display font-bold text-2xl sm:text-3xl md:text-4xl mb-2 text-foreground">Agences & Studios</h1>
-            <p className="text-muted-foreground text-sm max-w-2xl mb-4">
-              Studios, agences, radios, festivals, incubateurs — les lieux et structures qui font vivre l'écosystème podcast en région Sud.
-            </p>
-            <div className="flex flex-wrap items-center gap-3">
+          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }} className="mb-6 flex flex-col md:flex-row md:items-start md:justify-between gap-4">
+            <div className="flex-1">
+              <h1 className="font-display font-bold text-2xl sm:text-3xl md:text-4xl mb-2 text-foreground">Agences & Studios</h1>
+              <p className="text-muted-foreground text-sm max-w-2xl">
+                Studios, agences, radios, festivals, incubateurs — les lieux et structures qui font vivre l'écosystème podcast en région Sud.
+              </p>
+            </div>
+            <div className="flex flex-col items-stretch md:items-end gap-2 shrink-0">
               <Link to="/referencer-mon-podcast">
-                <Button className="gap-2 rounded-full font-bold"><Building2 className="w-4 h-4" />Référencer ma structure</Button>
+                <Button className="gap-2 rounded-full font-bold w-full md:w-auto"><Building2 className="w-4 h-4" />Référencer ma structure</Button>
+              </Link>
+              <Link
+                to="/espace-membre"
+                className="inline-flex items-center justify-center gap-2 px-4 py-2 rounded-full border border-primary/30 bg-primary/5 text-xs font-medium text-foreground hover:bg-primary/10 hover:border-primary/50 transition-colors"
+              >
+                <Mic className="w-3.5 h-3.5 text-primary" />
+                Déjà référencé·e ? <span className="text-primary font-semibold">Ajouter mon podcast →</span>
               </Link>
             </div>
-            <Link
-              to="/espace-membre"
-              className="mt-4 inline-flex items-center gap-2 px-4 py-2.5 rounded-full border border-primary/30 bg-primary/5 text-sm font-medium text-foreground hover:bg-primary/10 hover:border-primary/50 transition-colors"
-            >
-              <Mic className="w-4 h-4 text-primary" />
-              Déjà référencé·e ? <span className="text-primary font-semibold">Ajoutez votre podcast à votre fiche →</span>
-            </Link>
           </motion.div>
 
           {/* Tabs */}
