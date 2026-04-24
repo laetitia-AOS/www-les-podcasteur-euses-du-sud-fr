@@ -1,7 +1,7 @@
 import { useState, useRef } from "react";
 import { motion } from "framer-motion";
 import { toast } from "sonner";
-import { Send, X, Image, Check, Users, Sun, Clock, Plus, Building2 } from "lucide-react";
+import { Send, X, Image, Check, Users, Sun, Clock, Plus, Building2, Mic, ArrowRight } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import CityAutocomplete, { type CityResult } from "./CityAutocomplete";
 
