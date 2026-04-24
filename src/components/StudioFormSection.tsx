@@ -528,6 +528,26 @@ const StudioFormSection = ({ onBack }: StudioFormSectionProps) => {
                 </div>
               </div>
             </div>
+
+            {/* CTA "Vous avez aussi un podcast ?" */}
+            <div className="bg-primary/5 border border-primary/20 rounded-2xl p-5">
+              <div className="flex items-start gap-3">
+                <Mic className="w-5 h-5 text-primary mt-0.5 shrink-0" />
+                <div className="flex-1">
+                  <p className="text-sm font-semibold text-foreground mb-1">Votre studio a aussi un podcast ?</p>
+                  <p className="text-sm text-muted-foreground leading-relaxed mb-3">
+                    Référencez-le pour qu'il apparaisse dans le flux des podcasts du Sud. Vos informations seront pré-remplies.
+                  </p>
+                  <a
+                    href={`/referencer-mon-podcast?profil=podcasteur&ajout=1&email=${encodeURIComponent(email)}`}
+                    className="inline-flex items-center gap-2 text-primary font-medium hover:underline text-sm"
+                  >
+                    Référencer mon podcast <ArrowRight className="w-4 h-4" />
+                  </a>
+                </div>
+              </div>
+            </div>
+
             <div className="space-y-4 text-center">
               <h3 className="font-display font-bold text-xl text-foreground">✨ Visibilité dans l'annuaire</h3>
               <p className="text-muted-foreground text-sm leading-relaxed max-w-lg mx-auto">
