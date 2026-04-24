@@ -11,6 +11,7 @@ import { toast } from "sonner";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useAdminAuth } from "@/hooks/useAdminAuth";
 import EvenementInscriptionsDialog from "@/components/EvenementInscriptionsDialog";
+import PodcastsInvitesEditor, { type PodcastInvite } from "@/components/PodcastsInvitesEditor";
 
 type EventForm = {
   titre: string;
@@ -26,12 +27,14 @@ type EventForm = {
   image_url: string;
   places: string;
   inscription_activee: boolean;
+  podcasts_invites: PodcastInvite[];
 };
 
 const emptyForm: EventForm = {
   titre: "", sous_titre: "", description: "", date_debut: "", date_fin: "",
   lieu: "", adresse: "", type: "rencontre", lien_externe: "", publie: true,
   image_url: "", places: "", inscription_activee: false,
+  podcasts_invites: [],
 };
 
 const AdminEvenements = () => {
