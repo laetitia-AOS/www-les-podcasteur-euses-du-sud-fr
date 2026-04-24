@@ -3,7 +3,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
-import { LogOut, Save, Loader2, Image, X, ArrowLeft, Mic, Users, Trash2 } from "lucide-react";
+import { LogOut, Save, Loader2, Image, X, ArrowLeft, Mic, Users, Trash2, Plus } from "lucide-react";
 import { useNavigate, Link } from "react-router-dom";
 
 interface PodcastData {
@@ -253,19 +253,24 @@ const MonEspace = () => {
 
       <main className="container mx-auto px-6 py-8 max-w-2xl space-y-8">
         {/* Tabs */}
-        {podcasts.length > 1 && (
-          <div className="flex gap-2 overflow-x-auto pb-2">
-            {podcasts.map((p, i) => (
-              <button key={p.id} onClick={() => switchTab(i)}
-                className={`flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium transition-all whitespace-nowrap ${
-                  i === activeTab ? "bg-primary text-primary-foreground shadow-sm" : "bg-card border border-border text-muted-foreground hover:text-foreground"
-                }`}>
-                {p.type_profil === "podcasteur" ? <Mic className="w-4 h-4" /> : <Users className="w-4 h-4" />}
-                {p.type_profil === "podcasteur" ? p.nom_podcast : p.type_profil === "pro_podcast" ? "Acteur·ice" : "Profil Soutien"}
-              </button>
-            ))}
-          </div>
-        )}
+        <div className="flex items-center gap-2 overflow-x-auto pb-2">
+          {podcasts.length > 1 && podcasts.map((p, i) => (
+            <button key={p.id} onClick={() => switchTab(i)}
+              className={`flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium transition-all whitespace-nowrap ${
+                i === activeTab ? "bg-primary text-primary-foreground shadow-sm" : "bg-card border border-border text-muted-foreground hover:text-foreground"
+              }`}>
+              {p.type_profil === "podcasteur" ? <Mic className="w-4 h-4" /> : <Users className="w-4 h-4" />}
+              {p.type_profil === "podcasteur" ? p.nom_podcast : p.type_profil === "pro_podcast" ? "Acteur·ice" : "Profil Soutien"}
+            </button>
+          ))}
+          <Link
+            to={`/referencer-mon-podcast?profil=podcasteur&ajout=1&email=${encodeURIComponent(userEmail)}`}
+            className="flex items-center gap-1.5 px-4 py-2 rounded-xl text-sm font-medium transition-all whitespace-nowrap border-2 border-dashed border-primary/40 text-primary hover:bg-primary/5 ml-auto shrink-0"
+          >
+            <Plus className="w-4 h-4" />
+            Ajouter un podcast
+          </Link>
+        </div>
 
         {/* Status */}
         <div className="flex items-center gap-3">

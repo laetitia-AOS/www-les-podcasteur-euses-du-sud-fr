@@ -298,6 +298,20 @@ const StructureEcoFormSection = ({ onBack }: Props) => {
         </div>
         <h2 className="font-display font-bold text-3xl">🏛 Merci pour votre inscription</h2>
         <p className="text-muted-foreground max-w-lg mx-auto">Votre structure a bien été enregistrée. Elle sera visible dans l'annuaire après validation par notre équipe (48–72h).</p>
+
+        <div className="bg-primary/5 border border-primary/20 rounded-2xl p-5 max-w-lg mx-auto text-left">
+          <p className="text-sm font-semibold text-foreground mb-1">Votre structure a aussi un podcast ?</p>
+          <p className="text-sm text-muted-foreground mb-3">
+            Référencez-le pour qu'il apparaisse dans le flux des podcasts du Sud. Vos informations seront pré-remplies.
+          </p>
+          <a
+            href={`/referencer-mon-podcast?profil=podcasteur&ajout=1&email=${encodeURIComponent(form.email)}`}
+            className="inline-flex items-center gap-2 text-primary font-medium hover:underline"
+          >
+            Référencer mon podcast →
+          </a>
+        </div>
+
         <a href="/annuaire-podcasts" className="inline-flex items-center gap-2 text-primary font-medium hover:underline">Voir l'annuaire →</a>
       </motion.div>
     );

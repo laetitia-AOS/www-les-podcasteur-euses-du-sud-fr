@@ -1,7 +1,8 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
+import { useSearchParams } from "react-router-dom";
 import { motion } from "framer-motion";
 import { toast } from "sonner";
-import { Send, X, Image, Check, Users, Sun, ArrowRight, Clock } from "lucide-react";
+import { Send, X, Image, Check, Users, Sun, ArrowRight, Clock, Mic } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import StudioFormSection from "./StudioFormSection";
 import StructureEcoFormSection from "./StructureEcoFormSection";
@@ -155,13 +156,18 @@ const CheckboxMultiSelect = ({
 );
 
 const FormSection = () => {
+  const [searchParams] = useSearchParams();
+  const initialProfil = searchParams.get("profil") || "podcasteur";
+  const initialEmail = searchParams.get("email") || "";
+  const isAjoutPodcast = searchParams.get("ajout") === "1";
+
   const [submitted, setSubmitted] = useState(false);
   const [formData, setFormData] = useState({
-    prenom: "", nom: "", email: "", telephone: "",
+    prenom: "", nom: "", email: initialEmail, telephone: "",
     nomPodcast: "", lienEcoute: "", description: "",
     thematique: "", departementCode: "",
     typePodcast: "", niveauAvancement: "", frequencePublication: "", monetise: "",
-    typeProfil: "podcasteur", bio750: "", lienPrincipal: "", lienLinkedin: "",
+    typeProfil: initialProfil, bio750: "", lienPrincipal: "", lienLinkedin: "",
     metierPrincipal: "", disponibilite: "",
     formatCollaboration: "",
   });
@@ -182,6 +188,38 @@ const FormSection = () => {
   const [vignettePreview, setVignettePreview] = useState<string | null>(null);
   const [uploading, setUploading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  // Pre-fetch user info if ajout=1 and email present (reuse prenom/nom from existing fiche)
+  useEffect(() => {
+    if (!isAjoutPodcast || !initialEmail) return;
+    (async () => {
+      const { data } = await supabase
+        .from("podcasts")
+        .select("prenom, nom, telephone, bio_750, lien_linkedin, lien_principal, department_code, city_name, city_insee_code, city_postcode")
+        .eq("email", initialEmail)
+        .limit(1)
+        .maybeSingle();
+      if (data) {
+        setFormData((prev) => ({
+          ...prev,
+          prenom: data.prenom || prev.prenom,
+          nom: data.nom || prev.nom,
+          telephone: data.telephone || prev.telephone,
+          bio750: data.bio_750 || prev.bio750,
+          lienLinkedin: data.lien_linkedin || prev.lienLinkedin,
+          lienPrincipal: data.lien_principal || prev.lienPrincipal,
+          departementCode: data.department_code || prev.departementCode,
+        }));
+        if (data.city_insee_code && data.city_name) {
+          setSelectedCity({
+            city_name: data.city_name,
+            city_insee_code: data.city_insee_code,
+            city_postcode: data.city_postcode || "",
+          } as CityResult);
+        }
+      }
+    })();
+  }, [isAjoutPodcast, initialEmail]);
 
   const cropToSquare = (file: File): Promise<File> => {
     return new Promise((resolve) => {
@@ -443,6 +481,27 @@ const FormSection = () => {
               </div>
             </div>
 
+            {/* CTA "J'ai aussi un podcast" pour acteurs écosystème / soutien */}
+            {(formData.typeProfil === "pro_podcast" || formData.typeProfil === "soutien") && (
+              <div className="bg-primary/5 border border-primary/20 rounded-2xl p-5">
+                <div className="flex items-start gap-3">
+                  <Mic className="w-5 h-5 text-primary mt-0.5 shrink-0" />
+                  <div className="flex-1">
+                    <p className="text-sm font-semibold text-foreground mb-1">Vous avez aussi un podcast ?</p>
+                    <p className="text-sm text-muted-foreground leading-relaxed mb-3">
+                      Référencez-le pour qu'il apparaisse dans le flux des podcasts du Sud. Vos informations personnelles seront pré-remplies.
+                    </p>
+                    <a
+                      href={`/referencer-mon-podcast?profil=podcasteur&ajout=1&email=${encodeURIComponent(formData.email)}`}
+                      className="inline-flex items-center gap-2 text-primary font-medium hover:underline text-sm"
+                    >
+                      Référencer mon podcast <ArrowRight className="w-4 h-4" />
+                    </a>
+                  </div>
+                </div>
+              </div>
+            )}
+
             <div className="h-px bg-border" />
 
             {/* Visibilité */}
@@ -508,40 +567,60 @@ const FormSection = () => {
             >
               <div className="flex items-center gap-3 justify-center mb-4">
                 <div className="h-px w-8 bg-primary/30" />
-                <span className="text-xs font-semibold uppercase tracking-[0.2em] text-primary/70">Référencement</span>
+                <span className="text-xs font-semibold uppercase tracking-[0.2em] text-primary/70">
+                  {isAjoutPodcast ? "Ajouter un podcast" : "Référencement"}
+                </span>
                 <div className="h-px w-8 bg-primary/30" />
               </div>
               <h2 className="font-display font-bold text-3xl sm:text-4xl md:text-5xl mb-5">
-                Rejoindre le collectif
+                {isAjoutPodcast ? "Référencer votre podcast" : "Rejoindre le collectif"}
               </h2>
               <p className="text-muted-foreground leading-relaxed max-w-lg mx-auto">
-                Podcasteur·euse, acteur·ice de l'écosystème ou simplement curieux·se :
-                intégrez l'écosystème audio de la Région Sud.
+                {isAjoutPodcast
+                  ? "Votre fiche existe déjà — ce formulaire crée une fiche podcast supplémentaire associée à votre email. Elle viendra alimenter l'onglet Podcasts."
+                  : <>Podcasteur·euse, acteur·ice de l'écosystème ou simplement curieux·se : intégrez l'écosystème audio de la Région Sud.</>}
               </p>
 
-              <div className="mt-8 bg-secondary/10 border border-secondary/20 rounded-2xl p-5 text-left max-w-lg mx-auto">
-                <div className="flex items-start gap-3">
-                  <Users className="w-5 h-5 text-secondary mt-0.5 shrink-0" />
-                  <div>
-                    <p className="text-sm font-semibold text-foreground mb-1">
-                      Visibilité dans l'annuaire et sur le flux
-                    </p>
-                    <p className="text-sm text-muted-foreground leading-relaxed">
-                      Créer votre profil est ouvert à toustes.
-                      La publication dans l'annuaire est validée manuellement par notre équipe.
-                      Les membres à jour de leur cotisation associative sont prioritairement mis en avant
-                      dans l'annuaire et sur le flux du site.{" "}
-                      <a
-                        href="/rejoindre-association"
-                        className="text-primary font-medium hover:underline"
-                      >
-                        En savoir plus sur l'adhésion →
-                      </a>
-                    </p>
+              {isAjoutPodcast ? (
+                <div className="mt-8 bg-primary/5 border border-primary/20 rounded-2xl p-5 text-left max-w-lg mx-auto">
+                  <div className="flex items-start gap-3">
+                    <Mic className="w-5 h-5 text-primary mt-0.5 shrink-0" />
+                    <div>
+                      <p className="text-sm font-semibold text-foreground mb-1">
+                        Nouvelle fiche podcast
+                      </p>
+                      <p className="text-sm text-muted-foreground leading-relaxed">
+                        Vos informations personnelles ont été pré-remplies pour vous faire gagner du temps. Complétez les champs spécifiques à votre podcast (nom, lien d'écoute, vignette, thématique…).
+                      </p>
+                    </div>
                   </div>
                 </div>
-              </div>
+              ) : (
+                <div className="mt-8 bg-secondary/10 border border-secondary/20 rounded-2xl p-5 text-left max-w-lg mx-auto">
+                  <div className="flex items-start gap-3">
+                    <Users className="w-5 h-5 text-secondary mt-0.5 shrink-0" />
+                    <div>
+                      <p className="text-sm font-semibold text-foreground mb-1">
+                        Visibilité dans l'annuaire et sur le flux
+                      </p>
+                      <p className="text-sm text-muted-foreground leading-relaxed">
+                        Créer votre profil est ouvert à toustes.
+                        La publication dans l'annuaire est validée manuellement par notre équipe.
+                        Les membres à jour de leur cotisation associative sont prioritairement mis en avant
+                        dans l'annuaire et sur le flux du site.{" "}
+                        <a
+                          href="/rejoindre-association"
+                          className="text-primary font-medium hover:underline"
+                        >
+                          En savoir plus sur l'adhésion →
+                        </a>
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              )}
             </motion.div>
+
 
             <motion.form
               onSubmit={handleSubmit}
@@ -566,7 +645,21 @@ const FormSection = () => {
                 </div>
                 <div>
                   <label className={labelClass}>Email <span className="text-primary">*</span></label>
-                  <input name="email" type="email" value={formData.email} onChange={handleChange} className={inputClass} placeholder="vous@exemple.com" required />
+                  <input
+                    name="email"
+                    type="email"
+                    value={formData.email}
+                    onChange={handleChange}
+                    className={inputClass + (isAjoutPodcast ? " bg-muted/40 cursor-not-allowed" : "")}
+                    placeholder="vous@exemple.com"
+                    required
+                    readOnly={isAjoutPodcast}
+                  />
+                  {isAjoutPodcast && (
+                    <p className="text-xs text-muted-foreground mt-2">
+                      Cet email doit rester identique à celui de votre fiche existante pour lier les deux profils.
+                    </p>
+                  )}
                 </div>
                 <div>
                   <label className={labelClass}>Téléphone / WhatsApp</label>
@@ -580,7 +673,14 @@ const FormSection = () => {
                 <SectionHeader number={sn.profil} title="Votre profil" />
                 <div>
                   <label className={labelClass}>Je rejoins le collectif en tant que : <span className="text-primary">*</span></label>
-                <select name="typeProfil" value={formData.typeProfil} onChange={handleChange} className={selectClass} required>
+                <select
+                  name="typeProfil"
+                  value={formData.typeProfil}
+                  onChange={handleChange}
+                  className={selectClass + (isAjoutPodcast ? " bg-muted/40 cursor-not-allowed" : "")}
+                  required
+                  disabled={isAjoutPodcast}
+                >
                     <option value="podcasteur">Podcasteur·euse (j'ai un podcast)</option>
                     <option value="pro_podcast">Acteur·ice de l'écosystème (je propose des compétences)</option>
                     <option value="soutien">Soutien / curieux (je veux suivre et contribuer)</option>
