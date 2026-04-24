@@ -5,7 +5,7 @@ import Footer from "@/components/Footer";
 import SEOHead from "@/components/SEOHead";
 import { Badge } from "@/components/ui/badge";
 import { motion } from "framer-motion";
-import { MapPin, Headphones, ArrowRight, Search, Users, Briefcase, Heart, Handshake, Building2 } from "lucide-react";
+import { MapPin, Headphones, ArrowRight, Search, Users, Briefcase, Heart, Handshake, Building2, Mic } from "lucide-react";
 import { Link } from "react-router-dom";
 
 const departements = [
