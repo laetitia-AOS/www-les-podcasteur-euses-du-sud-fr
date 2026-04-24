@@ -375,7 +375,18 @@ const AdminEvenements = () => {
                     {evt.places && ` · ${evt.places} places`}
                   </p>
                 </div>
-                <div className="flex gap-1 shrink-0">
+                <div className="flex gap-1 shrink-0 items-center">
+                  {evt.inscription_activee && (
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="text-xs gap-1"
+                      onClick={() => setInscriptionsOpen({ id: evt.id, titre: evt.titre })}
+                    >
+                      <Users className="w-3.5 h-3.5" />
+                      {inscriptionsCounts?.[evt.id] ?? 0} inscrit{(inscriptionsCounts?.[evt.id] ?? 0) > 1 ? "s" : ""}
+                    </Button>
+                  )}
                   <Button
                     variant={evt.publie ? "outline" : "default"}
                     size="sm"
@@ -394,6 +405,13 @@ const AdminEvenements = () => {
           </div>
         )}
       </div>
+
+      <EvenementInscriptionsDialog
+        evenementId={inscriptionsOpen?.id ?? null}
+        evenementTitre={inscriptionsOpen?.titre}
+        open={!!inscriptionsOpen}
+        onClose={() => setInscriptionsOpen(null)}
+      />
     </div>
   );
 };
