@@ -24,12 +24,13 @@ type EventForm = {
   publie: boolean;
   image_url: string;
   places: string;
+  inscription_activee: boolean;
 };
 
 const emptyForm: EventForm = {
   titre: "", sous_titre: "", description: "", date_debut: "", date_fin: "",
   lieu: "", adresse: "", type: "rencontre", lien_externe: "", publie: true,
-  image_url: "", places: "",
+  image_url: "", places: "", inscription_activee: false,
 };
 
 const AdminEvenements = () => {
