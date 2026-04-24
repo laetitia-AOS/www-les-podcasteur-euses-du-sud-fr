@@ -56,6 +56,22 @@ const AdminEvenements = () => {
     enabled: isAdmin,
   });
 
+  const { data: inscriptionsCounts } = useQuery({
+    queryKey: ["inscriptions-counts"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("evenement_inscriptions")
+        .select("evenement_id");
+      if (error) throw error;
+      const counts: Record<string, number> = {};
+      (data || []).forEach((r: any) => {
+        counts[r.evenement_id] = (counts[r.evenement_id] || 0) + 1;
+      });
+      return counts;
+    },
+    enabled: isAdmin,
+  });
+
   const saveMutation = useMutation({
     mutationFn: async (values: EventForm) => {
       const payload = {
