@@ -128,6 +128,7 @@ const AdminEvenements = () => {
       type: evt.type || "rencontre", lien_externe: evt.lien_externe || "",
       publie: evt.publie, image_url: evt.image_url || "",
       places: evt.places ? String(evt.places) : "",
+      inscription_activee: !!evt.inscription_activee,
     });
     setEditingId(evt.id);
     setShowForm(true);
