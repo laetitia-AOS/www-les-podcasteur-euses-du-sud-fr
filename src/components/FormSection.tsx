@@ -156,13 +156,18 @@ const CheckboxMultiSelect = ({
 );
 
 const FormSection = () => {
+  const [searchParams] = useSearchParams();
+  const initialProfil = searchParams.get("profil") || "podcasteur";
+  const initialEmail = searchParams.get("email") || "";
+  const isAjoutPodcast = searchParams.get("ajout") === "1";
+
   const [submitted, setSubmitted] = useState(false);
   const [formData, setFormData] = useState({
-    prenom: "", nom: "", email: "", telephone: "",
+    prenom: "", nom: "", email: initialEmail, telephone: "",
     nomPodcast: "", lienEcoute: "", description: "",
     thematique: "", departementCode: "",
     typePodcast: "", niveauAvancement: "", frequencePublication: "", monetise: "",
-    typeProfil: "podcasteur", bio750: "", lienPrincipal: "", lienLinkedin: "",
+    typeProfil: initialProfil, bio750: "", lienPrincipal: "", lienLinkedin: "",
     metierPrincipal: "", disponibilite: "",
     formatCollaboration: "",
   });
@@ -183,6 +188,38 @@ const FormSection = () => {
   const [vignettePreview, setVignettePreview] = useState<string | null>(null);
   const [uploading, setUploading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  // Pre-fetch user info if ajout=1 and email present (reuse prenom/nom from existing fiche)
+  useEffect(() => {
+    if (!isAjoutPodcast || !initialEmail) return;
+    (async () => {
+      const { data } = await supabase
+        .from("podcasts")
+        .select("prenom, nom, telephone, bio_750, lien_linkedin, lien_principal, department_code, city_name, city_insee_code, city_postcode")
+        .eq("email", initialEmail)
+        .limit(1)
+        .maybeSingle();
+      if (data) {
+        setFormData((prev) => ({
+          ...prev,
+          prenom: data.prenom || prev.prenom,
+          nom: data.nom || prev.nom,
+          telephone: data.telephone || prev.telephone,
+          bio750: data.bio_750 || prev.bio750,
+          lienLinkedin: data.lien_linkedin || prev.lienLinkedin,
+          lienPrincipal: data.lien_principal || prev.lienPrincipal,
+          departementCode: data.department_code || prev.departementCode,
+        }));
+        if (data.city_insee_code && data.city_name) {
+          setSelectedCity({
+            city_name: data.city_name,
+            city_insee_code: data.city_insee_code,
+            city_postcode: data.city_postcode || "",
+          } as CityResult);
+        }
+      }
+    })();
+  }, [isAjoutPodcast, initialEmail]);
 
   const cropToSquare = (file: File): Promise<File> => {
     return new Promise((resolve) => {
