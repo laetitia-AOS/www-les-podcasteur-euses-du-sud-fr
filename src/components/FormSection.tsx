@@ -520,23 +520,25 @@ const FormSection = () => {
 
             <div className="h-px bg-border" />
 
-            {/* Rejoindre */}
-            <div className="space-y-4">
+            {/* Rejoindre — CTA renforcé */}
+            <div className="bg-secondary/15 border-2 border-secondary/40 rounded-2xl p-6 space-y-4">
               <h3 className="font-display font-bold text-xl text-foreground flex items-center gap-2">
-                <Users className="w-5 h-5 text-primary" /> Rejoindre Les podcasteur·euses du Sud
+                <Users className="w-5 h-5 text-secondary-foreground" /> Activez votre visibilité — adhérez au collectif
               </h3>
-              <p className="text-muted-foreground text-sm leading-relaxed">En devenant membre, vous pouvez notamment :</p>
+              <p className="text-sm text-foreground/80 leading-relaxed">
+                Votre profil est enregistré, mais sa <strong>mise en avant publique</strong> dans l'annuaire et sur le flux du site est <strong>réservée aux membres à jour de leur cotisation</strong>. En adhérant, vous bénéficiez notamment :
+              </p>
               <ul className="space-y-2 text-sm text-muted-foreground">
-                <li className="flex items-start gap-2"><Check className="w-4 h-4 text-primary mt-0.5 shrink-0" /> bénéficier d'une visibilité sur le flux</li>
-                <li className="flex items-start gap-2"><Check className="w-4 h-4 text-primary mt-0.5 shrink-0" /> intégrer un réseau de créateurs et d'acteurs audio</li>
-                <li className="flex items-start gap-2"><Check className="w-4 h-4 text-primary mt-0.5 shrink-0" /> accéder aux rencontres et initiatives du collectif</li>
-                <li className="flex items-start gap-2"><Check className="w-4 h-4 text-primary mt-0.5 shrink-0" /> contribuer à la dynamique régionale</li>
+                <li className="flex items-start gap-2"><Check className="w-4 h-4 text-secondary-foreground mt-0.5 shrink-0" /> activation et mise en avant de votre profil et de vos podcasts</li>
+                <li className="flex items-start gap-2"><Check className="w-4 h-4 text-secondary-foreground mt-0.5 shrink-0" /> visibilité prioritaire dans l'annuaire et sur le flux</li>
+                <li className="flex items-start gap-2"><Check className="w-4 h-4 text-secondary-foreground mt-0.5 shrink-0" /> intégration au réseau de créateur·ices et acteur·ices audio</li>
+                <li className="flex items-start gap-2"><Check className="w-4 h-4 text-secondary-foreground mt-0.5 shrink-0" /> accès aux rencontres et initiatives du collectif</li>
               </ul>
               <a
                 href="/rejoindre-association"
-                className="text-primary hover:underline text-sm"
+                className="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-secondary text-secondary-foreground text-sm font-semibold hover:brightness-110 transition-all shadow-md"
               >
-                Découvrir l'adhésion au collectif →
+                Adhérer à l'association →
               </a>
             </div>
 
@@ -596,25 +598,23 @@ const FormSection = () => {
                   </div>
                 </div>
               ) : (
-                <div className="mt-8 bg-secondary/10 border border-secondary/20 rounded-2xl p-5 text-left max-w-lg mx-auto">
+                <div className="mt-8 bg-secondary/15 border-2 border-secondary/40 rounded-2xl p-5 text-left max-w-lg mx-auto">
                   <div className="flex items-start gap-3">
-                    <Users className="w-5 h-5 text-secondary mt-0.5 shrink-0" />
-                    <div>
+                    <Users className="w-5 h-5 text-secondary-foreground mt-0.5 shrink-0" />
+                    <div className="flex-1">
                       <p className="text-sm font-semibold text-foreground mb-1">
-                        Visibilité dans l'annuaire et sur le flux
+                        Adhérez pour activer votre visibilité
                       </p>
-                      <p className="text-sm text-muted-foreground leading-relaxed">
-                        Créer votre profil est ouvert à toustes.
-                        La publication dans l'annuaire est validée manuellement par notre équipe.
-                        Les membres à jour de leur cotisation associative sont prioritairement mis en avant
-                        dans l'annuaire et sur le flux du site.{" "}
-                        <a
-                          href="/rejoindre-association"
-                          className="text-primary font-medium hover:underline"
-                        >
-                          En savoir plus sur l'adhésion →
-                        </a>
+                      <p className="text-sm text-muted-foreground leading-relaxed mb-3">
+                        Créer votre profil est ouvert à toustes — il sera enregistré dans notre base après validation manuelle.
+                        En revanche, sa <strong className="text-foreground">mise en avant publique</strong> dans l'annuaire et sur le flux est réservée aux <strong className="text-foreground">membres à jour de leur cotisation</strong>.
                       </p>
+                      <a
+                        href="/rejoindre-association"
+                        className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-secondary text-secondary-foreground text-sm font-semibold hover:brightness-110 transition-all shadow-sm"
+                      >
+                        Adhérer à l'association →
+                      </a>
                     </div>
                   </div>
                 </div>
