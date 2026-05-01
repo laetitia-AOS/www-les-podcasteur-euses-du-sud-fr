@@ -83,8 +83,15 @@ const Navbar = () => {
             </button>
           ))}
           <button
+            onClick={() => handleClick("/rejoindre-association")}
+            className="ml-3 px-5 py-2 rounded-pill bg-secondary text-secondary-foreground text-sm font-semibold hover:brightness-110 transition-all shadow-sm"
+            title="Adhérer pour activer votre visibilité dans l'annuaire et sur le flux"
+          >
+            Adhérer
+          </button>
+          <button
             onClick={() => handleClick("/referencer-mon-podcast")}
-            className="ml-3 px-6 py-2 rounded-pill bg-primary text-primary-foreground text-sm font-semibold hover:bg-primary-hover transition-all shadow-md"
+            className="ml-2 px-6 py-2 rounded-pill bg-primary text-primary-foreground text-sm font-semibold hover:bg-primary-hover transition-all shadow-md"
             style={{ boxShadow: "0 4px 14px rgba(184,92,56,0.2)" }}
           >
             Créer mon profil
@@ -133,6 +140,12 @@ const Navbar = () => {
                   {l.label}
                 </button>
               ))}
+              <button
+                onClick={() => handleClick("/rejoindre-association")}
+                className="block w-full text-left px-3 py-2.5 rounded-md text-sm font-semibold text-secondary-foreground bg-secondary/20 hover:bg-secondary/30 transition-colors"
+              >
+                ✨ Adhérer à l'association
+              </button>
               <button
                 onClick={() => handleClick("/referencer-mon-podcast")}
                 className="block w-full text-left px-3 py-2.5 rounded-md text-sm font-semibold text-primary hover:bg-primary/5 transition-colors"

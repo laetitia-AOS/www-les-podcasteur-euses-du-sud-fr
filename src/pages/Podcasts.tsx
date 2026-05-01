@@ -6,6 +6,7 @@ import { Link } from "react-router-dom";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import SEOHead from "@/components/SEOHead";
+import AdhesionPromoCard from "@/components/AdhesionPromoCard";
 
 interface Podcast {
   id: string;
@@ -134,6 +135,8 @@ const Podcasts = () => {
               </div>
             </motion.div>
           </div>
+
+          <AdhesionPromoCard variant="compact" className="mb-8" />
 
           {loading ? (
             <div className="flex items-center justify-center py-20"><Loader2 className="w-6 h-6 text-primary animate-spin" /></div>
