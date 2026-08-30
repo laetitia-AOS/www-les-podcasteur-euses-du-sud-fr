@@ -16,8 +16,8 @@ const ResetPassword = () => {
 
   useEffect(() => {
     // Listen for the PASSWORD_RECOVERY event
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((event) => {
-      if (event === "PASSWORD_RECOVERY") {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      if (event === "PASSWORD_RECOVERY" || session) {
         setReady(true);
       }
     });
@@ -25,6 +25,10 @@ const ResetPassword = () => {
     if (window.location.hash.includes("type=recovery")) {
       setReady(true);
     }
+    // Une session déjà active (lien de récupération consommé) suffit
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      if (session) setReady(true);
+    });
     return () => subscription.unsubscribe();
   }, []);
 
@@ -47,7 +51,17 @@ const ResetPassword = () => {
       return;
     }
     toast.success("Mot de passe mis à jour !");
-    navigate("/admin/login");
+    // Redirection selon le rôle : admin -> /admin, sinon espace membre
+    const { data: { user } } = await supabase.auth.getUser();
+    if (user) {
+      const { data: hasAdmin } = await supabase.rpc("has_role", {
+        _user_id: user.id,
+        _role: "admin",
+      });
+      navigate(hasAdmin ? "/admin" : "/mon-espace", { replace: true });
+      return;
+    }
+    navigate("/admin/login", { replace: true });
   };
 
   if (!ready) {

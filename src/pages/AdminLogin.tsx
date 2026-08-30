@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -13,6 +13,19 @@ const AdminLogin = () => {
   const [resetMode, setResetMode] = useState(false);
   const [resetSent, setResetSent] = useState(false);
   const navigate = useNavigate();
+
+  // Si une session admin existe déjà (ex. retour de réinitialisation), on entre directement
+  useEffect(() => {
+    supabase.auth.getSession().then(async ({ data: { session } }) => {
+      if (!session) return;
+      const { data: hasAdmin } = await supabase.rpc("has_role", {
+        _user_id: session.user.id,
+        _role: "admin",
+      });
+      if (hasAdmin) navigate("/admin", { replace: true });
+    });
+  }, [navigate]);
+
 
   const handleResetPassword = async (e: React.FormEvent) => {
     e.preventDefault();
