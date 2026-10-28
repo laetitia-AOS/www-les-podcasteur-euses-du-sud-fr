@@ -4,7 +4,7 @@ import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { readableTitle } from "@/lib/events";
 import { formatLongDate } from "@/lib/espaceMembre";
-import { btnSecondary, linkUnderline } from "@/lib/pds";
+import { linkUnderline } from "@/lib/pds";
 import ProposerEvenementForm, { type PropositionInitiale } from "@/components/agenda/ProposerEvenementForm";
 
 export type MonEvenement = {
@@ -42,7 +42,7 @@ const MesEvenements = ({ evenements, onChange }: { evenements: MonEvenement[]; o
   };
 
   const voirVenues = async (id: string) => {
-    if (venues[id]) { setVenues(({ [id]: _, ...rest }) => rest); return; }
+    if (venues[id]) { setVenues((v) => { const n = { ...v }; delete n[id]; return n; }); return; }
     const { data, error } = await supabase.rpc("mes_venues", { _evenement_id: id });
     if (error) { toast.error("La liste n'a pas pu être chargée."); return; }
     setVenues((v) => ({ ...v, [id]: (data as Venue[]) || [] }));
@@ -114,5 +114,4 @@ const MesEvenements = ({ evenements, onChange }: { evenements: MonEvenement[]; o
   );
 };
 
-export { btnSecondary };
 export default MesEvenements;
