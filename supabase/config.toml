@@ -13,3 +13,6 @@ verify_jwt = false
 verify_jwt = false
 [functions.podcast-episodes]
 verify_jwt = false
+
+[functions.contact-membre]
+verify_jwt = false
