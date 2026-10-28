@@ -1,22 +1,34 @@
-import { useState, useEffect, useMemo } from "react";
+import { useMemo } from "react";
 import { useParams, Link } from "react-router-dom";
+import { useQuery } from "@tanstack/react-query";
+import { Pause, Play } from "lucide-react";
 import { withUtm } from "@/lib/utm";
 import { supabase } from "@/integrations/supabase/client";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import SEOHead from "@/components/SEOHead";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { motion } from "framer-motion";
+import MembreContactForm from "@/components/MembreContactForm";
+import { usePlayer } from "@/contexts/PlayerContext";
+import { usePodcastEpisodes } from "@/lib/episodes";
 import {
-  MapPin, Headphones, ExternalLink, ArrowLeft, Briefcase, Heart,
-  CheckCircle, Music, Tag, BarChart3, Clock, Coins, Loader2, Mail, Phone,
-  Globe, Mic, Sparkles, Wifi, Handshake
-} from "lucide-react";
-import { toast } from "sonner";
+  btnListen,
+  btnPrimary,
+  btnSecondary,
+  cleanCity,
+  container,
+  formatDuration,
+  formatName,
+  formatShortDate,
+  fullName as makeFullName,
+} from "@/lib/pds";
+
+// L'e-mail et le téléphone ne sont volontairement jamais demandés ici.
+const PUBLIC_FIELDS =
+  "id, slug, prenom, nom, type_profil, city_name, department_label, bio_750, lien_principal, lien_linkedin, nom_podcast, lien_ecoute, flux_rss, description, vignette_url, thematique, type_podcast, metier_principal, services_3, structure, cherche_collaboration, peut_apporter, format_collaboration, consent_contact";
 
 interface ProfileData {
   id: string;
+  slug: string | null;
   prenom: string | null;
   nom: string | null;
   type_profil: string;
@@ -26,118 +38,106 @@ interface ProfileData {
   lien_principal: string | null;
   lien_linkedin: string | null;
   nom_podcast: string | null;
-  lien_ecoute: string;
+  lien_ecoute: string | null;
+  flux_rss: string | null;
   description: string;
   vignette_url: string | null;
   thematique: string | null;
   type_podcast: string | null;
-  niveau_avancement: string | null;
-  frequence_publication: string | null;
-  monetise: string | null;
-  besoins_podcast: string[] | null;
-  priorite_actuelle: string | null;
   metier_principal: string | null;
   services_3: string[] | null;
-  disponibilite: string | null;
-  consent_contact: boolean;
-  consent_mise_en_relation: boolean;
-  email: string;
-  telephone: string | null;
   structure: string | null;
   cherche_collaboration: string[] | null;
   peut_apporter: string[] | null;
   format_collaboration: string | null;
+  consent_contact: boolean;
 }
 
-const profilConfig: Record<string, { label: string; icon: typeof Headphones; gradient: string; accent: string }> = {
-  podcasteur: { label: "Podcasteur·euse", icon: Headphones, gradient: "from-primary/20 via-secondary/10 to-accent/10", accent: "primary" },
-  pro_podcast: { label: "Acteur·ice de l'écosystème", icon: Briefcase, gradient: "from-secondary/20 via-primary/10 to-accent/10", accent: "secondary" },
-  soutien: { label: "Soutien / Curieux·se", icon: Heart, gradient: "from-accent/15 via-primary/10 to-secondary/10", accent: "primary" },
-  structure_eco: { label: "Structure écosystème", icon: Briefcase, gradient: "from-secondary/15 via-accent/10 to-primary/10", accent: "secondary" },
+const ROLE_LABELS: Record<string, string> = {
+  podcasteur: "Podcast",
+  pro_podcast: "Acteur·ice de l'écosystème",
+  soutien: "Soutien",
+  structure_eco: "Structure",
+  studio: "Studio",
 };
 
-const besoinsLabels: Record<string, string> = {
-  audience_visibilite: "Audience & Visibilité",
-  reseau_collaborations: "Réseau & Collaborations",
-  monetisation: "Monétisation",
-  contenu_editorial: "Contenu & Éditorial",
-  technique_voix: "Technique & Voix",
-  strategie: "Stratégie",
-  legitimite_posture: "Légitimité & Posture",
-};
+const SITE = "https://www.les-podcasteur-euses-du-sud.fr";
+const isPlaceholderLink = (url?: string | null) => !url || /les-podcasteur-euses-du-sud\.fr\/?$/.test(url);
 
-const niveauLabels: Record<string, string> = {
-  lancement: "Lancement (0–10 épisodes)",
-  croissance: "En croissance (10–50)",
-  installe: "Installé (50+)",
+const platformLabel = (url: string): string => {
+  const h = (() => { try { return new URL(url).hostname.replace(/^www\./, ""); } catch { return ""; } })();
+  if (h.includes("spotify")) return "Spotify";
+  if (h.includes("apple")) return "Apple Podcasts";
+  if (h.includes("deezer")) return "Deezer";
+  if (h.includes("ausha")) return "Ausha";
+  if (h.includes("acast")) return "Acast";
+  if (h.includes("youtube") || h.includes("youtu.be")) return "YouTube";
+  if (h.includes("linktr")) return "Tous les liens";
+  return "Lien d'écoute";
 };
 
 const ProfilMembre = () => {
   const { slug } = useParams<{ slug: string }>();
-  const [profile, setProfile] = useState<ProfileData | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [phoneRevealed, setPhoneRevealed] = useState(false);
+  const { play, isCurrent, playing } = usePlayer();
 
-  useEffect(() => {
-    const fetchProfile = async () => {
-      if (!slug) return;
-      let query = supabase.from("podcasts").select("*").eq("valide", true);
-      const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(slug);
-      if (isUuid) {
-        query = query.eq("id", slug);
-      } else {
-        query = query.eq("slug", slug);
-      }
+  const { data: profile, isLoading } = useQuery({
+    queryKey: ["profil-membre", slug],
+    enabled: !!slug,
+    queryFn: async () => {
+      let query = supabase.from("podcasts").select(PUBLIC_FIELDS).eq("valide", true);
+      const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(slug!);
+      query = isUuid ? query.eq("id", slug!) : query.eq("slug", slug!);
       const { data, error } = await query.maybeSingle();
-      if (!error && data) {
-        setProfile(data as unknown as ProfileData);
-      }
-      setLoading(false);
-    };
-    fetchProfile();
-  }, [slug]);
+      if (error) throw error;
+      return data as unknown as ProfileData | null;
+    },
+  });
 
-  const config = profile ? (profilConfig[profile.type_profil] || profilConfig.podcasteur) : profilConfig.podcasteur;
-  const ProfilIcon = config.icon;
-  const fullName = profile ? `${profile.prenom ?? ""} ${profile.nom ?? ""}`.trim() : "";
-  const showContact = profile ? profile.consent_contact && profile.consent_mise_en_relation : false;
+  const isPodcast = profile?.type_profil === "podcasteur" && !!profile?.nom_podcast;
+  const { data: epData, isLoading: epLoading } = usePodcastEpisodes(isPodcast ? profile?.id : undefined);
+  const episodes = epData?.episodes || [];
+
+  const prenom = formatName(profile?.prenom);
+  const name = profile ? makeFullName(profile.prenom, profile.nom) : "";
+  const city = cleanCity(profile?.city_name);
+  const title = profile ? (isPodcast ? profile.nom_podcast! : name || profile.structure || "Profil") : "";
+  const intro = profile ? (isPodcast ? profile.description : profile.bio_750 || profile.description) : "";
+  const canonicalPath = profile ? `/podcasteur/${profile.slug || profile.id}` : `/podcasteur/${slug}`;
 
   const jsonLd = useMemo(() => {
     if (!profile) return undefined;
+    if (isPodcast) {
+      return {
+        "@context": "https://schema.org",
+        "@type": "PodcastSeries",
+        name: profile.nom_podcast,
+        description: profile.description,
+        url: `${SITE}${canonicalPath}`,
+        ...(profile.vignette_url && { image: profile.vignette_url }),
+        ...(profile.flux_rss && { webFeed: profile.flux_rss }),
+        ...(profile.thematique && { genre: profile.thematique }),
+        inLanguage: "fr",
+        author: { "@type": "Person", name, ...(city && { address: { "@type": "PostalAddress", addressLocality: city, addressRegion: "Provence-Alpes-Côte d'Azur", addressCountry: "FR" } }) },
+        ...(!isPlaceholderLink(profile.lien_ecoute) && { sameAs: [profile.lien_ecoute] }),
+      };
+    }
     return {
       "@context": "https://schema.org",
       "@type": "Person",
-      name: fullName,
-      url: `https://www.les-podcasteur-euses-du-sud.fr/profil/${slug}`,
-      ...(profile.bio_750 && { description: profile.bio_750 }),
-      ...(profile.vignette_url && { image: profile.vignette_url }),
-      ...(profile.city_name && {
-        address: {
-          "@type": "PostalAddress",
-          addressLocality: profile.city_name.replace(/\s+\d+(er?|e)?\s+Arrondissement$/i, "").replace(/\s+\d+$/, ""),
-          addressRegion: "Provence-Alpes-Côte d'Azur",
-          addressCountry: "FR",
-        },
-      }),
+      name,
+      url: `${SITE}${canonicalPath}`,
+      ...(intro && { description: intro }),
       ...(profile.metier_principal && { jobTitle: profile.metier_principal }),
-      ...(profile.structure && { worksFor: { "@type": "Organization", name: profile.structure } }),
-      memberOf: { "@type": "Organization", name: "Les Podcasteur·euses du Sud", url: "https://www.les-podcasteur-euses-du-sud.fr" },
+      ...(city && { address: { "@type": "PostalAddress", addressLocality: city, addressRegion: "Provence-Alpes-Côte d'Azur", addressCountry: "FR" } }),
+      memberOf: { "@type": "Organization", name: "Les Podcasteur·euses du Sud", url: SITE },
     };
-  }, [profile, fullName, slug]);
+  }, [profile, isPodcast, name, city, intro, canonicalPath]);
 
-  const seoTitle = profile
-    ? (profile.type_profil === "podcasteur" && profile.nom_podcast
-      ? `${profile.nom_podcast} par ${fullName} — Les Podcasteur·euses du Sud`
-      : `${fullName} — Les Podcasteur·euses du Sud`)
-    : "Profil — Les Podcasteur·euses du Sud";
-  const seoDesc = profile
-    ? (profile.bio_750 ? profile.bio_750.slice(0, 155) + "…" : `${fullName}, ${config.label} référencé·e dans l'écosystème podcast de la Région Sud.`)
-    : "Profil membre de l'écosystème podcast de la Région Sud.";
-
-  if (loading) {
+  if (isLoading) {
     return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
-        <Loader2 className="w-6 h-6 animate-spin text-primary" />
+      <div className="min-h-screen bg-background">
+        <Navbar />
+        <main className="pt-16 md:pt-[76px]"><p className={`${container} py-20 font-mono text-muted-foreground`}>Chargement…</p></main>
       </div>
     );
   }
@@ -145,482 +145,207 @@ const ProfilMembre = () => {
   if (!profile) {
     return (
       <div className="min-h-screen bg-background">
+        <SEOHead title="Fiche introuvable — Les Podcasteur·euses du Sud" description="Cette fiche n'existe pas ou n'est pas encore visible." path={canonicalPath} />
         <Navbar />
-        <main className="pt-24 pb-20 text-center">
-          <h1 className="font-display font-bold text-2xl text-foreground mb-4">Profil introuvable</h1>
-          <Link to="/annuaire-podcasts"><Button variant="outline">Retour à l'annuaire</Button></Link>
+        <main className={`${container} pt-32 pb-24`}>
+          <h1 className="title-page text-[56px]">Fiche introuvable</h1>
+          <p className="mt-4 text-lg">Cette fiche n'existe pas, ou elle n'est pas encore visible sur le site.</p>
+          <Link to="/annuaire-podcasts" className={`${btnSecondary} mt-8`}>Voir l'annuaire</Link>
         </main>
         <Footer />
       </div>
     );
   }
 
+  const back = isPodcast ? { to: "/ecouter", label: "Tous les podcasts" } : { to: "/annuaire-podcasts", label: "Tout l'annuaire" };
+  const cherche = profile.cherche_collaboration || [];
+  const apporte = profile.peut_apporter || [];
+  const latest = episodes[0];
+  const latestActive = latest ? isCurrent(latest) && playing : false;
+
+  const alsoOn: { label: string; href: string }[] = [];
+  if (!isPlaceholderLink(profile.lien_ecoute)) alsoOn.push({ label: platformLabel(profile.lien_ecoute!), href: withUtm(profile.lien_ecoute!, "fiche-membre") });
+  if (profile.lien_principal && profile.lien_principal !== profile.lien_ecoute) alsoOn.push({ label: "Site", href: withUtm(profile.lien_principal, "fiche-membre") });
+  if (profile.lien_linkedin) alsoOn.push({ label: "LinkedIn", href: withUtm(profile.lien_linkedin, "fiche-membre") });
+  if (profile.flux_rss) alsoOn.push({ label: "Flux RSS", href: profile.flux_rss });
+
+  const seoTitle = isPodcast
+    ? `${profile.nom_podcast}, podcast de ${name}${city ? ` (${city})` : ""} — Les Podcasteur·euses du Sud`
+    : `${name}${profile.metier_principal ? `, ${profile.metier_principal}` : ""}${city ? ` à ${city}` : ""} — Les Podcasteur·euses du Sud`;
+  const seoDesc = (intro || `${title}, membre des Podcasteur·euses du Sud.`).slice(0, 155);
+
   return (
     <div className="min-h-screen bg-background">
-      <SEOHead
-        title={seoTitle}
-        description={seoDesc}
-        path={`/podcasteur/${slug}`}
-        image={profile.vignette_url || undefined}
-        type="profile"
-        jsonLd={jsonLd}
-      />
+      <SEOHead title={seoTitle} description={seoDesc} path={canonicalPath} image={profile.vignette_url || undefined} type={isPodcast ? "website" : "profile"} jsonLd={jsonLd} />
       <Navbar />
-      <main className="pt-16 pb-20">
-        {/* Hero banner */}
-        <div className={`relative bg-gradient-to-br ${config.gradient} border-b border-border`}>
-          <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_20%,hsl(var(--primary)/0.08),transparent_50%)]" />
-          <div className="container mx-auto px-6 max-w-5xl relative">
-            <Link to="/annuaire-podcasts" className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors pt-6">
-              <ArrowLeft className="w-4 h-4" /> Retour à l'annuaire
-            </Link>
-
-            <div className="flex flex-col md:flex-row items-start gap-6 md:gap-8 pt-6 pb-10">
-              {/* Avatar */}
-              <motion.div
-                initial={{ opacity: 0, scale: 0.9 }}
-                animate={{ opacity: 1, scale: 1 }}
-                transition={{ duration: 0.5 }}
-                className="w-32 h-32 md:w-40 md:h-40 rounded-2xl overflow-hidden bg-card border-2 border-background shadow-lg flex-shrink-0 ring-4 ring-background"
-              >
-                {profile.vignette_url ? (
-                  <img src={profile.vignette_url} alt={fullName} className="w-full h-full object-cover" />
-                ) : (
-                  <div className="w-full h-full flex items-center justify-center bg-primary/5">
-                    <ProfilIcon className="w-16 h-16 text-primary/20" />
-                  </div>
-                )}
-              </motion.div>
-
-              {/* Identity */}
-              <motion.div
-                initial={{ opacity: 0, y: 15 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.5, delay: 0.1 }}
-                className="flex-1 min-w-0"
-              >
-                <div className="flex flex-wrap items-center gap-3 mb-2">
-                  <span className="inline-flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wider px-3 py-1 rounded-full bg-card/80 text-primary border border-primary/15 backdrop-blur-sm">
-                    <ProfilIcon className="w-3.5 h-3.5" />
-                    {config.label}
-                  </span>
-                </div>
-                <h1 className="font-display font-bold text-3xl md:text-4xl text-foreground leading-tight mb-1">
-                  {fullName}
-                </h1>
-                {profile.type_profil === "pro_podcast" && profile.metier_principal && (
-                  <p className="text-base font-medium text-foreground/70 mb-1">{profile.metier_principal}</p>
-                )}
-                {profile.type_profil === "podcasteur" && profile.nom_podcast && (
-                  <p className="text-base font-medium text-foreground/70 mb-1">🎙 {profile.nom_podcast}</p>
-                )}
-                {profile.structure && (
-                  <p className="text-sm text-foreground/60 mb-1">{profile.structure}</p>
-                )}
-                {profile.city_name && (
-                  <p className="text-sm text-muted-foreground flex items-center gap-1.5">
-                    <MapPin className="w-4 h-4" />
-                    {profile.city_name.replace(/\s+\d+(er?|e)?\s+Arrondissement$/i, "").replace(/\s+\d+$/,"")}{profile.department_label ? ` · ${profile.department_label}` : ""}
-                  </p>
-                )}
-
-                {/* Quick action buttons */}
-                <div className="flex flex-wrap gap-2 mt-4">
-                  {profile.lien_ecoute && profile.type_profil === "podcasteur" && (
-                    <a href={withUtm(profile.lien_ecoute, "fiche-membre")} target="_blank" rel="noopener noreferrer">
-                      <Button size="sm" className="gap-2 rounded-full">
-                        <Headphones className="w-4 h-4" /> Écouter le podcast
-                      </Button>
-                    </a>
-                  )}
-                  {profile.lien_linkedin && (
-                    <a href={withUtm(profile.lien_linkedin!, "fiche-membre")} target="_blank" rel="noopener noreferrer">
-                      <Button variant="outline" size="sm" className="gap-2 rounded-full">
-                        <Globe className="w-4 h-4" /> LinkedIn
-                      </Button>
-                    </a>
-                  )}
-                  {profile.lien_principal && (
-                    <a href={withUtm(profile.lien_principal!, "fiche-membre")} target="_blank" rel="noopener noreferrer">
-                      <Button variant="outline" size="sm" className="gap-2 rounded-full">
-                        <Globe className="w-4 h-4" /> Site web
-                      </Button>
-                    </a>
-                  )}
-                </div>
-              </motion.div>
-            </div>
-          </div>
+      <main className="pt-16 md:pt-[76px]">
+        <div className={`${container} pt-6`}>
+          <Link to={back.to} className="inline-flex min-h-[44px] items-center font-bold underline underline-offset-4">
+            <span aria-hidden>←&nbsp;</span>{back.label}
+          </Link>
         </div>
 
-        {/* Content */}
-        <div className="container mx-auto px-6 max-w-5xl -mt-1">
-          <div className="grid md:grid-cols-3 gap-6 pt-8">
-            {/* Main column */}
-            <div className="md:col-span-2 space-y-6">
-              {/* Bio */}
-              {profile.bio_750 && (
-                <motion.div
-                  initial={{ opacity: 0, y: 15 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.4, delay: 0.2 }}
-                  className="bg-card border border-border rounded-2xl p-6 md:p-8"
-                >
-                  <h2 className="font-display font-bold text-lg text-foreground mb-4 flex items-center gap-2">
-                    <Sparkles className="w-4 h-4 text-primary" /> Présentation
-                  </h2>
-                  <p className="text-foreground/80 leading-relaxed whitespace-pre-line text-[15px]">
-                    {profile.bio_750}
-                  </p>
-                </motion.div>
-              )}
-
-              {/* Podcast section */}
-              {profile.type_profil === "podcasteur" && profile.nom_podcast && (
-                <motion.div
-                  initial={{ opacity: 0, y: 15 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.4, delay: 0.3 }}
-                  className="bg-card border border-border rounded-2xl p-6 md:p-8"
-                >
-                  <h2 className="font-display font-bold text-lg text-foreground mb-5 flex items-center gap-2">
-                    <Mic className="w-4 h-4 text-primary" /> Le podcast
-                  </h2>
-                  <div className="flex items-start gap-5">
-                    {profile.vignette_url && (
-                      <div className="w-24 h-24 rounded-xl overflow-hidden border border-border shadow-sm flex-shrink-0">
-                        <img src={profile.vignette_url} alt={profile.nom_podcast} className="w-full h-full object-cover" />
-                      </div>
-                    )}
-                    <div className="flex-1 min-w-0">
-                      <h3 className="font-display font-bold text-xl text-foreground mb-1">{profile.nom_podcast}</h3>
-                      <p className="text-sm text-muted-foreground leading-relaxed">{profile.description}</p>
-                      {profile.lien_ecoute && (
-                        <a href={withUtm(profile.lien_ecoute, "fiche-membre")} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1.5 text-sm text-primary font-medium mt-3 hover:underline">
-                          <Headphones className="w-4 h-4" /> Écouter
-                        </a>
-                      )}
-                    </div>
-                  </div>
-
-                  {/* Meta tags */}
-                  <div className="flex flex-wrap gap-2 mt-5 pt-5 border-t border-border">
-                    {profile.thematique && (
-                      <Badge variant="secondary" className="gap-1">
-                        <Tag className="w-3 h-3" /> {profile.thematique}
-                      </Badge>
-                    )}
-                    {profile.type_podcast && (
-                      <Badge variant="secondary">{profile.type_podcast}</Badge>
-                    )}
-                    {profile.frequence_publication && (
-                      <Badge variant="secondary" className="gap-1">
-                        <Clock className="w-3 h-3" /> {profile.frequence_publication}
-                      </Badge>
-                    )}
-                    {profile.monetise && (
-                      <Badge variant="secondary" className="gap-1">
-                        <Coins className="w-3 h-3" /> Monétisé : {profile.monetise}
-                      </Badge>
-                    )}
-                  </div>
-
-                  {/* Besoins */}
-                  {profile.besoins_podcast && profile.besoins_podcast.length > 0 && profile.besoins_podcast[0] !== "non_specifie" && (
-                    <div className="mt-5 pt-5 border-t border-border">
-                      <p className="text-sm font-semibold text-foreground mb-3">Besoins identifiés</p>
-                      <div className="flex flex-wrap gap-2">
-                        {profile.besoins_podcast.map((b) => (
-                          <Badge key={b} variant="outline">{besoinsLabels[b] || b}</Badge>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-                  {profile.priorite_actuelle && (
-                    <div className="mt-4">
-                      <p className="text-sm font-semibold text-foreground mb-1">Priorité actuelle</p>
-                      <p className="text-sm text-muted-foreground">{profile.priorite_actuelle}</p>
-                    </div>
-                  )}
-                </motion.div>
-              )}
-
-              {/* Pro section */}
-              {profile.type_profil === "pro_podcast" && (
-                <motion.div
-                  initial={{ opacity: 0, y: 15 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.4, delay: 0.3 }}
-                  className="bg-card border border-border rounded-2xl p-6 md:p-8"
-                >
-                  <h2 className="font-display font-bold text-lg text-foreground mb-5 flex items-center gap-2">
-                    <Briefcase className="w-4 h-4 text-primary" /> Expertise & Services
-                  </h2>
-                  {profile.metier_principal && (
-                    <div className="mb-5">
-                      <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1">Métier principal</p>
-                      <p className="text-lg font-display font-bold text-foreground">{profile.metier_principal}</p>
-                    </div>
-                  )}
-                  {profile.services_3 && profile.services_3.length > 0 && (
-                    <div className="mb-5">
-                      <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-3">Services proposés</p>
-                      <div className="grid gap-2">
-                        {profile.services_3.map((s, i) => (
-                          <div key={i} className="flex items-center gap-2.5 text-sm text-foreground/80 bg-muted/50 rounded-lg px-4 py-2.5">
-                            <CheckCircle className="w-4 h-4 text-primary flex-shrink-0" />
-                            {s}
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-                  {profile.disponibilite && (
-                    <div className="pt-4 border-t border-border">
-                      <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1">Disponibilité</p>
-                      <p className="text-sm text-foreground/80">{profile.disponibilite}</p>
-                    </div>
-                  )}
-                </motion.div>
-              )}
-
-              {/* Collaborations block (all types) */}
-              {(profile.cherche_collaboration?.length || profile.peut_apporter?.length || profile.format_collaboration) && (
-                <motion.div
-                  initial={{ opacity: 0, y: 15 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.4, delay: 0.35 }}
-                  className="bg-card border border-border rounded-2xl p-6 md:p-8"
-                >
-                  <h2 className="font-display font-bold text-lg text-foreground mb-5 flex items-center gap-2">
-                    <Handshake className="w-4 h-4 text-primary" /> Collaborations
-                  </h2>
-
-                  {profile.cherche_collaboration && profile.cherche_collaboration.length > 0 && (
-                    <div className="mb-5">
-                      <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-3">Ce que je cherche</p>
-                      <div className="flex flex-wrap gap-2">
-                        {profile.cherche_collaboration.map((item) => (
-                          <Badge key={item} variant="outline">{item}</Badge>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-
-                  {profile.peut_apporter && profile.peut_apporter.length > 0 && (
-                    <div className="mb-5">
-                      <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-3">Ce que je peux apporter</p>
-                      <div className="flex flex-wrap gap-2">
-                        {profile.peut_apporter.map((item) => (
-                          <Badge key={item} variant="secondary" className="bg-secondary/15">{item}</Badge>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-
-                  {profile.format_collaboration && (
-                    <div className="flex items-center gap-2 text-sm text-foreground/80">
-                      {profile.format_collaboration.includes("présentiel") ? (
-                        <MapPin className="w-4 h-4 text-primary" />
-                      ) : profile.format_collaboration.includes("distance") ? (
-                        <Wifi className="w-4 h-4 text-primary" />
-                      ) : (
-                        <Handshake className="w-4 h-4 text-primary" />
-                      )}
-                      <span>Format préféré : {profile.format_collaboration}</span>
-                    </div>
-                  )}
-                </motion.div>
-              )}
-            </div>
-
-            {/* Sidebar */}
-            <div className="space-y-5">
-              {/* Contact card */}
-              {showContact && (
-                <motion.div
-                  initial={{ opacity: 0, y: 15 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.4, delay: 0.35 }}
-                  className="bg-card border border-border rounded-2xl p-5"
-                >
-                  <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-4">Contact</p>
-                  <div className="space-y-3">
-                    {profile.telephone && (
-                      <>
-                        {!phoneRevealed ? (
-                          <Button
-                            onClick={() => setPhoneRevealed(true)}
-                            variant="outline"
-                            className="w-full gap-2 justify-start"
-                          >
-                            <div className="w-9 h-9 rounded-lg bg-primary/10 flex items-center justify-center">
-                              <Phone className="w-4 h-4 text-primary" />
-                            </div>
-                            <span className="text-left text-sm">Afficher le numéro de téléphone</span>
-                          </Button>
-                        ) : (
-                          <a
-                            href={`tel:${profile.telephone}`}
-                            className="flex items-center gap-3 text-sm text-foreground hover:text-primary transition-colors group"
-                          >
-                            <div className="w-9 h-9 rounded-lg bg-primary/10 flex items-center justify-center group-hover:bg-primary/20 transition-colors">
-                              <Phone className="w-4 h-4 text-primary" />
-                            </div>
-                            <span>{profile.telephone}</span>
-                          </a>
-                        )}
-                      </>
-                    )}
-
-                    {profile.lien_linkedin && (
-                      <a href={withUtm(profile.lien_linkedin!, "fiche-membre")} target="_blank" rel="noopener noreferrer" className="flex items-center gap-3 text-sm text-foreground hover:text-primary transition-colors group">
-                        <div className="w-9 h-9 rounded-lg bg-primary/10 flex items-center justify-center group-hover:bg-primary/20 transition-colors">
-                          <Globe className="w-4 h-4 text-primary" />
-                        </div>
-                        <span className="truncate">LinkedIn</span>
-                      </a>
-                    )}
-                    {profile.lien_principal && (
-                      <a href={withUtm(profile.lien_principal!, "fiche-membre")} target="_blank" rel="noopener noreferrer" className="flex items-center gap-3 text-sm text-foreground hover:text-primary transition-colors group">
-                        <div className="w-9 h-9 rounded-lg bg-primary/10 flex items-center justify-center group-hover:bg-primary/20 transition-colors">
-                          <Globe className="w-4 h-4 text-primary" />
-                        </div>
-                        <span className="truncate">Site web</span>
-                      </a>
-                    )}
-                  </div>
-                </motion.div>
-              )}
-
-              {/* Consent badges */}
-              {!showContact && (profile.consent_contact || profile.consent_mise_en_relation) && (
-                <motion.div
-                  initial={{ opacity: 0, y: 15 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.4, delay: 0.35 }}
-                  className="bg-card border border-border rounded-2xl p-5 space-y-2"
-                >
-                  {profile.consent_contact && (
-                    <div className="flex items-center gap-2 text-sm text-foreground/70">
-                      <CheckCircle className="w-4 h-4 text-primary" />
-                      <span>Ok pour être contacté(e)</span>
-                    </div>
-                  )}
-                  {profile.consent_mise_en_relation && (
-                    <div className="flex items-center gap-2 text-sm text-foreground/70">
-                      <CheckCircle className="w-4 h-4 text-primary" />
-                      <span>Ok pour mise en relation</span>
-                    </div>
-                  )}
-                </motion.div>
-              )}
-
-              {/* Quick info card */}
-              <motion.div
-                initial={{ opacity: 0, y: 15 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.4, delay: 0.4 }}
-                className="bg-card border border-border rounded-2xl p-5"
-              >
-                <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-4">En bref</p>
-                <div className="space-y-3 text-sm">
-                  <div className="flex items-center gap-3 text-foreground/70">
-                    <ProfilIcon className="w-4 h-4 text-primary" />
-                    <span>{config.label}</span>
-                  </div>
-                  {profile.city_name && (
-                    <div className="flex items-center gap-3 text-foreground/70">
-                      <MapPin className="w-4 h-4 text-primary" />
-                      <span>{profile.city_name}</span>
-                    </div>
-                  )}
-
-                  {/* Podcasteur-specific sidebar items */}
-                  {profile.type_profil === "podcasteur" && (
-                    <>
-                      {profile.thematique && (
-                        <div className="flex items-center gap-3 text-foreground/70">
-                          <Tag className="w-4 h-4 text-primary" />
-                          <span>{profile.thematique}</span>
-                        </div>
-                      )}
-                      {profile.frequence_publication && (
-                        <div className="flex items-center gap-3 text-foreground/70">
-                          <Clock className="w-4 h-4 text-primary" />
-                          <span>{profile.frequence_publication}</span>
-                        </div>
-                      )}
-                    </>
-                  )}
-
-                  {/* Pro-specific sidebar items */}
-                  {profile.type_profil === "pro_podcast" && (
-                    <>
-                      {profile.metier_principal && (
-                        <div className="flex items-center gap-3 text-foreground/70">
-                          <Briefcase className="w-4 h-4 text-primary" />
-                          <span>{profile.metier_principal}</span>
-                        </div>
-                      )}
-                      {profile.disponibilite && (
-                        <div className="flex items-center gap-3 text-foreground/70">
-                          <Clock className="w-4 h-4 text-primary" />
-                          <span>{profile.disponibilite}</span>
-                        </div>
-                      )}
-                      {profile.format_collaboration && (
-                        <div className="flex items-center gap-3 text-foreground/70">
-                          {profile.format_collaboration.includes("présentiel") ? <MapPin className="w-4 h-4 text-primary" /> : <Wifi className="w-4 h-4 text-primary" />}
-                          <span>{profile.format_collaboration}</span>
-                        </div>
-                      )}
-                    </>
-                  )}
-
-                  {/* Matching info for all types in sidebar */}
-                  {profile.cherche_collaboration && profile.cherche_collaboration.length > 0 && (
-                    <div className="pt-2 border-t border-border">
-                      <p className="text-xs font-semibold text-muted-foreground mb-2">Cherche :</p>
-                      <div className="flex flex-wrap gap-1.5">
-                        {profile.cherche_collaboration.map((item) => (
-                          <Badge key={item} variant="outline" className="text-xs">{item}</Badge>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-
-                  {profile.type_profil === "pro_podcast" && profile.peut_apporter && profile.peut_apporter.length > 0 && (
-                    <div className="pt-2 border-t border-border">
-                      <p className="text-xs font-semibold text-muted-foreground mb-2">Peut apporter :</p>
-                      <div className="flex flex-wrap gap-1.5">
-                        {profile.peut_apporter.map((item) => (
-                          <Badge key={item} variant="secondary" className="text-xs bg-secondary/15">{item}</Badge>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-                </div>
-              </motion.div>
-
-              {/* CTA */}
-              <motion.div
-                initial={{ opacity: 0, y: 15 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.4, delay: 0.45 }}
-                className="bg-gradient-to-br from-primary/10 to-secondary/10 border border-primary/15 rounded-2xl p-5 text-center"
-              >
-                <p className="text-sm font-medium text-foreground mb-3">Vous aussi, rejoignez le collectif&nbsp;!</p>
-                <Link to="/rejoindre-association">
-                  <Button size="sm" className="rounded-full w-full">Rejoindre</Button>
-                </Link>
-              </motion.div>
-            </div>
+        {/* En-tête */}
+        <section className={`${container} pt-4 pb-12 grid md:grid-cols-[minmax(0,5fr)_minmax(0,9fr)] gap-8 md:gap-12 items-start`}>
+          <div className="aspect-square bg-muted overflow-hidden max-w-[420px] w-full">
+            {profile.vignette_url ? (
+              <img src={profile.vignette_url} alt={isPodcast ? `Pochette du podcast ${profile.nom_podcast}` : `Portrait de ${name}`} className="w-full h-full object-cover" />
+            ) : (
+              <span className="flex w-full h-full items-center justify-center bg-primary text-primary-foreground title-section text-3xl p-6 text-center">{title}</span>
+            )}
           </div>
-        </div>
+          <div className="min-w-0">
+            <p className="text-sm font-bold text-primary">
+              {ROLE_LABELS[profile.type_profil] || "Membre"}
+              {isPodcast && profile.thematique && profile.thematique !== "Autre" ? ` · ${profile.thematique}` : ""}
+              {!isPodcast && profile.metier_principal ? ` · ${profile.metier_principal}` : ""}
+            </p>
+            <h1 className="title-page text-[48px] sm:text-[72px] lg:text-[88px] mt-2 break-words">{title}</h1>
+            {isPodcast ? (
+              <p className="mt-4 text-[17px]">
+                par <strong>{name}</strong>{city ? ` · ${city}` : ""}
+              </p>
+            ) : (
+              city && <p className="mt-4 text-[17px]">{city}{profile.structure ? ` · ${profile.structure}` : ""}</p>
+            )}
+            {intro && <p className="mt-5 text-lg leading-relaxed max-w-[60ch] whitespace-pre-line">{intro}</p>}
+
+            <div className="mt-7 flex flex-wrap gap-3">
+              {isPodcast && latest && (
+                <button onClick={() => play(latest)} className={`${btnPrimary} px-6`}>
+                  {latestActive ? <Pause className="w-4 h-4" fill="currentColor" aria-hidden /> : <Play className="w-4 h-4" fill="currentColor" aria-hidden />}
+                  {latestActive ? "Mettre en pause" : "Écouter le dernier épisode"}
+                </button>
+              )}
+              {isPodcast && !latest && !epLoading && !isPlaceholderLink(profile.lien_ecoute) && (
+                <a href={withUtm(profile.lien_ecoute!, "fiche-membre")} target="_blank" rel="noopener noreferrer" className={`${btnPrimary} px-6`}>
+                  <Play className="w-4 h-4" fill="currentColor" aria-hidden /> Écouter<span className="sr-only"> (nouvel onglet)</span>
+                </a>
+              )}
+              {profile.consent_contact && (
+                <a href="#ecrire" className={btnSecondary}>Écrire à {prenom || name}</a>
+              )}
+            </div>
+
+            {alsoOn.length > 0 && (
+              <p className="mt-5 text-sm flex flex-wrap items-center gap-x-4 gap-y-1">
+                <span className="text-muted-foreground">{isPodcast ? "Aussi sur" : "Liens"}</span>
+                {alsoOn.map((l) => (
+                  <a key={l.label} href={l.href} target="_blank" rel="noopener noreferrer" className="inline-flex min-h-[36px] items-center underline underline-offset-4 hover:text-primary">
+                    {l.label}
+                  </a>
+                ))}
+              </p>
+            )}
+          </div>
+        </section>
+
+        {/* Cherche / Apporte */}
+        {(cherche.length > 0 || apporte.length > 0) && (
+          <section aria-label="Ce que ce membre cherche et apporte" className="bg-surface border-y border-filet">
+            <div className={`${container} py-8 grid md:grid-cols-[1fr_1fr_auto] gap-6 md:gap-10 items-center`}>
+              {cherche.length > 0 && (
+                <div>
+                  <h2 className="text-sm font-bold [font-stretch:100%] leading-normal text-primary">{prenom || "Ce membre"} cherche</h2>
+                  <ul className="mt-1 font-bold text-[19px] leading-snug">
+                    {cherche.map((c) => <li key={c}>{c}</li>)}
+                  </ul>
+                </div>
+              )}
+              {apporte.length > 0 && (
+                <div>
+                  <h2 className="text-sm font-bold [font-stretch:100%] leading-normal text-accent-text">{prenom || "Ce membre"} apporte</h2>
+                  <ul className="mt-1 font-bold text-[19px] leading-snug">
+                    {apporte.map((c) => <li key={c}>{c}</li>)}
+                  </ul>
+                </div>
+              )}
+              {profile.consent_contact && (
+                <a href="#ecrire" className={`${btnListen} self-start md:self-center`}>Proposer une collab</a>
+              )}
+            </div>
+          </section>
+        )}
+
+        {/* Services (acteur·ices de l'écosystème) */}
+        {!isPodcast && profile.services_3 && profile.services_3.length > 0 && (
+          <section className={`${container} pt-14`} aria-labelledby="services-title">
+            <h2 id="services-title" className="title-section text-[40px] sm:text-[52px] pb-4 border-b-2 border-encre">Services</h2>
+            <ul className="divide-y divide-filet border-b border-filet">
+              {profile.services_3.map((s) => <li key={s} className="py-4 text-[17px] font-semibold">{s}</li>)}
+            </ul>
+          </section>
+        )}
+
+        {/* Présentation longue pour un podcast */}
+        {isPodcast && profile.bio_750 && profile.bio_750 !== profile.description && (
+          <section className={`${container} pt-14`} aria-labelledby="bio-title">
+            <h2 id="bio-title" className="title-section text-[40px] sm:text-[52px] pb-4 border-b-2 border-encre">À propos</h2>
+            <p className="pt-5 text-[17px] leading-relaxed max-w-[70ch] whitespace-pre-line">{profile.bio_750}</p>
+          </section>
+        )}
+
+        {/* Épisodes */}
+        {isPodcast && (
+          <section className={`${container} pt-14`} aria-labelledby="episodes-title">
+            <h2 id="episodes-title" className="title-section text-[44px] sm:text-[56px] pb-4 border-b-2 border-encre">Épisodes</h2>
+            {epLoading ? (
+              <p className="py-6 font-mono text-sm text-muted-foreground">Chargement des épisodes…</p>
+            ) : episodes.length === 0 ? (
+              <p className="py-6 text-[17px] border-b border-filet">
+                Les épisodes ne sont pas encore affichés ici.
+                {!isPlaceholderLink(profile.lien_ecoute) && (
+                  <> <a href={withUtm(profile.lien_ecoute!, "fiche-membre")} target="_blank" rel="noopener noreferrer" className="font-bold underline underline-offset-4">Écouter sur {platformLabel(profile.lien_ecoute!)}</a>.</>
+                )}
+              </p>
+            ) : (
+              <>
+                <ul className="divide-y divide-filet border-b border-filet">
+                  {episodes.map((ep, i) => {
+                    const active = isCurrent(ep) && playing;
+                    return (
+                      <li key={ep.audioUrl} className="grid grid-cols-[44px_1fr] sm:grid-cols-[44px_1fr_auto] gap-x-4 gap-y-1 py-4 items-center">
+                        <button
+                          onClick={() => play(ep)}
+                          className={`w-11 h-11 rounded-full border-2 border-primary inline-flex items-center justify-center ${i === 0 || active ? "bg-primary text-primary-foreground" : "text-primary hover:bg-primary hover:text-primary-foreground"}`}
+                          aria-label={`${active ? "Mettre en pause" : "Écouter"} : ${ep.title}`}
+                        >
+                          {active ? <Pause className="w-4 h-4" fill="currentColor" /> : <Play className="w-4 h-4 ml-0.5" fill="currentColor" />}
+                        </button>
+                        <div className="min-w-0">
+                          <p className="font-bold text-[17px] leading-tight">{ep.title}</p>
+                          {ep.summary && <p className="text-sm text-muted-foreground line-clamp-1 mt-0.5">{ep.summary}</p>}
+                        </div>
+                        <p className="col-start-2 sm:col-start-auto font-mono text-xs sm:text-sm text-muted-foreground whitespace-nowrap">
+                          {[formatShortDate(ep.date), formatDuration(ep.duration)].filter(Boolean).join(" · ")}
+                        </p>
+                      </li>
+                    );
+                  })}
+                </ul>
+                <p className="mt-3 text-sm text-muted-foreground">Les épisodes se mettent à jour automatiquement depuis le flux RSS.</p>
+              </>
+            )}
+          </section>
+        )}
+
+        {/* Écrire */}
+        {profile.consent_contact && (
+          <section id="ecrire" className={`${container} pt-14 pb-20 scroll-mt-24`} aria-labelledby="ecrire-title">
+            <div className="border-2 border-encre bg-surface p-6 sm:p-8 grid md:grid-cols-[minmax(0,1fr)_minmax(0,2fr)] gap-6 md:gap-10">
+              <div>
+                <h2 id="ecrire-title" className="title-section text-[30px] sm:text-[36px]">Écrire à {prenom || name}</h2>
+                <p className="mt-3 text-[15px] text-muted-foreground">
+                  Votre message arrive dans sa boîte. Son e-mail et son téléphone ne sont jamais affichés.
+                </p>
+              </div>
+              <MembreContactForm recipientId={profile.id} recipientFirstName={prenom} />
+            </div>
+          </section>
+        )}
+        {!profile.consent_contact && <div className="pb-20" />}
       </main>
       <Footer />
-
     </div>
   );
 };
