@@ -1,581 +1,363 @@
-import { useState, useEffect, useRef } from "react";
-import { supabase } from "@/integrations/supabase/client";
-import { Button } from "@/components/ui/button";
-import { Textarea } from "@/components/ui/textarea";
+import { useEffect, useMemo, useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import { Loader2 } from "lucide-react";
 import { toast } from "sonner";
-import { LogOut, Save, Loader2, Image, X, ArrowLeft, Mic, Users, Trash2, Plus } from "lucide-react";
-import { useNavigate, Link } from "react-router-dom";
+import { supabase } from "@/integrations/supabase/client";
+import SEOHead from "@/components/SEOHead";
+import ProfilCard from "@/components/espace-membre/ProfilCard";
+import PodcastCard from "@/components/espace-membre/PodcastCard";
+import { FICHE_COLUMNS, cardCls, sectionTitle, type FicheMembre } from "@/components/espace-membre/types";
+import { formatLongDate, ilYA, publicProfilePath, statutAdhesion } from "@/lib/espaceMembre";
+import { readableTitle } from "@/lib/events";
+import { btnPrimary, btnSecondary, formatName, linkUnderline } from "@/lib/pds";
+import logoPds from "@/assets/logo-pds.png";
 
-interface PodcastData {
-  id: string;
-  nom_podcast: string;
-  lien_ecoute: string;
-  flux_rss?: string | null;
-  description: string;
-  thematique: string | null;
-  vignette_url: string | null;
-  photo_profil_url?: string | null;
-  prenom: string | null;
-  nom: string | null;
-  telephone: string | null;
-  email: string;
-  ville: string | null;
-  type_podcast: string | null;
-  type_profil: string;
-  bio_750: string | null;
-  lien_principal: string | null;
-  lien_linkedin: string | null;
-  metier_principal: string | null;
-  services_3: string[] | null;
-  disponibilite: string | null;
-  valide: boolean;
-  niveau_avancement: string | null;
-  frequence_publication: string | null;
-  monetise: string | null;
-  department_code: string | null;
-  city_name: string | null;
-}
+type Adhesion = { date_adhesion: string | null; type_adhesion: string | null; statut: string | null; montant: number | null };
+type Demande = { id: string; recipient_id: string; sender_name: string; sender_email: string; message: string; created_at: string };
+type MonEvenement = { id: string; titre: string; slug: string | null; date_debut: string; publie: boolean };
 
-const thematiques = [
-  "Conversations & société", "Business & parcours de vie", "Culture, création & récits",
-  "Sport & dépassement", "Santé, mental & équilibre", "Transmission & éducation",
-  "Tech, médias & nouveaux usages", "Territoires, initiatives & regards", "Autre",
+const SECTIONS = [
+  { id: "tableau", label: "Tableau de bord" },
+  { id: "profil", label: "Mon profil" },
+  { id: "podcasts", label: "Mes podcasts" },
+  { id: "demandes", label: "Demandes reçues" },
+  { id: "evenements", label: "Mes événements" },
+  { id: "adhesion", label: "Adhésion" },
 ];
 
+const ADHERER = "/rejoindre-association?etape=adhesion";
+
 const MonEspace = () => {
-  const [loading, setLoading] = useState(true);
-  const [saving, setSaving] = useState(false);
-  const [deleting, setDeleting] = useState(false);
-  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
-  const [podcasts, setPodcasts] = useState<PodcastData[]>([]);
-  const [activeTab, setActiveTab] = useState(0);
-  const [form, setForm] = useState<Partial<PodcastData>>({});
-  const [userEmail, setUserEmail] = useState("");
-  const [uploading, setUploading] = useState(false);
-  const fileInputRef = useRef<HTMLInputElement>(null);
   const navigate = useNavigate();
+  const [loading, setLoading] = useState(true);
+  const [email, setEmail] = useState("");
+  const [fiches, setFiches] = useState<FicheMembre[]>([]);
+  const [adhesion, setAdhesion] = useState<Adhesion | null>(null);
+  const [demandes, setDemandes] = useState<Demande[]>([]);
+  const [evenements, setEvenements] = useState<MonEvenement[]>([]);
+  const [active, setActive] = useState("tableau");
+
+  useEffect(() => {
+    const robots = document.createElement("meta");
+    robots.name = "robots";
+    robots.content = "noindex";
+    document.head.appendChild(robots);
+    return () => { robots.remove(); };
+  }, []);
 
   useEffect(() => {
     const init = async () => {
       const { data: { session } } = await supabase.auth.getSession();
-      if (!session) {
-        navigate("/espace-membre");
-        return;
-      }
-      setUserEmail(session.user.email || "");
-      const { data, error } = await supabase
-        .from("podcasts")
-        .select("id, nom_podcast, lien_ecoute, flux_rss, description, thematique, vignette_url, photo_profil_url, prenom, nom, telephone, email, ville, type_podcast, type_profil, bio_750, lien_principal, lien_linkedin, metier_principal, services_3, disponibilite, valide, niveau_avancement, frequence_publication, monetise, department_code, city_name")
-        .eq("email", session.user.email!)
-        .order("created_at", { ascending: false });
-
-      if (error) {
-        console.error(error);
-        toast.error("Erreur lors du chargement de vos fiches.");
-      }
-      if (data && data.length > 0) {
-        setPodcasts(data as PodcastData[]);
-        setForm(data[0] as PodcastData);
-      }
+      if (!session) { navigate("/espace-membre"); return; }
+      const mail = session.user.email || "";
+      setEmail(mail);
+      const [f, a, d, e] = await Promise.all([
+        supabase.from("podcasts").select(FICHE_COLUMNS).eq("email", mail).order("created_at", { ascending: true }),
+        supabase.rpc("mon_adhesion"),
+        supabase.rpc("mes_demandes"),
+        supabase.rpc("mes_evenements"),
+      ]);
+      if (f.error) { console.error(f.error); toast.error("Vos fiches n'ont pas pu être chargées."); }
+      setFiches((f.data as unknown as FicheMembre[]) || []);
+      setAdhesion(((a.data as Adhesion[] | null) || [])[0] || null);
+      setDemandes((d.data as Demande[] | null) || []);
+      setEvenements((e.data as MonEvenement[] | null) || []);
       setLoading(false);
     };
     init();
   }, [navigate]);
 
-  const handleLogout = async () => {
+  // Section visible à l'écran : surlignée dans le menu
+  useEffect(() => {
+    if (loading) return;
+    const obs = new IntersectionObserver(
+      (entries) => {
+        const visible = entries.filter((e) => e.isIntersecting).sort((a, b) => a.boundingClientRect.top - b.boundingClientRect.top)[0];
+        if (visible) setActive(visible.target.id);
+      },
+      { rootMargin: "-20% 0px -70% 0px" },
+    );
+    SECTIONS.forEach((s) => { const el = document.getElementById(s.id); if (el) obs.observe(el); });
+    return () => obs.disconnect();
+  }, [loading, fiches.length]);
+
+  const logout = async () => {
     await supabase.auth.signOut();
     navigate("/espace-membre");
   };
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
-    setForm((prev) => ({ ...prev, [e.target.name]: e.target.value }));
-  };
-
-  const cropToSquare = (file: File): Promise<File> => {
-    return new Promise((resolve) => {
-      const img = new window.Image();
-      img.onload = () => {
-        URL.revokeObjectURL(img.src);
-        const size = Math.min(img.width, img.height);
-        const offsetX = (img.width - size) / 2;
-        const offsetY = (img.height - size) / 2;
-        const canvas = document.createElement("canvas");
-        canvas.width = size;
-        canvas.height = size;
-        const ctx = canvas.getContext("2d")!;
-        ctx.drawImage(img, offsetX, offsetY, size, size, 0, 0, size, size);
-        canvas.toBlob((blob) => {
-          if (blob) {
-            resolve(new File([blob], file.name, { type: file.type }));
-          } else {
-            resolve(file);
-          }
-        }, file.type, 0.92);
-      };
-      img.src = URL.createObjectURL(file);
-    });
-  };
-
-  const handleVignetteUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    if (!file.type.startsWith("image/")) { toast.error("Sélectionnez une image."); return; }
-    if (file.size > 5 * 1024 * 1024) { toast.error("Max 5 Mo."); return; }
-    const croppedFile = await cropToSquare(file);
-    setUploading(true);
-    const ext = croppedFile.name.split(".").pop();
-    const fileName = `${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`;
-    const { error } = await supabase.storage.from("podcast-thumbnails").upload(fileName, croppedFile, { contentType: croppedFile.type });
-    if (error) { toast.error("Erreur upload."); setUploading(false); return; }
-    const { data: urlData } = supabase.storage.from("podcast-thumbnails").getPublicUrl(fileName);
-    setForm((prev) => ({ ...prev, vignette_url: urlData.publicUrl }));
-    setUploading(false);
-    toast.success("Image mise à jour !");
-  };
-
-  const photoInputRef = useRef<HTMLInputElement>(null);
-  const handlePhotoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    if (!file.type.startsWith("image/")) { toast.error("Sélectionnez une image."); return; }
-    if (file.size > 5 * 1024 * 1024) { toast.error("Max 5 Mo."); return; }
-    const croppedFile = await cropToSquare(file);
-    setUploading(true);
-    const ext = croppedFile.name.split(".").pop();
-    const fileName = `${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`;
-    const { error } = await supabase.storage.from("podcast-thumbnails").upload(fileName, croppedFile, { contentType: croppedFile.type });
-    if (error) { toast.error("Erreur upload."); setUploading(false); return; }
-    const { data: urlData } = supabase.storage.from("podcast-thumbnails").getPublicUrl(fileName);
-    setForm((prev) => ({ ...prev, photo_profil_url: urlData.publicUrl }));
-    setUploading(false);
-    toast.success("Photo ajoutée. Pensez à enregistrer.");
-  };
-
-  const handleSave = async () => {
-    const current = podcasts[activeTab];
-    if (!current) return;
-    setSaving(true);
-
-    const updateData: Record<string, unknown> = {
-      nom_podcast: form.nom_podcast,
-      lien_ecoute: form.lien_ecoute,
-      flux_rss: (form as any).flux_rss?.trim() || null,
-      description: form.description,
-      thematique: form.thematique,
-      vignette_url: form.vignette_url,
-      prenom: form.prenom,
-      nom: form.nom,
-      telephone: form.telephone,
-      bio_750: form.bio_750,
-      lien_principal: form.lien_principal,
-      lien_linkedin: (form as any).lien_linkedin,
-      metier_principal: form.metier_principal,
-      disponibilite: form.disponibilite,
-      type_podcast: form.type_podcast,
-      niveau_avancement: form.niveau_avancement,
-      frequence_publication: form.frequence_publication,
-      monetise: form.monetise,
-      services_3: form.services_3,
-    };
-
-    const { error } = await supabase
-      .from("podcasts")
-      .update(updateData)
-      .eq("id", current.id);
-    setSaving(false);
-    if (error) {
-      toast.error("Erreur lors de la sauvegarde.");
-      console.error(error);
-      return;
-    }
-    // La photo de profil est la même sur toutes les fiches de la personne (même e-mail)
-    const photo = (form as PodcastData).photo_profil_url ?? null;
-    if (photo !== (current.photo_profil_url ?? null)) {
-      const { error: photoError } = await supabase.from("podcasts").update({ photo_profil_url: photo }).ilike("email", current.email);
-      if (photoError) console.error(photoError);
-    }
-    const updated = podcasts.map((p, i) => i === activeTab ? { ...p, ...form } as PodcastData : { ...p, photo_profil_url: photo });
-    setPodcasts(updated);
-    toast.success("Fiche mise à jour !");
-  };
-
-  const handleDelete = async () => {
-    const current = podcasts[activeTab];
-    if (!current) return;
-    setDeleting(true);
-    const { error } = await supabase.from("podcasts").delete().eq("id", current.id);
-    setDeleting(false);
-    if (error) {
-      toast.error("Erreur lors de la suppression.");
-      console.error(error);
-      return;
-    }
-    const remaining = podcasts.filter((_, i) => i !== activeTab);
-    setPodcasts(remaining);
-    setActiveTab(0);
-    if (remaining.length > 0) {
-      setForm(remaining[0]);
-    }
-    setShowDeleteConfirm(false);
-    toast.success("Fiche supprimée.");
-  };
-
-  const switchTab = (idx: number) => {
-    setActiveTab(idx);
-    setForm(podcasts[idx]);
-    setShowDeleteConfirm(false);
-  };
+  const profil = useMemo(() => fiches.find((f) => f.type_profil !== "podcasteur") || fiches[0], [fiches]);
+  const podcasts = useMemo(() => fiches.filter((f) => f.type_profil === "podcasteur"), [fiches]);
+  const statut = statutAdhesion(adhesion?.date_adhesion);
+  const aJour = statut.etat === "a_jour";
+  const publicPath = profil && profil.valide ? publicProfilePath(profil.type_profil, profil.slug) : null;
+  const nomFiche = (id: string) => fiches.find((f) => f.id === id);
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
-        <Loader2 className="w-6 h-6 animate-spin text-primary" />
+      <div className="min-h-screen bg-background flex items-center justify-center" role="status" aria-live="polite">
+        <Loader2 className="w-6 h-6 animate-spin text-primary" aria-hidden />
+        <span className="sr-only">Chargement de votre espace</span>
       </div>
     );
   }
 
-  if (podcasts.length === 0) {
-    return (
-      <div className="min-h-screen bg-background flex items-center justify-center px-4">
-        <div className="text-center space-y-4 max-w-sm">
-          <h1 className="font-display font-bold text-2xl text-foreground">Aucune fiche trouvée</h1>
-          <p className="text-muted-foreground text-sm">
-            Aucune fiche n'est associée à <span className="font-medium text-foreground">{userEmail}</span>.
-          </p>
-          <div className="flex flex-col gap-2">
-            <Link to="/rejoindre-association#inscription"><Button className="w-full">Remplir le formulaire</Button></Link>
-            <Button variant="outline" onClick={handleLogout}>Se déconnecter</Button>
-          </div>
+  const header = (
+    <header className="border-b border-encre bg-background">
+      <div className="mx-auto max-w-[1240px] px-5 sm:px-8 min-h-[64px] flex items-center justify-between gap-4">
+        <Link to="/" className="flex items-center gap-3 min-h-[44px]" aria-label="Retour à l'accueil des Podcasteur·euses du Sud">
+          <img src={logoPds} alt="" className="w-10 h-10 object-cover" width="40" height="40" />
+          <span className="font-bold text-[17px]">Espace membre</span>
+        </Link>
+        <div className="flex items-center gap-3 sm:gap-5">
+          <Link to="/" className={`${linkUnderline} hidden sm:inline-flex min-h-[44px] items-center text-sm`}>Retour au site</Link>
+          <button type="button" onClick={logout} className={`${btnSecondary} min-h-[44px] px-4 text-sm`}>Se déconnecter</button>
         </div>
       </div>
+    </header>
+  );
+
+  if (!profil) {
+    return (
+      <div className="min-h-screen bg-background">
+        <SEOHead title="Espace membre — Les Podcasteur·euses du Sud" description="Gérez votre profil, vos podcasts et votre adhésion." path="/mon-espace" />
+        {header}
+        <main className="mx-auto max-w-[640px] px-5 sm:px-8 py-16">
+          <h1 className="title-page text-[48px] sm:text-[64px]">Aucun profil trouvé</h1>
+          <p className="mt-5 text-lg">
+            Aucun profil n'est enregistré avec l'adresse <strong className="break-all">{email}</strong>.
+          </p>
+          <p className="mt-3 text-muted-foreground">Vous vous êtes inscrit·e avec une autre adresse ? Déconnectez-vous et reconnectez-vous avec celle-ci.</p>
+          <div className="mt-8 flex flex-wrap gap-3">
+            <Link to="/rejoindre-association#inscription" className={btnPrimary}>Créer mon profil</Link>
+            <button type="button" onClick={logout} className={btnSecondary}>Se déconnecter</button>
+          </div>
+        </main>
+      </div>
     );
   }
 
-  const current = podcasts[activeTab];
-  const isPodcasteur = current?.type_profil === "podcasteur";
-  const isPro = current?.type_profil === "pro_podcast";
-
-  const inputClass = "w-full rounded-xl border border-border bg-card px-4 py-3.5 text-foreground placeholder:text-muted-foreground/50 focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary/30 transition-all";
-  const selectClass = "w-full rounded-xl border border-border bg-card px-4 py-3.5 text-foreground focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary/30 transition-all appearance-none";
-  const labelClass = "block text-sm font-medium text-foreground mb-2";
+  const prenom = formatName(profil.prenom) || "à vous";
 
   return (
     <div className="min-h-screen bg-background">
-      <header className="border-b border-border bg-card">
-        <div className="container mx-auto px-6 py-4 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <Link to="/" className="text-muted-foreground hover:text-foreground transition-colors">
-              <ArrowLeft className="w-5 h-5" />
-            </Link>
-            <div>
-              <h1 className="font-display font-bold text-lg text-foreground">Espace membre</h1>
-              <p className="text-xs text-muted-foreground">{userEmail}</p>
-            </div>
-          </div>
-          <Button variant="outline" size="sm" onClick={handleLogout}>
-            <LogOut className="w-4 h-4 mr-1.5" /> Déconnexion
-          </Button>
-        </div>
-      </header>
+      <SEOHead title="Espace membre — Les Podcasteur·euses du Sud" description="Gérez votre profil, vos podcasts et votre adhésion." path="/mon-espace" />
+      {header}
 
-      <main className="container mx-auto px-6 py-8 max-w-2xl space-y-8">
-        {/* Tabs */}
-        <div className="flex items-center gap-2 overflow-x-auto pb-2">
-          {podcasts.length > 1 && podcasts.map((p, i) => (
-            <button key={p.id} onClick={() => switchTab(i)}
-              className={`flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium transition-all whitespace-nowrap ${
-                i === activeTab ? "bg-primary text-primary-foreground shadow-sm" : "bg-card border border-border text-muted-foreground hover:text-foreground"
-              }`}>
-              {p.type_profil === "podcasteur" ? <Mic className="w-4 h-4" /> : <Users className="w-4 h-4" />}
-              {p.type_profil === "podcasteur" ? p.nom_podcast : p.type_profil === "pro_podcast" ? "Acteur·ice" : "Profil Soutien"}
-            </button>
-          ))}
-          <Link
-            to={`/referencer-mon-podcast?profil=podcasteur&ajout=1&email=${encodeURIComponent(userEmail)}`}
-            className="flex items-center gap-1.5 px-4 py-2 rounded-xl text-sm font-medium transition-all whitespace-nowrap border-2 border-dashed border-primary/40 text-primary hover:bg-primary/5 ml-auto shrink-0"
-          >
-            <Plus className="w-4 h-4" />
-            Ajouter un podcast
-          </Link>
-        </div>
+      <div className="mx-auto max-w-[1240px] px-5 sm:px-8 lg:grid lg:grid-cols-[230px_1fr] lg:gap-12 pb-24">
+        {/* Menu : colonne à gauche sur ordinateur, bande défilante sur téléphone */}
+        <nav aria-label="Sections de l'espace membre" className="lg:pt-10">
+          <ul className="flex lg:flex-col gap-1 lg:gap-0 overflow-x-auto -mx-5 px-5 lg:mx-0 lg:px-0 py-3 lg:py-0 border-b border-filet lg:border-b-0 lg:border-t-2 lg:border-encre lg:sticky lg:top-6">
+            {SECTIONS.map((s) => (
+              <li key={s.id} className="lg:border-b lg:border-filet shrink-0">
+                <a
+                  href={`#${s.id}`}
+                  aria-current={active === s.id ? "true" : undefined}
+                  className={`flex items-center gap-2 min-h-[44px] px-3 lg:px-0 whitespace-nowrap font-semibold text-[15px] ${active === s.id ? "text-primary" : "hover:text-primary"}`}
+                >
+                  {s.label}
+                  {s.id === "demandes" && demandes.length > 0 && (
+                    <span className="font-mono text-xs bg-accent text-accent-foreground px-1.5 py-0.5">{demandes.length}</span>
+                  )}
+                </a>
+              </li>
+            ))}
+          </ul>
+        </nav>
 
-        {/* Status */}
-        <div className="flex items-center gap-3">
-          <span className={`inline-flex items-center gap-1.5 text-xs font-medium px-3 py-1 rounded-full ${
-            current.valide ? "bg-primary/10 text-primary" : "bg-muted text-muted-foreground"
-          }`}>
-            <span className={`w-1.5 h-1.5 rounded-full ${current.valide ? "bg-primary" : "bg-muted-foreground"}`} />
-            {current.valide ? "Visible sur le site" : "En attente de validation"}
-          </span>
-          <span className="text-xs text-muted-foreground capitalize">
-            {current.type_profil === "podcasteur" ? "Podcasteur·euse" : current.type_profil === "pro_podcast" ? "Acteur·ice de l'écosystème" : "Soutien"}
-          </span>
-        </div>
-
-        {/* Photo de profil (fiche annuaire) — pour les podcasteur·euses, distincte de la pochette */}
-        {isPodcasteur && (
-          <div className="bg-card border border-border rounded-2xl p-6 sm:p-8 space-y-4">
-            <h2 className="font-display font-bold text-xl text-foreground">Photo de profil</h2>
-            <p className="text-xs text-muted-foreground">Une photo de vous, affichée dans l'annuaire à la place de vos initiales. Elle est reprise sur toutes vos fiches.</p>
-            <div className="flex items-start gap-4">
-              {(form as PodcastData).photo_profil_url ? (
-                <div className="relative">
-                  <img src={(form as PodcastData).photo_profil_url!} alt="Votre photo de profil" className="w-28 h-28 rounded-full object-cover border border-border" />
-                  <button type="button" onClick={() => setForm((prev) => ({ ...prev, photo_profil_url: null }))} aria-label="Retirer la photo"
-                    className="absolute -top-2 -right-2 w-6 h-6 bg-destructive text-destructive-foreground rounded-full flex items-center justify-center">
-                    <X className="w-3 h-3" />
-                  </button>
-                </div>
-              ) : (
-                <div className="w-28 h-28 rounded-full border-2 border-dashed border-border flex items-center justify-center">
-                  <Image className="w-6 h-6 text-muted-foreground" />
-                </div>
-              )}
-              <div className="pt-2">
-                <input ref={photoInputRef} type="file" accept="image/jpeg,image/png,image/webp" onChange={handlePhotoUpload} className="hidden" />
-                <Button type="button" variant="outline" size="sm" onClick={() => photoInputRef.current?.click()} disabled={uploading}>
-                  {uploading ? <Loader2 className="w-4 h-4 animate-spin mr-1.5" /> : <Image className="w-4 h-4 mr-1.5" />}
-                  {(form as PodcastData).photo_profil_url ? "Changer la photo" : "Ajouter ma photo"}
-                </Button>
+        <main className="min-w-0 space-y-14 pt-8 lg:pt-10">
+          {/* Tableau de bord */}
+          <section id="tableau" aria-labelledby="bonjour" className="scroll-mt-6">
+            <div className="flex flex-wrap items-start justify-between gap-5">
+              <div>
+                <h1 id="bonjour" className="title-section text-[44px] sm:text-[60px]">Bonjour {prenom}</h1>
+                <p className="mt-3 flex flex-wrap items-center gap-2 text-[15px]">
+                  {aJour ? (
+                    <>
+                      <span className="px-2 py-1 text-xs font-bold bg-primary text-primary-foreground">Membre à jour</span>
+                      <span>jusqu'au <span className="font-mono">{formatLongDate(statut.echeance)}</span></span>
+                    </>
+                  ) : statut.etat === "expiree" ? (
+                    <>
+                      <span className="px-2 py-1 text-xs font-bold border-2 border-encre">Adhésion à renouveler</span>
+                      <span>terminée le <span className="font-mono">{formatLongDate(statut.echeance && statut.echeance < new Date() ? statut.echeance : new Date("2026-01-01"))}</span></span>
+                    </>
+                  ) : (
+                    <span className="px-2 py-1 text-xs font-bold border-2 border-encre">Profil sans adhésion</span>
+                  )}
+                </p>
+              </div>
+              <div className="flex flex-wrap gap-3">
+                {publicPath && <Link to={publicPath} className={btnSecondary}>Voir mon profil public</Link>}
+                <Link to={ADHERER} className={`${btnPrimary} bg-encre hover:bg-encre/85 text-surface`}>{aJour ? "Renouveler" : "Adhérer"}</Link>
               </div>
             </div>
-          </div>
-        )}
 
-        {/* Photo */}
-        <div className="bg-card border border-border rounded-2xl p-6 sm:p-8 space-y-4">
-          <h2 className="font-display font-bold text-xl text-foreground">
-            {isPodcasteur ? "Vignette du podcast" : "Photo de profil"}
-          </h2>
-          <p className="text-xs text-muted-foreground">JPG, PNG ou WebP. Max 5 Mo. L'image sera recadrée au format carré.</p>
-          <div className="flex items-start gap-4">
-            {form.vignette_url ? (
-              <div className="relative">
-                <img src={form.vignette_url} alt="Photo" className="w-28 h-28 rounded-xl object-cover border border-border" />
-                <button type="button" onClick={() => setForm((prev) => ({ ...prev, vignette_url: null }))}
-                  className="absolute -top-2 -right-2 w-6 h-6 bg-destructive text-destructive-foreground rounded-full flex items-center justify-center">
-                  <X className="w-3 h-3" />
-                </button>
-              </div>
-            ) : (
-              <div className="w-28 h-28 rounded-xl border-2 border-dashed border-border flex items-center justify-center">
-                <Image className="w-6 h-6 text-muted-foreground" />
+            {!aJour && (
+              <div className="mt-6 border-2 border-primary bg-primary/5 p-5 sm:p-6">
+                <p className="font-bold text-[17px]">Adhérez pour activer votre visibilité</p>
+                <p className="mt-2 text-[15px] max-w-[62ch]">
+                  Votre profil est enregistré, mais il n'apparaît pas publiquement. Avec l'adhésion, votre fiche et vos podcasts sont visibles dans l'annuaire et dans « Écouter », et les autres membres peuvent vous écrire.
+                </p>
+                <Link to={ADHERER} className={`${btnPrimary} mt-4`}>Adhérer maintenant</Link>
               </div>
             )}
-            <div className="pt-2">
-              <input ref={fileInputRef} type="file" accept="image/jpeg,image/png,image/webp" onChange={handleVignetteUpload} className="hidden" />
-              <Button type="button" variant="outline" size="sm" onClick={() => fileInputRef.current?.click()} disabled={uploading}>
-                {uploading ? <Loader2 className="w-4 h-4 animate-spin mr-1.5" /> : <Image className="w-4 h-4 mr-1.5" />}
-                {uploading ? "Envoi…" : "Changer l'image"}
-              </Button>
-            </div>
-          </div>
-        </div>
 
-        {/* Coordonnées */}
-        <div className="bg-card border border-border rounded-2xl p-6 sm:p-8 space-y-6">
-          <h2 className="font-display font-bold text-xl text-foreground">Coordonnées</h2>
-          <div className="space-y-4">
-            <div className="grid sm:grid-cols-2 gap-4">
-              <div>
-                <label className={labelClass}>Prénom</label>
-                <input name="prenom" value={form.prenom || ""} onChange={handleChange} className={inputClass} />
-              </div>
-              <div>
-                <label className={labelClass}>Nom</label>
-                <input name="nom" value={form.nom || ""} onChange={handleChange} className={inputClass} />
-              </div>
-            </div>
-            <div>
-              <label className={labelClass}>Téléphone</label>
-              <input name="telephone" value={form.telephone || ""} onChange={handleChange} className={inputClass} placeholder="06 00 00 00 00" />
-            </div>
-          </div>
-        </div>
-
-        {/* Présentation */}
-        <div className="bg-card border border-border rounded-2xl p-6 sm:p-8 space-y-6">
-          <h2 className="font-display font-bold text-xl text-foreground">Présentation</h2>
-          <div className="space-y-4">
-            <div>
-              <label className={labelClass}>Bio (max 750 caractères)</label>
-              <Textarea name="bio_750" value={form.bio_750 || ""}
-                onChange={(e) => { if (e.target.value.length <= 750) handleChange(e); }}
-                rows={5} className="rounded-xl border-border bg-card" />
-              <p className="text-xs text-muted-foreground mt-1 text-right">{(form.bio_750 || "").length}/750</p>
-            </div>
-            <div className="grid sm:grid-cols-2 gap-4">
-              <div>
-                <label className={labelClass}>LinkedIn / réseau social</label>
-                <input name="lien_linkedin" value={(form as any).lien_linkedin || ""} onChange={handleChange} className={inputClass} placeholder="https://linkedin.com/in/..." />
-              </div>
-              <div>
-                <label className={labelClass}>Site internet / portfolio</label>
-                <input name="lien_principal" value={form.lien_principal || ""} onChange={handleChange} className={inputClass} placeholder="https://..." />
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Podcast (podcasteur) */}
-        {isPodcasteur && (
-          <div className="bg-card border border-border rounded-2xl p-6 sm:p-8 space-y-6">
-            <h2 className="font-display font-bold text-xl text-foreground">Mon podcast</h2>
-            <div className="space-y-4">
-              <div>
-                <label className={labelClass}>Nom du podcast</label>
-                <input name="nom_podcast" value={form.nom_podcast || ""} onChange={handleChange} className={inputClass} />
-              </div>
-              <div>
-                <label className={labelClass}>Lien d'écoute principal</label>
-                <input name="lien_ecoute" value={form.lien_ecoute || ""} onChange={handleChange} className={inputClass} />
-              </div>
-              <div>
-                <label className={labelClass} htmlFor="flux_rss">Flux RSS (facultatif)</label>
-                <input id="flux_rss" name="flux_rss" type="url" value={(form as any).flux_rss || ""} onChange={handleChange} className={inputClass} placeholder="https://feed.ausha.co/…" />
-                <p className="text-xs text-muted-foreground mt-1">Il permet d'afficher vos derniers épisodes et de les écouter directement sur le site. Vous le trouvez dans votre hébergeur (Ausha, Acast, Spotify for Creators…).</p>
-              </div>
-              <div>
-                <label className={labelClass}>Description courte</label>
-                <Textarea name="description" value={form.description || ""} onChange={handleChange} rows={3} className="rounded-xl border-border bg-card" />
-              </div>
-              <div>
-                <label className={labelClass}>Thématique</label>
-                <select name="thematique" value={form.thematique || ""} onChange={handleChange} className={selectClass}>
-                  <option value="">Sélectionner</option>
-                  {thematiques.map((t) => <option key={t} value={t}>{t}</option>)}
-                </select>
-              </div>
-              <div>
-                <label className={labelClass}>Type de podcast</label>
-                <select name="type_podcast" value={form.type_podcast || ""} onChange={handleChange} className={selectClass}>
-                  <option value="">Sélectionner</option>
-                  <option value="Indépendant">Indépendant</option>
-                  <option value="Média">Média</option>
-                  <option value="Marque / Entreprise">Marque / Entreprise</option>
-                  <option value="Éducatif / Académique">Éducatif / Académique</option>
-                  <option value="Narratif / Créatif">Narratif / Créatif</option>
-                  <option value="Expert / Personal brand">Expert / Personal brand</option>
-                </select>
-              </div>
-              <div className="grid sm:grid-cols-2 gap-4">
-                <div>
-                  <label className={labelClass}>Niveau d'avancement</label>
-                  <select name="niveau_avancement" value={form.niveau_avancement || ""} onChange={handleChange} className={selectClass}>
-                    <option value="">Sélectionner</option>
-                    <option value="lancement">Lancement (0–10 épisodes)</option>
-                    <option value="croissance">En croissance (10–50)</option>
-                    <option value="installe">Installé (50+)</option>
-                  </select>
+            <dl className="mt-6 grid grid-cols-1 sm:grid-cols-3 border border-filet bg-surface">
+              {[
+                { label: "Demandes reçues", value: demandes.length },
+                { label: "Podcasts référencés", value: podcasts.length },
+                { label: "Événements proposés", value: evenements.length },
+              ].map((s, i) => (
+                <div key={s.label} className={`p-4 sm:p-5 ${i > 0 ? "border-t sm:border-t-0 sm:border-l border-filet" : ""}`}>
+                  <dt className="text-sm text-muted-foreground">{s.label}</dt>
+                  <dd className="title-section text-[40px] mt-1">{s.value}</dd>
                 </div>
-                <div>
-                  <label className={labelClass}>Fréquence</label>
-                  <select name="frequence_publication" value={form.frequence_publication || ""} onChange={handleChange} className={selectClass}>
-                    <option value="">Sélectionner</option>
-                    <option value="hebdomadaire">Hebdomadaire</option>
-                    <option value="bimensuel">Deux fois par mois</option>
-                    <option value="mensuel">Mensuel</option>
-                    <option value="irregulier">Irrégulier</option>
-                  </select>
-                </div>
-              </div>
-              <div>
-                <label className={labelClass}>Monétisé ?</label>
-                <select name="monetise" value={form.monetise || ""} onChange={handleChange} className={selectClass}>
-                  <option value="">Sélectionner</option>
-                  <option value="Oui">Oui</option>
-                  <option value="Non">Non</option>
-                  <option value="En cours">En cours / expérimentation</option>
-                </select>
-              </div>
+              ))}
+            </dl>
+          </section>
+
+          {/* Mon profil */}
+          <section id="profil" className="scroll-mt-6">
+            <ProfilCard
+              profil={profil}
+              fiches={fiches}
+              onSaved={(commun, own) =>
+                setFiches((prev) => prev.map((f) => ({ ...f, ...commun, ...(f.id === profil.id ? own : {}) })))
+              }
+            />
+          </section>
+
+          {/* Mes podcasts */}
+          <section id="podcasts" aria-labelledby="podcasts-title" className="scroll-mt-6">
+            <div className="flex flex-wrap items-center justify-between gap-3 pb-3 border-b-2 border-encre">
+              <h2 id="podcasts-title" className={sectionTitle}>Mes podcasts</h2>
+              <Link to={`/referencer-mon-podcast?profil=podcasteur&ajout=1&email=${encodeURIComponent(email)}`} className={btnSecondary}>
+                Ajouter un podcast
+              </Link>
             </div>
-          </div>
-        )}
+            {podcasts.length === 0 ? (
+              <p className="mt-4 border border-dashed border-encre p-5 text-[15px]">
+                Aucun podcast pour l'instant. Ajoutez-en un avec son lien d'écoute et son flux RSS : la pochette et les épisodes s'afficheront sur le site.
+              </p>
+            ) : (
+              <ul>
+                {podcasts.map((p) => (
+                  <PodcastCard
+                    key={p.id}
+                    fiche={p}
+                    onSaved={(patch) => setFiches((prev) => prev.map((f) => (f.id === p.id ? { ...f, ...patch } : f)))}
+                    onDeleted={() => setFiches((prev) => prev.filter((f) => f.id !== p.id))}
+                  />
+                ))}
+              </ul>
+            )}
+          </section>
 
-        {/* Pro info */}
-        {isPro && (
-          <div className="bg-card border border-border rounded-2xl p-6 sm:p-8 space-y-6">
-            <h2 className="font-display font-bold text-xl text-foreground">Informations professionnelles</h2>
-            <div className="space-y-4">
-              <div>
-                <label className={labelClass}>Métier principal</label>
-                <select name="metier_principal" value={form.metier_principal || ""} onChange={handleChange} className={selectClass}>
-                  <option value="">Sélectionner</option>
-                  <option value="Studio / enregistrement">Studio / enregistrement</option>
-                  <option value="Montage / mixage">Montage / mixage</option>
-                  <option value="Réalisation / production">Réalisation / production</option>
-                  <option value="Sound design / composition">Sound design / composition</option>
-                  <option value="Voix off">Voix off</option>
-                  <option value="Vidéo / teasers / motion">Vidéo / teasers / motion</option>
-                  <option value="Identité sonore / branding">Identité sonore / branding</option>
-                  <option value="Copywriting / éditorial">Copywriting / éditorial</option>
-                  <option value="Diffusion / marketing / RP">Diffusion / marketing / RP</option>
-                  <option value="Stratégie / monétisation">Stratégie / monétisation</option>
-                  <option value="Formation / coaching">Formation / coaching</option>
-                  <option value="Régie pub / partenariats">Régie pub / partenariats</option>
-                  <option value="Autre">Autre</option>
-                </select>
-              </div>
-              <div>
-                <label className={labelClass}>Services proposés (séparés par des virgules)</label>
-                <input
-                  name="services_3"
-                  value={Array.isArray(form.services_3) ? form.services_3.join(", ") : form.services_3 || ""}
-                  onChange={(e) => setForm((prev) => ({ ...prev, services_3: e.target.value.split(",").map(s => s.trim()).filter(Boolean).slice(0, 3) }))}
-                  className={inputClass}
-                  placeholder="Ex : Montage, Mixage, Sound design"
-                />
-              </div>
-              <div>
-                <label className={labelClass}>Disponibilité</label>
-                <input name="disponibilite" value={form.disponibilite || ""} onChange={handleChange} className={inputClass} placeholder="Ex : Ouvert aux missions / collabs" />
-              </div>
+          {/* Demandes reçues */}
+          <section id="demandes" aria-labelledby="demandes-title" className="scroll-mt-6">
+            <h2 id="demandes-title" className={`${sectionTitle} pb-3 border-b-2 border-encre`}>Demandes reçues</h2>
+            {demandes.length === 0 ? (
+              <p className="mt-4 text-[15px] text-muted-foreground">
+                Aucune demande pour l'instant. Les messages envoyés depuis votre fiche publique apparaîtront ici.
+              </p>
+            ) : (
+              <ul>
+                {demandes.map((d) => {
+                  const fiche = nomFiche(d.recipient_id);
+                  const via = fiche && fiche.type_profil === "podcasteur" && podcasts.length > 1 ? fiche.nom_podcast : null;
+                  return (
+                    <li key={d.id} className="border-b border-filet py-4">
+                      <div className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
+                        <p className="font-bold">
+                          {formatName(d.sender_name)}
+                          {via && <span className="font-normal text-muted-foreground"> · via {via}</span>}
+                        </p>
+                        <div className="flex items-center gap-4">
+                          <span className="font-mono text-xs text-muted-foreground">{ilYA(d.created_at)}</span>
+                          <a
+                            href={`mailto:${d.sender_email}?subject=${encodeURIComponent("Votre message via Les Podcasteur·euses du Sud")}`}
+                            className={`${linkUnderline} text-sm min-h-[44px] inline-flex items-center`}
+                          >
+                            Répondre<span className="sr-only"> à {formatName(d.sender_name)}</span>
+                          </a>
+                        </div>
+                      </div>
+                      <details className="mt-1 group">
+                        <summary className="cursor-pointer text-sm text-muted-foreground list-none [&::-webkit-details-marker]:hidden">
+                          <span className="group-open:hidden">« {d.message.slice(0, 120)}{d.message.length > 120 ? "…" : ""} » <span className="underline">Lire</span></span>
+                          <span className="hidden group-open:inline underline">Replier</span>
+                        </summary>
+                        <p className="mt-2 whitespace-pre-line text-[15px]">{d.message}</p>
+                      </details>
+                    </li>
+                  );
+                })}
+              </ul>
+            )}
+          </section>
+
+          {/* Mes événements */}
+          <section id="evenements" aria-labelledby="evenements-title" className="scroll-mt-6">
+            <div className="flex flex-wrap items-center justify-between gap-3 pb-3 border-b-2 border-encre">
+              <h2 id="evenements-title" className={sectionTitle}>Mes événements</h2>
+              <Link to="/agenda#proposer" className={btnSecondary}>Proposer un événement</Link>
             </div>
-          </div>
-        )}
+            {evenements.length === 0 ? (
+              <p className="mt-4 text-[15px] text-muted-foreground">
+                Vous n'avez pas encore proposé d'événement avec cette adresse e-mail.
+              </p>
+            ) : (
+              <ul>
+                {evenements.map((ev) => (
+                  <li key={ev.id} className="border-b border-filet py-3 flex flex-wrap items-center justify-between gap-3">
+                    <div>
+                      {ev.publie && ev.slug ? (
+                        <Link to={`/agenda/${ev.slug}`} className="font-bold hover:underline underline-offset-4">{readableTitle(ev.titre)}</Link>
+                      ) : (
+                        <p className="font-bold">{readableTitle(ev.titre)}</p>
+                      )}
+                      <p className="font-mono text-xs text-muted-foreground mt-0.5">{formatLongDate(ev.date_debut)}</p>
+                    </div>
+                    <span className={`px-2 py-0.5 text-xs font-bold ${ev.publie ? "bg-primary text-primary-foreground" : "border border-encre"}`}>
+                      {ev.publie ? "Publié" : "En relecture"}
+                    </span>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </section>
 
-        {/* Localisation (read-only info) */}
-        {(current.city_name || current.department_code) && (
-          <div className="bg-card border border-border rounded-2xl p-6 sm:p-8 space-y-3">
-            <h2 className="font-display font-bold text-xl text-foreground">Localisation</h2>
-            <p className="text-sm text-muted-foreground">
-              {current.city_name}{current.department_code ? ` (${current.department_code})` : ""}
-            </p>
-            <p className="text-xs text-muted-foreground">
-              Pour modifier votre localisation, contactez-nous via la page <Link to="/contact" className="text-primary hover:underline">Contact</Link>.
-            </p>
-          </div>
-        )}
-
-        {/* Actions */}
-        <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4">
-          <Button variant="destructive" size="sm" onClick={() => setShowDeleteConfirm(true)}>
-            <Trash2 className="w-4 h-4 mr-1.5" />
-            Supprimer cette fiche
-          </Button>
-          <Button onClick={handleSave} disabled={saving} size="lg">
-            {saving ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : <Save className="w-4 h-4 mr-2" />}
-            {saving ? "Sauvegarde…" : "Enregistrer les modifications"}
-          </Button>
-        </div>
-
-        {/* Delete confirmation */}
-        {showDeleteConfirm && (
-          <div className="bg-destructive/5 border border-destructive/20 rounded-2xl p-6 space-y-4">
-            <h3 className="font-display font-bold text-lg text-destructive">Confirmer la suppression</h3>
-            <p className="text-sm text-muted-foreground">
-              Cette action est irréversible. Votre fiche sera définitivement supprimée du site et de l'annuaire.
-            </p>
-            <div className="flex gap-3">
-              <Button variant="destructive" onClick={handleDelete} disabled={deleting}>
-                {deleting ? <Loader2 className="w-4 h-4 animate-spin mr-1.5" /> : <Trash2 className="w-4 h-4 mr-1.5" />}
-                {deleting ? "Suppression…" : "Confirmer la suppression"}
-              </Button>
-              <Button variant="outline" onClick={() => setShowDeleteConfirm(false)}>Annuler</Button>
+          {/* Adhésion */}
+          <section id="adhesion" aria-labelledby="adhesion-title" className="scroll-mt-6">
+            <div className={cardCls}>
+              <h2 id="adhesion-title" className={sectionTitle}>Adhésion</h2>
+              {adhesion?.date_adhesion ? (
+                <dl className="mt-5 grid sm:grid-cols-3 gap-4 text-[15px]">
+                  <div>
+                    <dt className="text-sm text-muted-foreground">Dernier paiement</dt>
+                    <dd className="font-mono mt-1">{formatLongDate(adhesion.date_adhesion)}</dd>
+                  </div>
+                  <div>
+                    <dt className="text-sm text-muted-foreground">Formule</dt>
+                    <dd className="mt-1 font-semibold">{adhesion.type_adhesion || "Adhésion"}{adhesion.montant ? <span className="font-mono font-normal"> · {adhesion.montant} €</span> : null}</dd>
+                  </div>
+                  <div>
+                    <dt className="text-sm text-muted-foreground">{aJour ? "Valable jusqu'au" : "Statut"}</dt>
+                    <dd className="mt-1 font-semibold">{aJour ? <span className="font-mono">{formatLongDate(statut.echeance)}</span> : "À renouveler"}</dd>
+                  </div>
+                </dl>
+              ) : (
+                <p className="mt-4 text-[15px]">Aucune adhésion n'est enregistrée avec l'adresse <strong className="break-all">{email}</strong>.</p>
+              )}
+              <p className="mt-5 text-sm text-muted-foreground max-w-[62ch]">
+                L'adhésion est valable un an à partir du paiement. Vous avez payé avec une autre adresse e-mail ou un autre nom ? Écrivez-nous depuis la page Contact pour que l'équipe relie votre paiement à votre profil.
+              </p>
+              <Link to={ADHERER} className={`${btnPrimary} mt-5`}>{aJour ? "Renouveler mon adhésion" : "Adhérer"}</Link>
             </div>
-          </div>
-        )}
-      </main>
+          </section>
+        </main>
+      </div>
     </div>
   );
 };
