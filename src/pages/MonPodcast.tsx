@@ -13,7 +13,13 @@ import { btnPrimary, btnSecondary, formatName, linkUnderline } from "@/lib/pds";
 import logoPds from "@/assets/logo-pds.png";
 
 type Adhesion = { date_adhesion: string | null; type_adhesion: string | null; statut: string | null; montant: number | null };
-type Demande = { id: string; recipient_id: string; sender_name: string; sender_email: string; message: string; created_at: string };
+type Demande = { id: string; recipient_id: string; sender_name: string; sender_email: string; message: string; created_at: string; type: string; lu_le: string | null };
+
+const TYPE_DEMANDE: Record<string, { label: string; sujet: string }> = {
+  collab: { label: "Collab", sujet: "Re : votre proposition de collab" },
+  devis: { label: "Devis", sujet: "Re : votre demande de devis" },
+  message: { label: "Message", sujet: "Re : votre message via Les Podcasteur·euses du Sud" },
+};
 type MonEvenement = { id: string; titre: string; slug: string | null; date_debut: string; publie: boolean };
 
 const SECTIONS = [
@@ -66,6 +72,15 @@ const MonEspace = () => {
     };
     init();
   }, [navigate]);
+
+  const nonLues = demandes.filter((d) => !d.lu_le).length;
+  // Ouvrir ou répondre à une demande la marque comme lue (côté serveur, uniquement les siennes)
+  const marquerLue = (id: string) => {
+    const d = demandes.find((x) => x.id === id);
+    if (!d || d.lu_le) return;
+    setDemandes((list) => list.map((x) => (x.id === id ? { ...x, lu_le: new Date().toISOString() } : x)));
+    supabase.rpc("marquer_demande_lue", { _id: id }).then(({ error }) => { if (error) console.error(error); });
+  };
 
   // Section en cours de lecture : surlignée dans le menu
   useEffect(() => {
@@ -159,8 +174,8 @@ const MonEspace = () => {
                   className={`flex items-center gap-2 min-h-[44px] px-3 lg:px-0 whitespace-nowrap font-semibold text-[15px] ${active === s.id ? "text-primary" : "hover:text-primary"}`}
                 >
                   {s.label}
-                  {s.id === "demandes" && demandes.length > 0 && (
-                    <span className="font-mono text-xs bg-accent text-accent-foreground px-1.5 py-0.5">{demandes.length}</span>
+                  {s.id === "demandes" && nonLues > 0 && (
+                    <span className="font-mono text-xs bg-accent text-accent-foreground px-1.5 py-0.5" aria-label={`${nonLues} non lue${nonLues > 1 ? "s" : ""}`}>{nonLues}</span>
                   )}
                 </a>
               </li>
@@ -262,31 +277,36 @@ const MonEspace = () => {
             <h2 id="demandes-title" className={`${sectionTitle} pb-3 border-b-2 border-encre`}>Demandes reçues</h2>
             {demandes.length === 0 ? (
               <p className="mt-4 text-[15px] text-muted-foreground">
-                Aucune demande pour l'instant. Les messages envoyés depuis votre fiche publique apparaîtront ici.
+                Aucune demande pour l'instant. Les propositions de collab, messages et devis envoyés depuis votre fiche publique apparaîtront ici.
               </p>
             ) : (
               <ul>
                 {demandes.map((d) => {
+                  const t = TYPE_DEMANDE[d.type] || TYPE_DEMANDE.message;
                   const fiche = nomFiche(d.recipient_id);
                   const via = fiche && fiche.type_profil === "podcasteur" && podcasts.length > 1 ? fiche.nom_podcast : null;
                   return (
                     <li key={d.id} className="border-b border-filet py-4">
                       <div className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
-                        <p className="font-bold">
+                        <p className="font-bold flex flex-wrap items-center gap-2">
+                          {!d.lu_le && <span className="w-2 h-2 rounded-full bg-accent" aria-hidden />}
+                          <span className="font-mono text-xs font-normal border border-encre px-1.5 py-0.5">{t.label}</span>
                           {formatName(d.sender_name)}
+                          {!d.lu_le && <span className="sr-only">(non lue)</span>}
                           {via && <span className="font-normal text-muted-foreground"> · via {via}</span>}
                         </p>
                         <div className="flex items-center gap-4">
                           <span className="font-mono text-xs text-muted-foreground">{ilYA(d.created_at)}</span>
                           <a
-                            href={`mailto:${d.sender_email}?subject=${encodeURIComponent("Votre message via Les Podcasteur·euses du Sud")}`}
+                            href={`mailto:${encodeURIComponent(d.sender_email)}?subject=${encodeURIComponent(t.sujet)}`}
+                            onClick={() => marquerLue(d.id)}
                             className={`${linkUnderline} text-sm min-h-[44px] inline-flex items-center`}
                           >
                             Répondre<span className="sr-only"> à {formatName(d.sender_name)}</span>
                           </a>
                         </div>
                       </div>
-                      <details className="mt-1 group">
+                      <details className="mt-1 group" onToggle={(e) => { if ((e.currentTarget as HTMLDetailsElement).open) marquerLue(d.id); }}>
                         <summary className="cursor-pointer text-sm text-muted-foreground list-none [&::-webkit-details-marker]:hidden">
                           <span className="group-open:hidden">« {d.message.slice(0, 120)}{d.message.length > 120 ? "…" : ""} » <span className="underline">Lire</span></span>
                           <span className="hidden group-open:inline underline">Replier</span>
