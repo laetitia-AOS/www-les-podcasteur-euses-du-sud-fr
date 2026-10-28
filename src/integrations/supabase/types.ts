@@ -168,6 +168,56 @@ export type Database = {
         }
         Relationships: []
       }
+      episodes: {
+        Row: {
+          audio_url: string
+          date_publication: string | null
+          duree_secondes: number | null
+          guid: string
+          id: string
+          image_url: string | null
+          lien: string | null
+          mis_a_jour: string
+          podcast_id: string
+          resume: string | null
+          titre: string
+        }
+        Insert: {
+          audio_url: string
+          date_publication?: string | null
+          duree_secondes?: number | null
+          guid: string
+          id?: string
+          image_url?: string | null
+          lien?: string | null
+          mis_a_jour?: string
+          podcast_id: string
+          resume?: string | null
+          titre: string
+        }
+        Update: {
+          audio_url?: string
+          date_publication?: string | null
+          duree_secondes?: number | null
+          guid?: string
+          id?: string
+          image_url?: string | null
+          lien?: string | null
+          mis_a_jour?: string
+          podcast_id?: string
+          resume?: string | null
+          titre?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "episodes_podcast_id_fkey"
+            columns: ["podcast_id"]
+            isOneToOne: false
+            referencedRelation: "podcasts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       evenement_inscriptions: {
         Row: {
           created_at: string
@@ -271,6 +321,41 @@ export type Database = {
           type?: string
         }
         Relationships: []
+      }
+      flux_etat: {
+        Row: {
+          derniere_lecture: string
+          message: string | null
+          nb_episodes: number
+          podcast_id: string
+          source: string | null
+          statut: string
+        }
+        Insert: {
+          derniere_lecture?: string
+          message?: string | null
+          nb_episodes?: number
+          podcast_id: string
+          source?: string | null
+          statut: string
+        }
+        Update: {
+          derniere_lecture?: string
+          message?: string | null
+          nb_episodes?: number
+          podcast_id?: string
+          source?: string | null
+          statut?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "flux_etat_podcast_id_fkey"
+            columns: ["podcast_id"]
+            isOneToOne: true
+            referencedRelation: "podcasts"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       images_en_attente: {
         Row: {
@@ -461,6 +546,30 @@ export type Database = {
         }
         Relationships: []
       }
+      sync_episodes_runs: {
+        Row: {
+          episodes: number | null
+          finished_at: string | null
+          id: number
+          podcasts: number | null
+          started_at: string
+        }
+        Insert: {
+          episodes?: number | null
+          finished_at?: string | null
+          id?: never
+          podcasts?: number | null
+          started_at?: string
+        }
+        Update: {
+          episodes?: number | null
+          finished_at?: string | null
+          id?: never
+          podcasts?: number | null
+          started_at?: string
+        }
+        Relationships: []
+      }
       user_roles: {
         Row: {
           id: string
@@ -479,11 +588,31 @@ export type Database = {
         }
         Relationships: []
       }
+      verifications_flux: {
+        Row: {
+          appareil: string
+          created_at: string
+          id: number
+        }
+        Insert: {
+          appareil: string
+          created_at?: string
+          id?: never
+        }
+        Update: {
+          appareil?: string
+          created_at?: string
+          id?: never
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
+      demarrer_sync_episodes: { Args: never; Returns: number }
+      episodes_visibles: { Args: { _podcast_id: string }; Returns: boolean }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
@@ -491,6 +620,7 @@ export type Database = {
         }
         Returns: boolean
       }
+      membre_a_jour: { Args: { _email: string }; Returns: boolean }
       mes_demandes: {
         Args: never
         Returns: {
@@ -510,6 +640,16 @@ export type Database = {
           publie: boolean
           slug: string
           titre: string
+        }[]
+      }
+      mes_flux: {
+        Args: never
+        Returns: {
+          derniere_lecture: string
+          message: string
+          nb_episodes: number
+          podcast_id: string
+          statut: string
         }[]
       }
       mon_adhesion: {
