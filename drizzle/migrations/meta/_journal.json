@@ -92,6 +92,13 @@
       "when": 1793223909498,
       "tag": "0012_fiches_lieux_et_devis",
       "breakpoints": true
+    },
+    {
+      "idx": 13,
+      "version": "7",
+      "when": 1793223924857,
+      "tag": "0013_fiches_lieux_droits_stricts",
+      "breakpoints": true
     }
   ]
 }
