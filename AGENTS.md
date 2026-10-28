@@ -7,3 +7,4 @@
 - Les sections de l'accueil sont dans `src/components/home/`, chacune autonome et alimentée par `useHomeData.ts`.
 - L'inscription vit sur la page Adhérer : étapes dans `src/components/adherer/`, listes, tarifs et envoi d'images dans `src/lib/inscription.ts`. Une personne = une ligne `podcasts` par podcast (mêmes infos de profil et même e-mail), pour garder la base existante intacte.
 - La photo de profil d'une personne est `photo_profil_url` ; `vignette_url` reste la pochette du podcast (ou la photo pour les fiches sans podcast). L'annuaire passe par `profilePhotoFor`, jamais directement par la pochette.
+- L'espace membre (`src/pages/MonPodcast.tsx`, blocs dans `src/components/espace-membre/`) lit l'adhésion, les messages reçus et les événements proposés via les fonctions `mon_adhesion`, `mes_demandes`, `mes_evenements` (limitées à l'e-mail connecté), pour ne pas modifier les règles d'accès de ces tables.

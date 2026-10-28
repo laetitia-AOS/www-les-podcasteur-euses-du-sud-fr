@@ -11,7 +11,7 @@
   - étape 1 fiche annuaire pour tout le monde, photo de profil obligatoire (nouvelle case « photo de profil »)
   - étape 2 pour les podcasteur·euses : un ou plusieurs podcasts (pochette, lien d'écoute, flux RSS)
   - case photo de profil aussi dans l'espace membre et l'admin ; l'annuaire l'affiche à la place des initiales
-- [ ] 9. Espace membre (menu à gauche, statut d'adhésion, rôles et majuscules)
+- [x] 9. Espace membre (menu à gauche, statut d'adhésion, rôles et majuscules)
 - [ ] Fiches studio et structure au nouveau style
 - [ ] Fin : référencement (titres, sitemap), scan de sécurité, revue SEO, tests visiteur / membre / admin
 
