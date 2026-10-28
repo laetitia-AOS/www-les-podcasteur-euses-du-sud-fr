@@ -1,0 +1,2 @@
+ALTER TABLE public.podcasts ADD COLUMN IF NOT EXISTS photo_profil_url text;
+COMMENT ON COLUMN public.podcasts.photo_profil_url IS 'Photo de profil de la personne (distincte de la pochette du podcast stockée dans vignette_url).';

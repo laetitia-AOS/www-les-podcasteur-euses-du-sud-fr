@@ -270,6 +270,7 @@ export type Database = {
           nom: string | null
           nom_podcast: string
           peut_apporter: string[] | null
+          photo_profil_url: string | null
           prenom: string | null
           priorite_actuelle: string | null
           score_dynamique: number
@@ -318,6 +319,7 @@ export type Database = {
           nom?: string | null
           nom_podcast: string
           peut_apporter?: string[] | null
+          photo_profil_url?: string | null
           prenom?: string | null
           priorite_actuelle?: string | null
           score_dynamique?: number
@@ -366,6 +368,7 @@ export type Database = {
           nom?: string | null
           nom_podcast?: string
           peut_apporter?: string[] | null
+          photo_profil_url?: string | null
           prenom?: string | null
           priorite_actuelle?: string | null
           score_dynamique?: number
