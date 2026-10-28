@@ -12,8 +12,9 @@
   - étape 2 pour les podcasteur·euses : un ou plusieurs podcasts (pochette, lien d'écoute, flux RSS)
   - case photo de profil aussi dans l'espace membre et l'admin ; l'annuaire l'affiche à la place des initiales
 - [x] 9. Espace membre (menu à gauche, statut d'adhésion, rôles et majuscules)
-- [ ] Fiches studio et structure au nouveau style
+- [x] Fiches studio et structure au nouveau style
+- [x] Agenda : propositions des membres, relecture admin, « Je viens », agenda .ics/Google, archives, sitemap événements
 - [ ] Fin : référencement (titres, sitemap), scan de sécurité, revue SEO, tests visiteur / membre / admin
 
 ## En attente
-- Envoi d'e-mails : domaine d'envoi à configurer par l'utilisatrice (envoi intégré Lovable) ; ensuite basculer « Écrire à… », devis studios et confirmations d'inscription aux événements.
+- Envoi d'e-mails : domaine d'envoi à configurer par l'utilisatrice (envoi intégré Lovable) ; ensuite basculer « Écrire à… », devis studios, confirmations d'inscription aux événements et e-mail au membre quand sa proposition est publiée ou refusée.
