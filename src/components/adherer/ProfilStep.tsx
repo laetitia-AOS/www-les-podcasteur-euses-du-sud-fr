@@ -24,7 +24,15 @@ const emptyProfil = (type: TypeProfil): ProfilData => ({
  * Étape 1 de l'inscription : la fiche annuaire, obligatoire pour tout le monde,
  * avec photo de profil. Studios et structures gardent leur formulaire détaillé.
  */
-const ProfilStep = ({ initialType, onDone }: { initialType: TypeProfil; onDone: (r: ProfilResult) => void }) => {
+const ProfilStep = ({
+  initialType,
+  onDone,
+  onTypeChange,
+}: {
+  initialType: TypeProfil;
+  onDone: (r: ProfilResult) => void;
+  onTypeChange?: (t: TypeProfil) => void;
+}) => {
   const [p, setP] = useState<ProfilData>(() => emptyProfil(initialType));
   const [photo, setPhoto] = useState<{ file: File; preview: string } | null>(null);
   const [consentCGU, setConsentCGU] = useState(false);
@@ -104,7 +112,7 @@ const ProfilStep = ({ initialType, onDone }: { initialType: TypeProfil; onDone: 
                 name="typeProfil"
                 value={t.value}
                 checked={type === t.value}
-                onChange={() => set("typeProfil", t.value)}
+                onChange={() => { set("typeProfil", t.value); onTypeChange?.(t.value); }}
                 className="mt-1 h-4 w-4 accent-primary shrink-0"
               />
               <span>
