@@ -103,17 +103,17 @@ const Adhesion = () => {
             D'abord un profil, gratuit mais sans visibilité publique. Ensuite l'adhésion, pour être vu·e, entendu·e et mis·e en relation.
           </p>
 
-          <div className="mt-10 overflow-x-auto">
-            <table className="w-full min-w-[560px] border-2 border-encre bg-surface text-[15px]">
+          <div className="mt-10">
+            <table className="w-full border-2 border-encre bg-surface text-[14px] sm:text-[15px]">
               <caption className="sr-only">Comparatif entre un profil gratuit et l'adhésion</caption>
               <thead>
                 <tr>
-                  <th scope="col" className="text-left p-4 w-[52%]"><span className="sr-only">Ce qui est inclus</span></th>
-                  <th scope="col" className="text-left p-4 border-l border-filet align-bottom">
+                  <th scope="col" className="text-left p-3 sm:p-4 w-[46%] sm:w-[52%]"><span className="sr-only">Ce qui est inclus</span></th>
+                  <th scope="col" className="text-left p-3 sm:p-4 border-l border-filet align-bottom">
                     <span className="block font-mono text-xs font-normal text-muted-foreground">Gratuit</span>
                     <span className="block title-section text-[24px]">Profil</span>
                   </th>
-                  <th scope="col" className="text-left p-4 bg-primary text-primary-foreground align-bottom">
+                  <th scope="col" className="text-left p-3 sm:p-4 bg-primary text-primary-foreground align-bottom">
                     <span className="block font-mono text-xs font-normal">{TARIFS.personne} € par an</span>
                     <span className="block title-section text-[24px] text-primary-foreground">Membre</span>
                   </th>
@@ -122,9 +122,9 @@ const Adhesion = () => {
               <tbody>
                 {COMPARATIF.map((r) => (
                   <tr key={r.label} className="border-t border-filet">
-                    <th scope="row" className="text-left font-semibold p-4">{r.label}</th>
-                    <td className="p-4 border-l border-filet text-muted-foreground">{r.profil}</td>
-                    <td className="p-4 bg-primary/10 font-bold">{r.membre}</td>
+                    <th scope="row" className="text-left font-semibold p-3 sm:p-4">{r.label}</th>
+                    <td className="p-3 sm:p-4 border-l border-filet text-muted-foreground">{r.profil}</td>
+                    <td className="p-3 sm:p-4 bg-primary/10 font-bold">{r.membre}</td>
                   </tr>
                 ))}
               </tbody>
