@@ -7,7 +7,7 @@ import { btnPrimary, container } from "@/lib/pds";
 const links = [
   { label: "Écouter", href: "/ecouter", match: ["/ecouter", "/podcasts", "/podcasteur"] },
   { label: "Annuaire", href: "/annuaire-podcasts", match: ["/annuaire-podcasts"] },
-  { label: "Studios", href: "/studios-podcast", match: ["/studios-podcast", "/annuaire-podcasts/studios"] },
+  { label: "Studios", href: "/studios-podcast", match: ["/studios-podcast", "/annuaire-podcasts/studios", "/annuaire-podcasts/structures"] },
   { label: "Agenda", href: "/evenements-podcast", match: ["/evenements-podcast", "/evenement-podcast", "/proposer-evenement-podcast", "/agenda"] },
 ];
 
@@ -20,7 +20,7 @@ const Navbar = () => {
   const isActive = (match: string[]) => {
     const p = location.pathname;
     // Les fiches studio sont sous /annuaire-podcasts/studios : elles appartiennent à « Studios »
-    if (match.includes("/annuaire-podcasts") && p.startsWith("/annuaire-podcasts/studios")) return false;
+    if (match.includes("/annuaire-podcasts") && /^\/annuaire-podcasts\/(studios|structures)/.test(p)) return false;
     return match.some((m) => p === m || p.startsWith(`${m}/`));
   };
 
