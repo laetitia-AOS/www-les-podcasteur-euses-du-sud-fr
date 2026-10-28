@@ -19,7 +19,7 @@ const HomeEpisodes = ({ episodes, fallback, loading }: Props) => {
           <h2 id="episodes-title" className="title-section text-[44px] sm:text-[64px]">
             {showFallback ? "Derniers podcasts ajoutés" : "Derniers épisodes"}
           </h2>
-          <Link to="/podcasts" className={`${linkUnderline} min-h-[44px] inline-flex items-center shrink-0`}>Tous les podcasts</Link>
+          <Link to="/ecouter" className={`${linkUnderline} min-h-[44px] inline-flex items-center shrink-0`}>Tous les podcasts</Link>
         </div>
 
         {loading && (

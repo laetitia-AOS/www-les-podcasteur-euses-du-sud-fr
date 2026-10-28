@@ -37,7 +37,7 @@ const HomeHero = ({ profiles, latest }: Props) => {
 
   const listenNow = () => {
     if (latest[0]) play(latest[0]);
-    else navigate("/podcasts");
+    else navigate("/ecouter");
   };
 
   return (
@@ -88,7 +88,7 @@ const HomeHero = ({ profiles, latest }: Props) => {
           {others > 0 && (
             <li>
               <Link
-                to="/podcasts"
+                to="/ecouter"
                 className="flex aspect-square border-[3px] border-surface items-end p-4 sm:p-5 text-xl sm:text-2xl font-bold leading-tight hover:bg-primary-hover"
               >
                 Les {others} autres →

@@ -5,7 +5,7 @@ import logoPds from "@/assets/logo-pds.png";
 import { btnPrimary, container } from "@/lib/pds";
 
 const links = [
-  { label: "Écouter", href: "/podcasts", match: ["/podcasts", "/ecouter", "/podcasteur"] },
+  { label: "Écouter", href: "/ecouter", match: ["/ecouter", "/podcasts", "/podcasteur"] },
   { label: "Annuaire", href: "/annuaire-podcasts", match: ["/annuaire-podcasts"] },
   { label: "Studios", href: "/studios-podcast", match: ["/studios-podcast", "/annuaire-podcasts/studios"] },
   { label: "Agenda", href: "/evenements-podcast", match: ["/evenements-podcast", "/evenement-podcast", "/proposer-evenement-podcast", "/agenda"] },
