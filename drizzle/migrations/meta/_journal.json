@@ -1,0 +1,13 @@
+{
+  "version": "7",
+  "dialect": "postgresql",
+  "entries": [
+    {
+      "idx": 0,
+      "version": "7",
+      "when": 1793213223716,
+      "tag": "0000_add_flux_rss_podcasts",
+      "breakpoints": true
+    }
+  ]
+}

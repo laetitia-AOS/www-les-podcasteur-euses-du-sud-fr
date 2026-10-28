@@ -257,6 +257,7 @@ export type Database = {
           description: string
           disponibilite: string | null
           email: string
+          flux_rss: string | null
           format_collaboration: string | null
           frequence_publication: string | null
           id: string
@@ -304,6 +305,7 @@ export type Database = {
           description: string
           disponibilite?: string | null
           email: string
+          flux_rss?: string | null
           format_collaboration?: string | null
           frequence_publication?: string | null
           id?: string
@@ -351,6 +353,7 @@ export type Database = {
           description?: string
           disponibilite?: string | null
           email?: string
+          flux_rss?: string | null
           format_collaboration?: string | null
           frequence_publication?: string | null
           id?: string

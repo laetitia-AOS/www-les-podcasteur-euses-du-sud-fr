@@ -1,0 +1,1 @@
+ALTER TABLE public.podcasts ADD COLUMN IF NOT EXISTS flux_rss text;
