@@ -113,7 +113,7 @@ const HeroSection = () => {
                 <ArrowRight className="w-4 h-4" />
               </button>
               <button
-                onClick={() => navigate("/podcasts")}
+                onClick={() => navigate("/ecouter")}
                 className="inline-flex items-center gap-1 text-sm font-semibold text-primary hover:text-primary-hover transition-colors underline underline-offset-4 decoration-primary/30 hover:decoration-primary"
               >
                 Découvrir les podcasts
