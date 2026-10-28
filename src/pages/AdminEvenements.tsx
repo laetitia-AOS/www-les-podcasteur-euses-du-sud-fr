@@ -30,13 +30,14 @@ type EventForm = {
   places: string;
   inscription_activee: boolean;
   podcasts_invites: PodcastInvite[];
+  structure_id: string;
 };
 
 const emptyForm: EventForm = {
   titre: "", sous_titre: "", description: "", date_debut: "", date_fin: "",
   lieu: "", adresse: "", type: "rencontre", lien_externe: "", publie: true,
   image_url: "", places: "", inscription_activee: false,
-  podcasts_invites: [],
+  podcasts_invites: [], structure_id: "",
 };
 
 const AdminEvenements = () => {
@@ -57,6 +58,16 @@ const AdminEvenements = () => {
         .from("evenements").select("*").order("date_debut", { ascending: false });
       if (error) throw error;
       return data;
+    },
+    enabled: isAdmin,
+  });
+
+  // Structures (radios, festivals…) pour le bloc « À venir » de leur fiche
+  const { data: structures = [] } = useQuery({
+    queryKey: ["admin-structures"],
+    queryFn: async () => {
+      const { data } = await supabase.from("podcasts").select("id, nom_podcast").eq("type_profil", "structure_eco").order("nom_podcast");
+      return data || [];
     },
     enabled: isAdmin,
   });
@@ -93,6 +104,7 @@ const AdminEvenements = () => {
         image_url: values.image_url || null,
         places: values.places ? parseInt(values.places) : null,
         inscription_activee: values.inscription_activee,
+        structure_id: values.structure_id || null,
         podcasts_invites: (values.podcasts_invites || []).filter(
           (p) => p && (p.nom_podcast || p.host || p.vignette_url)
         ) as any,
@@ -158,6 +170,7 @@ const AdminEvenements = () => {
       places: evt.places ? String(evt.places) : "",
       inscription_activee: !!evt.inscription_activee,
       podcasts_invites: Array.isArray(evt.podcasts_invites) ? evt.podcasts_invites : [],
+      structure_id: (evt as { structure_id?: string | null }).structure_id || "",
     });
     setEditingId(evt.id);
     setShowForm(true);
@@ -336,6 +349,13 @@ const AdminEvenements = () => {
               <div>
                 <label className="text-sm font-medium text-foreground mb-1 block">Lien externe</label>
                 <Input value={form.lien_externe} onChange={(e) => setForm({ ...form, lien_externe: e.target.value })} placeholder="https://…" />
+              </div>
+              <div>
+                <label htmlFor="evt-structure" className="text-sm font-medium text-foreground mb-1 block">Structure organisatrice</label>
+                <select id="evt-structure" value={form.structure_id} onChange={(e) => setForm({ ...form, structure_id: e.target.value })} className="w-full rounded-md border border-border bg-card px-3 py-2 text-sm">
+                  <option value="">Aucune</option>
+                  {structures.map((s) => <option key={s.id} value={s.id}>{s.nom_podcast}</option>)}
+                </select>
               </div>
               <div className="flex items-center gap-2 md:col-span-2">
                 <input type="checkbox" checked={form.publie} onChange={(e) => setForm({ ...form, publie: e.target.checked })} className="rounded border-border" id="publie" />
