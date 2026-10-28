@@ -10,7 +10,7 @@ type Props = {
 
 /**
  * Pastille ronde d'un membre : sa photo de profil si elle existe, sinon ses initiales.
- * Les podcasteur·euses n'ont envoyé qu'une pochette de podcast : elle n'est pas utilisée ici.
+ * La pochette d'un podcast n'est jamais utilisée ici.
  */
 const MemberAvatar = ({ prenom, nom, photoUrl, className = "w-14 h-14 sm:w-16 sm:h-16" }: Props) => {
   if (photoUrl) {
@@ -24,17 +24,23 @@ const MemberAvatar = ({ prenom, nom, photoUrl, className = "w-14 h-14 sm:w-16 sm
   );
 };
 
-/** Retrouve la photo de profil d'une personne : la sienne si ce n'est pas une fiche podcast, sinon celle de sa fiche annuaire (même prénom et nom). */
-export const profilePhotoFor = <T extends { type_profil: string; prenom: string | null; nom: string | null; vignette_url: string | null }>(
-  p: T,
-  all: T[],
-): string | null => {
+type WithPhoto = { type_profil: string; prenom: string | null; nom: string | null; vignette_url: string | null; photo_profil_url?: string | null };
+
+/**
+ * Photo de profil d'une personne :
+ * 1. la case « photo de profil » si elle est remplie ;
+ * 2. pour une fiche non podcast, sa photo (vignette) ;
+ * 3. pour une fiche podcast, la photo d'une autre fiche de la même personne (même prénom et nom).
+ */
+export const profilePhotoFor = <T extends WithPhoto>(p: T, all: T[]): string | null => {
+  if (p.photo_profil_url) return p.photo_profil_url;
   if (p.type_profil !== "podcasteur") return p.vignette_url;
   const key = `${formatName(p.prenom)} ${formatName(p.nom)}`.trim();
   if (!key) return null;
-  const other = all.find(
-    (o) => o.type_profil !== "podcasteur" && o.type_profil !== "structure_eco" && o.type_profil !== "studio" && o.vignette_url && `${formatName(o.prenom)} ${formatName(o.nom)}`.trim() === key,
-  );
+  const same = all.filter((o) => o !== p && `${formatName(o.prenom)} ${formatName(o.nom)}`.trim() === key);
+  const withPhoto = same.find((o) => o.photo_profil_url);
+  if (withPhoto) return withPhoto.photo_profil_url!;
+  const other = same.find((o) => o.type_profil !== "podcasteur" && o.type_profil !== "structure_eco" && o.type_profil !== "studio" && o.vignette_url);
   return other?.vignette_url || null;
 };
 
