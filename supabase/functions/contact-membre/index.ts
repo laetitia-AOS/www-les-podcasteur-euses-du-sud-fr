@@ -63,8 +63,12 @@ Deno.serve(async (req) => {
     });
     if (insertError) return json({ error: "Le message n'a pas pu être enregistré." }, 500);
 
+    // Le message est enregistré : s'il ne peut pas partir par e-mail, l'équipe le retrouve en base et le transmet.
     const BREVO_API_KEY = Deno.env.get("BREVO_API_KEY");
-    if (!BREVO_API_KEY) return json({ error: "L'envoi d'e-mails n'est pas configuré." }, 500);
+    if (!BREVO_API_KEY) {
+      console.error("BREVO_API_KEY absente : message enregistré sans envoi");
+      return json({ ok: true, emailed: false });
+    }
 
     const html = `
       <div style="font-family:Arial,sans-serif;font-size:16px;line-height:1.5;color:#0F0F12;max-width:560px">
@@ -89,10 +93,10 @@ Deno.serve(async (req) => {
     if (!res.ok) {
       const errText = await res.text();
       console.error("Brevo error", res.status, errText);
-      return json({ error: "Le message est enregistré mais l'e-mail n'a pas pu partir. L'équipe le transmettra." }, 502);
+      return json({ ok: true, emailed: false });
     }
 
-    return json({ ok: true });
+    return json({ ok: true, emailed: true });
   } catch (_e) {
     return json({ error: "Une erreur est survenue. Réessayez dans un instant." }, 500);
   }
