@@ -119,6 +119,19 @@ const ProfilMembre = () => {
         inLanguage: "fr",
         author: { "@type": "Person", name, ...(city && { address: { "@type": "PostalAddress", addressLocality: city, addressRegion: "Provence-Alpes-Côte d'Azur", addressCountry: "FR" } }) },
         ...(!isPlaceholderLink(profile.lien_ecoute) && { sameAs: [profile.lien_ecoute] }),
+        ...(episodes.length > 0 && {
+          episode: episodes.map((ep) => ({
+            "@type": "PodcastEpisode",
+            name: ep.title,
+            url: ep.link || `${SITE}${canonicalPath}`,
+            ...(ep.summary && { description: ep.summary }),
+            ...(ep.date && { datePublished: ep.date }),
+            ...(ep.duration && { timeRequired: `PT${Math.floor(ep.duration / 60)}M${ep.duration % 60}S` }),
+            ...(ep.image && { image: ep.image }),
+            associatedMedia: { "@type": "MediaObject", contentUrl: ep.audioUrl },
+            partOfSeries: { "@type": "PodcastSeries", name: profile.nom_podcast, url: `${SITE}${canonicalPath}` },
+          })),
+        }),
       };
     }
     return {
@@ -131,7 +144,7 @@ const ProfilMembre = () => {
       ...(city && { address: { "@type": "PostalAddress", addressLocality: city, addressRegion: "Provence-Alpes-Côte d'Azur", addressCountry: "FR" } }),
       memberOf: { "@type": "Organization", name: "Les Podcasteur·euses du Sud", url: SITE },
     };
-  }, [profile, isPodcast, name, city, intro, canonicalPath]);
+  }, [profile, isPodcast, name, city, intro, canonicalPath, episodes]);
 
   if (isLoading) {
     return (
@@ -314,7 +327,7 @@ const ProfilMembre = () => {
                         </button>
                         <div className="min-w-0">
                           <p className="font-bold text-[17px] leading-tight">{ep.title}</p>
-                          {ep.summary && <p className="text-sm text-muted-foreground line-clamp-1 mt-0.5">{ep.summary}</p>}
+                          {ep.summary && <p className="text-sm text-muted-foreground mt-1">{ep.summary}</p>}
                         </div>
                         <p className="col-start-2 sm:col-start-auto font-mono text-xs sm:text-sm text-muted-foreground whitespace-nowrap">
                           {[formatShortDate(ep.date), formatDuration(ep.duration)].filter(Boolean).join(" · ")}
@@ -323,7 +336,7 @@ const ProfilMembre = () => {
                     );
                   })}
                 </ul>
-                <p className="mt-3 text-sm text-muted-foreground">Les épisodes se mettent à jour automatiquement depuis le flux RSS.</p>
+                <p className="mt-3 text-sm text-muted-foreground">Les 10 derniers épisodes, mis à jour toutes les 6 heures depuis le flux RSS.</p>
               </>
             )}
           </section>
