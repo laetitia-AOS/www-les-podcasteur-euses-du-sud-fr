@@ -180,7 +180,7 @@ const MonEspace = () => {
                   ) : statut.etat === "expiree" ? (
                     <>
                       <span className="px-2 py-1 text-xs font-bold border-2 border-encre">Adhésion à renouveler</span>
-                      <span>terminée le <span className="font-mono">{formatLongDate(statut.echeance && statut.echeance < new Date() ? statut.echeance : new Date("2026-01-01"))}</span></span>
+                      <span>dernier paiement le <span className="font-mono">{formatLongDate(adhesion?.date_adhesion)}</span></span>
                     </>
                   ) : (
                     <span className="px-2 py-1 text-xs font-bold border-2 border-encre">Profil sans adhésion</span>
