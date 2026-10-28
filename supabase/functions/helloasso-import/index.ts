@@ -111,7 +111,7 @@ Deno.serve(async (req) => {
         if (!ordersRes.ok) {
           console.error(`Failed to fetch items for ${form.formSlug}: ${ordersRes.status}`);
           const text = await ordersRes.text();
-          console.error(text);
+          console.error("HelloAsso response body omitted");
           break;
         }
 
@@ -154,7 +154,7 @@ Deno.serve(async (req) => {
 
           const { error } = await supabaseService.from("adhesions").insert(adhesion);
           if (error) {
-            console.error("Insert error:", error.message, adhesion.email);
+            console.error("Insert error:", error.message);
           } else {
             totalImported++;
           }
@@ -175,7 +175,7 @@ Deno.serve(async (req) => {
       { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
   } catch (err) {
-    console.error("Import error:", err);
+    console.error("Import error:", err instanceof Error ? err.message.slice(0, 200) : "unknown");
     return new Response(
       JSON.stringify({ error: err instanceof Error ? err.message : "Unknown error" }),
       { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
