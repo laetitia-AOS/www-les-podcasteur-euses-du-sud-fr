@@ -272,6 +272,45 @@ export type Database = {
         }
         Relationships: []
       }
+      images_en_attente: {
+        Row: {
+          bucket_cible: string
+          chemin: string
+          created_at: string
+          email: string
+          id: string
+          lot: string
+          statut: string
+          taille: number
+          traite_at: string | null
+          type_mime: string
+        }
+        Insert: {
+          bucket_cible: string
+          chemin: string
+          created_at?: string
+          email: string
+          id?: string
+          lot: string
+          statut?: string
+          taille: number
+          traite_at?: string | null
+          type_mime: string
+        }
+        Update: {
+          bucket_cible?: string
+          chemin?: string
+          created_at?: string
+          email?: string
+          id?: string
+          lot?: string
+          statut?: string
+          taille?: number
+          traite_at?: string | null
+          type_mime?: string
+        }
+        Relationships: []
+      }
       podcasts: {
         Row: {
           besoin: string | null
