@@ -39,23 +39,18 @@ Deno.serve(async (req) => {
       return json({ error: "Ce membre ne peut pas recevoir de message pour le moment." }, 400);
     }
 
-    const since = new Date(Date.now() - 60 * 60 * 1000).toISOString();
-    const { count } = await admin
-      .from("contact_requests")
-      .select("id", { count: "exact", head: true })
-      .eq("sender_email", email)
-      .gte("created_at", since);
-    if ((count || 0) >= MAX_PER_HOUR) {
-      return json({ error: "Vous avez envoyé beaucoup de messages en peu de temps. Réessayez dans une heure." }, 429);
+    // Un seul enregistrement groupé : un devis envoyé à plusieurs studios compte pour un envoi.
+    // La base vérifie et nettoie chaque champ, et limite à 5 envois par heure et par adresse.
+    const { error: insertError } = await admin.from("contact_requests").insert(
+      recipients.map((r) => ({ recipient_id: r.id, sender_name: name, sender_email: email, message: msg })),
+    );
+    if (insertError) {
+      if (insertError.code === "P0001") {
+        return json({ error: insertError.message }, insertError.hint === "rate_limit" ? 429 : 400);
+      }
+      return json({ error: "Le message n'a pas pu être enregistré." }, 500);
     }
-
-    const { error: insertError } = await admin.from("contact_requests").insert({
-      recipient_id,
-      sender_name: name,
-      sender_email: email,
-      message: msg,
-    });
-    if (insertError) return json({ error: "Le message n'a pas pu être enregistré." }, 500);
+    return json({ ok: true, emailed: false, count: recipients.length });
 
     // Aucun service d'envoi externe : l'équipe transmet le message au membre depuis l'admin.
     return json({ ok: true, emailed: false });

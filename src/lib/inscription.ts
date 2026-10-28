@@ -139,14 +139,23 @@ export const checkImage = (file: File): string | null => {
   return null;
 };
 
-/** Envoie une image dans le dossier des photos et pochettes, renvoie son adresse publique. */
+/**
+ * Envoie une image dans le dossier des photos et pochettes, renvoie son adresse publique.
+ * Une personne connectée écrit toujours dans son propre dossier (règle appliquée côté serveur).
+ */
 export const uploadImage = async (file: File): Promise<string> => {
-  const ext = file.name.split(".").pop() || "jpg";
-  const fileName = `${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`;
+  const ext = (file.name.split(".").pop() || "jpg").toLowerCase().replace(/[^a-z0-9]/g, "") || "jpg";
+  const { data: { session } } = await supabase.auth.getSession();
+  const folder = session?.user?.id ? `${session.user.id}/` : "";
+  const fileName = `${folder}${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`;
   const { error } = await supabase.storage.from("podcast-thumbnails").upload(fileName, file, { contentType: file.type });
   if (error) throw error;
   return supabase.storage.from("podcast-thumbnails").getPublicUrl(fileName).data.publicUrl;
 };
+
+/** Message à afficher après un refus du serveur : son explication si elle est prévue pour le public. */
+export const messageServeur = (error: { code?: string; message?: string } | null | undefined, fallback: string): string =>
+  error?.code === "P0001" && error.message ? error.message : fallback;
 
 /** Fiche annuaire saisie à l'étape 1 (avant l'envoi en base pour les podcasteur·euses). */
 export type ProfilData = {
