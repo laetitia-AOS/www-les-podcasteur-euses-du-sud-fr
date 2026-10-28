@@ -67,18 +67,21 @@ const MonEspace = () => {
     init();
   }, [navigate]);
 
-  // Section visible à l'écran : surlignée dans le menu
+  // Section en cours de lecture : surlignée dans le menu
   useEffect(() => {
     if (loading) return;
-    const obs = new IntersectionObserver(
-      (entries) => {
-        const visible = entries.filter((e) => e.isIntersecting).sort((a, b) => a.boundingClientRect.top - b.boundingClientRect.top)[0];
-        if (visible) setActive(visible.target.id);
-      },
-      { rootMargin: "-20% 0px -70% 0px" },
-    );
-    SECTIONS.forEach((s) => { const el = document.getElementById(s.id); if (el) obs.observe(el); });
-    return () => obs.disconnect();
+    const onScroll = () => {
+      let current = SECTIONS[0].id;
+      for (const sec of SECTIONS) {
+        const el = document.getElementById(sec.id);
+        if (el && el.getBoundingClientRect().top <= 140) current = sec.id;
+      }
+      if (window.innerHeight + window.scrollY >= document.documentElement.scrollHeight - 4) current = SECTIONS[SECTIONS.length - 1].id;
+      setActive(current);
+    };
+    onScroll();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
   }, [loading, fiches.length]);
 
   const logout = async () => {
@@ -203,15 +206,15 @@ const MonEspace = () => {
               </div>
             )}
 
-            <dl className="mt-6 grid grid-cols-1 sm:grid-cols-3 border border-filet bg-surface">
+            <dl className="mt-6 grid grid-cols-3 border border-filet bg-surface">
               {[
                 { label: "Demandes reçues", value: demandes.length },
                 { label: "Podcasts référencés", value: podcasts.length },
                 { label: "Événements proposés", value: evenements.length },
               ].map((s, i) => (
-                <div key={s.label} className={`p-4 sm:p-5 ${i > 0 ? "border-t sm:border-t-0 sm:border-l border-filet" : ""}`}>
-                  <dt className="text-sm text-muted-foreground">{s.label}</dt>
-                  <dd className="title-section text-[40px] mt-1">{s.value}</dd>
+                <div key={s.label} className={`p-3 sm:p-5 ${i > 0 ? "border-l border-filet" : ""}`}>
+                  <dt className="text-xs sm:text-sm text-muted-foreground leading-tight">{s.label}</dt>
+                  <dd className="title-section text-[32px] sm:text-[40px] mt-1">{s.value}</dd>
                 </div>
               ))}
             </dl>
