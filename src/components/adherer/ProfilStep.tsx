@@ -123,7 +123,7 @@ const ProfilStep = ({ initialType, onDone }: { initialType: TypeProfil; onDone: 
       )}
       {type === "structure_eco" && (
         <div className="mt-8">
-          <StructureEcoFormSection onBack={() => set("typeProfil", "pro_podcast")} onSubmitted={(email) => onDone({ type, email, saved: true })} />
+          <StructureEcoFormSection onSubmitted={(email) => onDone({ type, email, saved: true })} />
         </div>
       )}
 
