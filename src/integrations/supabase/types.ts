@@ -420,6 +420,36 @@ export type Database = {
         }
         Returns: boolean
       }
+      mes_demandes: {
+        Args: never
+        Returns: {
+          created_at: string
+          id: string
+          message: string
+          recipient_id: string
+          sender_email: string
+          sender_name: string
+        }[]
+      }
+      mes_evenements: {
+        Args: never
+        Returns: {
+          date_debut: string
+          id: string
+          publie: boolean
+          slug: string
+          titre: string
+        }[]
+      }
+      mon_adhesion: {
+        Args: never
+        Returns: {
+          date_adhesion: string
+          montant: number
+          statut: string
+          type_adhesion: string
+        }[]
+      }
       unaccent: { Args: { "": string }; Returns: string }
     }
     Enums: {
