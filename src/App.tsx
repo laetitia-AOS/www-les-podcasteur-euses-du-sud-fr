@@ -67,11 +67,13 @@ const App = () => (
             <Route path="/politique-de-confidentialite" element={<PolitiqueConfidentialite />} />
             <Route path="/conditions-utilisation" element={<CGU />} />
             <Route path="/politique-cookies" element={<PolitiqueCookies />} />
-            <Route path="/evenements-podcast" element={<Evenements />} />
+            <Route path="/agenda" element={<Evenements />} />
+            <Route path="/evenements-podcast" element={<Navigate to="/agenda" replace />} />
             <Route path="/ecouter" element={<Podcasts />} />
             <Route path="/podcasts" element={<Navigate to="/ecouter" replace />} />
             <Route path="/proposer-evenement-podcast" element={<ProposerEvenement />} />
-            <Route path="/evenement-podcast/:slug" element={<EvenementDetail />} />
+            <Route path="/agenda/:slug" element={<EvenementDetail />} />
+            <Route path="/evenement-podcast/:slug" element={<SlugRedirect to="/agenda" />} />
             <Route path="/rejoindre-association" element={<Adhesion />} />
             <Route path="/annuaire-podcasts" element={<Annuaire />} />
             <Route path="/annuaire" element={<Navigate to="/annuaire-podcasts" replace />} />
@@ -82,8 +84,8 @@ const App = () => (
             <Route path="/referencer-mon-podcast" element={<Formulaire />} />
             <Route path="/studios-podcast" element={<AgencesStudios />} />
             {/* Redirections anciennes URLs */}
-            <Route path="/evenements" element={<Navigate to="/evenements-podcast" replace />} />
-            <Route path="/evenement/:slug" element={<SlugRedirect to="/evenement-podcast" />} />
+            <Route path="/evenements" element={<Navigate to="/agenda" replace />} />
+            <Route path="/evenement/:slug" element={<SlugRedirect to="/agenda" />} />
             <Route path="/proposer-evenement" element={<Navigate to="/proposer-evenement-podcast" replace />} />
             <Route path="/adhesion" element={<Navigate to="/rejoindre-association" replace />} />
             <Route path="/profil/:slug" element={<SlugRedirect to="/podcasteur" />} />

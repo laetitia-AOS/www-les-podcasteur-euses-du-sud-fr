@@ -1,252 +1,203 @@
+import { useEffect, useMemo, useState } from "react";
+import { Link, useLocation } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
-import { Link } from "react-router-dom";
+import { Plus } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import SEOHead from "@/components/SEOHead";
-import { motion } from "framer-motion";
-import { CalendarDays, MapPin, Clock, Ticket, ArrowRight, Plus, Sun } from "lucide-react";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
+import EventRow, { eventHref } from "@/components/agenda/EventRow";
+import ProposerEvenementForm from "@/components/agenda/ProposerEvenementForm";
+import { isOnline, isOrganizedByPds, type HomeEvent } from "@/components/home/useHomeData";
+import { btnListen, container, formatShortDate } from "@/lib/pds";
+import photo1 from "@/assets/photos/09-rencontre-inseec-cercle.jpg.asset.json";
+import photo2 from "@/assets/photos/16-rencontre-mur-rouge-trio.jpg.asset.json";
+import photo3 from "@/assets/photos/03-studio-installation-lumieres.jpg.asset.json";
 
-const TYPE_LABELS: Record<string, string> = {
-  rencontre: "Rencontre",
-  atelier: "Atelier",
-  evenement: "Événement",
-  partenaire: "Partenaire",
+const FALLBACK_PHOTOS = [
+  { url: photo1.url, alt: "Des membres assis en cercle échangent pendant une rencontre." },
+  { url: photo2.url, alt: "Trois membres posent ensemble devant un mur rouge." },
+  { url: photo3.url, alt: "Installation des lumières et des caméras dans un studio." },
+];
+
+type AgendaEvent = HomeEvent & {
+  description: string | null;
+  date_fin: string | null;
+  image_url: string | null;
 };
 
-const formatDate = (iso: string) =>
-  new Date(iso).toLocaleDateString("fr-FR", {
-    weekday: "long", day: "numeric", month: "long", year: "numeric",
-  });
+const FILTERS = [
+  { key: "tous", label: "Tous", test: () => true },
+  { key: "ligne", label: "En ligne", test: (e: AgendaEvent) => isOnline(e) },
+  { key: "place", label: "Sur place", test: (e: AgendaEvent) => !isOnline(e) },
+  { key: "pds", label: "Organisés par PDS", test: (e: AgendaEvent) => isOrganizedByPds(e) },
+  { key: "membres", label: "Proposés par les membres", test: (e: AgendaEvent) => !isOrganizedByPds(e) },
+  { key: "ateliers", label: "Ateliers", test: (e: AgendaEvent) => e.type === "atelier" },
+] as const;
 
-const formatTime = (iso: string) =>
-  new Date(iso).toLocaleTimeString("fr-FR", { hour: "2-digit", minute: "2-digit" });
-
-const EventCard = ({ evt, index }: { evt: any; index: number }) => {
-  const day = new Date(evt.date_debut).getDate();
-  const monthShort = new Date(evt.date_debut).toLocaleDateString("fr-FR", { month: "short" });
-
-  return (
-    <Link to={`/evenement-podcast/${evt.slug || evt.id}`} className="block group">
-      <motion.article
-        initial={{ opacity: 0, y: 24 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5, delay: index * 0.08 }}
-        className="bg-background-pure border border-border rounded-[20px] overflow-hidden hover:shadow-xl hover:-translate-y-1 transition-all duration-300"
-      >
-        {/* Image hero */}
-        {evt.image_url && (
-          <div className="relative h-48 sm:h-56 overflow-hidden">
-            <img
-              src={evt.image_url}
-              alt={`Illustration : ${evt.titre}`}
-              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-              loading="lazy"
-            />
-            <div className="absolute inset-0 bg-gradient-to-t from-black/30 to-transparent" />
-            {/* Date badge on image */}
-            <div className="absolute top-4 right-4 w-16 h-16 bg-background-pure/95 backdrop-blur-sm rounded-2xl flex flex-col items-center justify-center shadow-lg">
-              <span className="text-xl font-display font-bold text-bleu leading-none">{day}</span>
-              <span className="text-[10px] font-semibold uppercase text-bleu/60 mt-0.5">{monthShort}</span>
-            </div>
-          </div>
-        )}
-
-        <div className="p-5 md:p-6">
-          {/* Type + date row when no image */}
-          <div className="flex items-center gap-2 mb-3">
-            {!evt.image_url && (
-              <div className="shrink-0 w-12 h-12 bg-bleu/10 rounded-xl flex flex-col items-center justify-center mr-2">
-                <span className="text-lg font-display font-bold text-bleu leading-none">{day}</span>
-                <span className="text-[9px] font-semibold uppercase text-bleu/50">{monthShort}</span>
-              </div>
-            )}
-            <Badge className="text-[10px] font-semibold uppercase tracking-wider border-0 bg-bleu/10 text-bleu px-2.5 py-1 rounded-full">
-              {TYPE_LABELS[evt.type] || evt.type}
-            </Badge>
-          </div>
-
-          <h2 className="font-display font-bold text-xl text-foreground mb-1 group-hover:text-bleu transition-colors leading-tight">
-            {evt.titre}
-          </h2>
-          {evt.sous_titre && (
-            <p className="text-sm font-medium text-muted-foreground/80 mb-1">{evt.sous_titre}</p>
-          )}
-          {evt.description && (
-            <p className="text-muted-foreground text-sm leading-relaxed mb-4 line-clamp-2">{evt.description}</p>
-          )}
-
-          {/* Info pills */}
-          <div className="flex flex-wrap gap-2 text-xs text-muted-foreground mb-4">
-            <span className="flex items-center gap-1.5 bg-muted/50 rounded-lg px-2.5 py-1.5">
-              <Clock className="w-3.5 h-3.5 text-bleu/50" />
-              {formatTime(evt.date_debut)}{evt.date_fin && ` – ${formatTime(evt.date_fin)}`}
-            </span>
-            {evt.lieu && (
-              <span className="flex items-center gap-1.5 bg-muted/50 rounded-lg px-2.5 py-1.5">
-                <MapPin className="w-3.5 h-3.5 text-bleu/50" />{evt.lieu}
-              </span>
-            )}
-            {evt.places && (
-              <span className="flex items-center gap-1.5 bg-muted/50 rounded-lg px-2.5 py-1.5">
-                <Ticket className="w-3.5 h-3.5 text-bleu/50" />{evt.places} places
-              </span>
-            )}
-          </div>
-
-          {/* CTA */}
-          <span className="inline-flex items-center gap-1.5 text-sm font-bold text-bleu group-hover:gap-2.5 transition-all">
-            Découvrir <ArrowRight className="w-4 h-4" />
-          </span>
-        </div>
-      </motion.article>
-    </Link>
-  );
-};
+const SITE = "https://www.les-podcasteur-euses-du-sud.fr";
+const FIELDS = "id, titre, sous_titre, description, date_debut, date_fin, lieu, adresse, type, slug, lien_externe, inscription_activee, image_url";
 
 const Evenements = () => {
-  const { data: evenements, isLoading } = useQuery({
-    queryKey: ["evenements-public"],
+  const [filter, setFilter] = useState<(typeof FILTERS)[number]["key"]>("tous");
+  const { hash } = useLocation();
+
+  const { data: upcoming = [], isLoading } = useQuery({
+    queryKey: ["agenda-upcoming"],
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from("evenements")
-        .select("*")
-        .eq("publie", true)
-        .gte("date_debut", new Date().toISOString())
-        .order("date_debut", { ascending: true });
+      const { data, error } = await supabase.from("evenements").select(FIELDS).eq("publie", true)
+        .gte("date_debut", new Date().toISOString()).order("date_debut", { ascending: true });
       if (error) throw error;
-      return data;
+      return (data || []) as AgendaEvent[];
     },
   });
 
-  const { data: pastEvents } = useQuery({
-    queryKey: ["evenements-past"],
+  const { data: past = [] } = useQuery({
+    queryKey: ["agenda-past"],
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from("evenements")
-        .select("*")
-        .eq("publie", true)
-        .lt("date_debut", new Date().toISOString())
-        .order("date_debut", { ascending: false })
-        .limit(6);
+      const { data, error } = await supabase.from("evenements").select(FIELDS).eq("publie", true)
+        .lt("date_debut", new Date().toISOString()).order("date_debut", { ascending: false }).limit(6);
       if (error) throw error;
-      return data;
+      return (data || []) as AgendaEvent[];
     },
   });
 
-  const jsonLdEvents = evenements?.map((evt) => ({
+  // Ancres « #proposer » et « #passes » : on descend jusqu'à la section une fois la page chargée
+  useEffect(() => {
+    if (!hash) return;
+    const t = setTimeout(() => document.querySelector(hash)?.scrollIntoView({ block: "start" }), 400);
+    return () => clearTimeout(t);
+  }, [hash, isLoading]);
+
+  const test = FILTERS.find((f) => f.key === filter)!.test;
+  const groups = useMemo(() => {
+    const m = new Map<string, AgendaEvent[]>();
+    upcoming.filter((e) => test(e)).forEach((e) => {
+      const key = new Date(e.date_debut).toLocaleDateString("fr-FR", { month: "long", year: "numeric" });
+      m.set(key, [...(m.get(key) || []), e]);
+    });
+    return Array.from(m.entries());
+  }, [upcoming, test]);
+
+  const jsonLd = upcoming.map((e) => ({
     "@context": "https://schema.org",
     "@type": "Event",
-    name: evt.titre,
-    description: evt.description || evt.sous_titre || `Événement podcast organisé par Les Podcasteur·euses du Sud`,
-    startDate: evt.date_debut,
-    ...(evt.date_fin && { endDate: evt.date_fin }),
+    name: e.titre,
+    description: e.sous_titre || e.description?.split("\n---")[0] || "Événement podcast en Région Sud",
+    startDate: e.date_debut,
+    ...(e.date_fin && { endDate: e.date_fin }),
     eventStatus: "https://schema.org/EventScheduled",
-    eventAttendanceMode: "https://schema.org/OfflineEventAttendanceMode",
-    ...(evt.lieu && {
-      location: { "@type": "Place", name: evt.lieu, ...(evt.adresse && { address: { "@type": "PostalAddress", streetAddress: evt.adresse } }) },
-    }),
-    ...(evt.image_url && { image: evt.image_url }),
-    ...(evt.places && { maximumAttendeeCapacity: evt.places }),
-    organizer: { "@type": "Organization", name: "Les Podcasteur·euses du Sud", url: "https://www.les-podcasteur-euses-du-sud.fr" },
+    eventAttendanceMode: isOnline(e) ? "https://schema.org/OnlineEventAttendanceMode" : "https://schema.org/OfflineEventAttendanceMode",
+    location: isOnline(e)
+      ? { "@type": "VirtualLocation", url: e.lien_externe || `${SITE}${eventHref(e)}` }
+      : { "@type": "Place", name: e.lieu || "Lieu à préciser", ...(e.adresse && { address: { "@type": "PostalAddress", streetAddress: e.adresse, addressRegion: "Provence-Alpes-Côte d'Azur", addressCountry: "FR" } }) },
+    ...(e.image_url && { image: e.image_url }),
+    url: `${SITE}${eventHref(e)}`,
+    organizer: { "@type": "Organization", name: "Les Podcasteur·euses du Sud", url: SITE },
   }));
 
+  let rowIndex = 0;
+
   return (
-    <>
+    <div className="min-h-screen bg-background">
       <SEOHead
-        title="Événements podcast Région Sud — Les Podcasteur·euses du Sud"
-        description="Agenda des rencontres, ateliers et événements podcast en Provence-Alpes-Côte d'Azur."
-        path="/evenements-podcast"
-        jsonLd={jsonLdEvents}
+        title="Agenda podcast à Marseille et en Région Sud : apéros écoute, ateliers, rencontres"
+        description="Apéros écoute le 9 de chaque mois, ateliers, lives et rencontres podcast à Marseille, en Région Sud et en ligne. Chaque membre peut proposer un événement."
+        path="/agenda"
+        jsonLd={jsonLd.length ? jsonLd : undefined}
       />
       <Navbar />
-      <main className="min-h-screen">
-        {/* Hero bold blue — inspiré du template Apéro Écoute */}
-        <section className="pt-24 pb-14 bg-bleu-dark relative overflow-hidden">
-          {/* Decorative sun */}
-          <div className="absolute top-6 right-8 md:right-16">
-            <Sun className="w-8 h-8 text-soleil" strokeWidth={2.5} />
-          </div>
-          <div className="container mx-auto px-6 max-w-5xl relative z-10">
-            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }}>
-              <span className="text-xs font-semibold uppercase tracking-[0.2em] text-soleil mb-3 block">
-                Les Podcasteur·euses du Sud
-              </span>
-              <h1 className="font-display font-bold text-3xl md:text-5xl text-white mb-3 leading-tight">
-                Rencontres &{" "}
-                <span className="text-soleil">Événements</span>
-              </h1>
-              <p className="text-base max-w-2xl leading-relaxed mb-8 text-white/55">
-                Sessions d'écoute, ateliers pratiques et événements partenaires — retrouvez tous les rendez-vous de l'écosystème podcast en Région Sud.
+      <main className="pt-16 md:pt-[76px]">
+        <div className={`${container} pt-10 md:pt-14`}>
+          <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-6">
+            <div>
+              <h1 className="title-page text-[64px] sm:text-[96px]">Agenda</h1>
+              <p className="mt-4 text-lg max-w-[54ch]">
+                Apéros écoute, ateliers, lives et rencontres podcast en Région Sud et en ligne. Chaque membre peut proposer un événement.
               </p>
-              <Link to="/proposer-evenement-podcast">
-                <Button className="gap-2 rounded-pill font-bold bg-white text-bleu-dark hover:bg-white/90">
-                  <Plus className="w-4 h-4" />Proposer un événement
-                </Button>
-              </Link>
-            </motion.div>
+            </div>
+            <a href="#proposer" className={`${btnListen} px-6 self-start md:self-auto`}>
+              <Plus className="w-4 h-4" aria-hidden /> Proposer un événement
+            </a>
+          </div>
+        </div>
+
+        <section aria-label="Le rendez-vous mensuel" className="mt-8 bg-primary text-primary-foreground">
+          <div className={`${container} py-7 flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-8`}>
+            <p className="title-section text-primary-foreground text-[48px] sm:text-[56px] shrink-0">Le 9</p>
+            <p className="text-[17px] sm:text-lg">
+              de chaque mois, l'apéro écoute des Podcasteur·euses du Sud. Ouvert à toustes, entrée libre.
+            </p>
           </div>
         </section>
 
-        <section className="py-12">
-          <div className="container mx-auto px-6 max-w-5xl">
-            {isLoading ? (
-              <div className="grid sm:grid-cols-2 gap-6">
-                {[1, 2, 3, 4].map((i) => <div key={i} className="h-72 bg-muted/50 rounded-[20px] animate-pulse" />)}
-              </div>
-            ) : !evenements?.length ? (
-              <div className="text-center py-20">
-                <div className="w-16 h-16 bg-bleu/10 rounded-2xl flex items-center justify-center mx-auto mb-5">
-                  <CalendarDays className="w-8 h-8 text-bleu/60" />
-                </div>
-                <p className="text-foreground font-display font-bold text-xl mb-2">Aucun événement à venir</p>
-                <p className="text-sm text-muted-foreground max-w-md mx-auto">Revenez bientôt !</p>
-              </div>
-            ) : (
-              <div className="grid sm:grid-cols-2 gap-6">
-                {evenements.map((evt, i) => (
-                  <EventCard key={evt.id} evt={evt} index={i} />
-                ))}
-              </div>
-            )}
+        <div className={`${container} pt-8`}>
+          <div role="group" aria-label="Filtrer les événements" className="flex flex-wrap gap-2">
+            {FILTERS.map((f) => (
+              <button
+                key={f.key}
+                onClick={() => setFilter(f.key)}
+                aria-pressed={filter === f.key}
+                className={`min-h-[44px] px-4 border font-semibold text-[15px] ${filter === f.key ? "bg-encre text-surface border-encre" : "border-encre bg-surface hover:bg-muted"}`}
+              >
+                {f.label}
+              </button>
+            ))}
+          </div>
 
-            {/* Past events */}
-            {pastEvents && pastEvents.length > 0 && (
-              <section className="mt-20">
-                <div className="flex items-center gap-3 mb-8 justify-center">
-                  <div className="h-px w-10 bg-border" />
-                  <h2 className="font-display font-bold text-2xl text-foreground">Événements passés</h2>
-                  <div className="h-px w-10 bg-border" />
-                </div>
-                <div className="grid sm:grid-cols-2 gap-4">
-                  {pastEvents.map((evt) => (
-                    <Link to={`/evenement-podcast/${evt.slug || evt.id}`} key={evt.id}>
-                      <article className="flex items-center gap-4 bg-muted/20 border border-border/50 rounded-xl p-4 opacity-60 hover:opacity-90 transition-opacity">
-                        {evt.image_url ? (
-                          <img src={evt.image_url} alt="" className="shrink-0 w-14 h-14 rounded-xl object-cover" loading="lazy" />
-                        ) : (
-                          <div className="shrink-0 w-14 h-14 bg-bleu/10 rounded-xl flex flex-col items-center justify-center">
-                            <span className="text-sm font-bold text-bleu leading-none">{new Date(evt.date_debut).getDate()}</span>
-                            <span className="text-[10px] uppercase text-bleu/50">{new Date(evt.date_debut).toLocaleDateString("fr-FR", { month: "short" })}</span>
-                          </div>
-                        )}
-                        <div className="min-w-0">
-                          <p className="font-medium text-foreground text-sm truncate">{evt.titre}</p>
-                          <p className="text-xs text-muted-foreground">{evt.lieu && `${evt.lieu} · `}<time dateTime={evt.date_debut}>{formatDate(evt.date_debut)}</time></p>
-                        </div>
-                      </article>
-                    </Link>
-                  ))}
-                </div>
+          {isLoading ? (
+            <p className="py-10 font-mono text-sm text-muted-foreground">Chargement…</p>
+          ) : groups.length === 0 ? (
+            <p className="py-10 text-lg border-b border-filet">
+              Aucun événement à venir dans cette catégorie pour l'instant. Le prochain apéro écoute a lieu le 9 du mois.
+            </p>
+          ) : (
+            groups.map(([month, events]) => (
+              <section key={month} className="mt-10" aria-label={month}>
+                <h2 className="title-section text-[30px] sm:text-[36px] capitalize pb-3 border-b-2 border-encre">{month}</h2>
+                <ul className="divide-y divide-filet border-b border-filet">
+                  {events.map((e) => <EventRow key={e.id} e={e} primary={rowIndex++ === 0} cta="Voir" />)}
+                </ul>
               </section>
-            )}
+            ))
+          )}
+        </div>
+
+        <section id="proposer" className="mt-16 md:mt-24 bg-surface border-y border-filet scroll-mt-20" aria-labelledby="proposer-title">
+          <div className={`${container} py-14 md:py-20 grid lg:grid-cols-[minmax(0,5fr)_minmax(0,7fr)] gap-10 lg:gap-16`}>
+            <div>
+              <h2 id="proposer-title" className="title-section text-[44px] sm:text-[56px]">Proposer un événement</h2>
+              <p className="mt-4 text-[17px]">Un atelier, un live, une projection d'écoute, une rencontre : si ça parle podcast ou création sonore, il a sa place ici.</p>
+              <p className="mt-3 text-[15px] text-muted-foreground">Chaque proposition est relue par l'équipe avant publication, sous 48 à 72 heures.</p>
+            </div>
+            <ProposerEvenementForm />
           </div>
         </section>
+
+        {past.length > 0 && (
+          <section id="passes" className={`${container} py-16 md:py-20 scroll-mt-20`} aria-labelledby="passes-title">
+            <h2 id="passes-title" className="title-section text-[40px] sm:text-[52px]">Déjà passés</h2>
+            <ul className="mt-6 grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+              {past.map((e, i) => {
+                const fb = FALLBACK_PHOTOS[i % FALLBACK_PHOTOS.length];
+                return (
+                  <li key={e.id}>
+                    <Link to={eventHref(e)} className="group block">
+                      <span className="block aspect-[4/3] bg-muted overflow-hidden">
+                        <img src={e.image_url || fb.url} alt={e.image_url ? `Visuel de l'événement ${e.titre}` : fb.alt} className="w-full h-full object-cover" loading="lazy" />
+                      </span>
+                      <span className="block mt-3 font-mono text-xs text-muted-foreground">{formatShortDate(e.date_debut)}{e.lieu ? ` · ${e.lieu}` : ""}</span>
+                      <span className="block mt-1 font-bold text-[18px] leading-tight group-hover:underline underline-offset-4">{e.titre}</span>
+                    </Link>
+                  </li>
+                );
+              })}
+            </ul>
+          </section>
+        )}
       </main>
       <Footer />
-    </>
+    </div>
   );
 };
 
