@@ -157,23 +157,20 @@ const AgencesStudios = () => {
     setSendState("sending");
     const d = parsed.data;
     const message = `Demande de devis\nFormat : ${d.format}${d.quand ? `\nQuand : ${d.quand}` : ""}\n\nLe projet :\n${d.projet}`;
-    const results = await Promise.all(
-      recipients.map((r) =>
-        fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/contact-membre`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json", apikey: import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY },
-          body: JSON.stringify({ recipient_id: r.id, sender_name: d.name, sender_email: d.email, message }),
-        })
-          .then(async (res) => ({ ok: res.ok, body: await res.json().catch(() => ({})) }))
-          .catch(() => ({ ok: false, body: {} as { error?: string } })),
-      ),
-    );
-    const okCount = results.filter((r) => r.ok).length;
-    if (okCount === 0) {
-      setSendMsg(results[0]?.body?.error || "La demande n'a pas pu partir. Réessayez dans un instant.");
+    // Un seul envoi pour tous les studios choisis
+    const result = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/contact-membre`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json", apikey: import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY },
+      body: JSON.stringify({ recipient_ids: recipients.map((r) => r.id), sender_name: d.name, sender_email: d.email, message }),
+    })
+      .then(async (res) => ({ ok: res.ok, body: (await res.json().catch(() => ({}))) as { error?: string; count?: number } }))
+      .catch(() => ({ ok: false, body: {} as { error?: string; count?: number } }));
+    if (!result.ok) {
+      setSendMsg(result.body?.error || "La demande n'a pas pu partir. Réessayez dans un instant.");
       setSendState("error");
       return;
     }
+    const okCount = result.body?.count ?? recipients.length;
     setSendMsg(
       okCount === 1
         ? "Votre demande est enregistrée. L'équipe la transmet au studio, qui vous répondra directement."
