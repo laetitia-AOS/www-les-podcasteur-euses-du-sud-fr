@@ -6,29 +6,25 @@ import { supabase } from "@/integrations/supabase/client";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import SEOHead from "@/components/SEOHead";
-import EvenementInscriptionForm from "@/components/EvenementInscriptionForm";
+import JeViens from "@/components/agenda/JeViens";
 import PodcastsInvitesDisplay from "@/components/PodcastsInvitesDisplay";
 import { eventHref } from "@/components/agenda/EventRow";
-import { cityFromAddress, isOnline, isOrganizedByPds, type HomeEvent } from "@/components/home/useHomeData";
+import { EVENT_TYPE_LABELS, aVenirFilter, cityFromAddress, isOnline, isOrganizedByPds, type HomeEvent } from "@/components/home/useHomeData";
 import { withUtm } from "@/lib/utm";
 import { btnPrimary, btnSecondary, container, linkUnderline } from "@/lib/pds";
-import { cleanAddress, downloadIcs, publicDescription, readableTitle } from "@/lib/events";
+import { cleanAddress, downloadIcs, googleCalendarUrl, prixDepuisTarif, publicDescription, readableTitle } from "@/lib/events";
 import bande from "@/assets/photos/bande-accueil-mur-rouge.jpg.asset.json";
 
 const SITE = "https://www.les-podcasteur-euses-du-sud.fr";
 
 // Libellé du type d'événement pour le titre principal « [Type] à [Ville] : [Titre] »
 const H1_TYPE: Record<string, string> = {
-  rencontre: "Rencontre podcast",
+  apero_ecoute: "Apéro écoute podcast",
   atelier: "Atelier podcast",
-  evenement: "Événement podcast",
-  partenaire: "Événement podcast",
-};
-const LABEL_TYPE: Record<string, string> = {
-  rencontre: "Rencontre",
-  atelier: "Atelier",
-  evenement: "Événement",
-  partenaire: "Événement partenaire",
+  live: "Podcast en live",
+  ecoute: "Écoute de podcast",
+  rencontre: "Rencontre podcast",
+  autre: "Événement podcast",
 };
 
 type Evt = HomeEvent & {
@@ -37,6 +33,7 @@ type Evt = HomeEvent & {
   image_url: string | null;
   places: number | null;
   podcasts_invites: unknown;
+  lien_connexion: string | null;
 };
 
 const hour = (d: Date) => d.toLocaleTimeString("fr-FR", { hour: "2-digit", minute: "2-digit" }).replace(":", "h");
@@ -51,9 +48,9 @@ const EvenementDetail = () => {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("evenements")
-        .select("id, titre, sous_titre, description, date_debut, date_fin, lieu, adresse, type, slug, lien_externe, inscription_activee, image_url, places, podcasts_invites")
+        .select("id, titre, sous_titre, description, date_debut, date_fin, lieu, adresse, type, slug, lien_externe, inscription_activee, image_url, places, podcasts_invites, origine, format, propose_par_nom, tarif, lien_connexion")
         .eq("slug", slug!)
-        .eq("publie", true)
+        .eq("statut", "publie")
         .maybeSingle();
       if (error) throw error;
       return data as Evt | null;
@@ -66,9 +63,9 @@ const EvenementDetail = () => {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("evenements")
-        .select("id, titre, sous_titre, date_debut, lieu, adresse, type, slug, lien_externe, inscription_activee")
-        .eq("publie", true)
-        .gte("date_debut", new Date().toISOString())
+        .select("id, titre, sous_titre, date_debut, date_fin, lieu, adresse, type, slug, lien_externe, inscription_activee, format")
+        .eq("statut", "publie")
+        .or(aVenirFilter())
         .neq("slug", slug!)
         .order("date_debut", { ascending: true })
         .limit(3);
@@ -89,11 +86,12 @@ const EvenementDetail = () => {
     const dateLong = capitalize(start.toLocaleDateString("fr-FR", { weekday: "long", day: "numeric", month: "long", year: "numeric" }));
     const horaires = end ? `de ${hour(start)} à ${hour(end)}` : `à partir de ${hour(start)}`;
     const lieuPhrase = online ? "en ligne" : evt.lieu ? `chez ${evt.lieu}${city ? ` (${city})` : ""}` : city ? `à ${city}` : "";
-    const tarif = pds ? "Entrée libre" : "";
+    const tarif = evt.tarif || "";
+    const organisateur = pds ? "Les Podcasteur·euses du Sud" : evt.propose_par_nom || "Un membre du réseau";
     const intro = `${dateLong}, ${horaires}${lieuPhrase ? `, ${lieuPhrase}` : ""}.${evt.sous_titre ? ` ${evt.sous_titre.replace(/\.$/, "")}.` : ""}${tarif ? ` ${tarif}.` : ""}`;
     const isPast = (end || start) < new Date();
     const url = `${SITE}${eventHref(evt)}`;
-    return { start, end, online, pds, city, titre, h1, dateLong, horaires, tarif, intro, isPast, url, description: publicDescription(evt.description) };
+    return { start, end, online, pds, city, titre, h1, dateLong, horaires, tarif, organisateur, intro, isPast, url, description: publicDescription(evt.description) };
   }, [evt]);
 
   const jsonLd = useMemo(() => {
@@ -108,7 +106,7 @@ const EvenementDetail = () => {
       eventStatus: "https://schema.org/EventScheduled",
       eventAttendanceMode: view.online ? "https://schema.org/OnlineEventAttendanceMode" : "https://schema.org/OfflineEventAttendanceMode",
       location: view.online
-        ? { "@type": "VirtualLocation", url: evt.lien_externe || view.url }
+        ? { "@type": "VirtualLocation", url: evt.lien_connexion || evt.lien_externe || view.url }
         : {
             "@type": "Place",
             name: evt.lieu || view.city || "Lieu à préciser",
@@ -116,9 +114,15 @@ const EvenementDetail = () => {
           },
       image: evt.image_url || `${SITE}/og-image.jpg`,
       url: view.url,
-      ...(view.pds && { isAccessibleForFree: true, offers: { "@type": "Offer", price: 0, priceCurrency: "EUR", availability: "https://schema.org/InStock", url: view.url } }),
+      ...(prixDepuisTarif(evt.tarif) !== null && {
+        ...(prixDepuisTarif(evt.tarif) === 0 && { isAccessibleForFree: true }),
+        offers: { "@type": "Offer", price: prixDepuisTarif(evt.tarif), priceCurrency: "EUR", availability: "https://schema.org/InStock", url: evt.lien_externe || view.url, ...(evt.tarif && { description: evt.tarif }) },
+      }),
       ...(evt.places && { maximumAttendeeCapacity: evt.places }),
-      organizer: { "@type": "Organization", name: "Les Podcasteur·euses du Sud", url: SITE },
+      organizer: view.pds
+        ? { "@type": "Organization", name: "Les Podcasteur·euses du Sud", url: SITE }
+        : { "@type": "Person", name: view.organisateur },
+      ...(!view.pds && { superEvent: undefined, sponsor: undefined }),
     };
   }, [evt, view]);
 
@@ -157,15 +161,16 @@ const EvenementDetail = () => {
 
   const mapsQuery = evt.adresse || evt.lieu;
   const invites = Array.isArray(evt.podcasts_invites) ? (evt.podcasts_invites as never[]) : [];
-  const canRegister = evt.inscription_activee && !view.isPast;
+  const canRegister = !view.isPast;
+  const agendaInfo = { titre: view.h1, date_debut: evt.date_debut, date_fin: evt.date_fin, lieu: evt.lieu, adresse: evt.adresse ? cleanAddress(evt.adresse) : null, url: view.url, description: view.intro };
   const day = view.start.toLocaleDateString("fr-FR", { weekday: "long" });
   const monthYear = view.start.toLocaleDateString("fr-FR", { month: "short", year: "numeric" }).replace(".", "");
 
   const faq = view.pds
     ? [
-        { q: "Faut-il payer pour venir ?", a: "Non, l'entrée est libre. Les consommations sont à votre charge." },
+        { q: "Faut-il payer pour venir ?", a: evt.tarif ? `Tarif : ${evt.tarif}.` : "Non, l'entrée est libre. Les consommations sont à votre charge." },
         { q: "Faut-il faire un podcast pour venir ?", a: "Non. Créateur·ices, auditeur·ices, curieux·ses : l'apéro écoute est ouvert à toustes." },
-        { q: "Faut-il réserver ?", a: canRegister ? "Oui, inscrivez-vous avec le formulaire de cette page : cela nous aide à prévoir la place." : "Non, venez directement." },
+        { q: "Faut-il réserver ?", a: "Cliquez sur « Je viens » : cela nous aide à prévoir la place." },
         { q: "Comment faire écouter mon podcast lors d'un apéro ?", a: "Écrivez à l'équipe depuis la page Contact en présentant votre podcast : elle choisit les écoutes de chaque soirée." },
       ]
     : [];
@@ -199,7 +204,7 @@ const EvenementDetail = () => {
           </div>
           <div className="min-w-0">
             <p className="text-sm font-bold text-primary">
-              {LABEL_TYPE[evt.type] || "Événement"} · {view.pds ? "organisé par Les Podcasteur·euses du Sud" : "proposé par un membre"}
+              {EVENT_TYPE_LABELS[evt.type] || "Événement"} · {view.online ? "en ligne" : "sur place"} · {view.pds ? "organisé par Les Podcasteur·euses du Sud" : `proposé par ${view.organisateur}`}
             </p>
             <h1 className="title-section text-[40px] sm:text-[56px] lg:text-[64px] mt-2">{view.h1}</h1>
             <p className="mt-5 text-lg max-w-[62ch]">{view.intro}</p>
@@ -226,29 +231,35 @@ const EvenementDetail = () => {
               <div>
                 <dt className="text-sm font-bold">Lieu</dt>
                 <dd>
-                  {view.online ? "En ligne" : <>{evt.lieu}{evt.adresse && <><br />{cleanAddress(evt.adresse)}</>}</>}
+                  {view.online ? (
+                    evt.lien_connexion && !view.isPast
+                      ? <a href={evt.lien_connexion} target="_blank" rel="noopener noreferrer" className={linkUnderline}>En ligne : lien de connexion<span className="sr-only"> (nouvel onglet)</span></a>
+                      : "En ligne"
+                  ) : <>{evt.lieu}{evt.adresse && <><br />{cleanAddress(evt.adresse)}</>}</>}
                 </dd>
               </div>
               {evt.places && <div><dt className="text-sm font-bold">Places</dt><dd className="font-mono">{evt.places}</dd></div>}
               {view.tarif && <div><dt className="text-sm font-bold">Tarif</dt><dd>{view.tarif}</dd></div>}
-              <div><dt className="text-sm font-bold">Organisé par</dt><dd>{view.pds ? "Les Podcasteur·euses du Sud" : "Un membre du réseau"}</dd></div>
+              <div><dt className="text-sm font-bold">{view.pds ? "Organisé par" : "Proposé par"}</dt><dd>{view.organisateur}</dd></div>
             </dl>
 
             {!view.isPast && (
               <div className="mt-6 grid gap-3">
-                {canRegister ? (
-                  <a href="#inscription" className={`${btnPrimary} w-full`}>Je viens</a>
-                ) : evt.lien_externe ? (
-                  <a href={withUtm(evt.lien_externe, "evenement")} target="_blank" rel="noopener noreferrer" className={`${btnPrimary} w-full`}>
-                    S'inscrire<span className="sr-only"> (nouvel onglet)</span>
+                <JeViens evenementId={evt.id} places={evt.places} />
+                {evt.lien_externe && (
+                  <a href={withUtm(evt.lien_externe, "evenement")} target="_blank" rel="noopener noreferrer" className={`${btnSecondary} w-full`}>
+                    Inscription chez l'organisateur<span className="sr-only"> (nouvel onglet)</span>
                   </a>
-                ) : null}
-                <button
-                  onClick={() => downloadIcs({ id: evt.id, titre: view.h1, date_debut: evt.date_debut, date_fin: evt.date_fin, lieu: evt.lieu, adresse: evt.adresse ? cleanAddress(evt.adresse) : null, url: view.url, description: view.intro })}
-                  className={`${btnSecondary} w-full`}
-                >
-                  Ajouter à mon agenda
-                </button>
+                )}
+                <p className="text-sm font-bold mt-2">Ajouter à mon agenda</p>
+                <div className="grid grid-cols-2 gap-2">
+                  <button onClick={() => downloadIcs({ id: evt.id, ...agendaInfo })} className={`${btnSecondary} w-full px-3`}>
+                    Fichier .ics
+                  </button>
+                  <a href={googleCalendarUrl(agendaInfo)} target="_blank" rel="noopener noreferrer" className={`${btnSecondary} w-full px-3`}>
+                    Google Agenda<span className="sr-only"> (nouvel onglet)</span>
+                  </a>
+                </div>
                 {mapsQuery && !view.online && (
                   <a href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(mapsQuery)}`} target="_blank" rel="noopener noreferrer" className={`${linkUnderline} inline-flex min-h-[44px] items-center justify-center`}>
                     Voir l'itinéraire<span className="sr-only"> (nouvel onglet)</span>
@@ -276,11 +287,6 @@ const EvenementDetail = () => {
 
             <PodcastsInvitesDisplay podcasts={invites} />
 
-            {canRegister && (
-              <section id="inscription" className="mt-12 scroll-mt-24" aria-label="Inscription">
-                <EvenementInscriptionForm evenementId={evt.id} titre={evt.titre} date_debut={evt.date_debut} lieu={evt.lieu} adresse={evt.adresse} slug={evt.slug} />
-              </section>
-            )}
 
             {faq.length > 0 && (
               <section className="mt-12" aria-labelledby="faq-title">
