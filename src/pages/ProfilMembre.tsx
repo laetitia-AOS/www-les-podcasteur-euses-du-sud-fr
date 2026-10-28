@@ -239,7 +239,7 @@ const ProfilMembre = () => {
                 </a>
               )}
               {profile.consent_contact && (
-                <a href="#ecrire" className={btnSecondary}>Écrire à {prenom || name}</a>
+                <a href="#ecrire" className={btnSecondary}>Proposer une collab</a>
               )}
             </div>
 
@@ -352,7 +352,7 @@ const ProfilMembre = () => {
           <section id="ecrire" className={`${container} pt-14 pb-20 scroll-mt-24`} aria-labelledby="ecrire-title">
             <div className="border-2 border-encre bg-surface p-6 sm:p-8 grid md:grid-cols-[minmax(0,1fr)_minmax(0,2fr)] gap-6 md:gap-10">
               <div>
-                <h2 id="ecrire-title" className="title-section text-[30px] sm:text-[36px]">Écrire à {prenom || name}</h2>
+                <h2 id="ecrire-title" className="title-section text-[30px] sm:text-[36px]">Proposer une collab à {prenom || name}</h2>
                 <p className="mt-3 text-[15px] text-muted-foreground">
                   L'équipe lui transmet votre message, et il ou elle vous répond directement. Son e-mail et son téléphone ne sont jamais affichés.
                 </p>
