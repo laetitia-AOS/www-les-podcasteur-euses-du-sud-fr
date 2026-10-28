@@ -281,7 +281,7 @@ const AgencesStudios = () => {
                     {p.city_name && <p className="text-[15px] text-muted-foreground">{cleanCity(p.city_name)}</p>}
                     {accroche && <p className="mt-3 text-[17px] line-clamp-3">{accroche}</p>}
                     {meta.length > 0 && (
-                      <dl className="mt-4 grid grid-cols-3 gap-3 border-y border-filet py-3">
+                      <dl className="mt-4 grid grid-cols-1 min-[480px]:grid-cols-3 gap-3 border-y border-filet py-3">
                         {meta.map((m) => (
                           <div key={m.k} className="min-w-0">
                             <dt className="text-xs text-muted-foreground">{m.k}</dt>
