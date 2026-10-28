@@ -114,4 +114,4 @@ export const faqJsonLd = (faq: Faq[]) =>
     : null;
 
 /** Lien « Voir le plan » : ouvre l'adresse dans l'application de cartes du visiteur. */
-export const planUrl = (adresse: string) => `https://www.openstreetmap.org/search?query=${encodeURIComponent(adresse)}`;
+export const planUrl = (adresse: string) => `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(adresse)}`;
