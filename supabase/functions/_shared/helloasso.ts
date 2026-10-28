@@ -53,16 +53,28 @@ export async function fetchVerifiedOrder(orderId: string, formType?: string, for
   const safe = /^[A-Za-z0-9_-]{1,120}$/;
   if (!formType || !formSlug || !safe.test(formType) || !safe.test(formSlug)) return null;
   for (let page = 1; page <= 5; page++) {
-    const url = `${HELLOASSO_API}/v5/organizations/${ORG_SLUG}/forms/${formType}/${formSlug}/orders?pageSize=100&pageIndex=${page}&sortOrder=Desc&withDetails=true`;
+    const url = `${HELLOASSO_API}/v5/organizations/${ORG_SLUG}/forms/${formType}/${formSlug}/items?pageSize=100&pageIndex=${page}&sortOrder=Desc&withDetails=true`;
     const r = await fetch(url, { headers });
     if (!r.ok) {
-      console.warn(`HelloAsso form orders lookup: ${r.status}`);
+      console.warn(`HelloAsso form items lookup: ${r.status}`);
       return null;
     }
     const body = await r.json();
     // deno-lint-ignore no-explicit-any
-    const found = (body?.data || []).find((o: any) => String(o?.id) === orderId);
-    if (found) return isOurs(found) ? found : null;
+    const item = (body?.data || []).find((it: any) => String(it?.order?.id ?? "") === orderId);
+    if (item) {
+      // Même forme qu'une commande : payeur, montant, date, lignes
+      const order = {
+        id: item.order?.id,
+        date: item.order?.date ?? item.date,
+        organizationSlug: item.order?.organizationSlug ?? ORG_SLUG,
+        payer: item.payer ?? {},
+        amount: { total: item.amount },
+        items: [{ name: item.name, amount: item.amount }],
+        source: "items",
+      };
+      return isOurs(order) ? order : null;
+    }
     if (!body?.pagination || page >= body.pagination.totalPages) break;
   }
   return null;
