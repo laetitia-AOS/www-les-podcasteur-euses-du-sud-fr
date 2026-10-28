@@ -8,6 +8,7 @@ import { useNavigate, Navigate } from "react-router-dom";
 import { useAdminAuth } from "@/hooks/useAdminAuth";
 import { toast } from "sonner";
 import { useState } from "react";
+import AdminMembreMessages from "@/components/AdminMembreMessages";
 import {
   Dialog,
   DialogContent,
@@ -190,6 +191,8 @@ const AdminContacts = () => {
             </Table>
           </div>
         )}
+
+        <AdminMembreMessages />
       </div>
 
       {/* Detail Dialog */}
