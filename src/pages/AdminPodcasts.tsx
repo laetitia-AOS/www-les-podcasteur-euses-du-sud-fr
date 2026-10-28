@@ -1,4 +1,5 @@
 import { checkImage, cropToSquare, uploadImage } from "@/lib/inscription";
+import { verifierFlux } from "@/lib/episodes";
 import { toCsv } from "@/lib/csv";
 import AdminImagesEnAttente, { traiterImages } from "@/components/AdminImagesEnAttente";
 import { useState } from "react";
@@ -166,8 +167,15 @@ const AdminPodcasts = () => {
     setSelectedPodcast(null);
   };
 
-  const handleSaveEdit = () => {
+  const handleSaveEdit = async () => {
     if (!editingPodcast) return;
+    // Flux RSS modifié : vérifié par le serveur avant l'enregistrement
+    const newRss = ((editForm as any).flux_rss || "").trim();
+    if (newRss && newRss !== ((editingPodcast as any).flux_rss || "")) {
+      const check = await verifierFlux(newRss);
+      if (!check.ok) { toast.error(check.message); return; }
+      toast.success(check.message);
+    }
     const isStudio = editingPodcast.type_profil === "studio";
 
     if (isStudio) {

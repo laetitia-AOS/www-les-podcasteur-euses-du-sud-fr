@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { verifierFlux } from "@/lib/episodes";
 import { messageServeur } from "@/lib/inscription";
 import { toast } from "sonner";
 import { Plus, Trash2 } from "lucide-react";
@@ -64,6 +65,15 @@ const PodcastsStep = ({
     if (!consentPublication) return toast.error("Acceptez la publication de vos podcasts sur le site.");
 
     setSending(true);
+    // Flux RSS : vérifiés par le serveur avant l'enregistrement
+    for (const [i, e] of entries.entries()) {
+      if (!e.rss.trim()) continue;
+      const check = await verifierFlux(e.rss.trim());
+      if (!check.ok) {
+        setSending(false);
+        return toast.error(entries.length > 1 ? `Podcast ${i + 1} : ${check.message}` : check.message);
+      }
+    }
     try {
       const rows = [];
       // Toutes les pochettes partent en un seul envoi

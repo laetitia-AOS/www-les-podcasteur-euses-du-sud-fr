@@ -1,4 +1,6 @@
 import { useState } from "react";
+import { useQuery } from "@tanstack/react-query";
+import { verifierFlux } from "@/lib/episodes";
 import { Link } from "react-router-dom";
 import { Loader2 } from "lucide-react";
 import { toast } from "sonner";
@@ -20,8 +22,24 @@ const Badge = ({ visible }: { visible: boolean }) => (
   </span>
 );
 
+type EtatFlux = { podcast_id: string; statut: string; message: string | null; nb_episodes: number; derniere_lecture: string };
+
+/** État de lecture des flux des podcasts de la personne connectée (limité à son e-mail côté serveur). */
+const useMesFlux = () =>
+  useQuery({
+    queryKey: ["mes-flux"],
+    queryFn: async () => {
+      const { data, error } = await supabase.rpc("mes_flux");
+      if (error) throw error;
+      return (data || []) as EtatFlux[];
+    },
+    staleTime: 5 * 60 * 1000,
+  });
+
 const PodcastCard = ({ fiche, onSaved, onDeleted }: Props) => {
   const [open, setOpen] = useState(false);
+  const { data: flux = [] } = useMesFlux();
+  const etat = flux.find((x) => x.podcast_id === fiche.id);
   const [f, setF] = useState({
     nom_podcast: fiche.nom_podcast || "",
     lien_ecoute: fiche.lien_ecoute || "",
@@ -48,6 +66,12 @@ const PodcastCard = ({ fiche, onSaved, onDeleted }: Props) => {
     if (!isHttpsUrl(f.lien_ecoute.trim())) { toast.error("Le lien d'écoute doit commencer par https://"); return; }
     if (f.flux_rss.trim() && !isHttpsUrl(f.flux_rss.trim())) { toast.error("Le flux RSS doit commencer par https://"); return; }
     setSaving(true);
+    // Flux RSS modifié : vérifié par le serveur avant l'enregistrement
+    if (f.flux_rss.trim() && f.flux_rss.trim() !== (fiche.flux_rss || "")) {
+      const check = await verifierFlux(f.flux_rss.trim());
+      if (!check.ok) { toast.error(check.message); setSaving(false); return; }
+      toast.success(check.message);
+    }
     try {
       let url = cover;
       if (coverFile) url = await uploadImage(coverFile);
@@ -134,7 +158,14 @@ const PodcastCard = ({ fiche, onSaved, onDeleted }: Props) => {
           <div>
             <label htmlFor={`${formId}-rss`} className={labelCls}>Flux RSS (facultatif)</label>
             <input id={`${formId}-rss`} type="url" value={f.flux_rss} onChange={set("flux_rss")} className={field} placeholder="https://feed.ausha.co/…" />
-            <p className={hintCls}>Il permet d'afficher vos derniers épisodes et de les écouter sur le site. Vous le trouvez chez votre hébergeur (Ausha, Acast, Spotify for Creators…).</p>
+            <p className={hintCls}>Il permet d'afficher vos 10 derniers épisodes et de les écouter sur le site (mise à jour toutes les 6 heures). Vous le trouvez chez votre hébergeur (Ausha, Acast, Spotify for Creators…).</p>
+            {etat && (
+              <p role="status" className={`mt-2 text-sm font-bold ${etat.statut === "ok" ? "text-primary" : "text-destructive"}`}>
+                {etat.statut === "ok"
+                  ? `Flux lu : ${etat.nb_episodes} épisode${etat.nb_episodes > 1 ? "s" : ""} affiché${etat.nb_episodes > 1 ? "s" : ""} sur votre fiche.`
+                  : etat.message || "Votre flux n'a pas pu être lu."}
+              </p>
+            )}
           </div>
           <div>
             <label htmlFor={`${formId}-desc`} className={labelCls}>Description courte</label>
