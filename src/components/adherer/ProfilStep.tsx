@@ -101,7 +101,7 @@ const ProfilStep = ({
     <div>
       <fieldset>
         <legend className="text-sm font-bold mb-2">Vous êtes<Req /></legend>
-        <div className="grid sm:grid-cols-2 lg:grid-cols-5 gap-2">
+        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-2">
           {TYPES_PROFIL.map((t) => (
             <label
               key={t.value}
