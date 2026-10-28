@@ -70,7 +70,7 @@ export const collabLabel = (code: string) => COLLAB_CHOIX.find((c) => c.value ==
 
 /** Liste lisible : « montage », « montage ou mixage », « voix off, montage ou mixage ». */
 export const listeChoix = (codes: string[]) => {
-  const labels = codes.map((c) => collabLabel(c).toLowerCase().replace(/^être/, "être"));
+  const labels = codes.map((c) => collabLabel(c).toLowerCase());
   if (labels.length <= 1) return labels[0] ?? "";
   return `${labels.slice(0, -1).join(", ")} ou ${labels[labels.length - 1]}`;
 };

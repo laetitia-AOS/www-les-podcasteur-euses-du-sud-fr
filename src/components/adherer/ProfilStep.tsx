@@ -8,16 +8,16 @@ import StudioFormSection from "@/components/StudioFormSection";
 import StructureEcoFormSection from "@/components/StructureEcoFormSection";
 import { btnPrimary } from "@/lib/pds";
 import {
-  APPORTE_OPTIONS, CHERCHE_OPTIONS, DEPARTEMENTS, DISPONIBILITES, FORMATS_COLLAB, LIEN_SANS_PODCAST, SERVICES, TYPES_PROFIL,
+  COLLAB_CHOIX, DEPARTEMENTS, DISPONIBILITES, FORMATS_COLLAB, LIEN_SANS_PODCAST, SERVICES, TYPES_PROFIL,
   isHttpsUrl, profilColumns, uploadImage, type ProfilData, type TypeProfil,
 } from "@/lib/inscription";
-import { ChoiceList, ImagePicker, Req, field, hintCls, labelCls } from "./fields";
+import { ChoiceList, CollabField, ImagePicker, Req, field, hintCls, labelCls } from "./fields";
 
 export type ProfilResult = { type: TypeProfil; email: string; saved: boolean; profil?: ProfilData };
 
 const emptyProfil = (type: TypeProfil): ProfilData => ({
   typeProfil: type, prenom: "", nom: "", email: "", telephone: "", bio750: "", lienLinkedin: "", lienPrincipal: "",
-  metierPrincipal: "", services: [], disponibilite: "", departementCode: "", city: null, cherche: [], apporte: [],
+  metierPrincipal: "", services: [], disponibilite: "", departementCode: "", city: null, cherche: [], apporte: [], cherchePrecision: "", apportePrecision: "",
   formatCollaboration: "", consentContact: false, consentMiseEnRelation: false, photoUrl: "",
 });
 
@@ -249,10 +249,12 @@ const ProfilStep = ({
           </div>
 
           <div className="sm:col-span-2 border-t border-filet pt-5">
-            <ChoiceList legend="Je cherche" options={CHERCHE_OPTIONS} selected={p.cherche} onChange={(v) => set("cherche", v)} max={3} />
+            <CollabField id="pf-cherche-precision" legend="Je cherche" options={COLLAB_CHOIX} selected={p.cherche} onChange={(v) => set("cherche", v)}
+              precision={p.cherchePrecision} onPrecision={(v) => set("cherchePrecision", v)} />
           </div>
           <div className="sm:col-span-2">
-            <ChoiceList legend="Je peux apporter" options={APPORTE_OPTIONS} selected={p.apporte} onChange={(v) => set("apporte", v)} max={3} />
+            <CollabField id="pf-apporte-precision" legend="J'apporte" options={COLLAB_CHOIX} selected={p.apporte} onChange={(v) => set("apporte", v)}
+              precision={p.apportePrecision} onPrecision={(v) => set("apportePrecision", v)} />
           </div>
           <div>
             <label htmlFor="pf-format" className={labelCls}>Format de collaboration</label>
