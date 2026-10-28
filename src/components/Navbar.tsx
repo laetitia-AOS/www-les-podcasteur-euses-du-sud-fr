@@ -8,7 +8,7 @@ const links = [
   { label: "Écouter", href: "/ecouter", match: ["/ecouter", "/podcasts", "/podcasteur"] },
   { label: "Annuaire", href: "/annuaire-podcasts", match: ["/annuaire-podcasts"] },
   { label: "Studios", href: "/studios-podcast", match: ["/studios-podcast", "/annuaire-podcasts/studios", "/annuaire-podcasts/structures"] },
-  { label: "Agenda", href: "/evenements-podcast", match: ["/evenements-podcast", "/evenement-podcast", "/proposer-evenement-podcast", "/agenda"] },
+  { label: "Agenda", href: "/agenda", match: ["/evenements-podcast", "/evenement-podcast", "/proposer-evenement-podcast", "/agenda"] },
 ];
 
 const Navbar = () => {

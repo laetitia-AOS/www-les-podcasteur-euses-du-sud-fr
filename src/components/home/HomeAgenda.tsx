@@ -64,8 +64,8 @@ const HomeAgenda = ({ events }: { events: HomeEvent[] }) => {
         <div className="mt-4 flex flex-wrap items-center justify-between gap-3 text-[15px]">
           <p className="text-muted-foreground">Les événements proposés sont relus par l'équipe avant publication.</p>
           <div className="flex gap-6">
-            <Link to="/evenements-podcast" className={`${linkUnderline} min-h-[44px] inline-flex items-center`}>Tout l'agenda</Link>
-            <Link to="/evenements-podcast#passes" className={`${linkUnderline} min-h-[44px] inline-flex items-center`}>Archives</Link>
+            <Link to="/agenda" className={`${linkUnderline} min-h-[44px] inline-flex items-center`}>Tout l'agenda</Link>
+            <Link to="/agenda#passes" className={`${linkUnderline} min-h-[44px] inline-flex items-center`}>Archives</Link>
           </div>
         </div>
       </div>

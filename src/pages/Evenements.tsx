@@ -1,5 +1,5 @@
-import { useMemo, useState } from "react";
-import { Link } from "react-router-dom";
+import { useEffect, useMemo, useState } from "react";
+import { Link, useLocation } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { Plus } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
@@ -40,6 +40,7 @@ const FIELDS = "id, titre, sous_titre, description, date_debut, date_fin, lieu, 
 
 const Evenements = () => {
   const [filter, setFilter] = useState<(typeof FILTERS)[number]["key"]>("tous");
+  const { hash } = useLocation();
 
   const { data: upcoming = [], isLoading } = useQuery({
     queryKey: ["agenda-upcoming"],
@@ -60,6 +61,13 @@ const Evenements = () => {
       return (data || []) as AgendaEvent[];
     },
   });
+
+  // Ancres « #proposer » et « #passes » : on descend jusqu'à la section une fois la page chargée
+  useEffect(() => {
+    if (!hash) return;
+    const t = setTimeout(() => document.querySelector(hash)?.scrollIntoView({ block: "start" }), 400);
+    return () => clearTimeout(t);
+  }, [hash, isLoading]);
 
   const test = FILTERS.find((f) => f.key === filter)!.test;
   const groups = useMemo(() => {
