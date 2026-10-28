@@ -221,7 +221,7 @@ const AdminEvenements = () => {
 
   const exportCSV = () => {
     if (!evenements?.length) return;
-    const headers = ["Titre", "Sous-titre", "Date début", "Date fin", "Lieu", "Adresse", "Type", "Places", "Lien externe", "Publié", "Description"];
+    const headers = ["Titre", "Sous-titre", "Date début", "Date fin", "Lieu", "Adresse", "Type", "Places", "Lien externe", "Statut", "Description"];
     const rows = evenements.map((e: any) => [
       e.titre, e.sous_titre || "",
       new Date(e.date_debut).toLocaleString("fr-FR"),
@@ -427,7 +427,7 @@ const AdminEvenements = () => {
           </div>
         ) : (
           <div className="space-y-3">
-            {evenements.map((evt: any) => (
+            {[...enRelecture, ...evenements.filter((e: any) => e.statut !== "en_relecture")].map((evt: any) => (
               <div key={evt.id} className="flex items-center gap-4 bg-card border border-border rounded-xl p-4">
                 {evt.image_url ? (
                   <img src={evt.image_url} alt="" className="shrink-0 w-16 h-16 rounded-xl object-cover" />
