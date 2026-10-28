@@ -1,208 +1,266 @@
-import { useEffect, useState, useMemo } from "react";
-import { motion } from "framer-motion";
-import { Mic2, ArrowUpRight, MapPin, Loader2, ChevronDown, Search, X, Play } from "lucide-react";
-import { supabase } from "@/integrations/supabase/client";
+import { useMemo, useState, useEffect } from "react";
 import { Link } from "react-router-dom";
+import { useQuery } from "@tanstack/react-query";
+import { ExternalLink, Pause, Play } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import SEOHead from "@/components/SEOHead";
+import { usePlayer } from "@/contexts/PlayerContext";
+import { useLatestEpisodes, type Episode } from "@/lib/episodes";
+import { btnPrimary, btnSecondary, cleanCity, container, formatShortDate, fullName } from "@/lib/pds";
 
 interface Podcast {
   id: string;
   slug: string | null;
   nom_podcast: string;
   description: string;
-  ville: string | null;
   thematique: string | null;
   lien_ecoute: string;
   vignette_url: string | null;
   created_at: string;
   prenom: string | null;
   nom: string | null;
-  bio_750: string | null;
-  type_profil: string;
+  city_name: string | null;
+  ville: string | null;
+  department_code: string | null;
+  department_label: string | null;
 }
 
-const INITIAL_COUNT = 16;
+const INITIAL_COUNT = 8;
 const LOAD_MORE_COUNT = 12;
+
+const SORTS = [
+  { value: "episode", label: "Dernier épisode publié" },
+  { value: "ajout", label: "Ajoutés récemment" },
+  { value: "nom", label: "Nom, de A à Z" },
+] as const;
+type SortKey = (typeof SORTS)[number]["value"];
+
+const fieldClass =
+  "w-full min-h-[48px] px-3 bg-surface border-2 border-encre text-[16px] focus:outline-none focus-visible:outline-[3px] focus-visible:outline-accent";
 
 const jsonLd = {
   "@context": "https://schema.org",
   "@type": "CollectionPage",
-  name: "Podcasts Marseille & Région Sud — Podcasts, livres audio, vodcasts, fictions sonores",
-  description: "Annuaire des podcasts à Marseille et en Région Sud : podcasts, livres audio, vodcasts, fictions sonores et créations musicales audio en Provence-Alpes-Côte d'Azur.",
-  url: "https://www.les-podcasteur-euses-du-sud.fr/podcasts",
-  about: ["podcast", "livre audio", "vodcast", "fiction sonore", "musique création", "création audio"],
+  name: "Écouter les podcasts de Marseille et de la Région Sud",
+  description: "Podcasts, fictions sonores, livres audio et vodcasts fabriqués à Marseille et en Région Sud, à écouter directement sur le site.",
+  url: "https://www.les-podcasteur-euses-du-sud.fr/ecouter",
+  inLanguage: "fr",
 };
 
+const norm = (s: string) => s.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
+
 const Podcasts = () => {
-  const [podcasts, setPodcasts] = useState<Podcast[]>([]);
-  const [loading, setLoading] = useState(true);
+  const { play, isCurrent, playing } = usePlayer();
   const [visible, setVisible] = useState(INITIAL_COUNT);
   const [search, setSearch] = useState("");
-  const [thematique, setThematique] = useState("");
+  const [dept, setDept] = useState("");
+  const [sort, setSort] = useState<SortKey>("episode");
+  const [theme, setTheme] = useState("");
 
-  useEffect(() => {
-    const fetchPodcasts = async () => {
+  const { data: podcasts = [], isLoading } = useQuery({
+    queryKey: ["ecouter-podcasts"],
+    queryFn: async () => {
       const { data, error } = await supabase
         .from("podcasts")
-        .select("id, slug, nom_podcast, description, ville, thematique, lien_ecoute, vignette_url, created_at, prenom, nom, bio_750, type_profil")
+        .select("id, slug, nom_podcast, description, thematique, lien_ecoute, vignette_url, created_at, prenom, nom, city_name, ville, department_code, department_label")
         .eq("valide", true)
         .eq("type_profil", "podcasteur")
         .order("created_at", { ascending: false });
-      if (!error && data) setPodcasts(data);
-      setLoading(false);
-    };
-    fetchPodcasts();
-  }, []);
+      if (error) throw error;
+      return (data || []) as Podcast[];
+    },
+    staleTime: 5 * 60 * 1000,
+  });
 
-  const thematiques = useMemo(() => {
+  const { data: epData } = useLatestEpisodes(40);
+  const episodeByPodcast = useMemo(() => {
+    const m = new Map<string, Episode>();
+    (epData?.latest || []).forEach((e) => m.set(e.podcastId, e));
+    return m;
+  }, [epData]);
+
+  // Thèmes réels de la base ; « Autre » relégué en fin de liste
+  const themes = useMemo(() => {
     const set = new Set<string>();
     podcasts.forEach((p) => p.thematique && set.add(p.thematique));
-    return Array.from(set).sort();
+    return Array.from(set).sort((a, b) => {
+      if (a === "Autre") return 1;
+      if (b === "Autre") return -1;
+      return a.localeCompare(b, "fr");
+    });
+  }, [podcasts]);
+
+  const departements = useMemo(() => {
+    const m = new Map<string, string>();
+    podcasts.forEach((p) => p.department_code && m.set(p.department_code, p.department_label || p.department_code));
+    return Array.from(m.entries()).sort((a, b) => a[0].localeCompare(b[0]));
   }, [podcasts]);
 
   const filtered = useMemo(() => {
-    let result = podcasts;
-    if (thematique) result = result.filter((p) => p.thematique === thematique);
+    let r = podcasts;
+    if (theme) r = r.filter((p) => p.thematique === theme);
+    if (dept) r = r.filter((p) => p.department_code === dept);
     if (search.trim()) {
-      const q = search.toLowerCase();
-      result = result.filter(
-        (p) =>
-          p.nom_podcast.toLowerCase().includes(q) ||
-          p.description.toLowerCase().includes(q) ||
-          (p.ville && p.ville.toLowerCase().includes(q)) ||
-          (p.prenom && p.prenom.toLowerCase().includes(q)) ||
-          (p.nom && p.nom.toLowerCase().includes(q))
+      const q = norm(search.trim());
+      r = r.filter((p) =>
+        [p.nom_podcast, p.description, p.prenom, p.nom, p.city_name, p.ville, p.thematique]
+          .filter(Boolean)
+          .some((v) => norm(v as string).includes(q)),
       );
     }
-    return result;
-  }, [podcasts, search, thematique]);
+    const sorted = [...r];
+    if (sort === "nom") sorted.sort((a, b) => a.nom_podcast.localeCompare(b.nom_podcast, "fr"));
+    else if (sort === "episode") {
+      sorted.sort((a, b) => {
+        const da = episodeByPodcast.get(a.id)?.date || "";
+        const db = episodeByPodcast.get(b.id)?.date || "";
+        if (da !== db) return db.localeCompare(da);
+        return b.created_at.localeCompare(a.created_at);
+      });
+    }
+    return sorted;
+  }, [podcasts, theme, dept, search, sort, episodeByPodcast]);
 
-  const hasMore = visible < filtered.length;
+  useEffect(() => setVisible(INITIAL_COUNT), [search, dept, theme, sort]);
 
-  useEffect(() => {
-    setVisible(INITIAL_COUNT);
-  }, [search, thematique]);
+  const remaining = filtered.length - visible;
 
   return (
     <div className="min-h-screen bg-background">
-      <SEOHead title="Podcasts Marseille & Région Sud — Podcasts, livres audio, vodcasts" description="Tous les podcasts, livres audio, vodcasts et fictions sonores créés à Marseille, Nice, Toulon et en Région Sud PACA." path="/podcasts" jsonLd={jsonLd} />
+      <SEOHead
+        title="Écouter les podcasts de Marseille et de la Région Sud — Les Podcasteur·euses du Sud"
+        description={`${podcasts.length || "Les"} podcasts, fictions sonores et livres audio fabriqués à Marseille et en Région Sud. Lancez un épisode, il continue pendant que vous naviguez.`}
+        path="/ecouter"
+        jsonLd={jsonLd}
+      />
       <Navbar />
-      <main className="pt-24 pb-20">
-        <div className="container mx-auto px-6 max-w-6xl">
-          {/* Header */}
-          <div className="border-b border-primary/10 pb-8 mb-8">
-            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }}>
-              <h1 className="font-display font-bold text-2xl sm:text-3xl md:text-4xl mb-2 text-foreground">Flux podcasts</h1>
-              {!loading && <p className="text-muted-foreground text-sm">{filtered.length} show{filtered.length > 1 ? "s" : ""} référencé{filtered.length > 1 ? "s" : ""}</p>}
-            </motion.div>
+      <main className="pt-16 md:pt-[76px]">
+        <div className={`${container} pt-10 md:pt-14`}>
+          <h1 className="title-page text-[64px] sm:text-[96px]">Écouter</h1>
+          <p className="mt-4 text-lg max-w-[52ch]">
+            {podcasts.length > 0 ? `${podcasts.length} podcasts` : "Les podcasts"} fabriqués à Marseille et en Région Sud. Lancez un épisode, il continue pendant que vous naviguez.
+          </p>
 
-            {/* Filters */}
-            <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4, delay: 0.2 }} className="flex flex-col sm:flex-row gap-3 mt-6">
-              <div className="relative flex-1 max-w-md">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                <input
-                  type="text"
-                  placeholder="Rechercher un podcast, un nom, une ville…"
-                  value={search}
-                  onChange={(e) => setSearch(e.target.value)}
-                  className="w-full pl-9 pr-8 py-2.5 rounded-xl border border-primary/12 bg-background-pure text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all"
-                />
-                {search && (
-                  <button onClick={() => setSearch("")} className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground">
-                    <X className="w-4 h-4" />
-                  </button>
-                )}
-              </div>
-              <div className="flex flex-wrap gap-2">
-                <button
-                  onClick={() => setThematique("")}
-                  className={`px-4 py-2 rounded-full text-sm font-medium transition-all ${!thematique ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground hover:text-foreground"}`}
-                >
-                  Tous
-                </button>
-                {thematiques.map((t) => (
-                  <button
-                    key={t}
-                    onClick={() => setThematique(t === thematique ? "" : t)}
-                    className={`px-4 py-2 rounded-full text-sm font-medium transition-all ${thematique === t ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground hover:text-foreground"}`}
-                  >
-                    {t}
-                  </button>
+          <div className="mt-8 grid gap-4 md:grid-cols-[2fr_1fr_1fr] pb-6 border-b-2 border-encre">
+            <div>
+              <label htmlFor="ecouter-search" className="block text-sm font-bold mb-1.5">Rechercher</label>
+              <input
+                id="ecouter-search"
+                type="search"
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                placeholder="Un titre, un nom, un sujet"
+                className={fieldClass}
+              />
+            </div>
+            <div>
+              <label htmlFor="ecouter-dept" className="block text-sm font-bold mb-1.5">Département</label>
+              <select id="ecouter-dept" value={dept} onChange={(e) => setDept(e.target.value)} className={fieldClass}>
+                <option value="">Toute la région</option>
+                {departements.map(([code, label]) => (
+                  <option key={code} value={code}>{label} ({code})</option>
                 ))}
-              </div>
-            </motion.div>
+              </select>
+            </div>
+            <div>
+              <label htmlFor="ecouter-sort" className="block text-sm font-bold mb-1.5">Trier par</label>
+              <select id="ecouter-sort" value={sort} onChange={(e) => setSort(e.target.value as SortKey)} className={fieldClass}>
+                {SORTS.map((s) => <option key={s.value} value={s.value}>{s.label}</option>)}
+              </select>
+            </div>
           </div>
 
+          <div role="group" aria-label="Filtrer par thème" className="mt-6 flex flex-wrap gap-2">
+            {["", ...themes].map((t) => (
+              <button
+                key={t || "tous"}
+                onClick={() => setTheme(t)}
+                aria-pressed={theme === t}
+                className={`min-h-[44px] px-4 border font-semibold text-[15px] ${theme === t ? "bg-encre text-surface border-encre" : "border-encre bg-surface hover:bg-muted"}`}
+              >
+                {t || "Tous les thèmes"}
+              </button>
+            ))}
+          </div>
 
-          {loading ? (
-            <div className="flex items-center justify-center py-20"><Loader2 className="w-6 h-6 text-primary animate-spin" /></div>
-          ) : filtered.length > 0 ? (
-            <>
-              <div className="grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
-                {filtered.slice(0, visible).map((p, i) => (
-                  <motion.article
-                    key={p.id}
-                    initial={{ opacity: 0, y: 25 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.5, delay: (i % LOAD_MORE_COUNT) * 0.04 }}
-                    className="group bg-background-pure rounded-2xl border border-primary/8 overflow-hidden hover:border-primary/20 hover:-translate-y-1 hover:shadow-xl hover:shadow-primary/5 transition-all duration-300 flex flex-col relative"
-                  >
-                    <div className="absolute top-0 left-0 right-0 h-[3px] bg-gradient-to-r from-primary to-lavande scale-x-0 group-hover:scale-x-100 transition-transform duration-500 origin-left z-10" />
-                    <div className="aspect-square bg-muted relative overflow-hidden">
-                      {p.vignette_url ? (
-                        <img src={p.vignette_url} alt={`Vignette de ${p.nom_podcast}`} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" loading="lazy" />
-                      ) : (
-                        <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-primary/8 to-lavande/5">
-                          <Mic2 className="w-12 h-12 text-primary/30" />
-                        </div>
-                      )}
-                      {/* Play overlay on hover */}
-                      <a
-                        href={p.lien_ecoute}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="absolute inset-0 bg-ink/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300"
-                        onClick={(e) => e.stopPropagation()}
-                      >
-                        <div className="w-12 h-12 rounded-full bg-primary flex items-center justify-center shadow-lg">
-                          <Play className="w-5 h-5 text-primary-foreground ml-0.5" />
-                        </div>
-                      </a>
-                    </div>
-                    <div className="p-4 flex flex-col flex-1">
-                      <h2 className="font-display font-bold text-base text-foreground mb-0.5 line-clamp-1">{p.nom_podcast}</h2>
-                      {(p.prenom || p.nom) && <p className="text-sm text-primary font-medium mb-1">{p.prenom} {p.nom}</p>}
-                      {(p.ville || p.thematique) && (
-                        <div className="flex items-center flex-wrap gap-1.5 text-xs text-muted-foreground mb-2">
-                          {p.ville && <span className="flex items-center gap-1"><MapPin className="w-3 h-3" />{p.ville}</span>}
-                          {p.thematique && <span className="inline-flex px-2 py-0.5 rounded-full text-terre" style={{ background: "rgba(200,116,42,0.08)" }}>{p.thematique}</span>}
-                        </div>
-                      )}
-                      <div className="flex items-center gap-3 mt-auto pt-2">
-                        <Link to={`/podcasteur/${p.slug || p.id}`} className="inline-flex items-center gap-1 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">Voir le profil</Link>
-                      </div>
-                    </div>
-                  </motion.article>
-                ))}
-              </div>
-              {hasMore && (
-                <div className="flex justify-center mt-10">
-                  <button onClick={() => setVisible((v) => v + LOAD_MORE_COUNT)} className="group inline-flex items-center gap-2 px-6 py-3 rounded-full border border-primary/15 bg-background-pure text-sm font-medium text-muted-foreground hover:text-foreground hover:border-primary/30 transition-all duration-300">
-                    Voir plus ({filtered.length - visible} restants) <ChevronDown className="w-4 h-4 group-hover:translate-y-0.5 transition-transform" />
-                  </button>
-                </div>
-              )}
-            </>
+          <p className="mt-8 font-mono text-sm text-muted-foreground" aria-live="polite">
+            {isLoading ? "Chargement…" : `${filtered.length} podcast${filtered.length > 1 ? "s" : ""}`}
+          </p>
+
+          {!isLoading && filtered.length === 0 ? (
+            <p className="py-16 text-lg">Aucun podcast ne correspond à cette recherche. Essayez un autre mot ou un autre thème.</p>
           ) : (
-            <div className="text-center py-16">
-              <div className="w-16 h-16 rounded-2xl bg-primary/8 flex items-center justify-center mx-auto mb-5"><Mic2 className="w-7 h-7 text-primary/50" /></div>
-              <h2 className="font-display font-bold text-xl mb-2 text-foreground">{search || thematique ? "Aucun résultat" : "Les premiers podcasts arrivent bientôt"}</h2>
-              <p className="text-muted-foreground text-sm max-w-md mx-auto">{search || thematique ? "Ajustez votre recherche." : "Le flux se construit en temps réel."}</p>
+            <ul className="mt-4 grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-x-4 sm:gap-x-6 gap-y-10">
+              {filtered.slice(0, visible).map((p) => {
+                const ep = episodeByPodcast.get(p.id);
+                const active = ep ? isCurrent(ep) && playing : false;
+                const author = fullName(p.prenom, p.nom);
+                const city = cleanCity(p.city_name || p.ville);
+                const href = `/podcasteur/${p.slug || p.id}`;
+                return (
+                  <li key={p.id} className="flex flex-col">
+                    <Link to={href} className="block aspect-square bg-muted overflow-hidden" tabIndex={-1} aria-hidden>
+                      {p.vignette_url ? (
+                        <img src={p.vignette_url} alt="" className="w-full h-full object-cover" loading="lazy" />
+                      ) : (
+                        <span className="flex w-full h-full items-center justify-center bg-primary text-primary-foreground title-section text-2xl p-4 text-center">{p.nom_podcast}</span>
+                      )}
+                    </Link>
+                    <div className="mt-3 flex items-start justify-between gap-2">
+                      <div className="min-w-0">
+                        <Link to={href} className="block font-bold text-[17px] leading-tight hover:underline underline-offset-4">
+                          {p.nom_podcast}
+                        </Link>
+                        <p className="text-sm text-muted-foreground mt-0.5">{[author, city].filter(Boolean).join(" · ")}</p>
+                      </div>
+                      {ep ? (
+                        <button
+                          onClick={() => play(ep)}
+                          className={`shrink-0 w-11 h-11 rounded-full border-2 border-primary inline-flex items-center justify-center ${active ? "bg-primary text-primary-foreground" : "text-primary hover:bg-primary hover:text-primary-foreground"}`}
+                          aria-label={`${active ? "Mettre en pause" : "Écouter le dernier épisode de"} ${p.nom_podcast}`}
+                        >
+                          {active ? <Pause className="w-4 h-4" fill="currentColor" /> : <Play className="w-4 h-4 ml-0.5" fill="currentColor" />}
+                        </button>
+                      ) : (
+                        <a
+                          href={p.lien_ecoute}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="shrink-0 w-11 h-11 rounded-full border-2 border-primary text-primary inline-flex items-center justify-center hover:bg-primary hover:text-primary-foreground"
+                          aria-label={`Écouter ${p.nom_podcast} (nouvel onglet)`}
+                        >
+                          <ExternalLink className="w-4 h-4" />
+                        </a>
+                      )}
+                    </div>
+                    {ep?.date && (
+                      <p className="mt-2 font-mono text-xs text-muted-foreground">Dernier épisode · {formatShortDate(ep.date)}</p>
+                    )}
+                  </li>
+                );
+              })}
+            </ul>
+          )}
+
+          {remaining > 0 && (
+            <div className="flex justify-center mt-12">
+              <button onClick={() => setVisible((v) => v + LOAD_MORE_COUNT)} className={btnSecondary}>
+                Afficher {Math.min(remaining, LOAD_MORE_COUNT) === remaining ? remaining : LOAD_MORE_COUNT} podcast{remaining > 1 ? "s" : ""} de plus
+              </button>
             </div>
           )}
         </div>
+
+        <section className="mt-16 md:mt-24 bg-surface border-y border-filet" aria-label="Adhérer">
+          <div className={`${container} py-8 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-5`}>
+            <p className="font-bold text-lg sm:text-xl max-w-[52ch]">
+              Votre podcast est fait dans la région ? Adhérez pour qu'il apparaisse ici et tourne dans le lecteur.
+            </p>
+            <Link to="/rejoindre-association" className={`${btnPrimary} px-7 shrink-0 self-start sm:self-auto`}>Adhérer</Link>
+          </div>
+        </section>
       </main>
       <Footer />
     </div>
