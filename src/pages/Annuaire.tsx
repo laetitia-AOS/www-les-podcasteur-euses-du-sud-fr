@@ -7,19 +7,7 @@ import Footer from "@/components/Footer";
 import SEOHead from "@/components/SEOHead";
 import { btnSecondary, cleanCity, container, fullName } from "@/lib/pds";
 import MemberAvatar, { profilePhotoFor } from "@/components/MemberAvatar";
-
-// « Je cherche quelqu'un pour… » : chaque case correspond à une réponse exacte de « Ce que je peux apporter »
-const BESOINS = [
-  { label: "Une voix off", short: "une voix off", value: "Faire de la voix off" },
-  { label: "De la stratégie", short: "de la stratégie", value: "Partager mon expertise stratégique" },
-  { label: "Du montage, du son", short: "du montage ou du son", value: "Proposer mes compétences techniques (son, montage)" },
-  { label: "Co-produire un format", short: "une co-production", value: "Co-produire un format" },
-  { label: "Être invité·e", short: "leur voix en invité·e", value: "Participer à un podcast en tant qu'invité·e" },
-  { label: "Trouver des sponsors", short: "un partenariat commercial", value: "Proposer un partenariat commercial" },
-  { label: "Organiser un événement", short: "de l'aide pour un événement", value: "Organiser ou co-organiser un événement" },
-  { label: "Être accompagné·e", short: "du mentorat", value: "Mentorer un·e podcasteur·euse débutant·e" },
-  { label: "Des visuels", short: "des visuels", value: "Créer des visuels / motion" },
-];
+import { COLLAB_CHOIX, collabLabel, phraseApportent } from "@/lib/inscription";
 
 const PROFILS = [
   { value: "", label: "Tous" },
@@ -63,8 +51,10 @@ interface Profile {
   thematique: string | null;
   vignette_url: string | null;
   photo_profil_url?: string | null;
-  cherche_collaboration: string[] | null;
-  peut_apporter: string[] | null;
+  cherche_choix: string[] | null;
+  apporte_choix: string[] | null;
+  cherche_precision: string | null;
+  apporte_precision: string | null;
 }
 
 const Annuaire = () => {
@@ -79,7 +69,7 @@ const Annuaire = () => {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("podcasts")
-        .select("id, slug, prenom, nom, type_profil, city_name, department_code, department_label, bio_750, nom_podcast, metier_principal, services_3, thematique, vignette_url, photo_profil_url, cherche_collaboration, peut_apporter")
+        .select("id, slug, prenom, nom, type_profil, city_name, department_code, department_label, bio_750, nom_podcast, metier_principal, services_3, thematique, vignette_url, photo_profil_url, cherche_choix, apporte_choix, cherche_precision, apporte_precision")
         .eq("valide", true)
         .in("type_profil", ["podcasteur", "pro_podcast", "soutien"])
         .order("created_at", { ascending: false });
@@ -94,10 +84,11 @@ const Annuaire = () => {
     return profiles.filter((p) => {
       if (profil && p.type_profil !== profil) return false;
       if (dept && p.department_code !== dept) return false;
-      if (besoins.length && !besoins.some((b) => p.peut_apporter?.includes(b))) return false;
+      // « Je cherche quelqu'un pour X » : on montre les profils qui APPORTENT X
+      if (besoins.length && !besoins.some((b) => p.apporte_choix?.includes(b))) return false;
       if (q) {
         const hay = norm(
-          [p.prenom, p.nom, p.nom_podcast, p.metier_principal, p.bio_750, p.city_name, p.thematique, ...(p.services_3 || []), ...(p.peut_apporter || [])]
+          [p.prenom, p.nom, p.nom_podcast, p.metier_principal, p.bio_750, p.city_name, p.thematique, ...(p.services_3 || []), ...(p.apporte_choix || []).map(collabLabel), p.apporte_precision]
             .filter(Boolean)
             .join(" "),
         );
@@ -115,13 +106,8 @@ const Annuaire = () => {
 
   const summary = (() => {
     const n = filtered.length;
-    const label = `${n} profil${n > 1 ? "s" : ""}`;
-    if (besoins.length === 1) {
-      const b = BESOINS.find((x) => x.value === besoins[0]);
-      return <><strong>{label}</strong> {n > 1 ? "apportent" : "apporte"} « {b?.short} »</>;
-    }
-    if (besoins.length > 1) return <><strong>{label}</strong> {n > 1 ? "correspondent" : "correspond"} à votre recherche</>;
-    return <strong>{label}</strong>;
+    if (besoins.length) return <strong>{phraseApportent(n, besoins)}</strong>;
+    return <strong>{`${n} profil${n > 1 ? "s" : ""}`}</strong>;
   })();
 
   return (
@@ -153,8 +139,8 @@ const Annuaire = () => {
               <fieldset>
                 <legend className="text-sm font-bold mb-2">Je cherche quelqu'un pour</legend>
                 <ul className="space-y-0.5">
-                  {BESOINS.map((b) => {
-                    const id = `besoin-${b.value.replace(/\W+/g, "-")}`;
+                  {COLLAB_CHOIX.map((b) => {
+                    const id = `besoin-${b.value}`;
                     return (
                       <li key={b.value}>
                         <label htmlFor={id} className="flex items-center gap-3 min-h-[40px] cursor-pointer text-[16px]">
@@ -206,11 +192,11 @@ const Annuaire = () => {
                   const name = fullName(p.prenom, p.nom) || p.nom_podcast || "Membre";
                   const city = cleanCity(p.city_name);
                   const href = `/podcasteur/${p.slug || p.id}`;
-                  const cherche = (p.cherche_collaboration || []).slice(0, 2).join(", ");
+                  const cherche = (p.cherche_choix || []).slice(0, 3).map(collabLabel).join(", ");
                   const apporte = (besoins.length
-                    ? [...(p.peut_apporter || [])].sort((a, b) => Number(besoins.includes(b)) - Number(besoins.includes(a)))
-                    : p.peut_apporter || []
-                  ).slice(0, 2).join(", ");
+                    ? [...(p.apporte_choix || [])].sort((a, b) => Number(besoins.includes(b)) - Number(besoins.includes(a)))
+                    : p.apporte_choix || []
+                  ).slice(0, 3).map(collabLabel).join(", ");
                   return (
                     <li key={p.id} className="grid grid-cols-[56px_1fr] sm:grid-cols-[64px_1fr_auto] gap-x-4 sm:gap-x-5 gap-y-2 py-5">
                       <MemberAvatar prenom={p.prenom} nom={p.nom} photoUrl={profilePhotoFor(p, profiles)} />
