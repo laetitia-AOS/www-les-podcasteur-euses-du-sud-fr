@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { verifierFlux } from "@/lib/episodes";
 import { Link } from "react-router-dom";
 import { Loader2 } from "lucide-react";
 import { toast } from "sonner";
@@ -48,6 +49,12 @@ const PodcastCard = ({ fiche, onSaved, onDeleted }: Props) => {
     if (!isHttpsUrl(f.lien_ecoute.trim())) { toast.error("Le lien d'écoute doit commencer par https://"); return; }
     if (f.flux_rss.trim() && !isHttpsUrl(f.flux_rss.trim())) { toast.error("Le flux RSS doit commencer par https://"); return; }
     setSaving(true);
+    // Flux RSS modifié : vérifié par le serveur avant l'enregistrement
+    if (f.flux_rss.trim() && f.flux_rss.trim() !== (fiche.flux_rss || "")) {
+      const check = await verifierFlux(f.flux_rss.trim());
+      if (!check.ok) { toast.error(check.message); setSaving(false); return; }
+      toast.success(check.message);
+    }
     try {
       let url = cover;
       if (coverFile) url = await uploadImage(coverFile);
