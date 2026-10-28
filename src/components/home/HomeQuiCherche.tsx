@@ -1,6 +1,7 @@
 import { Link } from "react-router-dom";
 import { container, cleanCity, fullName, linkUnderline } from "@/lib/pds";
 import type { HomeProfile } from "./useHomeData";
+import MemberAvatar, { profilePhotoFor } from "@/components/MemberAvatar";
 
 const ROLE: Record<string, string> = {
   podcasteur: "podcasteur·euse",
@@ -36,11 +37,7 @@ const HomeQuiCherche = ({ profiles }: { profiles: HomeProfile[] }) => {
           {people.map((p) => (
             <li key={p.id}>
               <Link to={`/podcasteur/${p.slug || p.id}`} className="grid grid-cols-[56px_1fr] sm:grid-cols-[80px_1fr] gap-4 sm:gap-6 py-6 hover:bg-surface">
-                {p.vignette_url ? (
-                  <img src={p.vignette_url} alt="" className="w-14 h-14 sm:w-20 sm:h-20 rounded-full object-cover" loading="lazy" />
-                ) : (
-                  <span className="w-14 h-14 sm:w-20 sm:h-20 rounded-full bg-muted" aria-hidden />
-                )}
+                <MemberAvatar prenom={p.prenom} nom={p.nom} photoUrl={profilePhotoFor(p, profiles)} className="w-14 h-14 sm:w-20 sm:h-20" />
                 <div className="min-w-0">
                   <p className="text-[19px] sm:text-[22px] leading-tight">
                     <span className="font-bold">{fullName(p.prenom, p.nom) || p.nom_podcast}</span>
