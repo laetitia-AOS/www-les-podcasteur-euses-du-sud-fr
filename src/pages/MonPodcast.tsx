@@ -10,6 +10,7 @@ interface PodcastData {
   id: string;
   nom_podcast: string;
   lien_ecoute: string;
+  flux_rss?: string | null;
   description: string;
   thematique: string | null;
   vignette_url: string | null;
@@ -63,7 +64,7 @@ const MonEspace = () => {
       setUserEmail(session.user.email || "");
       const { data, error } = await supabase
         .from("podcasts")
-        .select("id, nom_podcast, lien_ecoute, description, thematique, vignette_url, prenom, nom, telephone, email, ville, type_podcast, type_profil, bio_750, lien_principal, lien_linkedin, metier_principal, services_3, disponibilite, valide, niveau_avancement, frequence_publication, monetise, department_code, city_name")
+        .select("id, nom_podcast, lien_ecoute, flux_rss, description, thematique, vignette_url, prenom, nom, telephone, email, ville, type_podcast, type_profil, bio_750, lien_principal, lien_linkedin, metier_principal, services_3, disponibilite, valide, niveau_avancement, frequence_publication, monetise, department_code, city_name")
         .eq("email", session.user.email!)
         .order("created_at", { ascending: false });
 
@@ -139,6 +140,7 @@ const MonEspace = () => {
     const updateData: Record<string, unknown> = {
       nom_podcast: form.nom_podcast,
       lien_ecoute: form.lien_ecoute,
+      flux_rss: (form as any).flux_rss?.trim() || null,
       description: form.description,
       thematique: form.thematique,
       vignette_url: form.vignette_url,
@@ -372,6 +374,11 @@ const MonEspace = () => {
               <div>
                 <label className={labelClass}>Lien d'écoute principal</label>
                 <input name="lien_ecoute" value={form.lien_ecoute || ""} onChange={handleChange} className={inputClass} />
+              </div>
+              <div>
+                <label className={labelClass} htmlFor="flux_rss">Flux RSS (facultatif)</label>
+                <input id="flux_rss" name="flux_rss" type="url" value={(form as any).flux_rss || ""} onChange={handleChange} className={inputClass} placeholder="https://feed.ausha.co/…" />
+                <p className="text-xs text-muted-foreground mt-1">Il permet d'afficher vos derniers épisodes et de les écouter directement sur le site. Vous le trouvez dans votre hébergeur (Ausha, Acast, Spotify for Creators…).</p>
               </div>
               <div>
                 <label className={labelClass}>Description courte</label>

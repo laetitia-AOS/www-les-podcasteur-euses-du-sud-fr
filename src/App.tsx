@@ -5,6 +5,8 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate, useParams } from "react-router-dom";
 import ScrollToTop from "./components/ScrollToTop";
+import { PlayerProvider } from "./contexts/PlayerContext";
+import PlayerBar from "./components/PlayerBar";
 import Index from "./pages/Index";
 
 // Lazy-loaded pages
@@ -54,6 +56,7 @@ const App = () => (
     <TooltipProvider>
       <Toaster />
       <Sonner />
+      <PlayerProvider>
       <BrowserRouter>
         <ScrollToTop />
         <Suspense fallback={<PageLoader />}>
@@ -100,7 +103,9 @@ const App = () => (
             <Route path="*" element={<NotFound />} />
           </Routes>
         </Suspense>
+        <PlayerBar />
       </BrowserRouter>
+      </PlayerProvider>
     </TooltipProvider>
   </QueryClientProvider>
 );
