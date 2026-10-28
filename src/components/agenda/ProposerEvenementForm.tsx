@@ -1,5 +1,5 @@
 import { useRef, useState } from "react";
-import { messageServeur } from "@/lib/inscription";
+import { checkImage, messageServeur, uploadImage } from "@/lib/inscription";
 import { Link } from "react-router-dom";
 import { toast } from "sonner";
 import { X } from "lucide-react";
@@ -43,20 +43,17 @@ const ProposerEvenementForm = () => {
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) =>
     setForm((prev) => ({ ...prev, [e.target.name]: e.target.value }));
 
-  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+  // L'image est seulement choisie ici ; elle part avec le formulaire (contrôle serveur, puis relecture).
+  const [imageFile, setImageFile] = useState<File | null>(null);
+  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
+    e.target.value = "";
     if (!file) return;
-    if (!file.type.startsWith("image/")) { toast.error("Sélectionnez une image."); return; }
-    if (file.size > 5 * 1024 * 1024) { toast.error("L'image doit faire moins de 5 Mo."); return; }
-    setUploading(true);
-    const ext = file.name.split(".").pop();
-    const fileName = `${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`;
-    const { error } = await supabase.storage.from("event-images").upload(fileName, file, { contentType: file.type });
-    if (error) { toast.error("L'image n'a pas pu être envoyée."); setUploading(false); return; }
-    const { data: urlData } = supabase.storage.from("event-images").getPublicUrl(fileName);
-    setForm((prev) => ({ ...prev, image_url: urlData.publicUrl }));
-    setUploading(false);
-    toast.success("Image ajoutée.");
+    const problem = checkImage(file);
+    if (problem) { toast.error(problem); return; }
+    if (form.image_url.startsWith("blob:")) URL.revokeObjectURL(form.image_url);
+    setImageFile(file);
+    setForm((prev) => ({ ...prev, image_url: URL.createObjectURL(file) }));
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -65,6 +62,16 @@ const ProposerEvenementForm = () => {
     if (!form.proposeur_nom || !form.proposeur_email) { toast.error("Indiquez votre nom et votre e-mail."); return; }
 
     setUploading(true);
+    let imageUrl: string | null = null;
+    if (imageFile && form.image_url) {
+      try {
+        imageUrl = await uploadImage(imageFile, form.proposeur_email, "event-images");
+      } catch (err) {
+        setUploading(false);
+        toast.error(messageServeur(err as { code?: string; message?: string }, "L'image n'a pas pu être envoyée."));
+        return;
+      }
+    }
     const { error } = await supabase.from("evenements").insert({
       titre: form.titre,
       sous_titre: form.sous_titre || null,
@@ -77,7 +84,7 @@ const ProposerEvenementForm = () => {
       adresse: form.adresse || null,
       type: form.type,
       lien_externe: form.lien_externe || null,
-      image_url: form.image_url || null,
+      image_url: imageUrl,
       places: form.places ? parseInt(form.places) : null,
       publie: false, // En attente de validation admin
     });
@@ -145,7 +152,7 @@ const ProposerEvenementForm = () => {
         {form.image_url ? (
           <div className="relative inline-block">
             <img src={form.image_url} alt="Aperçu du visuel choisi" className="w-full max-w-sm h-40 object-cover border-2 border-encre" />
-            <button type="button" onClick={() => setForm((p) => ({ ...p, image_url: "" }))} className="absolute top-2 right-2 w-11 h-11 bg-encre text-surface inline-flex items-center justify-center" aria-label="Retirer le visuel">
+            <button type="button" onClick={() => { setImageFile(null); setForm((p) => ({ ...p, image_url: "" })); }} className="absolute top-2 right-2 w-11 h-11 bg-encre text-surface inline-flex items-center justify-center" aria-label="Retirer le visuel">
               <X className="w-5 h-5" />
             </button>
           </div>
