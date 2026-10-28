@@ -895,7 +895,7 @@ const PersonEditForm = ({ editForm, setEditForm, inputClass, selectClass, labelC
               if (err) { toast.error(err); return; }
               try {
                 const url = await uploadImage(await cropToSquare(file));
-                setEditForm({ ...editForm, photo_profil_url: url } as any);
+                setEditForm((prev: any) => ({ ...prev, photo_profil_url: url }));
               } catch { toast.error("L'image n'a pas pu être envoyée."); }
             }}
           />
