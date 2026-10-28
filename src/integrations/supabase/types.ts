@@ -94,6 +94,7 @@ export type Database = {
       contact_requests: {
         Row: {
           created_at: string
+          devis_id: string | null
           id: string
           lu_le: string | null
           message: string
@@ -105,6 +106,7 @@ export type Database = {
         }
         Insert: {
           created_at?: string
+          devis_id?: string | null
           id?: string
           lu_le?: string | null
           message: string
@@ -116,6 +118,7 @@ export type Database = {
         }
         Update: {
           created_at?: string
+          devis_id?: string | null
           id?: string
           lu_le?: string | null
           message?: string
@@ -126,6 +129,13 @@ export type Database = {
           type?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "contact_requests_devis_id_fkey"
+            columns: ["devis_id"]
+            isOneToOne: false
+            referencedRelation: "demandes_devis"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "contact_requests_recipient_id_fkey"
             columns: ["recipient_id"]
@@ -173,6 +183,56 @@ export type Database = {
           structure?: string | null
         }
         Relationships: []
+      }
+      demandes_devis: {
+        Row: {
+          besoins: string[]
+          created_at: string
+          departement: string | null
+          description: string
+          email: string
+          format: string | null
+          id: string
+          nb_studios: number
+          nom: string
+          periode: string | null
+          studio_vise: string | null
+        }
+        Insert: {
+          besoins?: string[]
+          created_at?: string
+          departement?: string | null
+          description: string
+          email: string
+          format?: string | null
+          id?: string
+          nb_studios?: number
+          nom: string
+          periode?: string | null
+          studio_vise?: string | null
+        }
+        Update: {
+          besoins?: string[]
+          created_at?: string
+          departement?: string | null
+          description?: string
+          email?: string
+          format?: string | null
+          id?: string
+          nb_studios?: number
+          nom?: string
+          periode?: string | null
+          studio_vise?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "demandes_devis_studio_vise_fkey"
+            columns: ["studio_vise"]
+            isOneToOne: false
+            referencedRelation: "podcasts"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       episodes: {
         Row: {
@@ -285,6 +345,7 @@ export type Database = {
           publie: boolean
           slug: string | null
           sous_titre: string | null
+          structure_id: string | null
           titre: string
           type: string
         }
@@ -304,6 +365,7 @@ export type Database = {
           publie?: boolean
           slug?: string | null
           sous_titre?: string | null
+          structure_id?: string | null
           titre: string
           type?: string
         }
@@ -323,10 +385,81 @@ export type Database = {
           publie?: boolean
           slug?: string | null
           sous_titre?: string | null
+          structure_id?: string | null
           titre?: string
           type?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "evenements_structure_id_fkey"
+            columns: ["structure_id"]
+            isOneToOne: false
+            referencedRelation: "podcasts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      fiches_lieux: {
+        Row: {
+          acces_transports: string | null
+          accessibilite: string | null
+          capacite_voix: number | null
+          equipement: Json
+          faq: Json
+          intitule_membres: string
+          liens: Json
+          photos: string[]
+          podcast_id: string
+          podcasts_lies: Json
+          presse: Json
+          propositions: Json
+          services: string[]
+          tarif_heure: number | null
+          updated_at: string
+        }
+        Insert: {
+          acces_transports?: string | null
+          accessibilite?: string | null
+          capacite_voix?: number | null
+          equipement?: Json
+          faq?: Json
+          intitule_membres?: string
+          liens?: Json
+          photos?: string[]
+          podcast_id: string
+          podcasts_lies?: Json
+          presse?: Json
+          propositions?: Json
+          services?: string[]
+          tarif_heure?: number | null
+          updated_at?: string
+        }
+        Update: {
+          acces_transports?: string | null
+          accessibilite?: string | null
+          capacite_voix?: number | null
+          equipement?: Json
+          faq?: Json
+          intitule_membres?: string
+          liens?: Json
+          photos?: string[]
+          podcast_id?: string
+          podcasts_lies?: Json
+          presse?: Json
+          propositions?: Json
+          services?: string[]
+          tarif_heure?: number | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "fiches_lieux_podcast_id_fkey"
+            columns: ["podcast_id"]
+            isOneToOne: true
+            referencedRelation: "podcasts"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       flux_etat: {
         Row: {
@@ -629,6 +762,7 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      annee_adhesion: { Args: { _podcast_id: string }; Returns: number }
       demarrer_sync_episodes: { Args: never; Returns: number }
       episodes_visibles: { Args: { _podcast_id: string }; Returns: boolean }
       has_role: {
@@ -638,12 +772,17 @@ export type Database = {
         }
         Returns: boolean
       }
+      lieu_visible: { Args: { _id: string }; Returns: boolean }
       marquer_demande_lue: { Args: { _id: string }; Returns: boolean }
       membre_a_jour: { Args: { _email: string }; Returns: boolean }
       mes_demandes: {
         Args: never
         Returns: {
           created_at: string
+          devis_besoins: string[]
+          devis_departement: string
+          devis_format: string
+          devis_periode: string
           id: string
           lu_le: string
           message: string
@@ -682,9 +821,15 @@ export type Database = {
           type_adhesion: string
         }[]
       }
+      mon_lieu: { Args: { _id: string }; Returns: boolean }
       pds_collab_codes: { Args: never; Returns: string[] }
       pds_collab_depuis_texte: { Args: { t: string }; Returns: string[] }
       pds_email: { Args: { required?: boolean; v: string }; Returns: string }
+      pds_jsonb_txt: {
+        Args: { label: string; maxlen: number; v: Json }
+        Returns: string
+      }
+      pds_services_studio: { Args: never; Returns: string[] }
       pds_tel: { Args: { v: string }; Returns: string }
       pds_trop_d_envois: { Args: never; Returns: undefined }
       pds_txt: {

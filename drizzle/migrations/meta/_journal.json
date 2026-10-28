@@ -85,6 +85,13 @@
       "when": 1793223497100,
       "tag": "0011_demandes_sans_acces_visiteur",
       "breakpoints": true
+    },
+    {
+      "idx": 12,
+      "version": "7",
+      "when": 1793223909498,
+      "tag": "0012_fiches_lieux_et_devis",
+      "breakpoints": true
     }
   ]
 }
