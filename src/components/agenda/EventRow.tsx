@@ -1,6 +1,7 @@
 import { Link } from "react-router-dom";
 import { Globe } from "lucide-react";
 import { btnPrimary, btnSecondary } from "@/lib/pds";
+import { readableTitle } from "@/lib/events";
 import { EVENT_TYPE_LABELS, cityFromAddress, isOnline, isOrganizedByPds, type HomeEvent } from "@/components/home/useHomeData";
 
 export const eventHref = (e: Pick<HomeEvent, "slug" | "id">) => `/agenda/${e.slug || e.id}`;
@@ -25,7 +26,7 @@ const EventRow = ({ e, primary, cta }: { e: HomeEvent; primary?: boolean; cta?: 
         <p className="text-sm font-bold text-accent-text">
           {EVENT_TYPE_LABELS[e.type] || e.type} · {isOrganizedByPds(e) ? "organisé par PDS" : "proposé par un membre"}
         </p>
-        <Link to={href} className="block font-bold text-[20px] sm:text-[24px] leading-tight hover:underline underline-offset-4">{e.titre}</Link>
+        <Link to={href} className="block font-bold text-[20px] sm:text-[24px] leading-tight hover:underline underline-offset-4">{readableTitle(e.titre)}</Link>
         {e.sous_titre && <p className="text-muted-foreground mt-1 line-clamp-2">{e.sous_titre}</p>}
       </div>
       <div className="col-start-2 sm:col-start-auto text-[15px]">

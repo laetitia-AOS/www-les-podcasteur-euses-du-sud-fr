@@ -73,7 +73,7 @@ Deno.serve(async (req) => {
       );
     }
 
-    const eventUrl = slug ? `${SITE_URL}/evenement-podcast/${slug}` : SITE_URL;
+    const eventUrl = slug ? `${SITE_URL}/agenda/${slug}` : SITE_URL;
     const dateStr = formatDateFr(date_debut);
     const lieuLine = lieu
       ? `<tr><td style="padding:6px 0;color:#6b6b6b;font-size:14px;">📍 ${esc(lieu)}${adresse ? " — " + esc(adresse) : ""}</td></tr>`

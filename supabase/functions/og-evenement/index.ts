@@ -69,7 +69,7 @@ Deno.serve(async (req) => {
 
     const publicFunctionBase = `${Deno.env.get("SUPABASE_URL")!}/functions/v1/og-evenement`;
     const requestUrl = `${publicFunctionBase}/${encodeURIComponent(slug)}${url.search}`;
-    const targetUrl = `${SITE_URL}/evenement-podcast/${slug}`;
+    const targetUrl = `${SITE_URL}/agenda/${slug}`;
 
     // Crawlers : serve a minimal HTML with OG tags
     const title = evt
@@ -77,7 +77,7 @@ Deno.serve(async (req) => {
       : "Événement — Les Podcasteur·euses du Sud";
 
     const description = evt
-      ? (evt.sous_titre || evt.description?.slice(0, 200) || `Rejoignez-nous le ${new Date(evt.date_debut).toLocaleDateString("fr-FR", { day: "numeric", month: "long", year: "numeric" })}${evt.lieu ? ` à ${evt.lieu}` : ""}.`)
+      ? (evt.sous_titre || evt.description?.split("\n---")[0].slice(0, 200) || `Rejoignez-nous le ${new Date(evt.date_debut).toLocaleDateString("fr-FR", { day: "numeric", month: "long", year: "numeric" })}${evt.lieu ? ` à ${evt.lieu}` : ""}.`)
       : "Événement podcast en Région Sud.";
 
     const rawImage = evt?.image_url || DEFAULT_OG;

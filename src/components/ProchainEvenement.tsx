@@ -85,7 +85,7 @@ const ProchainEvenement = () => {
                   )}
                 </div>
                 <button
-                  onClick={() => navigate(evt.slug ? `/evenement-podcast/${evt.slug}` : "/evenements-podcast")}
+                  onClick={() => navigate(evt.slug ? `/agenda/${evt.slug}` : "/agenda")}
                   className="inline-flex items-center gap-2 mt-6 text-sm font-semibold px-6 py-3 rounded-pill hover:brightness-95 transition-all"
                   style={{ backgroundColor: "#FDFAF5", color: "#2B2623" }}
                 >

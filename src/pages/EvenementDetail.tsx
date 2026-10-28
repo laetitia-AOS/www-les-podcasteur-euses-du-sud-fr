@@ -1,382 +1,330 @@
 import { useMemo } from "react";
 import { useParams, Link } from "react-router-dom";
-import { withUtm } from "@/lib/utm";
 import { useQuery } from "@tanstack/react-query";
+import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import SEOHead from "@/components/SEOHead";
-import { motion } from "framer-motion";
-import { CalendarDays, MapPin, Clock, ExternalLink, Ticket, ArrowLeft, Share2, Sun, Navigation, Linkedin, Facebook, Mail, MessageCircle, Link2 } from "lucide-react";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { toast } from "sonner";
 import EvenementInscriptionForm from "@/components/EvenementInscriptionForm";
 import PodcastsInvitesDisplay from "@/components/PodcastsInvitesDisplay";
+import { eventHref } from "@/components/agenda/EventRow";
+import { cityFromAddress, isOnline, isOrganizedByPds, type HomeEvent } from "@/components/home/useHomeData";
+import { withUtm } from "@/lib/utm";
+import { btnPrimary, btnSecondary, container, linkUnderline } from "@/lib/pds";
+import { cleanAddress, downloadIcs, publicDescription, readableTitle } from "@/lib/events";
+import bande from "@/assets/photos/bande-accueil-mur-rouge.jpg.asset.json";
 
-const TYPE_LABELS: Record<string, string> = {
+const SITE = "https://www.les-podcasteur-euses-du-sud.fr";
+
+// Libellé du type d'événement pour le titre principal « [Type] à [Ville] : [Titre] »
+const H1_TYPE: Record<string, string> = {
+  rencontre: "Rencontre podcast",
+  atelier: "Atelier podcast",
+  evenement: "Événement podcast",
+  partenaire: "Événement podcast",
+};
+const LABEL_TYPE: Record<string, string> = {
   rencontre: "Rencontre",
   atelier: "Atelier",
   evenement: "Événement",
-  partenaire: "Partenaire",
+  partenaire: "Événement partenaire",
 };
 
-const formatDate = (iso: string) =>
-  new Date(iso).toLocaleDateString("fr-FR", {
-    weekday: "long", day: "numeric", month: "long", year: "numeric",
-  });
+type Evt = HomeEvent & {
+  description: string | null;
+  date_fin: string | null;
+  image_url: string | null;
+  places: number | null;
+  podcasts_invites: unknown;
+};
 
-const formatTime = (iso: string) =>
-  new Date(iso).toLocaleTimeString("fr-FR", { hour: "2-digit", minute: "2-digit" });
+const hour = (d: Date) => d.toLocaleTimeString("fr-FR", { hour: "2-digit", minute: "2-digit" }).replace(":", "h");
+const capitalize = (s: string) => s.charAt(0).toLocaleUpperCase("fr-FR") + s.slice(1);
 
 const EvenementDetail = () => {
   const { slug } = useParams<{ slug: string }>();
 
   const { data: evt, isLoading } = useQuery({
     queryKey: ["evenement-detail", slug],
+    enabled: !!slug,
     queryFn: async () => {
       const { data, error } = await supabase
         .from("evenements")
-        .select("*")
-        .eq("slug", slug)
+        .select("id, titre, sous_titre, description, date_debut, date_fin, lieu, adresse, type, slug, lien_externe, inscription_activee, image_url, places, podcasts_invites")
+        .eq("slug", slug!)
         .eq("publie", true)
         .maybeSingle();
       if (error) throw error;
-      return data;
+      return data as Evt | null;
     },
-    enabled: !!slug,
   });
 
-  const SITE_URL = "https://www.les-podcasteur-euses-du-sud.fr";
-  const publicEventUrl = slug ? `${SITE_URL}/evenement-podcast/${slug}` : (typeof window !== "undefined" ? window.location.href : "");
-  // URL servie par l'edge function : sert un HTML pré-rendu avec OG personnalisées aux crawlers,
-  // redirige les humains vers la SPA. Indispensable pour LinkedIn/FB/X qui n'exécutent pas le JS.
-  const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL;
-  const ogShareUrl = slug
-    ? `${SUPABASE_URL}/functions/v1/og-evenement/${slug}`
-    : publicEventUrl;
-  // Anti-cache : force LinkedIn/Facebook à recharger l'aperçu à chaque partage
-  // (les plateformes mettent en cache les previews ~7 jours par URL exacte)
-  const ogShareUrlWithBuster = slug
-    ? `${ogShareUrl}?v=${Date.now()}`
-    : ogShareUrl;
-  const shareText = evt ? `${evt.titre} — Les Podcasteur·euses du Sud` : "";
-
-  const handleCopy = async () => {
-    try {
-      await navigator.clipboard.writeText(ogShareUrlWithBuster);
-      toast.success("Lien copié !");
-    } catch {
-      toast.error("Impossible de copier le lien");
-    }
-  };
-
-  const handleNativeShare = async () => {
-    if (navigator.share) {
-      try {
-         await navigator.share({ title: evt?.titre, text: shareText, url: ogShareUrlWithBuster });
-      } catch {}
-    } else {
-      handleCopy();
-    }
-  };
-
-  const openShare = (url: string) => {
-    window.open(url, "_blank", "noopener,noreferrer,width=600,height=600");
-  };
-
-  const shareLinks = {
-    linkedin: `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(ogShareUrlWithBuster)}`,
-    facebook: `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(ogShareUrlWithBuster)}`,
-    twitter: `https://twitter.com/intent/tweet?url=${encodeURIComponent(ogShareUrlWithBuster)}&text=${encodeURIComponent(shareText)}`,
-    whatsapp: `https://wa.me/?text=${encodeURIComponent(`${shareText} ${ogShareUrlWithBuster}`)}`,
-    email: `mailto:?subject=${encodeURIComponent(shareText)}&body=${encodeURIComponent(`Je te partage cet événement : ${ogShareUrlWithBuster}`)}`,
-  };
-
-  const jsonLd = useMemo(() => evt ? {
-    "@context": "https://schema.org",
-    "@type": "Event",
-    name: evt.titre,
-    description: evt.description || evt.sous_titre || "Événement podcast",
-    startDate: evt.date_debut,
-    ...(evt.date_fin && { endDate: evt.date_fin }),
-    eventStatus: "https://schema.org/EventScheduled",
-    eventAttendanceMode: "https://schema.org/OfflineEventAttendanceMode",
-    ...(evt.lieu && {
-      location: {
-        "@type": "Place",
-        name: evt.lieu,
-        ...(evt.adresse && { address: { "@type": "PostalAddress", streetAddress: evt.adresse } }),
-      },
-    }),
-    ...(evt.image_url && { image: evt.image_url }),
-    ...(evt.places && { maximumAttendeeCapacity: evt.places }),
-    organizer: {
-      "@type": "Organization",
-      name: "Les Podcasteur·euses du Sud",
-      url: "https://www.les-podcasteur-euses-du-sud.fr",
+  const { data: next = [] } = useQuery({
+    queryKey: ["evenement-next", slug],
+    enabled: !!slug,
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("evenements")
+        .select("id, titre, sous_titre, date_debut, lieu, adresse, type, slug, lien_externe, inscription_activee")
+        .eq("publie", true)
+        .gte("date_debut", new Date().toISOString())
+        .neq("slug", slug!)
+        .order("date_debut", { ascending: true })
+        .limit(3);
+      if (error) throw error;
+      return (data || []) as HomeEvent[];
     },
-  } : undefined, [evt]);
+  });
 
-  const seoTitle = evt ? `${evt.titre} — Les Podcasteur·euses du Sud` : "Événement — Les Podcasteur·euses du Sud";
-  const seoDesc = evt ? (evt.description || evt.sous_titre || `Événement podcast : ${evt.titre}`) : "Événement podcast en Région Sud.";
+  const view = useMemo(() => {
+    if (!evt) return null;
+    const start = new Date(evt.date_debut);
+    const end = evt.date_fin ? new Date(evt.date_fin) : null;
+    const online = isOnline(evt);
+    const pds = isOrganizedByPds(evt);
+    const city = online ? "" : cityFromAddress(evt.adresse) || (evt.lieu && /marseille/i.test(evt.lieu) ? "Marseille" : "");
+    const titre = readableTitle(evt.titre);
+    const h1 = `${H1_TYPE[evt.type] || "Événement podcast"} ${online ? "en ligne" : city ? `à ${city}` : "en Région Sud"} : ${titre}`;
+    const dateLong = capitalize(start.toLocaleDateString("fr-FR", { weekday: "long", day: "numeric", month: "long", year: "numeric" }));
+    const horaires = end ? `de ${hour(start)} à ${hour(end)}` : `à partir de ${hour(start)}`;
+    const lieuPhrase = online ? "en ligne" : evt.lieu ? `chez ${evt.lieu}${city ? ` (${city})` : ""}` : city ? `à ${city}` : "";
+    const tarif = pds ? "Entrée libre" : "";
+    const intro = `${dateLong}, ${horaires}${lieuPhrase ? `, ${lieuPhrase}` : ""}.${evt.sous_titre ? ` ${evt.sous_titre.replace(/\.$/, "")}.` : ""}${tarif ? ` ${tarif}.` : ""}`;
+    const isPast = (end || start) < new Date();
+    const url = `${SITE}${eventHref(evt)}`;
+    return { start, end, online, pds, city, titre, h1, dateLong, horaires, tarif, intro, isPast, url, description: publicDescription(evt.description) };
+  }, [evt]);
+
+  const jsonLd = useMemo(() => {
+    if (!evt || !view) return undefined;
+    return {
+      "@context": "https://schema.org",
+      "@type": "Event",
+      name: view.h1,
+      description: view.description || view.intro,
+      startDate: evt.date_debut,
+      ...(evt.date_fin && { endDate: evt.date_fin }),
+      eventStatus: "https://schema.org/EventScheduled",
+      eventAttendanceMode: view.online ? "https://schema.org/OnlineEventAttendanceMode" : "https://schema.org/OfflineEventAttendanceMode",
+      location: view.online
+        ? { "@type": "VirtualLocation", url: evt.lien_externe || view.url }
+        : {
+            "@type": "Place",
+            name: evt.lieu || view.city || "Lieu à préciser",
+            address: { "@type": "PostalAddress", ...(evt.adresse && { streetAddress: cleanAddress(evt.adresse) }), ...(view.city && { addressLocality: view.city }), addressRegion: "Provence-Alpes-Côte d'Azur", addressCountry: "FR" },
+          },
+      image: evt.image_url || `${SITE}/og-image.jpg`,
+      url: view.url,
+      ...(view.pds && { isAccessibleForFree: true, offers: { "@type": "Offer", price: 0, priceCurrency: "EUR", availability: "https://schema.org/InStock", url: view.url } }),
+      ...(evt.places && { maximumAttendeeCapacity: evt.places }),
+      organizer: { "@type": "Organization", name: "Les Podcasteur·euses du Sud", url: SITE },
+    };
+  }, [evt, view]);
 
   if (isLoading) {
     return (
-      <>
+      <div className="min-h-screen bg-background">
         <Navbar />
-        <main className="min-h-screen pt-24 pb-16">
-          <div className="container mx-auto px-6 max-w-4xl">
-            <div className="h-72 bg-muted/50 rounded-[20px] animate-pulse mb-8" />
-            <div className="h-8 bg-muted/50 rounded-xl animate-pulse w-2/3 mb-4" />
-            <div className="h-4 bg-muted/50 rounded-lg animate-pulse w-1/3" />
-          </div>
-        </main>
-        <Footer />
-      </>
+        <main className="pt-16 md:pt-[76px]"><p className={`${container} py-20 font-mono text-muted-foreground`}>Chargement…</p></main>
+      </div>
     );
   }
 
-  if (!evt) {
+  if (!evt || !view) {
     return (
-      <>
+      <div className="min-h-screen bg-background">
+        <SEOHead title="Événement introuvable — Les Podcasteur·euses du Sud" description="Cet événement n'existe pas ou n'est plus publié." path={`/agenda/${slug}`} />
         <Navbar />
-        <main className="min-h-screen pt-24 pb-16 flex items-center justify-center">
-          <div className="text-center">
-            <CalendarDays className="w-16 h-16 text-muted-foreground/40 mx-auto mb-4" />
-            <h1 className="font-display font-bold text-2xl text-foreground mb-2">Événement introuvable</h1>
-            <p className="text-muted-foreground mb-6">Cet événement n'existe pas ou n'est plus disponible.</p>
-            <Link to="/evenements-podcast">
-              <Button variant="outline">
-                <ArrowLeft className="w-4 h-4 mr-2" />
-                Retour aux événements
-              </Button>
-            </Link>
-          </div>
+        <main className={`${container} pt-32 pb-24`}>
+          <h1 className="title-page text-[52px]">Événement introuvable</h1>
+          <p className="mt-4 text-lg">Cet événement n'existe pas, ou il n'est plus publié.</p>
+          <Link to="/agenda" className={`${btnSecondary} mt-8`}>Voir l'agenda</Link>
         </main>
         <Footer />
-      </>
+      </div>
     );
   }
 
-  const isPast = new Date(evt.date_debut) < new Date();
-  const mapsQuery = evt.adresse ? encodeURIComponent(evt.adresse) : evt.lieu ? encodeURIComponent(evt.lieu) : null;
+  // Partage : lien servi par la fonction d'aperçu (image et titre de l'événement pour les réseaux)
+  const ogShareUrl = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/og-evenement/${evt.slug}?v=${Date.now()}`;
+  const shareText = `${view.titre} — Les Podcasteur·euses du Sud`;
+  const copy = async () => {
+    try { await navigator.clipboard.writeText(ogShareUrl); toast.success("Lien copié."); }
+    catch { toast.error("Le lien n'a pas pu être copié."); }
+  };
+  const openShare = (u: string) => window.open(u, "_blank", "noopener,noreferrer,width=600,height=600");
+
+  const mapsQuery = evt.adresse || evt.lieu;
+  const invites = Array.isArray(evt.podcasts_invites) ? (evt.podcasts_invites as never[]) : [];
+  const canRegister = evt.inscription_activee && !view.isPast;
+  const day = view.start.toLocaleDateString("fr-FR", { weekday: "long" });
+  const monthYear = view.start.toLocaleDateString("fr-FR", { month: "short", year: "numeric" }).replace(".", "");
+
+  const faq = view.pds
+    ? [
+        { q: "Faut-il payer pour venir ?", a: "Non, l'entrée est libre. Les consommations sont à votre charge." },
+        { q: "Faut-il faire un podcast pour venir ?", a: "Non. Créateur·ices, auditeur·ices, curieux·ses : l'apéro écoute est ouvert à toustes." },
+        { q: "Faut-il réserver ?", a: canRegister ? "Oui, inscrivez-vous avec le formulaire de cette page : cela nous aide à prévoir la place." : "Non, venez directement." },
+        { q: "Comment faire écouter mon podcast lors d'un apéro ?", a: "Écrivez à l'équipe depuis la page Contact en présentant votre podcast : elle choisit les écoutes de chaque soirée." },
+      ]
+    : [];
 
   return (
-    <>
+    <div className="min-h-screen bg-background">
       <SEOHead
-        title={seoTitle}
-        description={seoDesc}
-        path={`/evenement-podcast/${slug}`}
+        title={`${view.h1} — ${view.start.toLocaleDateString("fr-FR", { day: "numeric", month: "long", year: "numeric" })}`}
+        description={view.intro.slice(0, 158)}
+        path={eventHref(evt)}
         image={evt.image_url || undefined}
         jsonLd={jsonLd}
       />
       <Navbar />
-      <main className="min-h-screen">
-        {/* Blue header band — style template Apéro Écoute */}
-        <section className="pt-24 pb-10 bg-bleu-dark relative overflow-hidden">
-          <div className="absolute top-6 right-8 md:right-16">
-            <Sun className="w-7 h-7 text-soleil" strokeWidth={2.5} />
+      <main className="pt-16 md:pt-[76px]">
+        <nav aria-label="Fil d'Ariane" className={`${container} pt-5`}>
+          <ol className="flex flex-wrap items-center gap-x-2 text-sm">
+            <li><Link to="/" className="underline underline-offset-4">Accueil</Link></li>
+            <li aria-hidden>/</li>
+            <li><Link to="/agenda" className="underline underline-offset-4">Agenda</Link></li>
+            <li aria-hidden>/</li>
+            <li aria-current="page" className="text-muted-foreground">{view.titre}, {view.start.toLocaleDateString("fr-FR", { day: "numeric", month: "long" })}</li>
+          </ol>
+        </nav>
+
+        <header className={`${container} pt-6 pb-10 grid sm:grid-cols-[150px_1fr] gap-6 sm:gap-10 items-start`}>
+          <div className="border-2 border-encre bg-surface w-[130px] sm:w-[150px] text-center py-3" aria-hidden>
+            <p className="text-sm font-bold uppercase">{day}</p>
+            <p className="title-section text-[72px] leading-none my-1">{view.start.getDate()}</p>
+            <p className="text-sm font-bold uppercase">{monthYear}</p>
           </div>
-          <div className="container mx-auto px-6 max-w-4xl relative z-10">
-            <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}>
-              <Link to="/evenements-podcast" className="inline-flex items-center gap-1.5 text-sm text-white/50 hover:text-white/80 transition-colors mb-6">
-                <ArrowLeft className="w-4 h-4" />
-                Tous les événements
-              </Link>
-
-              <span className="text-[10px] font-semibold uppercase tracking-[0.2em] text-soleil block mb-2">
-                {TYPE_LABELS[evt.type] || evt.type} · {new Date(evt.date_debut).toLocaleDateString("fr-FR", { month: "long", year: "numeric" })}
-              </span>
-
-              <h1 className="font-display font-bold text-3xl md:text-4xl text-white mb-2 leading-tight">
-                {evt.titre}
-              </h1>
-              {evt.sous_titre && (
-                <p className="text-base text-white/60 max-w-2xl leading-relaxed">{evt.sous_titre}</p>
-              )}
-            </motion.div>
+          <div className="min-w-0">
+            <p className="text-sm font-bold text-primary">
+              {LABEL_TYPE[evt.type] || "Événement"} · {view.pds ? "organisé par Les Podcasteur·euses du Sud" : "proposé par un membre"}
+            </p>
+            <h1 className="title-section text-[40px] sm:text-[56px] lg:text-[64px] mt-2">{view.h1}</h1>
+            <p className="mt-5 text-lg max-w-[62ch]">{view.intro}</p>
+            {view.isPast && <p className="mt-3 font-bold text-accent-text">Cet événement est passé.</p>}
           </div>
-        </section>
+        </header>
 
-        {/* Event image */}
-        {evt.image_url && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: 0.6, delay: 0.1 }}
-            className="container mx-auto px-6 max-w-4xl -mt-2"
-          >
-            <div className="rounded-[20px] overflow-hidden shadow-xl">
-              <img
-                src={evt.image_url}
-                alt={`Illustration : ${evt.titre}`}
-                className="w-full h-56 sm:h-72 md:h-[400px] object-cover"
-              />
-            </div>
-          </motion.div>
+        {evt.image_url ? (
+          // Visuel complet (souvent une affiche avec du texte) : jamais recadré
+          <div className={container}>
+            <img src={evt.image_url} alt={`Visuel de l'événement ${view.titre}`} className="w-full h-auto border border-filet" />
+          </div>
+        ) : (
+          <img src={bande.url} alt="Un apéro écoute des Podcasteur·euses du Sud dans une salle aux murs rouges." className="w-full aspect-[16/9] sm:aspect-[1800/650] object-cover" />
         )}
 
-        {/* Content */}
-        <div className="container mx-auto px-6 max-w-4xl py-8">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: 0.2 }}
-          >
-            {/* Info blocks — inspired by template */}
-            <div className="space-y-4 mb-8">
-              {/* Date / time */}
-              <div className="flex items-start gap-4">
-                <div className="w-11 h-11 bg-bleu/10 rounded-xl flex items-center justify-center shrink-0 mt-0.5">
-                  <CalendarDays className="w-5 h-5 text-bleu" />
-                </div>
-                <div>
-                  <p className="text-base font-semibold text-foreground capitalize">
-                    <time dateTime={evt.date_debut}>{formatDate(evt.date_debut)}</time>
-                  </p>
-                  <p className="text-sm text-muted-foreground">
-                    De {formatTime(evt.date_debut)}{evt.date_fin && ` à ${formatTime(evt.date_fin)}`}
-                  </p>
-                </div>
+        <div className={`${container} py-12 md:py-16 grid lg:grid-cols-[minmax(0,4fr)_minmax(0,7fr)] gap-10 lg:gap-14 items-start`}>
+          {/* Infos pratiques */}
+          <aside aria-labelledby="infos-title" className="border-2 border-encre bg-surface p-6 lg:sticky lg:top-24">
+            <h2 id="infos-title" className="title-section text-[28px]">Infos pratiques</h2>
+            <dl className="mt-4 space-y-3 text-[16px]">
+              <div><dt className="text-sm font-bold">Date</dt><dd>{view.dateLong}</dd></div>
+              <div><dt className="text-sm font-bold">Horaires</dt><dd className="font-mono">{hour(view.start)}{view.end ? ` – ${hour(view.end)}` : ""}</dd></div>
+              <div>
+                <dt className="text-sm font-bold">Lieu</dt>
+                <dd>
+                  {view.online ? "En ligne" : <>{evt.lieu}{evt.adresse && <><br />{cleanAddress(evt.adresse)}</>}</>}
+                </dd>
               </div>
+              {evt.places && <div><dt className="text-sm font-bold">Places</dt><dd className="font-mono">{evt.places}</dd></div>}
+              {view.tarif && <div><dt className="text-sm font-bold">Tarif</dt><dd>{view.tarif}</dd></div>}
+              <div><dt className="text-sm font-bold">Organisé par</dt><dd>{view.pds ? "Les Podcasteur·euses du Sud" : "Un membre du réseau"}</dd></div>
+            </dl>
 
-              {/* Location */}
-              {evt.lieu && (
-                <div className="flex items-start gap-4">
-                  <div className="w-11 h-11 bg-bleu/10 rounded-xl flex items-center justify-center shrink-0 mt-0.5">
-                    <MapPin className="w-5 h-5 text-bleu" />
-                  </div>
-                  <div>
-                    <p className="text-base font-semibold text-foreground">{evt.lieu}</p>
-                    {evt.adresse && <p className="text-sm text-muted-foreground">{evt.adresse}</p>}
-                    {mapsQuery && (
-                      <a
-                        href={`https://www.google.com/maps/search/?api=1&query=${mapsQuery}`}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="inline-flex items-center gap-1 text-sm font-semibold text-bleu hover:text-bleu-dark mt-1 transition-colors"
-                      >
-                        <Navigation className="w-3.5 h-3.5" />
-                        Voir l'itinéraire →
-                      </a>
-                    )}
-                  </div>
-                </div>
-              )}
-
-              {/* Places */}
-              {evt.places && (
-                <div className="flex items-start gap-4">
-                  <div className="w-11 h-11 bg-bleu/10 rounded-xl flex items-center justify-center shrink-0 mt-0.5">
-                    <Ticket className="w-5 h-5 text-bleu" />
-                  </div>
-                  <div>
-                    <p className="text-base font-semibold text-foreground">{evt.places} place{evt.places > 1 ? "s" : ""}</p>
-                    <p className="text-sm text-muted-foreground">Capacité de l'événement</p>
-                  </div>
-                </div>
-              )}
-            </div>
-
-            {/* Separator */}
-            <div className="h-px bg-border mb-8" />
-
-            {/* Description */}
-            {evt.description && (
-              <div className="mb-8">
-                <h2 className="font-display font-bold text-xl text-foreground mb-4">À propos de l'événement</h2>
-                <div className="text-muted-foreground leading-relaxed whitespace-pre-line text-[15px]">
-                  {evt.description}
-                </div>
-              </div>
-            )}
-
-            {/* Podcasts à l'écoute */}
-            <PodcastsInvitesDisplay
-              podcasts={Array.isArray((evt as any).podcasts_invites) ? (evt as any).podcasts_invites : []}
-            />
-
-            {/* Formulaire d'inscription */}
-            {evt.inscription_activee && !isPast && (
-              <div className="mb-8">
-                <EvenementInscriptionForm
-                  evenementId={evt.id}
-                  titre={evt.titre}
-                  date_debut={evt.date_debut}
-                  lieu={evt.lieu}
-                  adresse={evt.adresse}
-                  slug={evt.slug}
-                />
-              </div>
-            )}
-
-            {/* Actions */}
-            <div className="flex flex-wrap gap-3">
-              {evt.lien_externe && !isPast && (
-                <a
-                  href={withUtm(evt.lien_externe, "evenement")}
-                  target="_blank"
-                  rel="noopener noreferrer"
+            {!view.isPast && (
+              <div className="mt-6 grid gap-3">
+                {canRegister ? (
+                  <a href="#inscription" className={`${btnPrimary} w-full`}>Je viens</a>
+                ) : evt.lien_externe ? (
+                  <a href={withUtm(evt.lien_externe, "evenement")} target="_blank" rel="noopener noreferrer" className={`${btnPrimary} w-full`}>
+                    S'inscrire<span className="sr-only"> (nouvel onglet)</span>
+                  </a>
+                ) : null}
+                <button
+                  onClick={() => downloadIcs({ id: evt.id, titre: view.h1, date_debut: evt.date_debut, date_fin: evt.date_fin, lieu: evt.lieu, adresse: evt.adresse ? cleanAddress(evt.adresse) : null, url: view.url, description: view.intro })}
+                  className={`${btnSecondary} w-full`}
                 >
-                  <Button className="gap-2 rounded-pill font-bold bg-bleu text-white hover:bg-bleu-dark">
-                    S'inscrire / Plus d'infos
-                    <ExternalLink className="w-4 h-4" />
-                  </Button>
-                </a>
-              )}
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button variant="outline" className="gap-2 rounded-pill">
-                    <Share2 className="w-4 h-4" />
-                    Partager
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="start" className="w-56">
-                  <DropdownMenuItem onClick={() => openShare(shareLinks.linkedin)} className="gap-2 cursor-pointer">
-                    <Linkedin className="w-4 h-4 text-bleu" />
-                    LinkedIn
-                  </DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => openShare(shareLinks.facebook)} className="gap-2 cursor-pointer">
-                    <Facebook className="w-4 h-4 text-bleu" />
-                    Facebook
-                  </DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => openShare(shareLinks.twitter)} className="gap-2 cursor-pointer">
-                    <svg className="w-4 h-4" viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
-                    X (Twitter)
-                  </DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => openShare(shareLinks.whatsapp)} className="gap-2 cursor-pointer">
-                    <MessageCircle className="w-4 h-4 text-bleu" />
-                    WhatsApp
-                  </DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => window.location.href = shareLinks.email} className="gap-2 cursor-pointer">
-                    <Mail className="w-4 h-4 text-bleu" />
-                    Email
-                  </DropdownMenuItem>
-                  <DropdownMenuItem onClick={handleCopy} className="gap-2 cursor-pointer border-t mt-1 pt-2">
-                    <Link2 className="w-4 h-4 text-bleu" />
-                    Copier le lien
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
-            </div>
-
-            {isPast && (
-              <Badge variant="outline" className="mt-6 text-muted-foreground">
-                Cet événement est passé
-              </Badge>
+                  Ajouter à mon agenda
+                </button>
+                {mapsQuery && !view.online && (
+                  <a href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(mapsQuery)}`} target="_blank" rel="noopener noreferrer" className={`${linkUnderline} inline-flex min-h-[44px] items-center justify-center`}>
+                    Voir l'itinéraire<span className="sr-only"> (nouvel onglet)</span>
+                  </a>
+                )}
+              </div>
             )}
-          </motion.div>
+
+            <div className="mt-6 pt-4 border-t border-filet flex flex-wrap items-center gap-x-4 gap-y-1 text-sm">
+              <span className="text-muted-foreground">Partager</span>
+              <button onClick={() => openShare(`https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(ogShareUrl)}`)} className="min-h-[44px] underline underline-offset-4">LinkedIn</button>
+              <button onClick={() => openShare(`https://wa.me/?text=${encodeURIComponent(`${shareText} ${ogShareUrl}`)}`)} className="min-h-[44px] underline underline-offset-4">WhatsApp</button>
+              <button onClick={() => openShare(`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(ogShareUrl)}`)} className="min-h-[44px] underline underline-offset-4">Facebook</button>
+              <button onClick={copy} className="min-h-[44px] underline underline-offset-4">Copier le lien</button>
+            </div>
+          </aside>
+
+          <div className="min-w-0">
+            {view.description && (
+              <section aria-labelledby="soiree-title">
+                <h2 id="soiree-title" className="title-section text-[30px] sm:text-[36px]">{view.pds ? "La soirée" : "L'événement"}</h2>
+                <div className="mt-4 text-[17px] leading-relaxed whitespace-pre-line max-w-[68ch]">{view.description}</div>
+              </section>
+            )}
+
+            <PodcastsInvitesDisplay podcasts={invites} />
+
+            {canRegister && (
+              <section id="inscription" className="mt-12 scroll-mt-24" aria-label="Inscription">
+                <EvenementInscriptionForm evenementId={evt.id} titre={evt.titre} date_debut={evt.date_debut} lieu={evt.lieu} adresse={evt.adresse} slug={evt.slug} />
+              </section>
+            )}
+
+            {faq.length > 0 && (
+              <section className="mt-12" aria-labelledby="faq-title">
+                <h2 id="faq-title" className="title-section text-[30px] sm:text-[36px] pb-3 border-b-2 border-encre">Questions fréquentes</h2>
+                <div className="divide-y divide-filet border-b border-filet">
+                  {faq.map((f, i) => (
+                    <details key={f.q} open={i === 0} className="group py-3">
+                      <summary className="min-h-[44px] flex items-center gap-2 cursor-pointer font-bold text-[17px] list-none [&::-webkit-details-marker]:hidden">
+                        <span aria-hidden className="inline-block w-4 transition-transform group-open:rotate-90">▸</span>
+                        {f.q}
+                      </summary>
+                      <p className="pl-6 pb-2 text-[16px]">{f.a}</p>
+                    </details>
+                  ))}
+                </div>
+              </section>
+            )}
+          </div>
         </div>
+
+        {next.length > 0 && (
+          <section className="bg-surface border-t border-filet" aria-labelledby="next-title">
+            <div className={`${container} py-12`}>
+              <div className="flex items-end justify-between gap-4 pb-3 border-b-2 border-encre">
+                <h2 id="next-title" className="title-section text-[30px] sm:text-[36px]">Les prochains rendez-vous</h2>
+                <Link to="/agenda" className={`${linkUnderline} min-h-[44px] inline-flex items-center shrink-0`}>Tout l'agenda</Link>
+              </div>
+              <ul className="divide-y divide-filet border-b border-filet">
+                {next.map((n) => (
+                  <li key={n.id}>
+                    <Link to={eventHref(n)} className="grid grid-cols-[72px_1fr] sm:grid-cols-[90px_1fr_auto] gap-x-5 py-4 items-baseline group">
+                      <span className="title-section text-[26px]">{new Date(n.date_debut).toLocaleDateString("fr-FR", { day: "2-digit", month: "2-digit" }).replace("/", ".")}</span>
+                      <span className="font-bold text-[17px] group-hover:underline underline-offset-4">{readableTitle(n.titre)}</span>
+                      <span className="col-start-2 sm:col-start-auto font-mono text-sm text-muted-foreground">{isOnline(n) ? "En ligne" : n.lieu}</span>
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          </section>
+        )}
       </main>
       <Footer />
-    </>
+    </div>
   );
 };
 
