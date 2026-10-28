@@ -1,0 +1,4 @@
+REVOKE INSERT, UPDATE, DELETE, TRUNCATE, REFERENCES, TRIGGER ON public.fiches_lieux FROM anon;
+REVOKE DELETE, TRUNCATE, REFERENCES, TRIGGER ON public.fiches_lieux FROM authenticated;
+REVOKE ALL ON public.demandes_devis FROM anon;
+REVOKE INSERT, UPDATE, DELETE, TRUNCATE, REFERENCES, TRIGGER ON public.demandes_devis FROM authenticated;

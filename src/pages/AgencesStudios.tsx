@@ -1,12 +1,13 @@
 import { useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
-import { z } from "zod";
 import { supabase } from "@/integrations/supabase/client";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import SEOHead from "@/components/SEOHead";
 import { btnListen, btnPrimary, btnSecondary, cleanCity, container } from "@/lib/pds";
+import DevisForm from "@/components/studios/DevisForm";
+import { SERVICES_STUDIO, formatCapacite, formatTarif, serviceLabel, useFichesLieux } from "@/lib/lieux";
 
 const DEPARTEMENTS = [
   { code: "04", label: "Alpes-de-Haute-Provence" },
@@ -39,19 +40,6 @@ type StudioData = {
   galerie_urls?: string[];
 };
 
-// « J'ai besoin de » : chaque bouton correspond à un service ou un usage déclaré par les studios
-const BESOINS: { label: string; test: (sd: StudioData, services: string[]) => boolean }[] = [
-  { label: "Louer un studio", test: (_sd, s) => s.includes("Mise à disposition du studio") },
-  { label: "Enregistrer en audio", test: (_sd, s) => s.includes("Enregistrement audio") },
-  { label: "Filmer un vidéo-podcast", test: (sd, s) => s.includes("Enregistrement vidéo podcast") || !!sd.usages?.includes("Vidéo podcast") },
-  { label: "Montage", test: (_sd, s) => s.includes("Montage") },
-  { label: "Réalisation", test: (_sd, s) => s.includes("Réalisation") },
-  { label: "Direct / live", test: (sd) => !!sd.usages?.includes("Livestream") },
-  { label: "Studio mobile", test: (sd) => sd.type_lieu === "Lieu d'enregistrement mobile" },
-];
-
-const FORMATS = ["Audio", "Vidéo", "Audio et vidéo", "Direct / live"];
-
 interface Profile {
   id: string;
   slug: string | null;
@@ -75,25 +63,12 @@ const sdOf = (p: Profile): StudioData => {
 };
 
 const fieldLight = "w-full min-h-[48px] px-3 bg-surface border-2 border-encre text-[16px] focus:outline-none focus-visible:outline-[3px] focus-visible:outline-accent";
-const fieldDark = "w-full min-h-[48px] px-3 bg-encre text-surface border-2 border-surface/70 text-[16px] placeholder:text-surface/55 focus:outline-none focus-visible:outline-[3px] focus-visible:outline-accent";
-
-const devisSchema = z.object({
-  name: z.string().trim().min(2, "Indiquez votre prénom et votre nom.").max(100),
-  email: z.string().trim().email("Adresse e-mail invalide.").max(255),
-  format: z.string(),
-  quand: z.string().trim().max(120),
-  projet: z.string().trim().min(10, "Décrivez votre projet en quelques mots (10 caractères minimum).").max(2500),
-});
 
 const AgencesStudios = () => {
   const [dept, setDept] = useState("");
   const [type, setType] = useState("");
   const [besoin, setBesoin] = useState("");
   const [devisFor, setDevisFor] = useState<string | null>(null);
-  const [form, setForm] = useState({ name: "", email: "", format: FORMATS[0], quand: "", projet: "", website: "" });
-  const [errors, setErrors] = useState<Record<string, string>>({});
-  const [sendState, setSendState] = useState<"idle" | "sending" | "sent" | "error">("idle");
-  const [sendMsg, setSendMsg] = useState("");
 
   const { data: profiles = [], isLoading } = useQuery({
     queryKey: ["studios-structures"],
@@ -111,72 +86,23 @@ const AgencesStudios = () => {
   });
 
   const studios = profiles.filter((p) => p.type_profil === "studio");
+  const { data: fiches = {} } = useFichesLieux(studios.map((s) => s.id));
   const structures = profiles.filter((p) => p.type_profil === "structure_eco");
 
   const filtered = useMemo(() => {
-    const b = BESOINS.find((x) => x.label === besoin);
     return studios.filter((p) => {
       const sd = sdOf(p);
-      const services = sd.services_studio || p.services_3 || [];
       if (dept && p.department_code !== dept) return false;
       if (type && sd.type_lieu !== type) return false;
-      if (b && !b.test(sd, services)) return false;
+      if (besoin && !(fiches[p.id]?.services || []).includes(besoin)) return false;
       return true;
     });
-  }, [studios, dept, type, besoin]);
-
-  // Destinataires du devis : le studio choisi, sinon tous les studios affichés
-  const recipients = (devisFor ? studios.filter((s) => s.id === devisFor) : filtered).filter((s) => s.consent_contact);
+  }, [studios, dept, type, besoin, fiches]);
 
   const openDevis = (id: string | null) => {
     setDevisFor(id);
-    setSendState("idle");
     document.getElementById("devis")?.scrollIntoView({ behavior: "smooth", block: "start" });
-    setTimeout(() => document.getElementById("devis-name")?.focus({ preventScroll: true }), 400);
-  };
-
-  const onChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) =>
-    setForm((f) => ({ ...f, [e.target.name]: e.target.value }));
-
-  const submitDevis = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (form.website) return;
-    const parsed = devisSchema.safeParse(form);
-    if (!parsed.success) {
-      const errs: Record<string, string> = {};
-      parsed.error.issues.forEach((i) => (errs[String(i.path[0])] = i.message));
-      setErrors(errs);
-      return;
-    }
-    if (!recipients.length) {
-      setSendMsg("Aucun studio ne correspond à vos filtres. Élargissez la recherche puis réessayez.");
-      setSendState("error");
-      return;
-    }
-    setErrors({});
-    setSendState("sending");
-    const d = parsed.data;
-    const message = `Demande de devis\nFormat : ${d.format}${d.quand ? `\nQuand : ${d.quand}` : ""}\n\nLe projet :\n${d.projet}`;
-    // Un seul envoi pour tous les studios choisis
-    const result = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/contact-membre`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json", apikey: import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY },
-      body: JSON.stringify({ type: "devis", recipient_ids: recipients.map((r) => r.id), sender_name: d.name, sender_email: d.email, message }),
-    })
-      .then(async (res) => ({ ok: res.ok, body: (await res.json().catch(() => ({}))) as { error?: string; count?: number } }))
-      .catch(() => ({ ok: false, body: {} as { error?: string; count?: number } }));
-    if (!result.ok) {
-      setSendMsg(result.body?.error || "La demande n'a pas pu partir. Réessayez dans un instant.");
-      setSendState("error");
-      return;
-    }
-    const okCount = result.body?.count ?? recipients.length;
-    setSendMsg(
-      okCount === 1
-        ? "Votre demande est enregistrée. L'équipe la transmet au studio, qui vous répondra directement."
-        : `Votre demande est enregistrée pour ${okCount} studios. L'équipe la leur transmet, ils vous répondront directement.`,
-    );
-    setSendState("sent");
+    setTimeout(() => document.getElementById("devis-nom")?.focus({ preventScroll: true }), 400);
   };
 
   const jsonLd = useMemo(() => ({
@@ -232,12 +158,12 @@ const AgencesStudios = () => {
           <div className="mt-5">
             <p id="besoin-label" className="text-sm font-bold mb-2">J'ai besoin de</p>
             <div role="group" aria-labelledby="besoin-label" className="flex flex-wrap gap-2">
-              {BESOINS.map((b) => (
+              {SERVICES_STUDIO.map((b) => (
                 <button
-                  key={b.label}
-                  onClick={() => setBesoin(besoin === b.label ? "" : b.label)}
-                  aria-pressed={besoin === b.label}
-                  className={`min-h-[44px] px-4 border font-semibold text-[15px] ${besoin === b.label ? "bg-encre text-surface border-encre" : "border-encre bg-surface hover:bg-muted"}`}
+                  key={b.value}
+                  onClick={() => setBesoin(besoin === b.value ? "" : b.value)}
+                  aria-pressed={besoin === b.value}
+                  className={`min-h-[44px] px-4 border font-semibold text-[15px] ${besoin === b.value ? "bg-encre text-surface border-encre" : "border-encre bg-surface hover:bg-muted"}`}
                 >
                   {b.label}
                 </button>
@@ -256,14 +182,15 @@ const AgencesStudios = () => {
           <ul className="mt-4 grid md:grid-cols-2 gap-6">
             {filtered.map((p) => {
               const sd = sdOf(p);
-              const services = sd.services_studio || p.services_3 || [];
-              const photo = sd.galerie_urls?.[0] || p.vignette_url;
+              const f = fiches[p.id];
+              const services = (f?.services || []).map(serviceLabel);
+              const photo = f?.photos?.[0] || sd.galerie_urls?.[0] || p.vignette_url;
               const href = `/annuaire-podcasts/studios/${p.slug || p.id}`;
               const accroche = sd.accroche || sd.phrase_accroche || p.description || p.bio_750 || "";
               const meta = [
-                { k: "Tarif", v: sd.indication_tarifaire },
-                { k: "Capacité", v: sd.capacite },
-                { k: "Accès", v: sd.accessibilite?.filter((a) => a !== "Autre").slice(0, 2).join(", ") },
+                { k: "Tarif", v: formatTarif(f?.tarif_heure) || sd.indication_tarifaire },
+                { k: "Capacité", v: formatCapacite(f?.capacite_voix) },
+                { k: "Accès", v: f?.acces_transports },
               ].filter((m) => m.v);
               return (
                 <li key={p.id} className="bg-surface border border-filet flex flex-col">
@@ -313,62 +240,23 @@ const AgencesStudios = () => {
               <p className="mt-4 text-[17px] text-surface/85">
                 {devisFor
                   ? <>Votre demande sera envoyée à <strong>{studios.find((s) => s.id === devisFor)?.nom_podcast}</strong>.</>
-                  : <>Une seule demande, envoyée {recipients.length > 1 ? `aux ${recipients.length} studios` : "au studio"} qui correspond{recipients.length > 1 ? "ent" : ""} à vos filtres. Vous comparez, vous choisissez.</>}
+                  : <>Une seule demande, envoyée à tous les studios membres du département qui proposent les besoins cochés. Vous comparez, vous choisissez.</>}
               </p>
               {devisFor && (
                 <button onClick={() => setDevisFor(null)} className="mt-3 inline-flex min-h-[44px] items-center font-bold underline underline-offset-4">
-                  Envoyer plutôt à tous les studios affichés
+                  Envoyer plutôt à tous les studios qui correspondent
                 </button>
-              )}
-              {!devisFor && recipients.length > 0 && (
-                <p className="mt-3 text-sm text-surface/70">{recipients.map((r) => r.nom_podcast).join(" · ")}</p>
               )}
             </div>
 
-            {sendState === "sent" ? (
-              <div role="status" className="self-center">
-                <p className="font-bold text-2xl">Demande envoyée.</p>
-                <p className="mt-2 text-[17px] text-surface/85">{sendMsg}</p>
-              </div>
-            ) : (
-              <form onSubmit={submitDevis} noValidate className="grid sm:grid-cols-2 gap-4">
-                <div>
-                  <label htmlFor="devis-name" className="block text-sm font-bold mb-1.5">Prénom et nom</label>
-                  <input id="devis-name" name="name" value={form.name} onChange={onChange} autoComplete="name" className={fieldDark} aria-invalid={!!errors.name} />
-                  {errors.name && <p className="mt-1 text-sm text-accent">{errors.name}</p>}
-                </div>
-                <div>
-                  <label htmlFor="devis-email" className="block text-sm font-bold mb-1.5">E-mail</label>
-                  <input id="devis-email" name="email" type="email" value={form.email} onChange={onChange} autoComplete="email" className={fieldDark} aria-invalid={!!errors.email} />
-                  {errors.email && <p className="mt-1 text-sm text-accent">{errors.email}</p>}
-                </div>
-                <div>
-                  <label htmlFor="devis-format" className="block text-sm font-bold mb-1.5">Format</label>
-                  <select id="devis-format" name="format" value={form.format} onChange={onChange} className={fieldDark}>
-                    {FORMATS.map((f) => <option key={f} value={f}>{f}</option>)}
-                  </select>
-                </div>
-                <div>
-                  <label htmlFor="devis-quand" className="block text-sm font-bold mb-1.5">Quand</label>
-                  <input id="devis-quand" name="quand" value={form.quand} onChange={onChange} placeholder="Date ou période" className={fieldDark} />
-                </div>
-                <div className="sm:col-span-2">
-                  <label htmlFor="devis-projet" className="block text-sm font-bold mb-1.5">Votre projet</label>
-                  <textarea id="devis-projet" name="projet" rows={4} value={form.projet} onChange={onChange} placeholder="Nombre de voix, nombre d'épisodes, montage ou non…" className={`${fieldDark} py-2 resize-y`} aria-invalid={!!errors.projet} />
-                  {errors.projet && <p className="mt-1 text-sm text-accent">{errors.projet}</p>}
-                </div>
-                <div className="hidden" aria-hidden>
-                  <label htmlFor="devis-website">Site web</label>
-                  <input id="devis-website" name="website" tabIndex={-1} autoComplete="off" value={form.website} onChange={onChange} />
-                </div>
-                {sendState === "error" && <p role="alert" className="sm:col-span-2 font-semibold text-accent">{sendMsg}</p>}
-                <div className="sm:col-span-2">
-                  <button type="submit" disabled={sendState === "sending"} className={`${btnListen} px-7`}>
-                    {sendState === "sending" ? "Envoi…" : "Envoyer ma demande"}
-                  </button>
-                </div>
-              </form>
-            )}
+            <DevisForm
+              key={devisFor || "groupe"}
+              dark
+              studioId={devisFor}
+              studioName={devisFor ? studios.find((x) => x.id === devisFor)?.nom_podcast : undefined}
+              defaultDepartement={dept}
+              defaultBesoins={besoin ? [besoin] : []}
+            />
           </div>
         </section>
 
