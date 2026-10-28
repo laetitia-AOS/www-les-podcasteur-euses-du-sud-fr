@@ -6,6 +6,7 @@ import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import SEOHead from "@/components/SEOHead";
 import { btnSecondary, cleanCity, container, fullName } from "@/lib/pds";
+import MemberAvatar, { profilePhotoFor } from "@/components/MemberAvatar";
 
 // « Je cherche quelqu'un pour… » : chaque case correspond à une réponse exacte de « Ce que je peux apporter »
 const BESOINS = [
@@ -211,11 +212,7 @@ const Annuaire = () => {
                   ).slice(0, 2).join(", ");
                   return (
                     <li key={p.id} className="grid grid-cols-[56px_1fr] sm:grid-cols-[64px_1fr_auto] gap-x-4 sm:gap-x-5 gap-y-2 py-5">
-                      {p.vignette_url ? (
-                        <img src={p.vignette_url} alt="" className="w-14 h-14 sm:w-16 sm:h-16 rounded-full object-cover" loading="lazy" />
-                      ) : (
-                        <span className="w-14 h-14 sm:w-16 sm:h-16 rounded-full bg-muted" aria-hidden />
-                      )}
+                      <MemberAvatar prenom={p.prenom} nom={p.nom} photoUrl={profilePhotoFor(p, profiles)} />
                       <div className="min-w-0">
                         <h2 className="text-[19px] sm:text-[21px] leading-tight font-bold [font-stretch:100%]">
                           <Link to={href} className="hover:underline underline-offset-4">{name}</Link>
