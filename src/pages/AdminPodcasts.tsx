@@ -1,4 +1,5 @@
 import { checkImage, cropToSquare, uploadImage } from "@/lib/inscription";
+import { toCsv } from "@/lib/csv";
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -260,7 +261,7 @@ const AdminPodcasts = () => {
         Array.isArray(sd.services) ? sd.services.join(", ") : "",
       ];
     });
-    const csv = [headers, ...rows].map(r => r.map(v => `"${String(v).replace(/"/g, '""')}"`).join(",")).join("\n");
+    const csv = toCsv([headers, ...rows]);
     const blob = new Blob(["\uFEFF" + csv], { type: "text/csv;charset=utf-8;" });
     const url = URL.createObjectURL(blob);
     const link = document.createElement("a");

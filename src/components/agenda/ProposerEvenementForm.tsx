@@ -1,4 +1,5 @@
 import { useRef, useState } from "react";
+import { messageServeur } from "@/lib/inscription";
 import { Link } from "react-router-dom";
 import { toast } from "sonner";
 import { X } from "lucide-react";
@@ -81,7 +82,7 @@ const ProposerEvenementForm = () => {
       publie: false, // En attente de validation admin
     });
     setUploading(false);
-    if (error) { toast.error("L'envoi n'a pas abouti. Réessayez."); console.error(error); return; }
+    if (error) { toast.error(messageServeur(error, "L'envoi n'a pas abouti. Réessayez.")); console.error(error); return; }
     setSubmitted(true);
   };
 

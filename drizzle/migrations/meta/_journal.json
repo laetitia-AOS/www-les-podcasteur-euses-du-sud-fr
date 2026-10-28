@@ -36,6 +36,20 @@
       "when": 1793220156236,
       "tag": "0004_rattachements_sans_acces_visiteur",
       "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1793220982908,
+      "tag": "0005_securite_formulaires_adhesions_images",
+      "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1793221312431,
+      "tag": "0006_adhesions_a_verifier",
+      "breakpoints": true
     }
   ]
 }

@@ -482,6 +482,17 @@ export type Database = {
           type_adhesion: string
         }[]
       }
+      pds_email: { Args: { required?: boolean; v: string }; Returns: string }
+      pds_tel: { Args: { v: string }; Returns: string }
+      pds_trop_d_envois: { Args: never; Returns: undefined }
+      pds_txt: {
+        Args: { label: string; maxlen: number; required?: boolean; v: string }
+        Returns: string
+      }
+      pds_url: {
+        Args: { label: string; maxlen?: number; v: string }
+        Returns: string
+      }
       unaccent: { Args: { "": string }; Returns: string }
     }
     Enums: {

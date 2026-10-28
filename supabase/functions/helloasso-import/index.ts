@@ -137,20 +137,7 @@ Deno.serve(async (req) => {
           }
 
           const importEmail = payer.email || item.user?.email || null;
-          let telephone = payer.phone || null;
-
-          // If no phone from HelloAsso, try the member's podcast profile
-          if (!telephone && importEmail) {
-            const { data: podcast } = await supabaseService
-              .from("podcasts")
-              .select("telephone")
-              .ilike("email", importEmail)
-              .not("telephone", "is", null)
-              .maybeSingle();
-            if (podcast?.telephone) {
-              telephone = podcast.telephone;
-            }
-          }
+          const telephone = payer.phone || null;
 
           const adhesion = {
             email: importEmail,

@@ -1,4 +1,5 @@
 import { useState, useMemo } from "react";
+import { toCsv } from "@/lib/csv";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -144,7 +145,7 @@ const AdminAdhesions = () => {
       a.prenom || "", a.nom || "", a.email || "", a.telephone || "",
       a.montant ?? "", a.type_adhesion || "", a.statut,
     ]);
-    const csv = [headers, ...rows].map(r => r.map(v => `"${String(v).replace(/"/g, '""')}"`).join(",")).join("\n");
+    const csv = toCsv([headers, ...rows]);
     const blob = new Blob(["\uFEFF" + csv], { type: "text/csv;charset=utf-8;" });
     const url = URL.createObjectURL(blob);
     const link = document.createElement("a");
@@ -206,7 +207,9 @@ const AdminAdhesions = () => {
               <TableCell>{a.montant ? `${a.montant} €` : "—"}</TableCell>
               <TableCell className="text-sm">{a.type_adhesion || "—"}</TableCell>
               <TableCell>
-                <Badge variant={a.statut === "active" ? "default" : "secondary"}>{a.statut}</Badge>
+                <Badge variant={a.statut === "active" ? "default" : a.statut === "a_verifier" ? "destructive" : "secondary"}>
+                  {a.statut === "a_verifier" ? "À vérifier sur HelloAsso" : a.statut}
+                </Badge>
               </TableCell>
               <TableCell>
                 <div className="flex items-center gap-1">
@@ -338,6 +341,7 @@ const AdminAdhesions = () => {
                   <select value={editForm.statut} onChange={(e) => setEditForm({ ...editForm, statut: e.target.value })}
                     className="w-full rounded-lg border border-border bg-card px-3 py-2 text-sm text-foreground">
                     <option value="active">Active</option>
+                    <option value="a_verifier">À vérifier sur HelloAsso</option>
                     <option value="expirée">Expirée</option>
                     <option value="annulée">Annulée</option>
                   </select>

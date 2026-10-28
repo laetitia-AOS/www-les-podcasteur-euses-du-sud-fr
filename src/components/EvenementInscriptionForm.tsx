@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { messageServeur } from "@/lib/inscription";
 import { z } from "zod";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
@@ -45,7 +46,7 @@ const EvenementInscriptionForm = ({ evenementId, titre, date_debut, lieu, adress
         structure: parsed.data.structure || null,
       });
       if (error) {
-        toast.error(error.code === "23505" ? "Cette adresse est déjà inscrite à cet événement." : "L'inscription n'a pas abouti. Réessayez.");
+        toast.error(error.code === "23505" ? "Cette adresse est déjà inscrite à cet événement." : messageServeur(error, "L'inscription n'a pas abouti. Réessayez."));
         if (error.code !== "23505") console.error(error);
         setSubmitting(false);
         return;

@@ -8,7 +8,8 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
 
-const MAX_PER_HOUR = 5;
+const MAX_RECIPIENTS = 40;
+const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
 const json = (body: unknown, status = 200) =>
   new Response(JSON.stringify(body), { status, headers: { ...corsHeaders, "Content-Type": "application/json" } });
@@ -18,47 +19,46 @@ Deno.serve(async (req) => {
   if (req.method !== "POST") return json({ error: "Méthode non autorisée" }, 405);
 
   try {
-    const { recipient_id, sender_name, sender_email, message } = await req.json();
+    const body = await req.json().catch(() => ({}));
+    const { recipient_id, recipient_ids, sender_name, sender_email, message } = body ?? {};
     const name = String(sender_name || "").trim();
     const email = String(sender_email || "").trim().toLowerCase();
     const msg = String(message || "").trim();
 
-    if (!recipient_id || !/^[0-9a-f-]{36}$/i.test(recipient_id)) return json({ error: "Destinataire invalide" }, 400);
+    // Un message (un·e destinataire) ou un devis (plusieurs studios)
+    const ids: string[] = Array.isArray(recipient_ids) ? recipient_ids.map(String) : recipient_id ? [String(recipient_id)] : [];
+    const uniqueIds = [...new Set(ids)];
+    if (!uniqueIds.length || uniqueIds.length > MAX_RECIPIENTS || !uniqueIds.every((id) => UUID.test(id))) {
+      return json({ error: "Destinataire invalide" }, 400);
+    }
     if (name.length < 2 || name.length > 100) return json({ error: "Indiquez votre nom (2 à 100 caractères)." }, 400);
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email) || email.length > 255) return json({ error: "Adresse e-mail invalide." }, 400);
     if (msg.length < 10 || msg.length > 3000) return json({ error: "Votre message doit faire entre 10 et 3 000 caractères." }, 400);
 
     const admin = createClient(Deno.env.get("SUPABASE_URL")!, Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!);
 
-    const { data: recipient } = await admin
+    const { data: found } = await admin
       .from("podcasts")
       .select("id, valide, consent_contact")
-      .eq("id", recipient_id)
-      .maybeSingle();
-    if (!recipient || !recipient.valide || !recipient.consent_contact) {
+      .in("id", uniqueIds);
+    const recipients = (found || []).filter((r) => r.valide && r.consent_contact);
+    if (!recipients.length) {
       return json({ error: "Ce membre ne peut pas recevoir de message pour le moment." }, 400);
     }
 
-    const since = new Date(Date.now() - 60 * 60 * 1000).toISOString();
-    const { count } = await admin
-      .from("contact_requests")
-      .select("id", { count: "exact", head: true })
-      .eq("sender_email", email)
-      .gte("created_at", since);
-    if ((count || 0) >= MAX_PER_HOUR) {
-      return json({ error: "Vous avez envoyé beaucoup de messages en peu de temps. Réessayez dans une heure." }, 429);
-    }
-
-    const { error: insertError } = await admin.from("contact_requests").insert({
-      recipient_id,
-      sender_name: name,
-      sender_email: email,
-      message: msg,
-    });
-    if (insertError) return json({ error: "Le message n'a pas pu être enregistré." }, 500);
-
+    // Un seul enregistrement groupé : un devis envoyé à plusieurs studios compte pour un envoi.
+    // La base vérifie et nettoie chaque champ, et limite à 5 envois par heure et par adresse.
     // Aucun service d'envoi externe : l'équipe transmet le message au membre depuis l'admin.
-    return json({ ok: true, emailed: false });
+    const { error: insertError } = await admin.from("contact_requests").insert(
+      recipients.map((r) => ({ recipient_id: r.id, sender_name: name, sender_email: email, message: msg })),
+    );
+    if (insertError) {
+      if (insertError.code === "P0001") {
+        return json({ error: insertError.message }, insertError.hint === "rate_limit" ? 429 : 400);
+      }
+      return json({ error: "Le message n'a pas pu être enregistré." }, 500);
+    }
+    return json({ ok: true, emailed: false, count: recipients.length });
   } catch (_e) {
     return json({ error: "Une erreur est survenue. Réessayez dans un instant." }, 500);
   }

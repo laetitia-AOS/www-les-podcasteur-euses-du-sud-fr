@@ -1,4 +1,5 @@
 import { useState, useRef } from "react";
+import { toCsv } from "@/lib/csv";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Input } from "@/components/ui/input";
@@ -191,7 +192,7 @@ const AdminEvenements = () => {
       e.lieu || "", e.adresse || "", e.type, e.places ?? "", e.lien_externe || "",
       e.publie ? "Oui" : "Non", e.description || "",
     ]);
-    const csv = [headers, ...rows].map(r => r.map(v => `"${String(v).replace(/"/g, '""')}"`).join(",")).join("\n");
+    const csv = toCsv([headers, ...rows]);
     const blob = new Blob(["\uFEFF" + csv], { type: "text/csv;charset=utf-8;" });
     const url = URL.createObjectURL(blob);
     const link = document.createElement("a");

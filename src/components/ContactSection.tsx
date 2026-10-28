@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { messageServeur } from "@/lib/inscription";
 import { motion } from "framer-motion";
 import { toast } from "sonner";
 import { Send } from "lucide-react";
@@ -62,7 +63,7 @@ const ContactSection = () => {
     setSubmitting(false);
 
     if (error) {
-      toast.error("Erreur lors de l'envoi. Veuillez réessayer.");
+      toast.error(messageServeur(error, "Erreur lors de l'envoi. Veuillez réessayer."));
       console.error(error);
       return;
     }
