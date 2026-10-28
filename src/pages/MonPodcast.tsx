@@ -189,7 +189,7 @@ const MonEspace = () => {
               </div>
               <div className="flex flex-wrap gap-3">
                 {publicPath && <Link to={publicPath} className={btnSecondary}>Voir mon profil public</Link>}
-                <Link to={ADHERER} className={`${btnPrimary} bg-encre hover:bg-encre/85 text-surface`}>{aJour ? "Renouveler" : "Adhérer"}</Link>
+                <Link to={ADHERER} className="inline-flex items-center justify-center gap-2 min-h-[44px] px-5 font-bold text-[15px] leading-none bg-encre text-surface border-2 border-encre hover:bg-surface hover:text-foreground transition-colors">{aJour ? "Renouveler" : "Adhérer"}</Link>
               </div>
             </div>
 
