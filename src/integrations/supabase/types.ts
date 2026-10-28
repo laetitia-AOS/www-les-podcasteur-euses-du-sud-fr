@@ -95,29 +95,35 @@ export type Database = {
         Row: {
           created_at: string
           id: string
+          lu_le: string | null
           message: string
           recipient_id: string
           sender_email: string
           sender_name: string
           status: string
+          type: string
         }
         Insert: {
           created_at?: string
           id?: string
+          lu_le?: string | null
           message: string
           recipient_id: string
           sender_email: string
           sender_name: string
           status?: string
+          type?: string
         }
         Update: {
           created_at?: string
           id?: string
+          lu_le?: string | null
           message?: string
           recipient_id?: string
           sender_email?: string
           sender_name?: string
           status?: string
+          type?: string
         }
         Relationships: [
           {
@@ -398,10 +404,14 @@ export type Database = {
       }
       podcasts: {
         Row: {
+          apporte_choix: string[]
+          apporte_precision: string | null
           besoin: string | null
           besoins_podcast: string[] | null
           bio_750: string | null
+          cherche_choix: string[]
           cherche_collaboration: string[] | null
+          cherche_precision: string | null
           city_insee_code: string | null
           city_name: string | null
           city_postcode: string | null
@@ -447,10 +457,14 @@ export type Database = {
           ville: string | null
         }
         Insert: {
+          apporte_choix?: string[]
+          apporte_precision?: string | null
           besoin?: string | null
           besoins_podcast?: string[] | null
           bio_750?: string | null
+          cherche_choix?: string[]
           cherche_collaboration?: string[] | null
+          cherche_precision?: string | null
           city_insee_code?: string | null
           city_name?: string | null
           city_postcode?: string | null
@@ -496,10 +510,14 @@ export type Database = {
           ville?: string | null
         }
         Update: {
+          apporte_choix?: string[]
+          apporte_precision?: string | null
           besoin?: string | null
           besoins_podcast?: string[] | null
           bio_750?: string | null
+          cherche_choix?: string[]
           cherche_collaboration?: string[] | null
+          cherche_precision?: string | null
           city_insee_code?: string | null
           city_name?: string | null
           city_postcode?: string | null
@@ -620,16 +638,19 @@ export type Database = {
         }
         Returns: boolean
       }
+      marquer_demande_lue: { Args: { _id: string }; Returns: boolean }
       membre_a_jour: { Args: { _email: string }; Returns: boolean }
       mes_demandes: {
         Args: never
         Returns: {
           created_at: string
           id: string
+          lu_le: string
           message: string
           recipient_id: string
           sender_email: string
           sender_name: string
+          type: string
         }[]
       }
       mes_evenements: {
@@ -661,6 +682,8 @@ export type Database = {
           type_adhesion: string
         }[]
       }
+      pds_collab_codes: { Args: never; Returns: string[] }
+      pds_collab_depuis_texte: { Args: { t: string }; Returns: string[] }
       pds_email: { Args: { required?: boolean; v: string }; Returns: string }
       pds_tel: { Args: { v: string }; Returns: string }
       pds_trop_d_envois: { Args: never; Returns: undefined }
