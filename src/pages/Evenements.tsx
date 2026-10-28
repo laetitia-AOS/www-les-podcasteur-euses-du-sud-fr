@@ -8,7 +8,7 @@ import Footer from "@/components/Footer";
 import SEOHead from "@/components/SEOHead";
 import EventRow, { eventHref } from "@/components/agenda/EventRow";
 import ProposerEvenementForm from "@/components/agenda/ProposerEvenementForm";
-import { isOnline, isOrganizedByPds, type HomeEvent } from "@/components/home/useHomeData";
+import { aVenirFilter, isOnline, isOrganizedByPds, passeFilter, type HomeEvent } from "@/components/home/useHomeData";
 import { btnListen, container, formatShortDate } from "@/lib/pds";
 import photo1 from "@/assets/photos/09-rencontre-inseec-cercle.jpg.asset.json";
 import photo2 from "@/assets/photos/16-rencontre-mur-rouge-trio.jpg.asset.json";
@@ -36,7 +36,7 @@ const FILTERS = [
 ] as const;
 
 const SITE = "https://www.les-podcasteur-euses-du-sud.fr";
-const FIELDS = "id, titre, sous_titre, description, date_debut, date_fin, lieu, adresse, type, slug, lien_externe, inscription_activee, image_url";
+const FIELDS = "id, titre, sous_titre, description, date_debut, date_fin, lieu, adresse, type, slug, lien_externe, inscription_activee, image_url, origine, format, propose_par_nom, tarif, lien_connexion";
 
 const Evenements = () => {
   const [filter, setFilter] = useState<(typeof FILTERS)[number]["key"]>("tous");
@@ -45,8 +45,8 @@ const Evenements = () => {
   const { data: upcoming = [], isLoading } = useQuery({
     queryKey: ["agenda-upcoming"],
     queryFn: async () => {
-      const { data, error } = await supabase.from("evenements").select(FIELDS).eq("publie", true)
-        .gte("date_debut", new Date().toISOString()).order("date_debut", { ascending: true });
+      const { data, error } = await supabase.from("evenements").select(FIELDS).eq("statut", "publie")
+        .or(aVenirFilter()).order("date_debut", { ascending: true });
       if (error) throw error;
       return (data || []) as AgendaEvent[];
     },
@@ -55,8 +55,9 @@ const Evenements = () => {
   const { data: past = [] } = useQuery({
     queryKey: ["agenda-past"],
     queryFn: async () => {
-      const { data, error } = await supabase.from("evenements").select(FIELDS).eq("publie", true)
-        .lt("date_debut", new Date().toISOString()).order("date_debut", { ascending: false }).limit(6);
+      // Archives : tout événement terminé y bascule automatiquement
+      const { data, error } = await supabase.from("evenements").select(FIELDS).eq("statut", "publie")
+        .or(passeFilter()).order("date_debut", { ascending: false }).limit(12);
       if (error) throw error;
       return (data || []) as AgendaEvent[];
     },

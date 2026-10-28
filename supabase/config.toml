@@ -22,3 +22,6 @@ verify_jwt = false
 
 [functions.valider-images]
 verify_jwt = false
+
+[functions.sitemap-evenements]
+verify_jwt = false

@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
+import MesEvenements, { type MonEvenement } from "@/components/espace-membre/MesEvenements";
 import LieuEditor from "@/components/studios/LieuEditor";
 import { Link, useNavigate } from "react-router-dom";
 import { Loader2 } from "lucide-react";
@@ -21,7 +22,7 @@ const TYPE_DEMANDE: Record<string, { label: string; sujet: string }> = {
   devis: { label: "Devis", sujet: "Re : votre demande de devis" },
   message: { label: "Message", sujet: "Re : votre message via Les Podcasteur·euses du Sud" },
 };
-type MonEvenement = { id: string; titre: string; slug: string | null; date_debut: string; publie: boolean };
+
 
 const SECTIONS = [
   { id: "tableau", label: "Tableau de bord" },
@@ -75,6 +76,10 @@ const MonEspace = () => {
   }, [navigate]);
 
   const nonLues = demandes.filter((d) => !d.lu_le).length;
+  const rechargerEvenements = async () => {
+    const { data } = await supabase.rpc("mes_evenements");
+    setEvenements((data as MonEvenement[] | null) || []);
+  };
   // Ouvrir ou répondre à une demande la marque comme lue (côté serveur, uniquement les siennes)
   const marquerLue = (id: string) => {
     const d = demandes.find((x) => x.id === id);
@@ -337,29 +342,7 @@ const MonEspace = () => {
               <h2 id="evenements-title" className={sectionTitle}>Mes événements</h2>
               <Link to="/agenda#proposer" className={btnSecondary}>Proposer un événement</Link>
             </div>
-            {evenements.length === 0 ? (
-              <p className="mt-4 text-[15px] text-muted-foreground">
-                Vous n'avez pas encore proposé d'événement avec cette adresse e-mail.
-              </p>
-            ) : (
-              <ul>
-                {evenements.map((ev) => (
-                  <li key={ev.id} className="border-b border-filet py-3 flex flex-wrap items-center justify-between gap-3">
-                    <div>
-                      {ev.publie && ev.slug ? (
-                        <Link to={`/agenda/${ev.slug}`} className="font-bold hover:underline underline-offset-4">{readableTitle(ev.titre)}</Link>
-                      ) : (
-                        <p className="font-bold">{readableTitle(ev.titre)}</p>
-                      )}
-                      <p className="font-mono text-xs text-muted-foreground mt-0.5">{formatLongDate(ev.date_debut)}</p>
-                    </div>
-                    <span className={`px-2 py-0.5 text-xs font-bold ${ev.publie ? "bg-primary text-primary-foreground" : "border border-encre"}`}>
-                      {ev.publie ? "Publié" : "En relecture"}
-                    </span>
-                  </li>
-                ))}
-              </ul>
-            )}
+            <MesEvenements evenements={evenements} onChange={rechargerEvenements} />
           </section>
 
           {/* Adhésion */}

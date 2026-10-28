@@ -2,7 +2,7 @@ import { Link } from "react-router-dom";
 import { Globe } from "lucide-react";
 import { btnPrimary, btnSecondary } from "@/lib/pds";
 import { readableTitle } from "@/lib/events";
-import { EVENT_TYPE_LABELS, cityFromAddress, isOnline, isOrganizedByPds, type HomeEvent } from "@/components/home/useHomeData";
+import { EVENT_TYPE_LABELS, cityFromAddress, isOnline, organisateurLabel, type HomeEvent } from "@/components/home/useHomeData";
 
 export const eventHref = (e: Pick<HomeEvent, "slug" | "id">) => `/agenda/${e.slug || e.id}`;
 
@@ -14,7 +14,7 @@ const EventRow = ({ e, primary, cta }: { e: HomeEvent; primary?: boolean; cta?: 
   const online = isOnline(e);
   const city = cityFromAddress(e.adresse);
   const href = eventHref(e);
-  const label = cta || (e.inscription_activee ? "S'inscrire" : "Je viens");
+  const label = cta || "Je viens";
 
   return (
     <li className="grid grid-cols-[80px_1fr] sm:grid-cols-[110px_1fr_220px_auto] gap-x-5 gap-y-3 py-6 items-start sm:items-center">
@@ -24,7 +24,7 @@ const EventRow = ({ e, primary, cta }: { e: HomeEvent; primary?: boolean; cta?: 
       </div>
       <div className="min-w-0">
         <p className="text-sm font-bold text-accent-text">
-          {EVENT_TYPE_LABELS[e.type] || e.type} · {isOrganizedByPds(e) ? "organisé par PDS" : "proposé par un membre"}
+          {EVENT_TYPE_LABELS[e.type] || e.type} · {organisateurLabel(e)}{e.tarif ? ` · ${e.tarif}` : ""}
         </p>
         <Link to={href} className="block font-bold text-[20px] sm:text-[24px] leading-tight hover:underline underline-offset-4">{readableTitle(e.titre)}</Link>
         {e.sous_titre && <p className="text-muted-foreground mt-1 line-clamp-2">{e.sous_titre}</p>}

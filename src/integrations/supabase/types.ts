@@ -295,6 +295,7 @@ export type Database = {
           statut: string
           structure: string | null
           telephone: string | null
+          user_id: string | null
         }
         Insert: {
           created_at?: string
@@ -306,6 +307,7 @@ export type Database = {
           statut?: string
           structure?: string | null
           telephone?: string | null
+          user_id?: string | null
         }
         Update: {
           created_at?: string
@@ -317,6 +319,7 @@ export type Database = {
           statut?: string
           structure?: string | null
           telephone?: string | null
+          user_id?: string | null
         }
         Relationships: [
           {
@@ -335,19 +338,28 @@ export type Database = {
           date_debut: string
           date_fin: string | null
           description: string | null
+          format: string
           id: string
           image_url: string | null
           inscription_activee: boolean
+          lien_connexion: string | null
           lien_externe: string | null
           lieu: string | null
+          motif_refus: string | null
+          origine: string
           places: number | null
           podcasts_invites: Json | null
+          propose_par: string | null
+          propose_par_nom: string | null
           publie: boolean
           slug: string | null
           sous_titre: string | null
+          statut: string
           structure_id: string | null
+          tarif: string | null
           titre: string
           type: string
+          updated_at: string
         }
         Insert: {
           adresse?: string | null
@@ -355,19 +367,28 @@ export type Database = {
           date_debut: string
           date_fin?: string | null
           description?: string | null
+          format?: string
           id?: string
           image_url?: string | null
           inscription_activee?: boolean
+          lien_connexion?: string | null
           lien_externe?: string | null
           lieu?: string | null
+          motif_refus?: string | null
+          origine?: string
           places?: number | null
           podcasts_invites?: Json | null
+          propose_par?: string | null
+          propose_par_nom?: string | null
           publie?: boolean
           slug?: string | null
           sous_titre?: string | null
+          statut?: string
           structure_id?: string | null
+          tarif?: string | null
           titre: string
           type?: string
+          updated_at?: string
         }
         Update: {
           adresse?: string | null
@@ -375,24 +396,76 @@ export type Database = {
           date_debut?: string
           date_fin?: string | null
           description?: string | null
+          format?: string
           id?: string
           image_url?: string | null
           inscription_activee?: boolean
+          lien_connexion?: string | null
           lien_externe?: string | null
           lieu?: string | null
+          motif_refus?: string | null
+          origine?: string
           places?: number | null
           podcasts_invites?: Json | null
+          propose_par?: string | null
+          propose_par_nom?: string | null
           publie?: boolean
           slug?: string | null
           sous_titre?: string | null
+          statut?: string
           structure_id?: string | null
+          tarif?: string | null
           titre?: string
           type?: string
+          updated_at?: string
         }
         Relationships: [
           {
+            foreignKeyName: "evenements_propose_par_fkey"
+            columns: ["propose_par"]
+            isOneToOne: false
+            referencedRelation: "podcasts"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "evenements_structure_id_fkey"
             columns: ["structure_id"]
+            isOneToOne: false
+            referencedRelation: "podcasts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      evenements_proposeurs: {
+        Row: {
+          created_at: string
+          email: string
+          evenement_id: string
+          podcast_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          email: string
+          evenement_id: string
+          podcast_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          email?: string
+          evenement_id?: string
+          podcast_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "evenements_proposeurs_evenement_id_fkey"
+            columns: ["evenement_id"]
+            isOneToOne: true
+            referencedRelation: "evenements"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "evenements_proposeurs_podcast_id_fkey"
+            columns: ["podcast_id"]
             isOneToOne: false
             referencedRelation: "podcasts"
             referencedColumns: ["id"]
@@ -772,6 +845,7 @@ export type Database = {
         }
         Returns: boolean
       }
+      je_viens_deja: { Args: { _evenement_id: string }; Returns: boolean }
       lieu_visible: { Args: { _id: string }; Returns: boolean }
       marquer_demande_lue: { Args: { _id: string }; Returns: boolean }
       membre_a_jour: { Args: { _email: string }; Returns: boolean }
@@ -797,8 +871,11 @@ export type Database = {
         Returns: {
           date_debut: string
           id: string
+          motif_refus: string
+          nb_venues: number
           publie: boolean
           slug: string
+          statut: string
           titre: string
         }[]
       }
@@ -812,6 +889,15 @@ export type Database = {
           statut: string
         }[]
       }
+      mes_venues: {
+        Args: { _evenement_id: string }
+        Returns: {
+          created_at: string
+          email: string
+          nom: string
+          prenom: string
+        }[]
+      }
       mon_adhesion: {
         Args: never
         Returns: {
@@ -821,10 +907,50 @@ export type Database = {
           type_adhesion: string
         }[]
       }
+      mon_evenement: { Args: { _id: string }; Returns: boolean }
       mon_lieu: { Args: { _id: string }; Returns: boolean }
+      nb_venues: { Args: { _evenement_id: string }; Returns: number }
       pds_collab_codes: { Args: never; Returns: string[] }
       pds_collab_depuis_texte: { Args: { t: string }; Returns: string[] }
       pds_email: { Args: { required?: boolean; v: string }; Returns: string }
+      pds_evenement_champs: {
+        Args: { new: Database["public"]["Tables"]["evenements"]["Row"] }
+        Returns: {
+          adresse: string | null
+          created_at: string
+          date_debut: string
+          date_fin: string | null
+          description: string | null
+          format: string
+          id: string
+          image_url: string | null
+          inscription_activee: boolean
+          lien_connexion: string | null
+          lien_externe: string | null
+          lieu: string | null
+          motif_refus: string | null
+          origine: string
+          places: number | null
+          podcasts_invites: Json | null
+          propose_par: string | null
+          propose_par_nom: string | null
+          publie: boolean
+          slug: string | null
+          sous_titre: string | null
+          statut: string
+          structure_id: string | null
+          tarif: string | null
+          titre: string
+          type: string
+          updated_at: string
+        }
+        SetofOptions: {
+          from: "evenements"
+          to: "evenements"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
       pds_jsonb_txt: {
         Args: { label: string; maxlen: number; v: Json }
         Returns: string
@@ -840,6 +966,7 @@ export type Database = {
         Args: { label: string; maxlen?: number; v: string }
         Returns: string
       }
+      peut_proposer_evenement: { Args: never; Returns: boolean }
       unaccent: { Args: { "": string }; Returns: string }
     }
     Enums: {

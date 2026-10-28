@@ -44,6 +44,21 @@ export type HomeEvent = {
   slug: string | null;
   lien_externe: string | null;
   inscription_activee: boolean;
+  origine?: string | null;
+  format?: string | null;
+  propose_par_nom?: string | null;
+  tarif?: string | null;
+  date_fin?: string | null;
+};
+
+/** Événements à venir : pas encore terminés (date de fin, sinon date de début). Les autres passent en archives. */
+export const aVenirFilter = () => {
+  const now = new Date().toISOString();
+  return `date_fin.gte.${now},and(date_fin.is.null,date_debut.gte.${now})`;
+};
+export const passeFilter = () => {
+  const now = new Date().toISOString();
+  return `date_fin.lt.${now},and(date_fin.is.null,date_debut.lt.${now})`;
 };
 
 export const useUpcomingEvents = () =>
@@ -52,9 +67,9 @@ export const useUpcomingEvents = () =>
     queryFn: async () => {
       const { data, error } = await supabase
         .from("evenements")
-        .select("id, titre, sous_titre, date_debut, lieu, adresse, type, slug, lien_externe, inscription_activee")
-        .eq("publie", true)
-        .gte("date_debut", new Date().toISOString())
+        .select("id, titre, sous_titre, date_debut, date_fin, lieu, adresse, type, slug, lien_externe, inscription_activee, origine, format, propose_par_nom, tarif")
+        .eq("statut", "publie")
+        .or(aVenirFilter())
         .order("date_debut", { ascending: true })
         .limit(20);
       if (error) throw error;
@@ -63,18 +78,26 @@ export const useUpcomingEvents = () =>
     staleTime: 5 * 60 * 1000,
   });
 
-export const isOnline = (e: Pick<HomeEvent, "lieu" | "adresse">) =>
-  /en ligne|visio|zoom|google meet|teams|discord|twitch|youtube/i.test(`${e.lieu || ""} ${e.adresse || ""}`);
+export const isOnline = (e: Pick<HomeEvent, "lieu" | "adresse" | "format">) =>
+  e.format ? e.format === "en_ligne" : /en ligne|visio|zoom|google meet|teams|discord|twitch|youtube/i.test(`${e.lieu || ""} ${e.adresse || ""}`);
 
-/** Rencontres et ateliers sont organisés par l'association ; les autres types sont proposés par les membres ou partenaires. */
-export const isOrganizedByPds = (e: Pick<HomeEvent, "type">) => e.type === "rencontre" || e.type === "atelier";
+/** Organisé par l'association, ou proposé par un membre (champ « origine »). */
+export const isOrganizedByPds = (e: Pick<HomeEvent, "origine">) => (e.origine ?? "pds") === "pds";
 
-export const EVENT_TYPE_LABELS: Record<string, string> = {
-  rencontre: "Rencontre",
-  atelier: "Atelier",
-  evenement: "Événement",
-  partenaire: "Événement partenaire",
-};
+export const EVENT_TYPES = [
+  { value: "apero_ecoute", label: "Apéro écoute" },
+  { value: "atelier", label: "Atelier" },
+  { value: "live", label: "Live" },
+  { value: "ecoute", label: "Écoute" },
+  { value: "rencontre", label: "Rencontre" },
+  { value: "autre", label: "Autre" },
+] as const;
+
+export const EVENT_TYPE_LABELS: Record<string, string> = Object.fromEntries(EVENT_TYPES.map((t) => [t.value, t.label]));
+
+/** « organisé par PDS » ou « proposé par Marie Dupont » */
+export const organisateurLabel = (e: Pick<HomeEvent, "origine" | "propose_par_nom">) =>
+  isOrganizedByPds(e) ? "organisé par PDS" : e.propose_par_nom ? `proposé par ${e.propose_par_nom}` : "proposé par un membre";
 
 /** Ville tirée de l'adresse, sans code postal ni arrondissement. */
 export const cityFromAddress = (adresse?: string | null): string => {

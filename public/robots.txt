@@ -32,3 +32,4 @@ User-agent: *
 Allow: /
 
 Sitemap: https://www.les-podcasteur-euses-du-sud.fr/sitemap.xml
+Sitemap: https://pnxbuhtqiruayzykaagw.supabase.co/functions/v1/sitemap-evenements
