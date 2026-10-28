@@ -77,7 +77,7 @@ Deno.serve(async (req) => {
       : "Événement — Les Podcasteur·euses du Sud";
 
     const description = evt
-      ? (evt.sous_titre || evt.description?.slice(0, 200) || `Rejoignez-nous le ${new Date(evt.date_debut).toLocaleDateString("fr-FR", { day: "numeric", month: "long", year: "numeric" })}${evt.lieu ? ` à ${evt.lieu}` : ""}.`)
+      ? (evt.sous_titre || evt.description?.split("\n---")[0].slice(0, 200) || `Rejoignez-nous le ${new Date(evt.date_debut).toLocaleDateString("fr-FR", { day: "numeric", month: "long", year: "numeric" })}${evt.lieu ? ` à ${evt.lieu}` : ""}.`)
       : "Événement podcast en Région Sud.";
 
     const rawImage = evt?.image_url || DEFAULT_OG;
