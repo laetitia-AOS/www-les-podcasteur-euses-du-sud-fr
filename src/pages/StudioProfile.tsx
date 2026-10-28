@@ -126,10 +126,10 @@ const StudioProfile = () => {
         </div>
 
         {photos.length > 0 && (
-          <div className={`${container} mt-8 grid gap-3 grid-cols-2 md:grid-cols-[2fr_1fr] md:grid-rows-2`}>
+          <div className={`${container} mt-8 grid gap-3 grid-cols-2 md:grid-cols-[2fr_1fr] md:grid-rows-2 md:h-[480px]`}>
             {photos.slice(0, 3).map((src, i) => (
               <img key={src} src={src} alt={`${studio.nom_podcast}, photo ${i + 1}`} loading={i ? "lazy" : "eager"}
-                className={`w-full object-cover bg-muted ${i === 0 ? "col-span-2 md:col-span-1 md:row-span-2 aspect-[4/3] md:aspect-auto md:h-full" : "aspect-[4/3]"}`} />
+                className={`w-full h-full min-h-0 object-cover bg-muted ${i === 0 ? `col-span-2 md:col-span-1 ${photos.length > 1 ? "md:row-span-2" : "md:col-span-2 md:row-span-2"} aspect-[4/3] md:aspect-auto` : "aspect-[4/3] md:aspect-auto"}`} />
             ))}
           </div>
         )}
