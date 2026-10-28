@@ -25,6 +25,7 @@ export async function getHelloAssoToken(): Promise<string> {
   return data.access_token;
 }
 
+// deno-lint-ignore no-explicit-any
 const isOurs = (order: any) => {
   const slug = order?.organizationSlug ?? order?.organization?.slug;
   return !slug || slug === ORG_SLUG;
@@ -35,7 +36,6 @@ const isOurs = (order: any) => {
  * ou n'appartient pas à l'association : seul ce retour fait foi, jamais le message reçu.
  * Le formulaire indiqué dans le message sert seulement à savoir où chercher.
  */
-// deno-lint-ignore no-explicit-any
 export type OrderCheck =
   // deno-lint-ignore no-explicit-any
   | { status: "verified"; order: any }
@@ -56,6 +56,7 @@ export async function checkOrder(orderId: string, formType?: string, formSlug?: 
   return refused ? { status: "unavailable" } : { status: "not_found" };
 }
 
+// deno-lint-ignore no-explicit-any
 export async function fetchVerifiedOrder(orderId: string, formType?: string, formSlug?: string, onRefused?: () => void): Promise<any | null> {
   if (!/^\d{1,15}$/.test(orderId)) return null;
   const token = await getHelloAssoToken();

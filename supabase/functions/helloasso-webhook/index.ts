@@ -65,7 +65,9 @@ Deno.serve(async (req) => {
       : order.amount?.total ?? firstItem.amount ?? null;
 
     const email = clean(payer.email, 255)?.toLowerCase() ?? null;
-    if (!email) return json({ error: "Order without email" }, 400);
+    if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email)) return json({ error: "Order without email" }, 400);
+    const parsedDate = new Date(String(order.date || ""));
+    const dateAdhesion = Number.isNaN(parsedDate.getTime()) ? new Date().toISOString() : parsedDate.toISOString();
 
     const { error } = await supabase.from("adhesions").insert({
       email,
@@ -75,7 +77,7 @@ Deno.serve(async (req) => {
       montant: typeof totalCents === "number" ? totalCents / 100 : null,
       type_adhesion: clean(firstItem.name, 150) || "adhesion",
       statut: verified ? "active" : "a_verifier",
-      date_adhesion: order.date || new Date().toISOString(),
+      date_adhesion: dateAdhesion,
       helloasso_order_id: orderId,
       raw_payload: verified ? order : { non_verifie: true, ...payload },
     });
