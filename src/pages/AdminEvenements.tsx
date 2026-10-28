@@ -12,6 +12,7 @@ import { useNavigate, Navigate } from "react-router-dom";
 import { toast } from "sonner";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useAdminAuth } from "@/hooks/useAdminAuth";
+import { EVENT_TYPES } from "@/components/home/useHomeData";
 import EvenementInscriptionsDialog from "@/components/EvenementInscriptionsDialog";
 import PodcastsInvitesEditor, { type PodcastInvite } from "@/components/PodcastsInvitesEditor";
 
@@ -226,7 +227,7 @@ const AdminEvenements = () => {
       new Date(e.date_debut).toLocaleString("fr-FR"),
       e.date_fin ? new Date(e.date_fin).toLocaleString("fr-FR") : "",
       e.lieu || "", e.adresse || "", e.type, e.places ?? "", e.lien_externe || "",
-      e.publie ? "Oui" : "Non", e.description || "",
+      STATUT_LABEL[e.statut] || e.statut, e.description || "",
     ]);
     const csv = toCsv([headers, ...rows]);
     const blob = new Blob(["\uFEFF" + csv], { type: "text/csv;charset=utf-8;" });
