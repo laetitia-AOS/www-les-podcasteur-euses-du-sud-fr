@@ -14,6 +14,7 @@ interface PodcastData {
   description: string;
   thematique: string | null;
   vignette_url: string | null;
+  photo_profil_url?: string | null;
   prenom: string | null;
   nom: string | null;
   telephone: string | null;
@@ -64,7 +65,7 @@ const MonEspace = () => {
       setUserEmail(session.user.email || "");
       const { data, error } = await supabase
         .from("podcasts")
-        .select("id, nom_podcast, lien_ecoute, flux_rss, description, thematique, vignette_url, prenom, nom, telephone, email, ville, type_podcast, type_profil, bio_750, lien_principal, lien_linkedin, metier_principal, services_3, disponibilite, valide, niveau_avancement, frequence_publication, monetise, department_code, city_name")
+        .select("id, nom_podcast, lien_ecoute, flux_rss, description, thematique, vignette_url, photo_profil_url, prenom, nom, telephone, email, ville, type_podcast, type_profil, bio_750, lien_principal, lien_linkedin, metier_principal, services_3, disponibilite, valide, niveau_avancement, frequence_publication, monetise, department_code, city_name")
         .eq("email", session.user.email!)
         .order("created_at", { ascending: false });
 
@@ -132,6 +133,24 @@ const MonEspace = () => {
     toast.success("Image mise à jour !");
   };
 
+  const photoInputRef = useRef<HTMLInputElement>(null);
+  const handlePhotoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    if (!file.type.startsWith("image/")) { toast.error("Sélectionnez une image."); return; }
+    if (file.size > 5 * 1024 * 1024) { toast.error("Max 5 Mo."); return; }
+    const croppedFile = await cropToSquare(file);
+    setUploading(true);
+    const ext = croppedFile.name.split(".").pop();
+    const fileName = `${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`;
+    const { error } = await supabase.storage.from("podcast-thumbnails").upload(fileName, croppedFile, { contentType: croppedFile.type });
+    if (error) { toast.error("Erreur upload."); setUploading(false); return; }
+    const { data: urlData } = supabase.storage.from("podcast-thumbnails").getPublicUrl(fileName);
+    setForm((prev) => ({ ...prev, photo_profil_url: urlData.publicUrl }));
+    setUploading(false);
+    toast.success("Photo ajoutée. Pensez à enregistrer.");
+  };
+
   const handleSave = async () => {
     const current = podcasts[activeTab];
     if (!current) return;
@@ -169,7 +188,13 @@ const MonEspace = () => {
       console.error(error);
       return;
     }
-    const updated = podcasts.map((p, i) => i === activeTab ? { ...p, ...form } as PodcastData : p);
+    // La photo de profil est la même sur toutes les fiches de la personne (même e-mail)
+    const photo = (form as PodcastData).photo_profil_url ?? null;
+    if (photo !== (current.photo_profil_url ?? null)) {
+      const { error: photoError } = await supabase.from("podcasts").update({ photo_profil_url: photo }).ilike("email", current.email);
+      if (photoError) console.error(photoError);
+    }
+    const updated = podcasts.map((p, i) => i === activeTab ? { ...p, ...form } as PodcastData : { ...p, photo_profil_url: photo });
     setPodcasts(updated);
     toast.success("Fiche mise à jour !");
   };
@@ -286,6 +311,36 @@ const MonEspace = () => {
             {current.type_profil === "podcasteur" ? "Podcasteur·euse" : current.type_profil === "pro_podcast" ? "Acteur·ice de l'écosystème" : "Soutien"}
           </span>
         </div>
+
+        {/* Photo de profil (fiche annuaire) — pour les podcasteur·euses, distincte de la pochette */}
+        {isPodcasteur && (
+          <div className="bg-card border border-border rounded-2xl p-6 sm:p-8 space-y-4">
+            <h2 className="font-display font-bold text-xl text-foreground">Photo de profil</h2>
+            <p className="text-xs text-muted-foreground">Une photo de vous, affichée dans l'annuaire à la place de vos initiales. Elle est reprise sur toutes vos fiches.</p>
+            <div className="flex items-start gap-4">
+              {(form as PodcastData).photo_profil_url ? (
+                <div className="relative">
+                  <img src={(form as PodcastData).photo_profil_url!} alt="Votre photo de profil" className="w-28 h-28 rounded-full object-cover border border-border" />
+                  <button type="button" onClick={() => setForm((prev) => ({ ...prev, photo_profil_url: null }))} aria-label="Retirer la photo"
+                    className="absolute -top-2 -right-2 w-6 h-6 bg-destructive text-destructive-foreground rounded-full flex items-center justify-center">
+                    <X className="w-3 h-3" />
+                  </button>
+                </div>
+              ) : (
+                <div className="w-28 h-28 rounded-full border-2 border-dashed border-border flex items-center justify-center">
+                  <Image className="w-6 h-6 text-muted-foreground" />
+                </div>
+              )}
+              <div className="pt-2">
+                <input ref={photoInputRef} type="file" accept="image/jpeg,image/png,image/webp" onChange={handlePhotoUpload} className="hidden" />
+                <Button type="button" variant="outline" size="sm" onClick={() => photoInputRef.current?.click()} disabled={uploading}>
+                  {uploading ? <Loader2 className="w-4 h-4 animate-spin mr-1.5" /> : <Image className="w-4 h-4 mr-1.5" />}
+                  {(form as PodcastData).photo_profil_url ? "Changer la photo" : "Ajouter ma photo"}
+                </Button>
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* Photo */}
         <div className="bg-card border border-border rounded-2xl p-6 sm:p-8 space-y-4">
