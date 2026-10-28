@@ -85,7 +85,7 @@ const EvenementDetail = () => {
     const pds = isOrganizedByPds(evt);
     const city = online ? "" : cityFromAddress(evt.adresse) || (evt.lieu && /marseille/i.test(evt.lieu) ? "Marseille" : "");
     const titre = readableTitle(evt.titre);
-    const h1 = `${H1_TYPE[evt.type] || "Événement podcast"} ${online ? "en ligne" : city ? `à ${city}` : ""} : ${titre}`.replace(/\s+:/, " :");
+    const h1 = `${H1_TYPE[evt.type] || "Événement podcast"} ${online ? "en ligne" : city ? `à ${city}` : "en Région Sud"} : ${titre}`;
     const dateLong = capitalize(start.toLocaleDateString("fr-FR", { weekday: "long", day: "numeric", month: "long", year: "numeric" }));
     const horaires = end ? `de ${hour(start)} à ${hour(end)}` : `à partir de ${hour(start)}`;
     const lieuPhrase = online ? "en ligne" : evt.lieu ? `chez ${evt.lieu}${city ? ` (${city})` : ""}` : city ? `à ${city}` : "";
