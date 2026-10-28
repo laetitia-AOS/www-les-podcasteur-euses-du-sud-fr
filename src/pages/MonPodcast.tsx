@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
+import LieuEditor from "@/components/studios/LieuEditor";
 import { Link, useNavigate } from "react-router-dom";
 import { Loader2 } from "lucide-react";
 import { toast } from "sonner";
@@ -245,6 +246,16 @@ const MonEspace = () => {
               }
             />
           </section>
+
+          {/* Mon studio / Ma structure */}
+          {fiches.filter((x) => x.type_profil === "studio" || x.type_profil === "structure_eco").map((lieu) => (
+            <section key={lieu.id} id={`lieu-${lieu.id}`} aria-labelledby={`lieu-title-${lieu.id}`} className="scroll-mt-6">
+              <h2 id={`lieu-title-${lieu.id}`} className={`${sectionTitle} pb-3 border-b-2 border-encre mb-5`}>
+                {lieu.type_profil === "studio" ? "Mon studio" : "Ma structure"} : {lieu.nom_podcast}
+              </h2>
+              <LieuEditor podcastId={lieu.id} type={lieu.type_profil as "studio" | "structure_eco"} nom={lieu.nom_podcast || ""} />
+            </section>
+          ))}
 
           {/* Mes podcasts */}
           <section id="podcasts" aria-labelledby="podcasts-title" className="scroll-mt-6">

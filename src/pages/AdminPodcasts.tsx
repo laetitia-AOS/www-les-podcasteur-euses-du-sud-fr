@@ -1,4 +1,5 @@
 import { COLLAB_CHOIX, checkImage, cropToSquare, uploadImage } from "@/lib/inscription";
+import LieuEditor from "@/components/studios/LieuEditor";
 import { CollabField } from "@/components/adherer/fields";
 import { verifierFlux } from "@/lib/episodes";
 import { toCsv } from "@/lib/csv";
@@ -520,6 +521,12 @@ const AdminPodcasts = () => {
                   Enregistrer
                 </Button>
               </div>
+              {(editingPodcast.type_profil === "studio" || editingPodcast.type_profil === "structure_eco") && (
+                <section className="mt-8 pt-6 border-t border-border" aria-label="Fiche détaillée">
+                  <h3 className="font-bold text-lg mb-4">Fiche détaillée (tarif, services, photos, équipement, questions…)</h3>
+                  <LieuEditor podcastId={editingPodcast.id} type={editingPodcast.type_profil as "studio" | "structure_eco"} nom={editingPodcast.nom_podcast} />
+                </section>
+              )}
             </>
           )}
         </DialogContent>
