@@ -64,6 +64,13 @@
       "when": 1793222724909,
       "tag": "0008_episodes_flux_rss",
       "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "7",
+      "when": 1793222858393,
+      "tag": "0009_episodes_droits_stricts",
+      "breakpoints": true
     }
   ]
 }
