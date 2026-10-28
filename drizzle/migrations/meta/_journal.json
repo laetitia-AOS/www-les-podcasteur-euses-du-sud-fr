@@ -22,6 +22,20 @@
       "when": 1793219432076,
       "tag": "0002_espace_membre_lectures",
       "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1793220047559,
+      "tag": "0003_rattachement_adhesions_et_demandes",
+      "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1793220156236,
+      "tag": "0004_rattachements_sans_acces_visiteur",
+      "breakpoints": true
     }
   ]
 }

@@ -6,10 +6,11 @@ import { Input } from "@/components/ui/input";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Users, ArrowLeft, LogOut, Loader2, Download, RefreshCw, Trash2, Pencil, Save, X } from "lucide-react";
+import { Users, ArrowLeft, LogOut, Loader2, Download, RefreshCw, Trash2, Pencil, Save, X, Link2 } from "lucide-react";
 import { useNavigate, Navigate } from "react-router-dom";
 import { useAdminAuth } from "@/hooks/useAdminAuth";
 import AddAdhesionDialog from "@/components/AddAdhesionDialog";
+import RattacherAdhesionDialog, { useRattachements } from "@/components/RattacherAdhesionDialog";
 import { toast } from "sonner";
 import {
   Dialog,
@@ -28,6 +29,7 @@ const AdminAdhesions = () => {
   const queryClient = useQueryClient();
   const [editingAdhesion, setEditingAdhesion] = useState<any>(null);
   const [editForm, setEditForm] = useState<any>({});
+  const [linking, setLinking] = useState<any>(null);
 
   const importFromHelloAsso = async () => {
     setImporting(true);
@@ -60,6 +62,8 @@ const AdminAdhesions = () => {
     },
     enabled: isAdmin,
   });
+
+  const { data: rattachements = [] } = useRattachements(isAdmin);
 
   const deleteAdhesion = useMutation({
     mutationFn: async (id: string) => {
@@ -175,7 +179,7 @@ const AdminAdhesions = () => {
             <TableHead>Montant</TableHead>
             <TableHead>Type</TableHead>
             <TableHead>Statut</TableHead>
-            <TableHead className="w-[100px]">Actions</TableHead>
+            <TableHead className="w-[140px]">Actions</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -186,7 +190,12 @@ const AdminAdhesions = () => {
               </TableCell>
               <TableCell>{a.prenom || "—"}</TableCell>
               <TableCell>{a.nom || "—"}</TableCell>
-              <TableCell className="text-sm">{a.email || "—"}</TableCell>
+              <TableCell className="text-sm">
+                {a.email || "—"}
+                {rattachements.filter((r) => r.adhesion_id === a.id).map((r) => (
+                  <span key={r.id} className="block text-xs text-muted-foreground">Rattaché à {r.email_membre}</span>
+                ))}
+              </TableCell>
               <TableCell className="text-sm">
                 {a.telephone ? (
                   <a href={`https://wa.me/${a.telephone.replace(/\s+/g, '').replace(/^0/, '33')}`} target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">
@@ -201,6 +210,9 @@ const AdminAdhesions = () => {
               </TableCell>
               <TableCell>
                 <div className="flex items-center gap-1">
+                  <Button variant="ghost" size="icon" onClick={() => setLinking(a)} title="Rattacher à un compte membre" aria-label="Rattacher à un compte membre">
+                    <Link2 className="w-4 h-4" />
+                  </Button>
                   <Button variant="ghost" size="icon" onClick={() => startEdit(a)} title="Modifier">
                     <Pencil className="w-4 h-4" />
                   </Button>
@@ -281,6 +293,8 @@ const AdminAdhesions = () => {
           </Tabs>
         )}
       </div>
+
+      <RattacherAdhesionDialog adhesion={linking} rattachements={rattachements} onClose={() => setLinking(null)} />
 
       {/* Edit Dialog */}
       <Dialog open={!!editingAdhesion} onOpenChange={() => setEditingAdhesion(null)}>
