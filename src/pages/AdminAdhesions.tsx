@@ -1,4 +1,5 @@
 import { useState, useMemo } from "react";
+import { toCsv } from "@/lib/csv";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -144,7 +145,7 @@ const AdminAdhesions = () => {
       a.prenom || "", a.nom || "", a.email || "", a.telephone || "",
       a.montant ?? "", a.type_adhesion || "", a.statut,
     ]);
-    const csv = [headers, ...rows].map(r => r.map(v => `"${String(v).replace(/"/g, '""')}"`).join(",")).join("\n");
+    const csv = toCsv([headers, ...rows]);
     const blob = new Blob(["\uFEFF" + csv], { type: "text/csv;charset=utf-8;" });
     const url = URL.createObjectURL(blob);
     const link = document.createElement("a");

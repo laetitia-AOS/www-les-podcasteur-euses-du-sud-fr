@@ -1,4 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
+import { toCsv } from "@/lib/csv";
 import { supabase } from "@/integrations/supabase/client";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
@@ -34,7 +35,7 @@ const EvenementInscriptionsDialog = ({ evenementId, evenementTitre, open, onClos
       new Date(i.created_at).toLocaleString("fr-FR"),
       i.prenom, i.nom, i.email, i.telephone || "", i.structure || "",
     ]);
-    const csv = [headers, ...rows].map(r => r.map(v => `"${String(v).replace(/"/g, '""')}"`).join(",")).join("\n");
+    const csv = toCsv([headers, ...rows]);
     const blob = new Blob(["\uFEFF" + csv], { type: "text/csv;charset=utf-8;" });
     const url = URL.createObjectURL(blob);
     const link = document.createElement("a");
