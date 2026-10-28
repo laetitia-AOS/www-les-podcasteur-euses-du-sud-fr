@@ -1,5 +1,6 @@
 import { checkImage, cropToSquare, uploadImage } from "@/lib/inscription";
 import { toCsv } from "@/lib/csv";
+import AdminImagesEnAttente, { traiterImages } from "@/components/AdminImagesEnAttente";
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -70,9 +71,12 @@ const AdminPodcasts = () => {
     mutationFn: async ({ id, valide }: { id: string; valide: boolean }) => {
       const { error } = await supabase.from("podcasts").update({ valide }).eq("id", id);
       if (error) throw error;
+      // Valider la fiche valide aussi les images envoyées sans connexion qu'elle utilise
+      if (valide) await traiterImages({ podcast_id: id, action: "valider" }).catch(() => null);
     },
     onSuccess: (_, { valide }) => {
       queryClient.invalidateQueries({ queryKey: ["admin-podcasts"] });
+      queryClient.invalidateQueries({ queryKey: ["images-en-attente"] });
       toast.success(valide ? "Fiche activée dans le flux" : "Fiche retirée du flux");
     },
     onError: (err: any) => toast.error("Erreur : " + (err.message || "Erreur inconnue")),
@@ -318,6 +322,8 @@ const AdminPodcasts = () => {
             </Button>
           </div>
         </div>
+
+        <AdminImagesEnAttente />
 
         <Tabs value={filterType} onValueChange={setFilterType} className="mb-6">
           <TabsList>
