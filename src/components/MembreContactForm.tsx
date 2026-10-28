@@ -17,6 +17,7 @@ const MembreContactForm = ({ recipientId, recipientFirstName }: Props) => {
   const [values, setValues] = useState({ sender_name: "", sender_email: "", message: "", website: "" });
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [status, setStatus] = useState<"idle" | "sending" | "sent" | "error">("idle");
+  const [relayed, setRelayed] = useState(false);
   const [serverError, setServerError] = useState("");
 
   const onChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) =>
@@ -46,6 +47,7 @@ const MembreContactForm = ({ recipientId, recipientFirstName }: Props) => {
         setStatus("error");
         return;
       }
+      setRelayed(body.emailed === false);
       setStatus("sent");
     } catch {
       setServerError("Le message n'a pas pu partir. Vérifiez votre connexion et réessayez.");
@@ -57,7 +59,11 @@ const MembreContactForm = ({ recipientId, recipientFirstName }: Props) => {
     return (
       <div role="status" className="py-4">
         <p className="font-bold text-xl">Message envoyé.</p>
-        <p className="mt-2 text-[17px]">{recipientFirstName || "Le membre"} le reçoit dans sa boîte mail et vous répondra directement.</p>
+        <p className="mt-2 text-[17px]">
+          {relayed
+            ? `Votre message est bien enregistré. L'équipe le transmet à ${recipientFirstName || "ce membre"}, qui vous répondra directement.`
+            : `${recipientFirstName || "Le membre"} le reçoit dans sa boîte mail et vous répondra directement.`}
+        </p>
       </div>
     );
   }
