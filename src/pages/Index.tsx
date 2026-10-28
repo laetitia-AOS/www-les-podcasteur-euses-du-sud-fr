@@ -1,50 +1,39 @@
-import { useMemo } from "react";
-import HeroSection, { HeroSearchBar } from "@/components/HeroSection";
 import Navbar from "@/components/Navbar";
-import MarqueeBanner from "@/components/MarqueeBanner";
-import VisionSection from "@/components/VisionSection";
-import ObjectifsSection from "@/components/ObjectifsSection";
-import PromessesSection from "@/components/PromessesSection";
-import DynamiqueSection from "@/components/DynamiqueSection";
-import ProchainEvenement from "@/components/ProchainEvenement";
-import ContactCTA from "@/components/ContactCTA";
 import Footer from "@/components/Footer";
 import SEOHead from "@/components/SEOHead";
+import HomeHero from "@/components/home/HomeHero";
+import HomeEpisodes from "@/components/home/HomeEpisodes";
+import HomePhotos from "@/components/home/HomePhotos";
+import HomeQuiCherche from "@/components/home/HomeQuiCherche";
+import HomeAgenda from "@/components/home/HomeAgenda";
+import HomePresse from "@/components/home/HomePresse";
+import HomeReseau from "@/components/home/HomeReseau";
+import { useHomeProfiles, useUpcomingEvents } from "@/components/home/useHomeData";
+import { useLatestEpisodes } from "@/lib/episodes";
 
 const Index = () => {
-  const breadcrumbLd = useMemo(() => ({
-    "@context": "https://schema.org",
-    "@type": "BreadcrumbList",
-    "itemListElement": [
-      { "@type": "ListItem", position: 1, name: "Accueil", item: "https://www.les-podcasteur-euses-du-sud.fr/" },
-      { "@type": "ListItem", position: 2, name: "Annuaire", item: "https://www.les-podcasteur-euses-du-sud.fr/annuaire-podcasts" },
-      { "@type": "ListItem", position: 3, name: "Événements", item: "https://www.les-podcasteur-euses-du-sud.fr/evenements-podcast" },
-      { "@type": "ListItem", position: 4, name: "Référencer", item: "https://www.les-podcasteur-euses-du-sud.fr/referencer-mon-podcast" },
-      { "@type": "ListItem", position: 5, name: "Contact", item: "https://www.les-podcasteur-euses-du-sud.fr/contact" },
-    ],
-  }), []);
+  const { data: profiles = [] } = useHomeProfiles();
+  const { data: events = [] } = useUpcomingEvents();
+  const { data: epData, isLoading: epLoading } = useLatestEpisodes(8);
+  const latest = epData?.latest || [];
+  const podcasts = profiles.filter((p) => p.type_profil === "podcasteur");
 
   return (
     <>
       <SEOHead
-        title="Podcast Marseille & Région Sud — Podcasts, livres audio, vodcasts, fictions sonores"
-        description="Annuaire des podcasts à Marseille et en Région Sud : podcasts, livres audio, vodcasts, fictions sonores et créations musicales. Trouvez et connectez les créateurs audio de Provence-Alpes-Côte d'Azur."
+        title="Podcasts à Marseille et en Région Sud — Les Podcasteur·euses du Sud"
+        description="Écoutez les podcasts, fictions sonores, livres audio et vodcasts fabriqués à Marseille et en Région Sud. Trouvez un·e créateur·ice, un studio, et venez aux apéros écoute."
         path="/"
-        jsonLd={breadcrumbLd}
       />
       <Navbar />
-      <main className="min-h-screen">
-        <HeroSection />
-        <HeroSearchBar />
-        <MarqueeBanner />
-        <article>
-          <VisionSection />
-          <ObjectifsSection />
-          <PromessesSection />
-        </article>
-        <DynamiqueSection />
-        <ProchainEvenement />
-        <ContactCTA />
+      <main>
+        <HomeHero profiles={profiles} latest={latest} />
+        <HomeEpisodes episodes={latest} fallback={podcasts} loading={epLoading} />
+        <HomePhotos />
+        <HomeQuiCherche profiles={profiles} />
+        <HomeAgenda events={events} />
+        <HomePresse />
+        <HomeReseau />
       </main>
       <Footer />
     </>
