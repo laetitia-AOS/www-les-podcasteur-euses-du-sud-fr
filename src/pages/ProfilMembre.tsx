@@ -246,7 +246,7 @@ const ProfilMembre = () => {
             <div className={`${container} py-8 grid md:grid-cols-[1fr_1fr_auto] gap-6 md:gap-10 items-center`}>
               {cherche.length > 0 && (
                 <div>
-                  <h2 className="text-sm font-bold text-primary">{prenom || "Ce membre"} cherche</h2>
+                  <h2 className="text-sm font-bold [font-stretch:100%] leading-normal text-primary">{prenom || "Ce membre"} cherche</h2>
                   <ul className="mt-1 font-bold text-[19px] leading-snug">
                     {cherche.map((c) => <li key={c}>{c}</li>)}
                   </ul>
@@ -254,7 +254,7 @@ const ProfilMembre = () => {
               )}
               {apporte.length > 0 && (
                 <div>
-                  <h2 className="text-sm font-bold text-accent-text">{prenom || "Ce membre"} apporte</h2>
+                  <h2 className="text-sm font-bold [font-stretch:100%] leading-normal text-accent-text">{prenom || "Ce membre"} apporte</h2>
                   <ul className="mt-1 font-bold text-[19px] leading-snug">
                     {apporte.map((c) => <li key={c}>{c}</li>)}
                   </ul>
