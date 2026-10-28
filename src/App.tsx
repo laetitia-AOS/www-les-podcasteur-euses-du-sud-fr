@@ -69,7 +69,7 @@ const App = () => (
             <Route path="/politique-cookies" element={<PolitiqueCookies />} />
             <Route path="/evenements-podcast" element={<Evenements />} />
             <Route path="/ecouter" element={<Podcasts />} />
-            <Route path="/ecouter" element={<Navigate to="/ecouter" replace />} />
+            <Route path="/podcasts" element={<Navigate to="/ecouter" replace />} />
             <Route path="/proposer-evenement-podcast" element={<ProposerEvenement />} />
             <Route path="/evenement-podcast/:slug" element={<EvenementDetail />} />
             <Route path="/rejoindre-association" element={<Adhesion />} />
