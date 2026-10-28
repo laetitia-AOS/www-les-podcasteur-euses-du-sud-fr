@@ -113,6 +113,13 @@
       "when": 1793225223402,
       "tag": "0015_evenements_update_service_only",
       "breakpoints": true
+    },
+    {
+      "idx": 16,
+      "version": "7",
+      "when": 1793225934791,
+      "tag": "0016_podcasts_owner_cannot_self_validate",
+      "breakpoints": true
     }
   ]
 }
