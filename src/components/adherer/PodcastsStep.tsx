@@ -6,7 +6,7 @@ import { supabase } from "@/integrations/supabase/client";
 import BesoinsMultiSelect from "@/components/BesoinsMultiSelect";
 import PrioriteSelect from "@/components/PrioriteSelect";
 import { btnPrimary, btnSecondary } from "@/lib/pds";
-import { THEMATIQUES, TYPES_PODCAST, isHttpsUrl, uploadImage } from "@/lib/inscription";
+import { THEMATIQUES, TYPES_PODCAST, isHttpsUrl, uploadImages } from "@/lib/inscription";
 import { ImagePicker, Req, field, hintCls, labelCls } from "./fields";
 import { Check } from "./ProfilStep";
 
@@ -66,8 +66,10 @@ const PodcastsStep = ({
     setSending(true);
     try {
       const rows = [];
-      for (const e of entries) {
-        const vignette_url = await uploadImage(e.cover!.file);
+      // Toutes les pochettes partent en un seul envoi
+      const covers = await uploadImages(entries.map((e) => e.cover!.file), String(base.email || ""));
+      for (const [i, e] of entries.entries()) {
+        const vignette_url = covers[i];
         rows.push({
           ...base,
           type_profil: "podcasteur",

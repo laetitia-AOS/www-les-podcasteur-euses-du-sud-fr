@@ -1,4 +1,5 @@
 import { useState, useRef } from "react";
+import { messageServeur, uploadImages } from "@/lib/inscription";
 import { motion } from "framer-motion";
 import { toast } from "sonner";
 import { Send, X, Image, Check, ArrowLeft, Plus } from "lucide-react";
@@ -216,27 +217,15 @@ const StructureEcoFormSection = ({ onBack, onSubmitted }: Props) => {
 
     const dept = departements.find((d) => d.code === form.departementCode);
     let vignetteUrl = "";
-    if (vignette) {
-      setUploading(true);
-      const ext = vignette.name.split(".").pop();
-      const fileName = `${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`;
-      const { error } = await supabase.storage.from("podcast-thumbnails").upload(fileName, vignette, { contentType: vignette.type });
+    let galleryUrls: string[] = [];
+    setUploading(true);
+    try {
+      if (vignette) vignetteUrl = (await uploadImages([vignette], form.email, "podcast-thumbnails"))[0];
+      galleryUrls = await uploadImages(galleryFiles, form.email, "studio-galleries");
+    } catch (err) {
       setUploading(false);
-      if (error) { toast.error("Erreur lors de l'envoi de l'image."); return; }
-      const { data: urlData } = supabase.storage.from("podcast-thumbnails").getPublicUrl(fileName);
-      vignetteUrl = urlData.publicUrl;
-    }
-
-    // Upload gallery photos
-    const galleryUrls: string[] = [];
-    for (const f of galleryFiles) {
-      const ext = f.name.split(".").pop();
-      const fileName = `${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`;
-      const { error: gErr } = await supabase.storage.from("studio-galleries").upload(fileName, f, { contentType: f.type });
-      if (!gErr) {
-        const { data: gUrl } = supabase.storage.from("studio-galleries").getPublicUrl(fileName);
-        galleryUrls.push(gUrl.publicUrl);
-      }
+      toast.error(messageServeur(err as { code?: string; message?: string }, "Erreur lors de l'envoi de l'image."));
+      return;
     }
 
     setUploading(true);

@@ -66,11 +66,11 @@ const ProfilStep = ({
     setSending(true);
     let photoUrl = "";
     try {
-      photoUrl = await uploadImage(photo.file);
+      photoUrl = await uploadImage(photo.file, p.email);
     } catch (err) {
       console.error(err);
       setSending(false);
-      return fail("La photo n'a pas pu être envoyée. Réessayez.");
+      return fail(messageServeur(err as { code?: string; message?: string }, "La photo n'a pas pu être envoyée. Réessayez."));
     }
     const profil = { ...p, photoUrl };
 

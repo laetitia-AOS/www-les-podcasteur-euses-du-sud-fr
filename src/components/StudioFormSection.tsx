@@ -1,4 +1,5 @@
 import { useState, useRef } from "react";
+import { messageServeur, uploadImages } from "@/lib/inscription";
 import { motion } from "framer-motion";
 import { toast } from "sonner";
 import { Send, X, Image, Check, Users, Sun, Clock, Plus, Building2, Mic, ArrowRight } from "lucide-react";
@@ -370,15 +371,6 @@ const StudioFormSection = ({ onBack, onSubmitted }: StudioFormSectionProps) => {
     setLiensComplementaires(liensComplementaires.filter((_, i) => i !== index));
   };
 
-  const uploadFile = async (file: File, bucket: string): Promise<string | null> => {
-    const ext = file.name.split(".").pop();
-    const fileName = `${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`;
-    const { error } = await supabase.storage.from(bucket).upload(fileName, file, { contentType: file.type });
-    if (error) { console.error(error); return null; }
-    const { data } = supabase.storage.from(bucket).getPublicUrl(fileName);
-    return data.publicUrl;
-  };
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -409,14 +401,15 @@ const StudioFormSection = ({ onBack, onSubmitted }: StudioFormSectionProps) => {
     setUploading(true);
 
     // Upload main photo
-    const photoUrl = await uploadFile(photoMain, "podcast-thumbnails");
-    if (!photoUrl) { toast.error("Erreur upload photo principale."); setUploading(false); return; }
-
-    // Upload gallery
-    const galerieUrls: string[] = [];
-    for (const f of galerieFiles) {
-      const url = await uploadFile(f, "studio-galleries");
-      if (url) galerieUrls.push(url);
+    let photoUrl = "";
+    let galerieUrls: string[] = [];
+    try {
+      photoUrl = (await uploadImages([photoMain], email, "podcast-thumbnails"))[0];
+      galerieUrls = await uploadImages(galerieFiles, email, "studio-galleries");
+    } catch (err) {
+      toast.error(messageServeur(err as { code?: string; message?: string }, "Les photos n'ont pas pu être envoyées."));
+      setUploading(false);
+      return;
     }
 
     const dept = departements.find((d) => d.code === departementCode);
