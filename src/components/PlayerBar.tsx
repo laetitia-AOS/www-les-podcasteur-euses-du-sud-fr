@@ -1,12 +1,25 @@
-import { Link } from "react-router-dom";
+import { useEffect, useRef } from "react";
+import { Link, useLocation } from "react-router-dom";
+import { fetchWelcomeEpisode } from "@/lib/episodes";
 import { Pause, Play, RotateCcw, RotateCw, X } from "lucide-react";
 import { usePlayer } from "@/contexts/PlayerContext";
 import { formatClock } from "@/lib/pds";
 
 /** Lecteur fixé en bas de l'écran : il continue de jouer pendant la navigation. */
 const PlayerBar = () => {
-  const { episode, playing, current, duration, toggle, seek, skip, close } = usePlayer();
-  if (!episode) return null;
+  const { episode, playing, current, duration, toggle, seek, skip, close, load } = usePlayer();
+  const { pathname } = useLocation();
+  const isAdmin = pathname.startsWith("/admin");
+  const welcomeDone = useRef(false);
+
+  // À l'arrivée : un épisode récent d'un membre à jour est prêt dans le lecteur, sans se lancer
+  useEffect(() => {
+    if (welcomeDone.current || isAdmin) return;
+    welcomeDone.current = true;
+    fetchWelcomeEpisode().then((ep) => { if (ep) load(ep); }).catch(() => {});
+  }, [isAdmin, load]);
+
+  if (!episode || isAdmin) return null;
 
   const podcastHref = episode.podcastSlug ? `/podcasteur/${episode.podcastSlug}` : `/podcasteur/${episode.podcastId}`;
 

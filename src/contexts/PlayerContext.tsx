@@ -7,6 +7,8 @@ type PlayerState = {
   current: number;
   duration: number;
   play: (ep: Episode) => void;
+  /** Prépare un épisode dans le lecteur sans le lancer. */
+  load: (ep: Episode) => void;
   toggle: () => void;
   seek: (t: number) => void;
   skip: (delta: number) => void;
@@ -63,6 +65,16 @@ export const PlayerProvider = ({ children }: { children: ReactNode }) => {
     a.play().catch(() => setPlaying(false));
   }, [episode]);
 
+  const load = useCallback((ep: Episode) => {
+    const a = audioRef.current;
+    if (!a || episode) return;
+    setEpisode(ep);
+    setCurrent(0);
+    setDuration(ep.duration || 0);
+    a.preload = "none";
+    a.src = ep.audioUrl;
+  }, [episode]);
+
   const toggle = useCallback(() => {
     const a = audioRef.current;
     if (!a || !episode) return;
@@ -93,7 +105,7 @@ export const PlayerProvider = ({ children }: { children: ReactNode }) => {
   const isCurrent = useCallback((ep: Pick<Episode, "audioUrl">) => episode?.audioUrl === ep.audioUrl, [episode]);
 
   return (
-    <PlayerContext.Provider value={{ episode, playing, current, duration, play, toggle, seek, skip, close, isCurrent }}>
+    <PlayerContext.Provider value={{ episode, playing, current, duration, play, load, toggle, seek, skip, close, isCurrent }}>
       {children}
     </PlayerContext.Provider>
   );
@@ -108,6 +120,7 @@ const FALLBACK: PlayerState = {
   current: 0,
   duration: 0,
   play: noop,
+  load: noop,
   toggle: noop,
   seek: noop,
   skip: noop,
