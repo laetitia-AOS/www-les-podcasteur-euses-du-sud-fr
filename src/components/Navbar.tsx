@@ -29,7 +29,7 @@ const Navbar = () => {
       <div className={`${container} flex items-center justify-between h-16 md:h-[76px] gap-4`}>
         <Link to="/" className="flex items-center gap-3 min-h-[44px] shrink-0" aria-label="Les Podcasteur·euses du Sud, accueil">
           <img src={logoPds} alt="" className="w-10 h-10 md:w-11 md:h-11 object-cover" width="44" height="44" />
-          <span className="title-section text-[17px] md:text-[20px] leading-none hidden min-[380px]:block">
+          <span className="title-section text-[17px] md:text-[20px] leading-none hidden min-[480px]:block">
             Les Podcasteur·euses du Sud
           </span>
         </Link>
