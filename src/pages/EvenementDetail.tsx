@@ -122,7 +122,6 @@ const EvenementDetail = () => {
       organizer: view.pds
         ? { "@type": "Organization", name: "Les Podcasteur·euses du Sud", url: SITE }
         : { "@type": "Person", name: view.organisateur },
-      ...(!view.pds && { superEvent: undefined, sponsor: undefined }),
     };
   }, [evt, view]);
 
@@ -161,7 +160,6 @@ const EvenementDetail = () => {
 
   const mapsQuery = evt.adresse || evt.lieu;
   const invites = Array.isArray(evt.podcasts_invites) ? (evt.podcasts_invites as never[]) : [];
-  const canRegister = !view.isPast;
   const agendaInfo = { titre: view.h1, date_debut: evt.date_debut, date_fin: evt.date_fin, lieu: evt.lieu, adresse: evt.adresse ? cleanAddress(evt.adresse) : null, url: view.url, description: view.intro };
   const day = view.start.toLocaleDateString("fr-FR", { weekday: "long" });
   const monthYear = view.start.toLocaleDateString("fr-FR", { month: "short", year: "numeric" }).replace(".", "");
