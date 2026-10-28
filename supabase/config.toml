@@ -16,3 +16,9 @@ verify_jwt = false
 
 [functions.contact-membre]
 verify_jwt = false
+
+[functions.envoi-image]
+verify_jwt = false
+
+[functions.valider-images]
+verify_jwt = false

@@ -134,24 +134,50 @@ export const cropToSquare = (file: File): Promise<File> =>
 
 /** Vérifie le fichier choisi : renvoie un message d'erreur ou null. */
 export const checkImage = (file: File): string | null => {
-  if (!file.type.startsWith("image/")) return "Choisissez une image (JPG, PNG ou WebP).";
+  if (!["image/jpeg", "image/png", "image/webp"].includes(file.type)) return "Choisissez une image JPG, PNG ou WebP.";
   if (file.size > 5 * 1024 * 1024) return "L'image doit faire moins de 5 Mo.";
   return null;
 };
 
+export type ImageBucket = "podcast-thumbnails" | "studio-galleries" | "event-images";
+
 /**
- * Envoie une image dans le dossier des photos et pochettes, renvoie son adresse publique.
- * Une personne connectée écrit toujours dans son propre dossier (règle appliquée côté serveur).
+ * Envoie des images et renvoie leurs adresses publiques, dans le même ordre.
+ * - Personne connectée : envoi direct dans son propre dossier (règle appliquée côté serveur).
+ * - Visiteur·ice : passage obligatoire par la fonction de contrôle (JPG/PNG/WebP, 5 Mo, 3 envois par heure
+ *   et par adresse) ; l'image reste invisible sur le site tant qu'un·e admin ne l'a pas validée.
  */
-export const uploadImage = async (file: File): Promise<string> => {
-  const ext = (file.name.split(".").pop() || "jpg").toLowerCase().replace(/[^a-z0-9]/g, "") || "jpg";
+export const uploadImages = async (files: File[], email: string, bucket: ImageBucket = "podcast-thumbnails"): Promise<string[]> => {
+  if (!files.length) return [];
   const { data: { session } } = await supabase.auth.getSession();
-  const folder = session?.user?.id ? `${session.user.id}/` : "";
-  const fileName = `${folder}${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`;
-  const { error } = await supabase.storage.from("podcast-thumbnails").upload(fileName, file, { contentType: file.type });
-  if (error) throw error;
-  return supabase.storage.from("podcast-thumbnails").getPublicUrl(fileName).data.publicUrl;
+  if (session?.user?.id) {
+    const urls: string[] = [];
+    for (const file of files) {
+      const ext = (file.name.split(".").pop() || "jpg").toLowerCase().replace(/[^a-z0-9]/g, "") || "jpg";
+      const fileName = `${session.user.id}/${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`;
+      const { error } = await supabase.storage.from(bucket).upload(fileName, file, { contentType: file.type });
+      if (error) throw error;
+      urls.push(supabase.storage.from(bucket).getPublicUrl(fileName).data.publicUrl);
+    }
+    return urls;
+  }
+  const body = new FormData();
+  body.append("email", email.trim());
+  body.append("bucket", bucket);
+  files.forEach((f) => body.append("files", f, f.name));
+  const res = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/envoi-image`, {
+    method: "POST",
+    headers: { apikey: import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY },
+    body,
+  });
+  const data = (await res.json().catch(() => ({}))) as { urls?: string[]; error?: string };
+  if (!res.ok || !data.urls) throw Object.assign(new Error(data.error || "Envoi impossible"), { code: "P0001" });
+  return data.urls;
 };
+
+/** Une seule image (voir `uploadImages`). */
+export const uploadImage = async (file: File, email = "", bucket: ImageBucket = "podcast-thumbnails"): Promise<string> =>
+  (await uploadImages([file], email, bucket))[0];
 
 /** Message à afficher après un refus du serveur : son explication si elle est prévue pour le public. */
 export const messageServeur = (error: { code?: string; message?: string } | null | undefined, fallback: string): string =>

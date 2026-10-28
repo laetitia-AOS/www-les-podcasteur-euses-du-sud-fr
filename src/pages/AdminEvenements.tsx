@@ -1,5 +1,6 @@
 import { useState, useRef } from "react";
 import { toCsv } from "@/lib/csv";
+import AdminImagesEnAttente, { traiterImages } from "@/components/AdminImagesEnAttente";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Input } from "@/components/ui/input";
@@ -116,6 +117,8 @@ const AdminEvenements = () => {
     mutationFn: async ({ id, publie }: { id: string; publie: boolean }) => {
       const { error } = await supabase.from("evenements").update({ publie }).eq("id", id);
       if (error) throw error;
+      // Publier l'événement valide aussi son visuel envoyé sans connexion
+      if (publie) await traiterImages({ evenement_id: id, action: "valider" }).catch(() => null);
     },
     onSuccess: (_, { publie }) => {
       queryClient.invalidateQueries({ queryKey: ["admin-evenements"] });
