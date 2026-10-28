@@ -107,10 +107,12 @@ const CheckboxMultiSelect = ({
 );
 
 interface Props {
-  onBack: () => void;
+  onBack?: () => void;
+  /** Appelé après l'enregistrement, à la place de l'écran de confirmation (page Adhérer). */
+  onSubmitted?: (email: string) => void;
 }
 
-const StructureEcoFormSection = ({ onBack }: Props) => {
+const StructureEcoFormSection = ({ onBack, onSubmitted }: Props) => {
   const [submitted, setSubmitted] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [form, setForm] = useState({
@@ -281,6 +283,7 @@ const StructureEcoFormSection = ({ onBack }: Props) => {
     setUploading(false);
 
     if (dbError) { toast.error("Erreur lors de l'enregistrement."); console.error(dbError); return; }
+    if (onSubmitted) { onSubmitted(form.email.trim()); return; }
     setSubmitted(true);
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
@@ -319,9 +322,11 @@ const StructureEcoFormSection = ({ onBack }: Props) => {
 
   return (
     <motion.form onSubmit={handleSubmit} initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.8 }} className="space-y-6">
-      <button type="button" onClick={onBack} className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors">
-        <ArrowLeft className="w-4 h-4" /> Changer de profil
-      </button>
+      {onBack && (
+        <button type="button" onClick={onBack} className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors">
+          <ArrowLeft className="w-4 h-4" /> Changer de profil
+        </button>
+      )}
 
       {/* 1 — Structure */}
       <div className={sectionCardClass}>

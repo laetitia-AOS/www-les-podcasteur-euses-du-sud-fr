@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, useCallback } from "react";
+import { useState, useEffect, useRef, useCallback, useId } from "react";
 import { Loader2 } from "lucide-react";
 
 export interface CityResult {
@@ -36,6 +36,7 @@ const CityAutocomplete = ({
   required = false,
   error,
 }: CityAutocompleteProps) => {
+  const inputId = useId();
   const [query, setQuery] = useState("");
   const [suggestions, setSuggestions] = useState<GeoApiCommune[]>([]);
   const [loading, setLoading] = useState(false);
@@ -141,14 +142,15 @@ const CityAutocomplete = ({
 
   return (
     <div ref={containerRef} className="relative">
-      <label className={labelClass}>
-        Ville <span className="text-primary">*</span>
+      <label htmlFor={inputId} className={labelClass}>
+        Ville <span aria-hidden>*</span>
       </label>
       <p className="text-xs text-muted-foreground mb-2">
         Tapez le début du nom de votre ville pour voir les suggestions.
       </p>
       <div className="relative">
         <input
+          id={inputId}
           type="text"
           value={query}
           onChange={handleInputChange}
@@ -167,15 +169,17 @@ const CityAutocomplete = ({
       {showSuggestions && suggestions.length > 0 && (
         <ul className="absolute z-50 w-full mt-1 bg-card border border-border rounded-xl shadow-lg max-h-60 overflow-y-auto">
           {suggestions.map((commune) => (
-            <li
-              key={commune.code}
-              onClick={() => handleSelect(commune)}
-              className="px-4 py-2.5 text-sm cursor-pointer hover:bg-primary/10 transition-colors first:rounded-t-xl last:rounded-b-xl"
-            >
-              {commune.nom}
-              {commune.codesPostaux?.[0] && (
-                <span className="text-muted-foreground ml-2">— {commune.codesPostaux[0]}</span>
-              )}
+            <li key={commune.code}>
+              <button
+                type="button"
+                onClick={() => handleSelect(commune)}
+                className="w-full text-left px-4 py-2.5 text-sm cursor-pointer hover:bg-primary/10 focus-visible:bg-primary/10 transition-colors"
+              >
+                {commune.nom}
+                {commune.codesPostaux?.[0] && (
+                  <span className="text-muted-foreground ml-2">— {commune.codesPostaux[0]}</span>
+                )}
+              </button>
             </li>
           ))}
         </ul>

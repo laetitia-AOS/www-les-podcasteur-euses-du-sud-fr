@@ -1,3 +1,4 @@
+import { checkImage, cropToSquare, uploadImage } from "@/lib/inscription";
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -144,6 +145,7 @@ const AdminPodcasts = () => {
         bio_750: p.bio_750 || "",
         lien_ecoute: p.lien_ecoute || "",
         flux_rss: (p as any).flux_rss || "",
+        photo_profil_url: (p as any).photo_profil_url || "",
         lien_principal: p.lien_principal || "",
         lien_linkedin: p.lien_linkedin || "",
         metier_principal: p.metier_principal || "",
@@ -213,6 +215,7 @@ const AdminPodcasts = () => {
           bio_750: editForm.bio_750 || null,
           lien_ecoute: editForm.lien_ecoute,
           flux_rss: (editForm as any).flux_rss?.trim() || null,
+          photo_profil_url: (editForm as any).photo_profil_url?.trim() || null,
           lien_principal: editForm.lien_principal || null,
           lien_linkedin: editForm.lien_linkedin || null,
           metier_principal: editForm.metier_principal || null,
@@ -869,6 +872,35 @@ const PersonEditForm = ({ editForm, setEditForm, inputClass, selectClass, labelC
     <div>
       <label className={labelClass}>Flux RSS</label>
       <input value={(editForm as any).flux_rss || ""} onChange={(e) => setEditForm({ ...editForm, flux_rss: e.target.value } as any)} className={inputClass} placeholder="https://…" />
+    </div>
+    <div className="sm:col-span-2">
+      <label className={labelClass}>Photo de profil (affichée dans l'annuaire, distincte de la pochette)</label>
+      <div className="flex items-center gap-3">
+        {(editForm as any).photo_profil_url ? (
+          <img src={(editForm as any).photo_profil_url} alt="" className="w-12 h-12 rounded-full object-cover border border-border shrink-0" />
+        ) : (
+          <span className="w-12 h-12 rounded-full border-2 border-dashed border-border shrink-0" aria-hidden />
+        )}
+        <input value={(editForm as any).photo_profil_url || ""} onChange={(e) => setEditForm({ ...editForm, photo_profil_url: e.target.value } as any)} className={inputClass} placeholder="Adresse de l'image, ou bouton Envoyer" />
+        <label className="shrink-0 cursor-pointer border border-border px-3 py-2 text-sm font-medium hover:bg-muted">
+          Envoyer
+          <input
+            type="file"
+            accept="image/jpeg,image/png,image/webp"
+            className="hidden"
+            onChange={async (e) => {
+              const file = e.target.files?.[0];
+              if (!file) return;
+              const err = checkImage(file);
+              if (err) { toast.error(err); return; }
+              try {
+                const url = await uploadImage(await cropToSquare(file));
+                setEditForm((prev: any) => ({ ...prev, photo_profil_url: url }));
+              } catch { toast.error("L'image n'a pas pu être envoyée."); }
+            }}
+          />
+        </label>
+      </div>
     </div>
     <div>
       <label className={labelClass}>LinkedIn / réseau social</label>

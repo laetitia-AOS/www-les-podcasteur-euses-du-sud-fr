@@ -398,7 +398,7 @@ const AgencesStudios = () => {
               <p className="font-bold text-[18px]">Vous êtes un studio, une agence ou une structure ?</p>
               <Link to="/espace-membre" className="mt-1 inline-flex min-h-[36px] items-center text-[15px] underline underline-offset-4">Déjà référencé·e ? Ajouter un podcast depuis l'espace membre</Link>
             </div>
-            <Link to="/referencer-mon-podcast" className={`${btnSecondary} shrink-0`}>Référencer ma structure</Link>
+            <Link to="/rejoindre-association?profil=studio#inscription" className={`${btnSecondary} shrink-0`}>Référencer ma structure</Link>
           </div>
         </section>
       </main>

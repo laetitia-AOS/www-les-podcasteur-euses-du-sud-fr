@@ -62,6 +62,7 @@ interface Profile {
   services_3: string[] | null;
   thematique: string | null;
   vignette_url: string | null;
+  photo_profil_url?: string | null;
   cherche_collaboration: string[] | null;
   peut_apporter: string[] | null;
 }
@@ -78,7 +79,7 @@ const Annuaire = () => {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("podcasts")
-        .select("id, slug, prenom, nom, type_profil, city_name, department_code, department_label, bio_750, nom_podcast, metier_principal, services_3, thematique, vignette_url, cherche_collaboration, peut_apporter")
+        .select("id, slug, prenom, nom, type_profil, city_name, department_code, department_label, bio_750, nom_podcast, metier_principal, services_3, thematique, vignette_url, photo_profil_url, cherche_collaboration, peut_apporter")
         .eq("valide", true)
         .in("type_profil", ["podcasteur", "pro_podcast", "soutien"])
         .order("created_at", { ascending: false });

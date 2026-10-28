@@ -1,86 +1,38 @@
+import { Link } from "react-router-dom";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
-import { motion } from "framer-motion";
-import { ArrowRight, PartyPopper, Mic, Users } from "lucide-react";
-import { useNavigate } from "react-router-dom";
+import SEOHead from "@/components/SEOHead";
+import { btnPrimary, btnSecondary, container } from "@/lib/pds";
 
-const Bienvenue = () => {
-  const navigate = useNavigate();
-
-  return (
-    <div className="min-h-screen bg-background">
-      <Navbar />
-      <main className="pt-24 pb-20">
-        <div className="container mx-auto px-6 max-w-2xl text-center">
-          <motion.div
-            initial={{ opacity: 0, scale: 0.9 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 0.5 }}
-            className="mb-8"
-          >
-            <div className="inline-flex items-center justify-center w-20 h-20 rounded-full bg-secondary/20 mb-6">
-              <PartyPopper className="w-10 h-10 text-secondary" />
-            </div>
-            <h1 className="font-display font-bold text-3xl sm:text-4xl text-foreground mb-4">
-              Bienvenue dans le collectif !
-            </h1>
-            <p className="text-lg text-muted-foreground leading-relaxed mb-2">
-              Merci pour ton adhésion aux Podcasteur·euses du Sud 🎉
-            </p>
-            <p className="text-muted-foreground leading-relaxed">
-              Tu fais maintenant partie de l'écosystème podcast en région Sud.
-            </p>
-          </motion.div>
-
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: 0.3 }}
-            className="bg-card border border-border rounded-2xl p-8 sm:p-10 mb-8"
-          >
-            <h2 className="font-display font-bold text-xl sm:text-2xl text-foreground mb-3">
-              Complète ton profil
-            </h2>
-            <p className="text-muted-foreground leading-relaxed mb-6">
-              Référence ton podcast, tes compétences ou ton activité pour apparaître dans l'annuaire
-              et être visible par toute la communauté.
-            </p>
-            <button
-              onClick={() => navigate("/referencer-mon-podcast")}
-              className="group inline-flex items-center gap-3 bg-primary text-primary-foreground px-8 py-4 rounded-xl font-semibold hover:brightness-110 transition-all duration-300 shadow-md hover:shadow-lg"
-            >
-              <Mic className="w-5 h-5" />
-              Compléter mon profil
-              <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-            </button>
-          </motion.div>
-
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: 0.5 }}
-            className="flex flex-col sm:flex-row items-center justify-center gap-4 text-sm"
-          >
-            <button
-              onClick={() => navigate("/annuaire-podcasts")}
-              className="inline-flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors"
-            >
-              <Users className="w-4 h-4" />
-              Découvrir l'annuaire
-            </button>
-            <span className="hidden sm:inline text-border">·</span>
-            <button
-              onClick={() => navigate("/")}
-              className="inline-flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors"
-            >
-              Retour à l'accueil
-            </button>
-          </motion.div>
+/** Page d'arrivée après le paiement HelloAsso. */
+const Bienvenue = () => (
+  <div className="min-h-screen bg-background">
+    <SEOHead title="Bienvenue dans l'association — Les Podcasteur·euses du Sud" description="Merci pour votre adhésion aux Podcasteur·euses du Sud." path="/bienvenue" />
+    <Navbar />
+    <main className="pt-16 md:pt-[76px]">
+      <section className="bg-primary text-primary-foreground">
+        <div className={`${container} py-14 md:py-20`}>
+          <h1 className="title-page text-[56px] sm:text-[96px] text-primary-foreground max-w-[12ch]">Bienvenue dans le réseau</h1>
+          <p className="mt-5 text-lg max-w-[52ch]">Merci pour votre adhésion aux Podcasteur·euses du Sud. Votre paiement est bien enregistré.</p>
         </div>
-      </main>
-      <Footer />
-    </div>
-  );
-};
+      </section>
+      <div className={`${container} py-12 md:py-16 grid md:grid-cols-2 gap-6`}>
+        <div className="border-2 border-encre bg-surface p-6">
+          <h2 className="title-section text-[30px]">Votre profil est déjà créé</h2>
+          <p className="mt-3 text-[17px]">
+            Il sera visible sur le site après la relecture de l'équipe, sous 48 à 72 heures, si l'adresse e-mail de l'adhésion est la même que celle du profil.
+          </p>
+          <Link to="/mon-espace" className={`${btnPrimary} mt-6`}>Mon espace membre</Link>
+        </div>
+        <div className="border-2 border-filet bg-surface p-6">
+          <h2 className="title-section text-[30px]">Pas encore de profil ?</h2>
+          <p className="mt-3 text-[17px]">Créez votre fiche annuaire avec votre photo, puis ajoutez vos podcasts si vous en avez.</p>
+          <Link to="/rejoindre-association#inscription" className={`${btnSecondary} mt-6`}>Créer mon profil</Link>
+        </div>
+      </div>
+    </main>
+    <Footer />
+  </div>
+);
 
 export default Bienvenue;
