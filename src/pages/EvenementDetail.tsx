@@ -207,11 +207,14 @@ const EvenementDetail = () => {
           </div>
         </header>
 
-        <img
-          src={evt.image_url || bande.url}
-          alt={evt.image_url ? `Visuel de l'événement ${view.titre}` : "Un apéro écoute des Podcasteur·euses du Sud dans une salle aux murs rouges."}
-          className="w-full aspect-[16/9] sm:aspect-[1800/650] object-cover"
-        />
+        {evt.image_url ? (
+          // Visuel complet (souvent une affiche avec du texte) : jamais recadré
+          <div className={container}>
+            <img src={evt.image_url} alt={`Visuel de l'événement ${view.titre}`} className="w-full h-auto border border-filet" />
+          </div>
+        ) : (
+          <img src={bande.url} alt="Un apéro écoute des Podcasteur·euses du Sud dans une salle aux murs rouges." className="w-full aspect-[16/9] sm:aspect-[1800/650] object-cover" />
+        )}
 
         <div className={`${container} py-12 md:py-16 grid lg:grid-cols-[minmax(0,4fr)_minmax(0,7fr)] gap-10 lg:gap-14 items-start`}>
           {/* Infos pratiques */}
