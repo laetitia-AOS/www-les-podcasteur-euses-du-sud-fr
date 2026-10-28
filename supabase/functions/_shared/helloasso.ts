@@ -36,10 +36,16 @@ export async function fetchVerifiedOrder(orderId: string): Promise<any | null> {
   const res = await fetch(`${HELLOASSO_API}/v5/orders/${orderId}`, {
     headers: { Authorization: `Bearer ${token}`, "User-Agent": UA, Accept: "application/json" },
   });
-  if (res.status === 404 || res.status === 403 || res.status === 400) return null;
+  if (res.status === 404 || res.status === 403 || res.status === 400) {
+    console.warn(`HelloAsso order lookup: ${res.status}`);
+    return null;
+  }
   if (!res.ok) throw new Error(`HelloAsso order lookup failed [${res.status}]`);
   const order = await res.json();
   const slug = order?.organizationSlug ?? order?.organization?.slug;
-  if (slug && slug !== ORG_SLUG) return null;
+  if (slug && slug !== ORG_SLUG) {
+    console.warn("HelloAsso order lookup: autre association");
+    return null;
+  }
   return order;
 }
