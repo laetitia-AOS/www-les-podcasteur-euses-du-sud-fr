@@ -31,13 +31,20 @@ type EventForm = {
   inscription_activee: boolean;
   podcasts_invites: PodcastInvite[];
   structure_id: string;
+  format: string;
+  lien_connexion: string;
+  tarif: string;
+  statut: string;
 };
+
+const STATUT_LABEL: Record<string, string> = { en_relecture: "En relecture", publie: "Publié", refuse: "Refusé" };
 
 const emptyForm: EventForm = {
   titre: "", sous_titre: "", description: "", date_debut: "", date_fin: "",
   lieu: "", adresse: "", type: "rencontre", lien_externe: "", publie: true,
   image_url: "", places: "", inscription_activee: false,
   podcasts_invites: [], structure_id: "",
+  format: "sur_place", lien_connexion: "", tarif: "", statut: "publie",
 };
 
 const AdminEvenements = () => {
@@ -100,7 +107,10 @@ const AdminEvenements = () => {
         adresse: values.adresse || null,
         type: values.type,
         lien_externe: values.lien_externe || null,
-        publie: values.publie,
+        statut: values.publie ? "publie" : values.statut === "refuse" ? "refuse" : "en_relecture",
+        format: values.format,
+        lien_connexion: values.lien_connexion || null,
+        tarif: values.tarif || null,
         image_url: values.image_url || null,
         places: values.places ? parseInt(values.places) : null,
         inscription_activee: values.inscription_activee,
@@ -125,19 +135,25 @@ const AdminEvenements = () => {
     onError: () => toast.error("Erreur lors de l'enregistrement"),
   });
 
-  const togglePublish = useMutation({
-    mutationFn: async ({ id, publie }: { id: string; publie: boolean }) => {
-      const { error } = await supabase.from("evenements").update({ publie }).eq("id", id);
+  // Publier, refuser ou remettre en relecture : réservé aux admins (règle appliquée par le serveur)
+  const setStatut = useMutation({
+    mutationFn: async ({ id, statut, motif }: { id: string; statut: "publie" | "refuse" | "en_relecture"; motif?: string | null }) => {
+      const { error } = await supabase.from("evenements").update({ statut, motif_refus: statut === "refuse" ? motif || null : null }).eq("id", id);
       if (error) throw error;
       // Publier l'événement valide aussi son visuel envoyé sans connexion
-      if (publie) await traiterImages({ evenement_id: id, action: "valider" }).catch(() => null);
+      if (statut === "publie") await traiterImages({ evenement_id: id, action: "valider" }).catch(() => null);
     },
-    onSuccess: (_, { publie }) => {
+    onSuccess: (_, { statut }) => {
       queryClient.invalidateQueries({ queryKey: ["admin-evenements"] });
-      toast.success(publie ? "Événement publié" : "Événement dépublié");
+      toast.success(statut === "publie" ? "Événement publié" : statut === "refuse" ? "Proposition refusée" : "Événement remis en relecture");
     },
     onError: () => toast.error("Erreur lors de la mise à jour"),
   });
+  const refuser = (id: string) => {
+    const motif = window.prompt("Motif du refus (facultatif, visible par le membre) :");
+    if (motif === null) return;
+    setStatut.mutate({ id, statut: "refuse", motif: motif.trim().slice(0, 500) || null });
+  };
 
   const deleteMutation = useMutation({
     mutationFn: async (id: string) => {
@@ -149,6 +165,8 @@ const AdminEvenements = () => {
       toast.success("Événement supprimé");
     },
   });
+
+  const enRelecture = (evenements || []).filter((e: any) => e.statut === "en_relecture");
 
   const resetForm = () => { setForm(emptyForm); setEditingId(null); setShowForm(false); };
 
@@ -166,11 +184,13 @@ const AdminEvenements = () => {
       date_fin: evt.date_fin ? toLocalDatetime(evt.date_fin) : "",
       lieu: evt.lieu || "", adresse: evt.adresse || "",
       type: evt.type || "rencontre", lien_externe: evt.lien_externe || "",
-      publie: evt.publie, image_url: evt.image_url || "",
+      publie: evt.statut === "publie", image_url: evt.image_url || "",
       places: evt.places ? String(evt.places) : "",
       inscription_activee: !!evt.inscription_activee,
       podcasts_invites: Array.isArray(evt.podcasts_invites) ? evt.podcasts_invites : [],
       structure_id: (evt as { structure_id?: string | null }).structure_id || "",
+      format: evt.format || "sur_place", lien_connexion: evt.lien_connexion || "",
+      tarif: evt.tarif || "", statut: evt.statut || "publie",
     });
     setEditingId(evt.id);
     setShowForm(true);
@@ -245,9 +265,9 @@ const AdminEvenements = () => {
               </h1>
               <p className="text-muted-foreground">
                 {evenements?.length ?? 0} événement{(evenements?.length ?? 0) > 1 ? "s" : ""}
-                {evenements && evenements.filter((e: any) => !e.publie).length > 0 && (
-                  <span className="ml-2 inline-flex items-center gap-1 text-xs font-semibold px-2 py-0.5 rounded-full bg-amber-100 text-amber-700 border border-amber-200">
-                    {evenements.filter((e: any) => !e.publie).length} en attente
+                {enRelecture.length > 0 && (
+                  <span className="ml-2 inline-flex items-center gap-1 text-xs font-semibold px-2 py-0.5 border border-accent text-foreground">
+                    {enRelecture.length} en relecture
                   </span>
                 )}
               </p>
@@ -335,12 +355,27 @@ const AdminEvenements = () => {
                 <Select value={form.type} onValueChange={(v) => setForm({ ...form, type: v })}>
                   <SelectTrigger><SelectValue /></SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="rencontre">Rencontre</SelectItem>
-                    <SelectItem value="atelier">Atelier</SelectItem>
-                    <SelectItem value="evenement">Événement</SelectItem>
-                    <SelectItem value="partenaire">Partenaire</SelectItem>
+                    {EVENT_TYPES.map((t) => <SelectItem key={t.value} value={t.value}>{t.label}</SelectItem>)}
                   </SelectContent>
                 </Select>
+              </div>
+              <div>
+                <label className="text-sm font-medium text-foreground mb-1 block">Format</label>
+                <Select value={form.format} onValueChange={(v) => setForm({ ...form, format: v })}>
+                  <SelectTrigger><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="sur_place">Sur place</SelectItem>
+                    <SelectItem value="en_ligne">En ligne</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div>
+                <label className="text-sm font-medium text-foreground mb-1 block">Lien de connexion (en ligne)</label>
+                <Input value={form.lien_connexion} onChange={(e) => setForm({ ...form, lien_connexion: e.target.value })} placeholder="https://…" />
+              </div>
+              <div>
+                <label className="text-sm font-medium text-foreground mb-1 block">Tarif</label>
+                <Input value={form.tarif} onChange={(e) => setForm({ ...form, tarif: e.target.value })} placeholder="5 €, Prix libre…" />
               </div>
               <div>
                 <label className="text-sm font-medium text-foreground mb-1 block">Nombre de places</label>
@@ -404,8 +439,8 @@ const AdminEvenements = () => {
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2">
                     <p className="font-medium text-foreground truncate">{evt.titre}</p>
-                    {!evt.publie && <Badge variant="outline" className="text-xs border-amber-300 text-amber-700 bg-amber-50">En attente</Badge>}
-                    {evt.publie && <Badge variant="outline" className="text-xs border-green-300 text-green-700 bg-green-50">Publié</Badge>}
+                    <Badge variant="outline" className="text-xs">{STATUT_LABEL[evt.statut] || evt.statut}</Badge>
+                    {evt.origine === "membre" && <Badge variant="outline" className="text-xs">Proposé par {evt.propose_par_nom || "un membre"}</Badge>}
                   </div>
                   {evt.sous_titre && <p className="text-xs text-muted-foreground">{evt.sous_titre}</p>}
                   <p className="text-xs text-muted-foreground">
@@ -414,7 +449,7 @@ const AdminEvenements = () => {
                   </p>
                 </div>
                 <div className="flex gap-1 shrink-0 items-center">
-                  {evt.inscription_activee && (
+                  {(inscriptionsCounts?.[evt.id] ?? 0) > 0 && (
                     <Button
                       variant="outline"
                       size="sm"
@@ -422,17 +457,23 @@ const AdminEvenements = () => {
                       onClick={() => setInscriptionsOpen({ id: evt.id, titre: evt.titre })}
                     >
                       <Users className="w-3.5 h-3.5" />
-                      {inscriptionsCounts?.[evt.id] ?? 0} inscrit{(inscriptionsCounts?.[evt.id] ?? 0) > 1 ? "s" : ""}
+                      {inscriptionsCounts?.[evt.id] ?? 0} vien{(inscriptionsCounts?.[evt.id] ?? 0) > 1 ? "nent" : "t"}
                     </Button>
                   )}
-                  <Button
-                    variant={evt.publie ? "outline" : "default"}
-                    size="sm"
-                    className="text-xs gap-1"
-                    onClick={() => togglePublish.mutate({ id: evt.id, publie: !evt.publie })}
-                  >
-                    {evt.publie ? <><EyeOff className="w-3.5 h-3.5" /> Dépublier</> : <><Eye className="w-3.5 h-3.5" /> Publier</>}
-                  </Button>
+                  {evt.statut === "publie" ? (
+                    <Button variant="outline" size="sm" className="text-xs gap-1" onClick={() => setStatut.mutate({ id: evt.id, statut: "en_relecture" })}>
+                      <EyeOff className="w-3.5 h-3.5" /> Dépublier
+                    </Button>
+                  ) : (
+                    <>
+                      <Button size="sm" className="text-xs gap-1" onClick={() => setStatut.mutate({ id: evt.id, statut: "publie" })}>
+                        <Eye className="w-3.5 h-3.5" /> Publier
+                      </Button>
+                      {evt.statut === "en_relecture" && (
+                        <Button variant="outline" size="sm" className="text-xs" onClick={() => refuser(evt.id)}>Refuser</Button>
+                      )}
+                    </>
+                  )}
                   <Button variant="ghost" size="icon" onClick={() => startEdit(evt)}><Pencil className="w-4 h-4" /></Button>
                   <Button variant="ghost" size="icon" onClick={() => { if (confirm("Supprimer cet événement ?")) deleteMutation.mutate(evt.id); }}>
                     <Trash2 className="w-4 h-4 text-destructive" />
