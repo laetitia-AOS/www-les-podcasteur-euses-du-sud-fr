@@ -21,7 +21,8 @@ Deno.serve(async (req) => {
   try {
     const body = await req.json().catch(() => ({}));
     const { recipient_id, recipient_ids, sender_name, sender_email, message } = body ?? {};
-    const type = ["collab", "devis", "message"].includes(body?.type) ? String(body.type) : "message";
+    // Les devis passent par la fonction « demande-devis »
+    const type = ["collab", "message"].includes(body?.type) ? String(body.type) : "message";
     const maxLen = type === "collab" ? 1000 : 3000;
     const name = String(sender_name || "").trim();
     const email = String(sender_email || "").trim().toLowerCase();
