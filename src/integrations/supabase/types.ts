@@ -14,6 +14,38 @@ export type Database = {
   }
   public: {
     Tables: {
+      adhesion_rattachements: {
+        Row: {
+          adhesion_id: string
+          created_at: string
+          created_by: string | null
+          email_membre: string
+          id: string
+        }
+        Insert: {
+          adhesion_id: string
+          created_at?: string
+          created_by?: string | null
+          email_membre: string
+          id?: string
+        }
+        Update: {
+          adhesion_id?: string
+          created_at?: string
+          created_by?: string | null
+          email_membre?: string
+          id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "adhesion_rattachements_adhesion_id_fkey"
+            columns: ["adhesion_id"]
+            isOneToOne: false
+            referencedRelation: "adhesions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       adhesions: {
         Row: {
           created_at: string
