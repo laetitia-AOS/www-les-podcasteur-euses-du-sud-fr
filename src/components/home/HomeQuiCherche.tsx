@@ -1,6 +1,7 @@
 import { Link } from "react-router-dom";
 import { container, cleanCity, fullName, linkUnderline } from "@/lib/pds";
 import type { HomeProfile } from "./useHomeData";
+import { collabLabel } from "@/lib/inscription";
 import MemberAvatar, { profilePhotoFor } from "@/components/MemberAvatar";
 
 const ROLE: Record<string, string> = {
@@ -14,7 +15,7 @@ const ROLE: Record<string, string> = {
 const HomeQuiCherche = ({ profiles }: { profiles: HomeProfile[] }) => {
   const people = profiles
     .filter((p) => p.type_profil !== "studio" && p.type_profil !== "structure_eco")
-    .filter((p) => (p.cherche_collaboration?.length || 0) > 0 && (p.peut_apporter?.length || 0) > 0)
+    .filter((p) => (p.cherche_choix?.length || 0) > 0 && (p.apporte_choix?.length || 0) > 0)
     .slice(0, 3);
 
   return (
@@ -48,11 +49,11 @@ const HomeQuiCherche = ({ profiles }: { profiles: HomeProfile[] }) => {
                   <div className="mt-3 grid sm:grid-cols-2 gap-3 sm:gap-6">
                     <div>
                       <p className="text-sm font-bold text-primary">Cherche</p>
-                      <p className="text-[17px]">{p.cherche_collaboration![0]}</p>
+                      <p className="text-[17px]">{p.cherche_choix!.slice(0, 2).map(collabLabel).join(", ")}</p>
                     </div>
                     <div>
                       <p className="text-sm font-bold text-accent-text">Apporte</p>
-                      <p className="text-[17px]">{p.peut_apporter![0]}</p>
+                      <p className="text-[17px]">{p.apporte_choix!.slice(0, 2).map(collabLabel).join(", ")}</p>
                     </div>
                   </div>
                 </div>

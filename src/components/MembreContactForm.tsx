@@ -2,17 +2,19 @@ import { useState } from "react";
 import { z } from "zod";
 import { btnPrimary } from "@/lib/pds";
 
+const MAX = 1000;
+
 const schema = z.object({
   sender_name: z.string().trim().min(2, "Indiquez votre nom.").max(100, "100 caractères maximum."),
   sender_email: z.string().trim().email("Adresse e-mail invalide.").max(255),
-  message: z.string().trim().min(10, "Votre message doit faire au moins 10 caractères.").max(3000, "3 000 caractères maximum."),
+  message: z.string().trim().min(10, "Votre message doit faire au moins 10 caractères.").max(MAX, "1 000 caractères maximum."),
 });
 
 type Props = { recipientId: string; recipientFirstName: string };
 
 const fieldClass = "w-full min-h-[48px] px-3 bg-surface border-2 border-encre text-[16px] focus:outline-none focus-visible:outline-[3px] focus-visible:outline-accent";
 
-/** Formulaire « Écrire à … » : le message est enregistré puis transmis par l'équipe, sans jamais afficher l'adresse du membre. */
+/** Formulaire « Proposer une collab » : la demande est enregistrée côté serveur, sans jamais afficher l'adresse du membre. */
 const MembreContactForm = ({ recipientId, recipientFirstName }: Props) => {
   const [values, setValues] = useState({ sender_name: "", sender_email: "", message: "", website: "" });
   const [errors, setErrors] = useState<Record<string, string>>({});
@@ -39,7 +41,7 @@ const MembreContactForm = ({ recipientId, recipientFirstName }: Props) => {
       const res = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/contact-membre`, {
         method: "POST",
         headers: { "Content-Type": "application/json", apikey: import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY },
-        body: JSON.stringify({ recipient_id: recipientId, ...parsed.data }),
+        body: JSON.stringify({ recipient_id: recipientId, type: "collab", ...parsed.data }),
       });
       const body = await res.json().catch(() => ({}));
       if (!res.ok) {
@@ -58,11 +60,11 @@ const MembreContactForm = ({ recipientId, recipientFirstName }: Props) => {
   if (status === "sent") {
     return (
       <div role="status" className="py-4">
-        <p className="font-bold text-xl">Message envoyé.</p>
+        <p className="font-bold text-xl">Proposition envoyée.</p>
         <p className="mt-2 text-[17px]">
           {relayed
-            ? `Votre message est bien enregistré. L'équipe le transmet à ${recipientFirstName || "ce membre"}, qui vous répondra directement.`
-            : `${recipientFirstName || "Le membre"} le reçoit dans sa boîte mail et vous répondra directement.`}
+            ? `Votre proposition est enregistrée : ${recipientFirstName || "ce membre"} la retrouve dans son espace membre et vous répondra directement.`
+            : `${recipientFirstName || "Le membre"} la reçoit par e-mail et vous répondra directement.`}
         </p>
       </div>
     );
@@ -82,7 +84,8 @@ const MembreContactForm = ({ recipientId, recipientFirstName }: Props) => {
       </div>
       <div className="sm:col-span-2">
         <label htmlFor="cf-message" className="block text-sm font-bold mb-1.5">Message</label>
-        <textarea id="cf-message" name="message" rows={4} value={values.message} onChange={onChange} className={`${fieldClass} py-2 resize-y`} aria-invalid={!!errors.message} aria-describedby={errors.message ? "cf-message-err" : undefined} />
+        <textarea id="cf-message" name="message" rows={5} maxLength={MAX} value={values.message} onChange={onChange} placeholder="Ce que vous proposez, pour quand, sous quelle forme." className={`${fieldClass} py-2 resize-y`} aria-invalid={!!errors.message} aria-describedby={`cf-message-count${errors.message ? " cf-message-err" : ""}`} />
+        <p id="cf-message-count" className="mt-1 font-mono text-sm text-muted-foreground">{values.message.length}/{MAX} caractères</p>
         {errors.message && <p id="cf-message-err" className="mt-1 text-sm text-destructive">{errors.message}</p>}
       </div>
       <div className="hidden" aria-hidden>
@@ -92,7 +95,7 @@ const MembreContactForm = ({ recipientId, recipientFirstName }: Props) => {
       {status === "error" && <p role="alert" className="sm:col-span-2 text-destructive font-semibold">{serverError}</p>}
       <div className="sm:col-span-2">
         <button type="submit" disabled={status === "sending"} className={`${btnPrimary} px-7`}>
-          {status === "sending" ? "Envoi…" : "Envoyer"}
+          {status === "sending" ? "Envoi…" : "Envoyer ma proposition"}
         </button>
       </div>
     </form>

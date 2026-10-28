@@ -49,6 +49,37 @@ export const SERVICES = [
   "Autre",
 ];
 
+/** Choix « Je cherche » / « J'apporte » (codes vérifiés côté serveur). */
+export const COLLAB_CHOIX = [
+  { value: "voix_off", label: "Voix off" },
+  { value: "montage", label: "Montage" },
+  { value: "mixage", label: "Mixage" },
+  { value: "strategie", label: "Stratégie" },
+  { value: "coproduction", label: "Co-production d'un format" },
+  { value: "etre_invite", label: "Être invité·e" },
+  { value: "recevoir_invites", label: "Recevoir des invité·es" },
+  { value: "sponsors", label: "Sponsors et partenaires" },
+  { value: "evenements", label: "Organisation d'événements" },
+  { value: "formation", label: "Formation" },
+  { value: "studio", label: "Studio" },
+  { value: "autre", label: "Autre" },
+] as const;
+export const PRECISION_MAX = 120;
+
+export const collabLabel = (code: string) => COLLAB_CHOIX.find((c) => c.value === code)?.label ?? code;
+
+/** Liste lisible : « montage », « montage ou mixage », « voix off, montage ou mixage ». */
+export const listeChoix = (codes: string[]) => {
+  const labels = codes.map((c) => collabLabel(c).toLowerCase());
+  if (labels.length <= 1) return labels[0] ?? "";
+  return `${labels.slice(0, -1).join(", ")} ou ${labels[labels.length - 1]}`;
+};
+
+/** Phrase de résultat de l'annuaire : « 3 profils apportent montage ou mixage ». */
+export const phraseApportent = (n: number, codes: string[]) =>
+  `${n} profil${n > 1 ? "s" : ""} apporte${n > 1 ? "nt" : ""} ${listeChoix(codes)}`;
+
+/** Anciennes listes (archives en base, encore utilisées par le formulaire des structures). */
 export const CHERCHE_OPTIONS = [
   "Un·e podcasteur·euse pour co-production",
   "Un·e monteur·euse / ingénieur son",
@@ -200,6 +231,8 @@ export type ProfilData = {
   city: CityResult | null;
   cherche: string[];
   apporte: string[];
+  cherchePrecision: string;
+  apportePrecision: string;
   formatCollaboration: string;
   consentContact: boolean;
   consentMiseEnRelation: boolean;
@@ -224,8 +257,10 @@ export const profilColumns = (p: ProfilData) => {
     city_insee_code: p.city?.city_insee_code || null,
     city_postcode: p.city?.city_postcode || null,
     ville: p.city ? `${p.city.city_name}, ${dept?.label || p.departementCode}` : null,
-    cherche_collaboration: p.cherche.length ? p.cherche : null,
-    peut_apporter: p.apporte.length ? p.apporte : null,
+    cherche_choix: p.cherche,
+    apporte_choix: p.apporte,
+    cherche_precision: p.cherchePrecision.trim() || null,
+    apporte_precision: p.apportePrecision.trim() || null,
     format_collaboration: p.formatCollaboration || null,
     consent_contact: p.consentContact,
     consent_mise_en_relation: p.consentMiseEnRelation,

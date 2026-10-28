@@ -9,7 +9,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { btnPrimary, btnSecondary, container, formatName } from "@/lib/pds";
 
 const BASE_FIELDS =
-  "prenom, nom, email, telephone, type_profil, vignette_url, photo_profil_url, bio_750, lien_principal, lien_linkedin, department_code, department_label, city_name, city_insee_code, city_postcode, ville, cherche_collaboration, peut_apporter, format_collaboration, consent_contact, consent_mise_en_relation";
+  "prenom, nom, email, telephone, type_profil, vignette_url, photo_profil_url, bio_750, lien_principal, lien_linkedin, department_code, department_label, city_name, city_insee_code, city_postcode, ville, cherche_choix, apporte_choix, cherche_precision, apporte_precision, format_collaboration, consent_contact, consent_mise_en_relation";
 
 type Existing = Record<string, unknown> & { prenom: string | null; nom: string | null; type_profil: string; vignette_url: string | null; photo_profil_url: string | null };
 

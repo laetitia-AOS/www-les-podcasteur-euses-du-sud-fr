@@ -21,6 +21,8 @@ Deno.serve(async (req) => {
   try {
     const body = await req.json().catch(() => ({}));
     const { recipient_id, recipient_ids, sender_name, sender_email, message } = body ?? {};
+    const type = ["collab", "devis", "message"].includes(body?.type) ? String(body.type) : "message";
+    const maxLen = type === "collab" ? 1000 : 3000;
     const name = String(sender_name || "").trim();
     const email = String(sender_email || "").trim().toLowerCase();
     const msg = String(message || "").trim();
@@ -33,7 +35,10 @@ Deno.serve(async (req) => {
     }
     if (name.length < 2 || name.length > 100) return json({ error: "Indiquez votre nom (2 à 100 caractères)." }, 400);
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email) || email.length > 255) return json({ error: "Adresse e-mail invalide." }, 400);
-    if (msg.length < 10 || msg.length > 3000) return json({ error: "Votre message doit faire entre 10 et 3 000 caractères." }, 400);
+    if (msg.length < 10 || msg.length > maxLen) {
+      return json({ error: `Votre message doit faire entre 10 et ${maxLen === 1000 ? "1 000" : "3 000"} caractères.` }, 400);
+    }
+    if (type === "collab" && uniqueIds.length > 1) return json({ error: "Une proposition de collab s'adresse à un seul membre." }, 400);
 
     const admin = createClient(Deno.env.get("SUPABASE_URL")!, Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!);
 
@@ -50,7 +55,7 @@ Deno.serve(async (req) => {
     // La base vérifie et nettoie chaque champ, et limite à 5 envois par heure et par adresse.
     // Aucun service d'envoi externe : l'équipe transmet le message au membre depuis l'admin.
     const { error: insertError } = await admin.from("contact_requests").insert(
-      recipients.map((r) => ({ recipient_id: r.id, sender_name: name, sender_email: email, message: msg })),
+      recipients.map((r) => ({ recipient_id: r.id, sender_name: name, sender_email: email, message: msg, type })),
     );
     if (insertError) {
       if (insertError.code === "P0001") {

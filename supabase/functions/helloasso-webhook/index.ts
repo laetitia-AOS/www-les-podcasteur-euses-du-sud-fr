@@ -50,6 +50,13 @@ Deno.serve(async (req) => {
     const order = verified ? check.order : data;
     const supabase = createClient(Deno.env.get("SUPABASE_URL")!, Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!);
 
+    // Paiement non vérifiable : plafond de 20 « à vérifier » par heure pour éviter le remplissage par des faux messages
+    if (!verified) {
+      const { count } = await supabase.from("adhesions").select("id", { count: "exact", head: true })
+        .eq("statut", "a_verifier").gte("created_at", new Date(Date.now() - 3600_000).toISOString());
+      if ((count || 0) >= 20) return json({ error: "Too many unverified orders" }, 429);
+    }
+
     const { data: existing } = await supabase
       .from("adhesions")
       .select("id")

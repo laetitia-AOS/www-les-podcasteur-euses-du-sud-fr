@@ -1,4 +1,5 @@
-import { checkImage, cropToSquare, uploadImage } from "@/lib/inscription";
+import { COLLAB_CHOIX, checkImage, cropToSquare, uploadImage } from "@/lib/inscription";
+import { CollabField } from "@/components/adherer/fields";
 import { verifierFlux } from "@/lib/episodes";
 import { toCsv } from "@/lib/csv";
 import AdminImagesEnAttente, { traiterImages } from "@/components/AdminImagesEnAttente";
@@ -151,6 +152,10 @@ const AdminPodcasts = () => {
         bio_750: p.bio_750 || "",
         lien_ecoute: p.lien_ecoute || "",
         flux_rss: (p as any).flux_rss || "",
+        cherche_choix: (p as any).cherche_choix || [],
+        apporte_choix: (p as any).apporte_choix || [],
+        cherche_precision: (p as any).cherche_precision || "",
+        apporte_precision: (p as any).apporte_precision || "",
         photo_profil_url: (p as any).photo_profil_url || "",
         lien_principal: p.lien_principal || "",
         lien_linkedin: p.lien_linkedin || "",
@@ -228,6 +233,10 @@ const AdminPodcasts = () => {
           bio_750: editForm.bio_750 || null,
           lien_ecoute: editForm.lien_ecoute,
           flux_rss: (editForm as any).flux_rss?.trim() || null,
+          cherche_choix: (editForm as any).cherche_choix || [],
+          apporte_choix: (editForm as any).apporte_choix || [],
+          cherche_precision: (editForm as any).cherche_precision?.trim() || null,
+          apporte_precision: (editForm as any).apporte_precision?.trim() || null,
           photo_profil_url: (editForm as any).photo_profil_url?.trim() || null,
           lien_principal: editForm.lien_principal || null,
           lien_linkedin: editForm.lien_linkedin || null,
@@ -887,6 +896,14 @@ const PersonEditForm = ({ editForm, setEditForm, inputClass, selectClass, labelC
     <div>
       <label className={labelClass}>Flux RSS</label>
       <input value={(editForm as any).flux_rss || ""} onChange={(e) => setEditForm({ ...editForm, flux_rss: e.target.value } as any)} className={inputClass} placeholder="https://…" />
+    </div>
+    <div className="sm:col-span-2 grid gap-5">
+      <CollabField id="adm-cherche-precision" legend="Je cherche" options={COLLAB_CHOIX}
+        selected={(editForm as any).cherche_choix || []} onChange={(v) => setEditForm({ ...editForm, cherche_choix: v } as any)}
+        precision={(editForm as any).cherche_precision || ""} onPrecision={(v) => setEditForm({ ...editForm, cherche_precision: v } as any)} />
+      <CollabField id="adm-apporte-precision" legend="J'apporte" options={COLLAB_CHOIX}
+        selected={(editForm as any).apporte_choix || []} onChange={(v) => setEditForm({ ...editForm, apporte_choix: v } as any)}
+        precision={(editForm as any).apporte_precision || ""} onPrecision={(v) => setEditForm({ ...editForm, apporte_precision: v } as any)} />
     </div>
     <div className="sm:col-span-2">
       <label className={labelClass}>Photo de profil (affichée dans l'annuaire, distincte de la pochette)</label>

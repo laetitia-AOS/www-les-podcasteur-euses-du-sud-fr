@@ -1,4 +1,5 @@
 import { useMemo } from "react";
+import { collabLabel } from "@/lib/inscription";
 import { useParams, Link } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { Pause, Play } from "lucide-react";
@@ -24,7 +25,7 @@ import {
 
 // L'e-mail et le téléphone ne sont volontairement jamais demandés ici.
 const PUBLIC_FIELDS =
-  "id, slug, prenom, nom, type_profil, city_name, department_label, bio_750, lien_principal, lien_linkedin, nom_podcast, lien_ecoute, flux_rss, description, vignette_url, thematique, type_podcast, metier_principal, services_3, structure, cherche_collaboration, peut_apporter, format_collaboration, consent_contact";
+  "id, slug, prenom, nom, type_profil, city_name, department_label, bio_750, lien_principal, lien_linkedin, nom_podcast, lien_ecoute, flux_rss, description, vignette_url, thematique, type_podcast, metier_principal, services_3, structure, cherche_choix, apporte_choix, cherche_precision, apporte_precision, format_collaboration, consent_contact";
 
 interface ProfileData {
   id: string;
@@ -47,8 +48,10 @@ interface ProfileData {
   metier_principal: string | null;
   services_3: string[] | null;
   structure: string | null;
-  cherche_collaboration: string[] | null;
-  peut_apporter: string[] | null;
+  cherche_choix: string[] | null;
+  apporte_choix: string[] | null;
+  cherche_precision: string | null;
+  apporte_precision: string | null;
   format_collaboration: string | null;
   consent_contact: boolean;
 }
@@ -171,8 +174,8 @@ const ProfilMembre = () => {
   }
 
   const back = isPodcast ? { to: "/ecouter", label: "Tous les podcasts" } : { to: "/annuaire-podcasts", label: "Tout l'annuaire" };
-  const cherche = profile.cherche_collaboration || [];
-  const apporte = profile.peut_apporter || [];
+  const cherche = (profile.cherche_choix || []).map(collabLabel);
+  const apporte = (profile.apporte_choix || []).map(collabLabel);
   const latest = episodes[0];
   const latestActive = latest ? isCurrent(latest) && playing : false;
 
@@ -236,7 +239,7 @@ const ProfilMembre = () => {
                 </a>
               )}
               {profile.consent_contact && (
-                <a href="#ecrire" className={btnSecondary}>Écrire à {prenom || name}</a>
+                <a href="#ecrire" className={btnSecondary}>Proposer une collab</a>
               )}
             </div>
 
@@ -254,25 +257,27 @@ const ProfilMembre = () => {
         </section>
 
         {/* Cherche / Apporte */}
-        {(cherche.length > 0 || apporte.length > 0) && (
+        {(cherche.length > 0 || apporte.length > 0 || !!profile.cherche_precision || !!profile.apporte_precision || profile.consent_contact) && (
           <section aria-label="Ce que ce membre cherche et apporte" className="bg-surface border-y border-filet">
             <div className={`${container} py-8 grid md:grid-cols-[1fr_1fr_auto] gap-6 md:gap-10 items-center`}>
-              {cherche.length > 0 && (
+              {(cherche.length > 0 || profile.cherche_precision) ? (
                 <div>
                   <h2 className="text-sm font-bold [font-stretch:100%] leading-normal text-primary">{prenom || "Ce membre"} cherche</h2>
                   <ul className="mt-1 font-bold text-[19px] leading-snug">
                     {cherche.map((c) => <li key={c}>{c}</li>)}
                   </ul>
+                  {profile.cherche_precision && <p className="mt-1 text-[15px] text-muted-foreground">{profile.cherche_precision}</p>}
                 </div>
-              )}
-              {apporte.length > 0 && (
+              ) : <div />}
+              {(apporte.length > 0 || profile.apporte_precision) ? (
                 <div>
                   <h2 className="text-sm font-bold [font-stretch:100%] leading-normal text-accent-text">{prenom || "Ce membre"} apporte</h2>
                   <ul className="mt-1 font-bold text-[19px] leading-snug">
                     {apporte.map((c) => <li key={c}>{c}</li>)}
                   </ul>
+                  {profile.apporte_precision && <p className="mt-1 text-[15px] text-muted-foreground">{profile.apporte_precision}</p>}
                 </div>
-              )}
+              ) : <div />}
               {profile.consent_contact && (
                 <a href="#ecrire" className={`${btnListen} self-start md:self-center`}>Proposer une collab</a>
               )}
@@ -347,9 +352,9 @@ const ProfilMembre = () => {
           <section id="ecrire" className={`${container} pt-14 pb-20 scroll-mt-24`} aria-labelledby="ecrire-title">
             <div className="border-2 border-encre bg-surface p-6 sm:p-8 grid md:grid-cols-[minmax(0,1fr)_minmax(0,2fr)] gap-6 md:gap-10">
               <div>
-                <h2 id="ecrire-title" className="title-section text-[30px] sm:text-[36px]">Écrire à {prenom || name}</h2>
+                <h2 id="ecrire-title" className="title-section text-[30px] sm:text-[36px]">Proposer une collab à {prenom || name}</h2>
                 <p className="mt-3 text-[15px] text-muted-foreground">
-                  L'équipe lui transmet votre message, et il ou elle vous répond directement. Son e-mail et son téléphone ne sont jamais affichés.
+                  Votre proposition arrive dans son espace membre, et il ou elle vous répond directement à votre adresse. Son e-mail et son téléphone ne sont jamais affichés.
                 </p>
               </div>
               <MembreContactForm recipientId={profile.id} recipientFirstName={prenom} />

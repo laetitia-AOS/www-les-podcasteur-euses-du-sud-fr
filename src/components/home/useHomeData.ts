@@ -12,8 +12,8 @@ export type HomeProfile = {
   photo_profil_url?: string | null;
   type_profil: string;
   department_code: string | null;
-  cherche_collaboration: string[] | null;
-  peut_apporter: string[] | null;
+  cherche_choix: string[] | null;
+  apporte_choix: string[] | null;
   lien_ecoute: string | null;
   created_at: string;
 };
@@ -24,7 +24,7 @@ export const useHomeProfiles = () =>
     queryFn: async () => {
       const { data, error } = await supabase
         .from("podcasts")
-        .select("id, slug, nom_podcast, prenom, nom, city_name, vignette_url, photo_profil_url, type_profil, department_code, cherche_collaboration, peut_apporter, lien_ecoute, created_at")
+        .select("id, slug, nom_podcast, prenom, nom, city_name, vignette_url, photo_profil_url, type_profil, department_code, cherche_choix, apporte_choix, lien_ecoute, created_at")
         .eq("valide", true)
         .order("created_at", { ascending: false });
       if (error) throw error;

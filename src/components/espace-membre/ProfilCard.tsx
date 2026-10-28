@@ -3,8 +3,8 @@ import { Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import CityAutocomplete, { type CityResult } from "@/components/CityAutocomplete";
-import { ChoiceList, ImagePicker, field, hintCls, labelCls } from "@/components/adherer/fields";
-import { APPORTE_OPTIONS, CHERCHE_OPTIONS, DEPARTEMENTS, DISPONIBILITES, SERVICES, uploadImage } from "@/lib/inscription";
+import { ChoiceList, CollabField, ImagePicker, field, hintCls, labelCls } from "@/components/adherer/fields";
+import { COLLAB_CHOIX, DEPARTEMENTS, DISPONIBILITES, SERVICES, uploadImage } from "@/lib/inscription";
 import { roleLabel } from "@/lib/espaceMembre";
 import { btnPrimary, formatName } from "@/lib/pds";
 import { cardCls, sectionTitle, type FicheMembre } from "./types";
@@ -29,8 +29,10 @@ const ProfilCard = ({ profil, fiches, onSaved }: Props) => {
   const [city, setCity] = useState<CityResult | null>(
     profil.city_name ? { city_name: profil.city_name, city_insee_code: profil.city_insee_code || "", city_postcode: profil.city_postcode || "" } : null,
   );
-  const [cherche, setCherche] = useState<string[]>(profil.cherche_collaboration || []);
-  const [apporte, setApporte] = useState<string[]>(profil.peut_apporter || []);
+  const [cherche, setCherche] = useState<string[]>(profil.cherche_choix || []);
+  const [apporte, setApporte] = useState<string[]>(profil.apporte_choix || []);
+  const [cherchePrecision, setCherchePrecision] = useState(profil.cherche_precision || "");
+  const [apportePrecision, setApportePrecision] = useState(profil.apporte_precision || "");
   const [metier, setMetier] = useState(profil.metier_principal || "");
   const [services, setServices] = useState<string[]>(profil.services_3 || []);
   const [dispo, setDispo] = useState(profil.disponibilite || "");
@@ -58,8 +60,10 @@ const ProfilCard = ({ profil, fiches, onSaved }: Props) => {
         lien_linkedin: linkedin.trim() || null,
         lien_principal: site.trim() || null,
         photo_profil_url: photoUrl || null,
-        cherche_collaboration: cherche.length ? cherche : null,
-        peut_apporter: apporte.length ? apporte : null,
+        cherche_choix: cherche,
+        apporte_choix: apporte,
+        cherche_precision: cherchePrecision.trim() || null,
+        apporte_precision: apportePrecision.trim() || null,
         department_code: dept || null,
         department_label: deptInfo?.label || null,
         city_name: city?.city_name || null,
@@ -181,10 +185,12 @@ const ProfilCard = ({ profil, fiches, onSaved }: Props) => {
 
       <div className="grid gap-6">
         <div className="[&_legend]:text-primary">
-          <ChoiceList legend="Je cherche" options={CHERCHE_OPTIONS} selected={cherche} onChange={setCherche} max={3} />
+          <CollabField id="em-cherche-precision" legend="Je cherche" options={COLLAB_CHOIX} selected={cherche} onChange={setCherche}
+            precision={cherchePrecision} onPrecision={setCherchePrecision} />
         </div>
         <div className="[&_legend]:text-accent-text">
-          <ChoiceList legend="J'apporte" options={APPORTE_OPTIONS} selected={apporte} onChange={setApporte} max={3} />
+          <CollabField id="em-apporte-precision" legend="J'apporte" options={COLLAB_CHOIX} selected={apporte} onChange={setApporte}
+            precision={apportePrecision} onPrecision={setApportePrecision} />
         </div>
       </div>
 

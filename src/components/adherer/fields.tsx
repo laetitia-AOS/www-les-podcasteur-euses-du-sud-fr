@@ -11,7 +11,11 @@ export const hintCls = "mt-1.5 text-sm text-muted-foreground";
 
 export const Req = () => <span aria-hidden> *</span>;
 
-/** Cases à cocher avec un nombre maximum de choix. */
+type Opt = string | { readonly value: string; readonly label: string };
+const optValue = (o: Opt) => (typeof o === "string" ? o : o.value);
+const optLabel = (o: Opt) => (typeof o === "string" ? o : o.label);
+
+/** Cases à cocher, avec un nombre maximum de choix facultatif. */
 export const ChoiceList = ({
   legend,
   options,
@@ -20,19 +24,20 @@ export const ChoiceList = ({
   max,
 }: {
   legend: string;
-  options: string[];
+  options: readonly Opt[];
   selected: string[];
   onChange: (v: string[]) => void;
-  max: number;
+  max?: number;
 }) => (
   <fieldset>
     <legend className={labelCls}>
-      {legend} <span className="font-normal text-muted-foreground">({selected.length}/{max})</span>
+      {legend} {max ? <span className="font-normal text-muted-foreground">({selected.length}/{max})</span> : null}
     </legend>
     <div className="grid sm:grid-cols-2 gap-2">
-      {options.map((opt) => {
+      {options.map((o) => {
+        const opt = optValue(o);
         const checked = selected.includes(opt);
-        const disabled = !checked && selected.length >= max;
+        const disabled = !!max && !checked && selected.length >= max;
         return (
           <label
             key={opt}
@@ -47,13 +52,54 @@ export const ChoiceList = ({
               onChange={(e) => onChange(e.target.checked ? [...selected, opt] : selected.filter((s) => s !== opt))}
               className="mt-1 h-4 w-4 accent-accent shrink-0"
             />
-            <span>{opt}</span>
+            <span>{optLabel(o)}</span>
           </label>
         );
       })}
     </div>
   </fieldset>
 );
+
+/** « Je cherche » ou « J'apporte » : choix multiples + précision libre de 120 caractères. */
+export const CollabField = ({
+  id,
+  legend,
+  options,
+  selected,
+  onChange,
+  precision,
+  onPrecision,
+  max = 120,
+}: {
+  id: string;
+  legend: string;
+  options: readonly Opt[];
+  selected: string[];
+  onChange: (v: string[]) => void;
+  precision: string;
+  onPrecision: (v: string) => void;
+  max?: number;
+}) => {
+  // Un texte repris de l'ancienne version peut dépasser 120 caractères : on peut seulement le raccourcir.
+  const limit = Math.max(max, precision.length);
+  return (
+    <div className="space-y-3">
+      <ChoiceList legend={legend} options={options} selected={selected} onChange={onChange} />
+      <div>
+        <label htmlFor={id} className={labelCls}>Précisez (facultatif)</label>
+        <input
+          id={id}
+          value={precision}
+          maxLength={limit}
+          onChange={(e) => onPrecision(e.target.value.length > max && e.target.value.length > precision.length ? precision : e.target.value)}
+          className={field}
+          aria-describedby={`${id}-count`}
+        />
+        <p id={`${id}-count`} className={`${hintCls} font-mono`}>{precision.length}/{max} caractères</p>
+      </div>
+    </div>
+  );
+};
 
 /** Choix d'une image, recadrée au carré, avec aperçu. */
 export const ImagePicker = ({
