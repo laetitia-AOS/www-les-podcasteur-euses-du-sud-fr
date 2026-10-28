@@ -7,7 +7,6 @@ import { Badge } from "@/components/ui/badge";
 import { motion } from "framer-motion";
 import { MapPin, Headphones, ArrowRight, Search, Users, Briefcase, Heart, Handshake, Building2, Mic } from "lucide-react";
 import { Link } from "react-router-dom";
-import AdhesionPromoCard from "@/components/AdhesionPromoCard";
 
 const departements = [
   { code: "04", label: "Alpes-de-Haute-Provence" },
@@ -159,7 +158,6 @@ const Annuaire = () => {
             </Link>
           </motion.div>
 
-          <AdhesionPromoCard variant="compact" className="mb-8" />
 
           <div className="flex flex-col lg:flex-row gap-8">
             {/* Sidebar Filters */}

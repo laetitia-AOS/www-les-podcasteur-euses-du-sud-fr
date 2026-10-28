@@ -1,169 +1,110 @@
-import { useState, useEffect } from "react";
-import { useNavigate, useLocation } from "react-router-dom";
-import { motion, AnimatePresence } from "framer-motion";
-import { Menu, X, User } from "lucide-react";
+import { useEffect, useState } from "react";
+import { Link, NavLink, useLocation } from "react-router-dom";
+import { Menu, User, X } from "lucide-react";
 import logoPds from "@/assets/logo-pds.png";
+import { btnPrimary, container } from "@/lib/pds";
 
 const links = [
-  { label: "Podcasts", href: "/podcasts" },
-  { label: "Annuaire", href: "/annuaire-podcasts" },
-  { label: "Agences/Studios", href: "/studios-podcast" },
-  { label: "Événements", href: "/evenements-podcast" },
+  { label: "Écouter", href: "/podcasts", match: ["/podcasts", "/ecouter", "/podcasteur"] },
+  { label: "Annuaire", href: "/annuaire-podcasts", match: ["/annuaire-podcasts"] },
+  { label: "Studios", href: "/studios-podcast", match: ["/studios-podcast", "/annuaire-podcasts/studios"] },
+  { label: "Agenda", href: "/evenements-podcast", match: ["/evenements-podcast", "/evenement-podcast", "/proposer-evenement-podcast", "/agenda"] },
 ];
 
 const Navbar = () => {
-  const [scrolled, setScrolled] = useState(false);
   const [open, setOpen] = useState(false);
-  const navigate = useNavigate();
   const location = useLocation();
 
-  useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 60);
-    window.addEventListener("scroll", onScroll, { passive: true });
-    return () => window.removeEventListener("scroll", onScroll);
-  }, []);
+  useEffect(() => setOpen(false), [location.pathname]);
 
-  const handleClick = (href: string) => {
-    setOpen(false);
-    if (href.startsWith("/")) {
-      navigate(href);
-    } else if (location.pathname !== "/") {
-      navigate("/", { state: { scrollTo: href } });
-    } else {
-      document.querySelector(href)?.scrollIntoView({ behavior: "smooth" });
-    }
+  const isActive = (match: string[]) => {
+    const p = location.pathname;
+    // Les fiches studio sont sous /annuaire-podcasts/studios : elles appartiennent à « Studios »
+    if (match.includes("/annuaire-podcasts") && p.startsWith("/annuaire-podcasts/studios")) return false;
+    return match.some((m) => p === m || p.startsWith(`${m}/`));
   };
 
-  useEffect(() => {
-    if (location.pathname === "/" && location.state?.scrollTo) {
-      const target = location.state.scrollTo as string;
-      setTimeout(() => {
-        document.querySelector(target)?.scrollIntoView({ behavior: "smooth" });
-      }, 300);
-      window.history.replaceState({}, "");
-    }
-  }, [location.pathname, location.state]);
-
   return (
-    <motion.nav
-      initial={{ y: -80 }}
-      animate={{ y: 0 }}
-      transition={{ duration: 0.5, delay: 0.3 }}
-      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 border-b ${
-        scrolled
-          ? "shadow-sm backdrop-blur-md"
-          : "backdrop-blur-sm border-transparent"
-      }`}
-      style={{
-        backgroundColor: scrolled ? "rgba(253,250,245,0.95)" : "rgba(253,250,245,0.80)",
-        borderColor: scrolled ? "rgba(184,92,56,0.12)" : "transparent",
-      }}
-    >
-      <div className="container mx-auto px-6 max-w-6xl flex items-center justify-between h-16">
-        <button
-          onClick={() => handleClick("/")}
-          className="flex items-center gap-2.5 transition-colors"
-        >
-          <img src={logoPds} alt="Les Podcasteur·euses du Sud" className="w-9 h-9 rounded-xl object-cover shadow-sm" width="36" height="36" decoding="async" loading="lazy" />
-          <div className="hidden sm:flex flex-col items-start leading-tight">
-            <span className="font-display font-semibold text-sm text-foreground">Les Podcasteur·euses du Sud</span>
-            <span className="text-[10px] text-primary font-medium tracking-wider uppercase">Réseau pro · Région Sud PACA</span>
-          </div>
-        </button>
+    <header className="fixed top-0 inset-x-0 z-50 bg-background border-b border-encre">
+      <div className={`${container} flex items-center justify-between h-16 md:h-[76px] gap-4`}>
+        <Link to="/" className="flex items-center gap-3 min-h-[44px] shrink-0" aria-label="Les Podcasteur·euses du Sud, accueil">
+          <img src={logoPds} alt="" className="w-10 h-10 md:w-11 md:h-11 object-cover" width="44" height="44" />
+          <span className="title-section text-[17px] md:text-[20px] leading-none hidden min-[480px]:block">
+            Les Podcasteur·euses du Sud
+          </span>
+        </Link>
 
-        {/* Desktop */}
-        <div className="hidden md:flex items-center gap-1">
-          {links.map((l) => (
-            <button
-              key={l.href}
-              onClick={() => handleClick(l.href)}
-              className="px-3 py-2 rounded-md text-sm font-medium transition-colors text-muted-foreground hover:text-primary"
-            >
-              {l.label}
-            </button>
-          ))}
-          <button
-            onClick={() => handleClick("/rejoindre-association")}
-            className="ml-3 px-5 py-2 rounded-pill bg-secondary text-secondary-foreground text-sm font-semibold hover:brightness-110 transition-all shadow-sm"
-            title="Adhérer pour activer votre visibilité dans l'annuaire et sur le flux"
-          >
+        <nav aria-label="Navigation principale" className="hidden lg:flex items-center gap-1">
+          {links.map((l) => {
+            const active = isActive(l.match);
+            return (
+              <NavLink
+                key={l.href}
+                to={l.href}
+                aria-current={active ? "page" : undefined}
+                className={`relative px-3 min-h-[44px] inline-flex items-center text-[17px] font-semibold hover:text-primary ${
+                  active ? "after:absolute after:left-3 after:right-3 after:bottom-1 after:h-[3px] after:bg-accent" : ""
+                }`}
+              >
+                {l.label}
+              </NavLink>
+            );
+          })}
+          <Link to="/rejoindre-association" className={`${btnPrimary} ml-4 px-6`}>
             Adhérer
-          </button>
-          <button
-            onClick={() => handleClick("/referencer-mon-podcast")}
-            className="ml-2 px-6 py-2 rounded-pill bg-primary text-primary-foreground text-sm font-semibold hover:bg-primary-hover transition-all shadow-md"
-            style={{ boxShadow: "0 4px 14px rgba(184,92,56,0.2)" }}
-          >
-            Créer mon profil
-          </button>
-          <button
-            onClick={() => handleClick("/espace-membre")}
-            className="ml-2 p-2 rounded-full transition-colors text-muted-foreground hover:text-primary hover:bg-primary/5"
+          </Link>
+          <Link
+            to="/espace-membre"
+            className="ml-3 w-11 h-11 inline-flex items-center justify-center hover:text-primary"
             aria-label="Espace membre"
             title="Espace membre"
           >
-            <User className="w-4.5 h-4.5" />
+            <User className="w-6 h-6" strokeWidth={1.75} />
+          </Link>
+        </nav>
+
+        <div className="flex lg:hidden items-center gap-1">
+          <Link to="/rejoindre-association" className={`${btnPrimary} px-4 text-sm`}>
+            Adhérer
+          </Link>
+          <button
+            onClick={() => setOpen((o) => !o)}
+            className="w-11 h-11 inline-flex items-center justify-center"
+            aria-label={open ? "Fermer le menu" : "Ouvrir le menu"}
+            aria-expanded={open}
+            aria-controls="menu-mobile"
+          >
+            {open ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
           </button>
         </div>
-
-        {/* Mobile toggle */}
-        <button
-          onClick={() => setOpen(!open)}
-          className="md:hidden p-2 rounded-md transition-colors text-foreground"
-          aria-label="Menu"
-        >
-          {open ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
-        </button>
       </div>
 
-      {/* Mobile menu */}
-      <AnimatePresence>
-        {open && (
-          <motion.div
-            initial={{ opacity: 0, height: 0 }}
-            animate={{ opacity: 1, height: "auto" }}
-            exit={{ opacity: 0, height: 0 }}
-            className="md:hidden overflow-hidden"
-            style={{
-              backgroundColor: "rgba(253,250,245,0.97)",
-              backdropFilter: "blur(12px)",
-              borderBottom: "1px solid rgba(184,92,56,0.12)",
-            }}
-          >
-            <div className="px-6 py-4 space-y-1">
-              {links.map((l) => (
-                <button
-                  key={l.href}
-                  onClick={() => handleClick(l.href)}
-                  className="block w-full text-left px-3 py-2.5 rounded-md text-sm font-medium text-foreground hover:text-primary hover:bg-primary/5 transition-colors"
-                >
-                  {l.label}
-                </button>
-              ))}
-              <button
-                onClick={() => handleClick("/rejoindre-association")}
-                className="block w-full text-left px-3 py-2.5 rounded-md text-sm font-semibold text-secondary-foreground bg-secondary/20 hover:bg-secondary/30 transition-colors"
-              >
-                ✨ Adhérer à l'association
-              </button>
-              <button
-                onClick={() => handleClick("/referencer-mon-podcast")}
-                className="block w-full text-left px-3 py-2.5 rounded-md text-sm font-semibold text-primary hover:bg-primary/5 transition-colors"
-              >
-                Créer mon profil
-              </button>
-              <button
-                onClick={() => handleClick("/espace-membre")}
-                className="flex items-center gap-2 w-full text-left px-3 py-2.5 rounded-md text-sm font-medium text-muted-foreground hover:text-primary hover:bg-primary/5 transition-colors"
-              >
-                <User className="w-4 h-4" />
-                Espace membre
-              </button>
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-    </motion.nav>
+      {open && (
+        <nav id="menu-mobile" aria-label="Navigation principale" className="lg:hidden border-t border-encre bg-background">
+          <ul className={`${container} py-2`}>
+            {links.map((l) => {
+              const active = isActive(l.match);
+              return (
+                <li key={l.href} className="border-b border-filet last:border-0">
+                  <Link
+                    to={l.href}
+                    aria-current={active ? "page" : undefined}
+                    className={`flex items-center min-h-[52px] text-lg font-bold ${active ? "underline decoration-accent decoration-[3px] underline-offset-[6px]" : ""}`}
+                  >
+                    {l.label}
+                  </Link>
+                </li>
+              );
+            })}
+            <li>
+              <Link to="/espace-membre" className="flex items-center gap-2 min-h-[52px] text-lg font-bold">
+                <User className="w-5 h-5" /> Espace membre
+              </Link>
+            </li>
+          </ul>
+        </nav>
+      )}
+    </header>
   );
 };
 

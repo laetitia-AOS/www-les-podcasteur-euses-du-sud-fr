@@ -143,6 +143,7 @@ const AdminPodcasts = () => {
         type_podcast: p.type_podcast || "",
         bio_750: p.bio_750 || "",
         lien_ecoute: p.lien_ecoute || "",
+        flux_rss: (p as any).flux_rss || "",
         lien_principal: p.lien_principal || "",
         lien_linkedin: p.lien_linkedin || "",
         metier_principal: p.metier_principal || "",
@@ -211,6 +212,7 @@ const AdminPodcasts = () => {
           type_podcast: editForm.type_podcast || null,
           bio_750: editForm.bio_750 || null,
           lien_ecoute: editForm.lien_ecoute,
+          flux_rss: (editForm as any).flux_rss?.trim() || null,
           lien_principal: editForm.lien_principal || null,
           lien_linkedin: editForm.lien_linkedin || null,
           metier_principal: editForm.metier_principal || null,
@@ -863,6 +865,10 @@ const PersonEditForm = ({ editForm, setEditForm, inputClass, selectClass, labelC
     <div>
       <label className={labelClass}>Lien d'écoute</label>
       <input value={editForm.lien_ecoute} onChange={(e) => setEditForm({ ...editForm, lien_ecoute: e.target.value })} className={inputClass} />
+    </div>
+    <div>
+      <label className={labelClass}>Flux RSS</label>
+      <input value={(editForm as any).flux_rss || ""} onChange={(e) => setEditForm({ ...editForm, flux_rss: e.target.value } as any)} className={inputClass} placeholder="https://…" />
     </div>
     <div>
       <label className={labelClass}>LinkedIn / réseau social</label>

@@ -99,8 +99,20 @@ export const PlayerProvider = ({ children }: { children: ReactNode }) => {
   );
 };
 
-export const usePlayer = () => {
-  const ctx = useContext(PlayerContext);
-  if (!ctx) throw new Error("usePlayer doit être utilisé dans PlayerProvider");
-  return ctx;
+// Valeur de secours : si le lecteur n'est pas disponible (rechargement partiel de la page, par ex.),
+// la page reste affichée au lieu de devenir blanche ; les boutons d'écoute ne font simplement rien.
+const noop = () => {};
+const FALLBACK: PlayerState = {
+  episode: null,
+  playing: false,
+  current: 0,
+  duration: 0,
+  play: noop,
+  toggle: noop,
+  seek: noop,
+  skip: noop,
+  close: noop,
+  isCurrent: () => false,
 };
+
+export const usePlayer = (): PlayerState => useContext(PlayerContext) ?? FALLBACK;
