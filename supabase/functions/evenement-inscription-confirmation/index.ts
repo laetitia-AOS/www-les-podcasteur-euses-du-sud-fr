@@ -1,5 +1,5 @@
 // Edge function : envoie un email de confirmation d'inscription à un événement via Brevo
-import "https://deno.land/x/xhr@0.1.0/mod.ts";
+import { createClient } from "npm:@supabase/supabase-js@2";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -63,15 +63,31 @@ Deno.serve(async (req) => {
       );
     }
 
-    const body = (await req.json()) as Payload;
-    const { email, prenom, nom, titre, date_debut, lieu, adresse, slug } = body;
-
-    if (!email || !prenom || !nom || !titre || !date_debut) {
-      return new Response(
-        JSON.stringify({ error: "Champs requis manquants" }),
-        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } },
-      );
+    // Seuls l'événement et l'adresse viennent de la demande ; tout le reste est relu en base.
+    const body = await req.json().catch(() => ({}));
+    const evenementId = String(body?.evenement_id || "");
+    const email = String(body?.email || "").trim().toLowerCase();
+    if (!/^[0-9a-f-]{36}$/i.test(evenementId) || !/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email)) {
+      return new Response(JSON.stringify({ error: "Demande invalide" }), { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } });
     }
+    const admin = createClient(Deno.env.get("SUPABASE_URL")!, Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!);
+    // Une inscription enregistrée il y a moins de 15 minutes (une seule par adresse et par événement)
+    const since = new Date(Date.now() - 15 * 60 * 1000).toISOString();
+    const { data: inscription } = await admin
+      .from("evenement_inscriptions")
+      .select("prenom, nom, evenements(titre, date_debut, lieu, adresse, slug, publie)")
+      .eq("evenement_id", evenementId)
+      .ilike("email", email)
+      .gte("created_at", since)
+      .maybeSingle();
+    // deno-lint-ignore no-explicit-any
+    const evt = (inscription as any)?.evenements;
+    if (!inscription || !evt?.publie) {
+      return new Response(JSON.stringify({ error: "Inscription introuvable" }), { status: 404, headers: { ...corsHeaders, "Content-Type": "application/json" } });
+    }
+    const prenom = String(inscription.prenom || "");
+    const nom = String(inscription.nom || "");
+    const { titre, date_debut, lieu, adresse, slug } = evt as Payload;
 
     const eventUrl = slug ? `${SITE_URL}/agenda/${slug}` : SITE_URL;
     const dateStr = formatDateFr(date_debut);
@@ -141,9 +157,9 @@ Deno.serve(async (req) => {
 
     if (!res.ok) {
       const errText = await res.text();
-      console.error("Brevo error", res.status, errText);
+      console.error("Brevo error", res.status, errText.slice(0, 200));
       return new Response(
-        JSON.stringify({ error: "Brevo API error", details: errText }),
+        JSON.stringify({ error: "Envoi impossible" }),
         { status: 502, headers: { ...corsHeaders, "Content-Type": "application/json" } },
       );
     }
@@ -155,7 +171,7 @@ Deno.serve(async (req) => {
   } catch (e) {
     console.error("Unexpected error", e);
     return new Response(
-      JSON.stringify({ error: String(e) }),
+      JSON.stringify({ error: "Erreur serveur" }),
       { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } },
     );
   }

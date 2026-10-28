@@ -53,7 +53,7 @@ const EvenementInscriptionForm = ({ evenementId, titre, date_debut, lieu, adress
       }
       // E-mail de confirmation : envoyé si possible, sans bloquer l'inscription
       supabase.functions
-        .invoke("evenement-inscription-confirmation", { body: { email: parsed.data.email, prenom: parsed.data.prenom, nom: parsed.data.nom, titre, date_debut, lieu, adresse, slug } })
+        .invoke("evenement-inscription-confirmation", { body: { evenement_id: evenementId, email: parsed.data.email } })
         .catch(() => {});
       setSuccess(true);
     } catch (err) {
