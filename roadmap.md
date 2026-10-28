@@ -6,7 +6,7 @@
 - [x] 4. Annuaire (initiales à la place des pochettes pour les podcasteur·euses)
 - [x] 5. Studios (+ demande de devis)
 - [x] 6. Agenda (/agenda)
-- [ ] 7. Page événement (/agenda/[slug]) + aperçu de partage sur les réseaux
+- [x] 7. Page événement (/agenda/[slug]) + aperçu de partage sur les réseaux
 - [ ] 8. Adhérer (fusion adhésion + inscription) — avec la nouvelle inscription :
   - étape 1 fiche annuaire pour tout le monde, photo de profil obligatoire (nouvelle case « photo de profil »)
   - étape 2 pour les podcasteur·euses : un ou plusieurs podcasts (pochette, lien d'écoute, flux RSS)
