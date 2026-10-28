@@ -12,7 +12,7 @@ type Props = { recipientId: string; recipientFirstName: string };
 
 const fieldClass = "w-full min-h-[48px] px-3 bg-surface border-2 border-encre text-[16px] focus:outline-none focus-visible:outline-[3px] focus-visible:outline-accent";
 
-/** Formulaire « Écrire à … » : le message est transmis par e-mail, sans jamais afficher l'adresse du membre. */
+/** Formulaire « Écrire à … » : le message est enregistré puis transmis par l'équipe, sans jamais afficher l'adresse du membre. */
 const MembreContactForm = ({ recipientId, recipientFirstName }: Props) => {
   const [values, setValues] = useState({ sender_name: "", sender_email: "", message: "", website: "" });
   const [errors, setErrors] = useState<Record<string, string>>({});

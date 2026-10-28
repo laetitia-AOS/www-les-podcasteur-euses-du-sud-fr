@@ -336,7 +336,7 @@ const ProfilMembre = () => {
               <div>
                 <h2 id="ecrire-title" className="title-section text-[30px] sm:text-[36px]">Écrire à {prenom || name}</h2>
                 <p className="mt-3 text-[15px] text-muted-foreground">
-                  Votre message arrive dans sa boîte. Son e-mail et son téléphone ne sont jamais affichés.
+                  L'équipe lui transmet votre message, et il ou elle vous répond directement. Son e-mail et son téléphone ne sont jamais affichés.
                 </p>
               </div>
               <MembreContactForm recipientId={profile.id} recipientFirstName={prenom} />
