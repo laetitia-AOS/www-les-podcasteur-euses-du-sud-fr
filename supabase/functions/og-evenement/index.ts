@@ -69,7 +69,7 @@ Deno.serve(async (req) => {
 
     const publicFunctionBase = `${Deno.env.get("SUPABASE_URL")!}/functions/v1/og-evenement`;
     const requestUrl = `${publicFunctionBase}/${encodeURIComponent(slug)}${url.search}`;
-    const targetUrl = `${SITE_URL}/evenement-podcast/${slug}`;
+    const targetUrl = `${SITE_URL}/agenda/${slug}`;
 
     // Crawlers : serve a minimal HTML with OG tags
     const title = evt
