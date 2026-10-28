@@ -11,3 +11,5 @@ verify_jwt = false
 
 [functions.evenement-inscription-confirmation]
 verify_jwt = false
+[functions.podcast-episodes]
+verify_jwt = false
