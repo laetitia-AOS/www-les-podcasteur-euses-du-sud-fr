@@ -86,7 +86,11 @@ Deno.serve(async (req) => {
         htmlContent: html,
       }),
     });
-    if (!res.ok) return json({ error: "Le message est enregistré mais l'e-mail n'a pas pu partir. L'équipe le transmettra." }, 502);
+    if (!res.ok) {
+      const errText = await res.text();
+      console.error("Brevo error", res.status, errText);
+      return json({ error: "Le message est enregistré mais l'e-mail n'a pas pu partir. L'équipe le transmettra." }, 502);
+    }
 
     return json({ ok: true });
   } catch (_e) {
