@@ -14,8 +14,9 @@ export default {
     },
     extend: {
       fontFamily: {
-        sans: ["Instrument Sans", "sans-serif"],
-        display: ["Fraunces", "serif"],
+        sans: ["Archivo", "system-ui", "sans-serif"],
+        display: ["Archivo", "sans-serif"],
+        mono: ["IBM Plex Mono", "ui-monospace", "monospace"],
       },
       colors: {
         border: "hsl(var(--border))",
@@ -44,7 +45,12 @@ export default {
         accent: {
           DEFAULT: "hsl(var(--accent))",
           foreground: "hsl(var(--accent-foreground))",
+          hover: "hsl(var(--accent-hover))",
+          text: "hsl(var(--accent-text))",
         },
+        encre: "hsl(var(--pds-encre))",
+        filet: "hsl(var(--pds-filet))",
+        surface: "hsl(var(--pds-surface))",
         popover: {
           DEFAULT: "hsl(var(--popover))",
           foreground: "hsl(var(--popover-foreground))",
@@ -86,7 +92,7 @@ export default {
         lg: "var(--radius)",
         md: "calc(var(--radius) - 2px)",
         sm: "calc(var(--radius) - 4px)",
-        pill: "100px",
+        pill: "0px",
       },
       keyframes: {
         "accordion-down": {

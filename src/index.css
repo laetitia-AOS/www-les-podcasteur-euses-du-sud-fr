@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;0,9..144,700;1,9..144,400;1,9..144,500;1,9..144,600;1,9..144,700&family=Instrument+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500;1,600&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,400..900&family=IBM+Plex+Mono:wght@400;500;600&display=swap');
 
 @tailwind base;
 @tailwind components;
@@ -6,71 +6,83 @@
 
 @layer base {
   :root {
-    --background: 34 27% 94%;
-    --background-pure: 36 33% 97%;
-    --foreground: 18 12% 15%;
+    /* Palette PDS — refonte */
+    --pds-bleu: 230 80% 40%;          /* #1530B8 */
+    --pds-bleu-hover: 230 80% 33%;
+    --pds-orange: 30 89% 55%;         /* #F28C28 */
+    --pds-orange-hover: 30 89% 48%;
+    --pds-orange-texte: 27 90% 32%;   /* #9A4A08 — libellés orange sur fond clair */
+    --pds-encre: 240 9% 6%;           /* #0F0F12 */
+    --pds-fond: 48 17% 94%;           /* #F3F2EE */
+    --pds-surface: 0 0% 100%;
+    --pds-gris: 240 4% 35%;           /* #55555C */
+    --pds-filet: 48 8% 77%;           /* #C9C7BF */
 
-    --card: 36 33% 97%;
-    --card-foreground: 18 12% 15%;
+    --background: var(--pds-fond);
+    --background-pure: var(--pds-surface);
+    --foreground: var(--pds-encre);
 
-    --popover: 36 33% 97%;
-    --popover-foreground: 18 12% 15%;
+    --card: var(--pds-surface);
+    --card-foreground: var(--pds-encre);
+    --popover: var(--pds-surface);
+    --popover-foreground: var(--pds-encre);
 
-    --primary: 16 53% 47%;
+    --primary: var(--pds-bleu);
     --primary-foreground: 0 0% 100%;
-    --primary-hover: 14 60% 34%;
+    --primary-hover: var(--pds-bleu-hover);
 
-    --secondary: 34 27% 87%;
-    --secondary-foreground: 18 12% 15%;
+    --secondary: var(--pds-surface);
+    --secondary-foreground: var(--pds-encre);
 
-    --muted: 34 22% 90%;
-    --muted-foreground: 18 14% 33%;
+    --muted: 48 12% 89%;
+    --muted-foreground: var(--pds-gris);
 
-    --accent: 16 53% 47%;
-    --accent-foreground: 0 0% 100%;
+    --accent: var(--pds-orange);
+    --accent-foreground: var(--pds-encre);
+    --accent-hover: var(--pds-orange-hover);
+    --accent-text: var(--pds-orange-texte);
 
-    --destructive: 0 84% 60%;
+    --destructive: 0 72% 42%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 16 53% 47% / 0.12;
-    --input: 16 53% 47% / 0.15;
-    --ring: 16 53% 47%;
+    --border: var(--pds-filet);
+    --input: var(--pds-filet);
+    --ring: var(--pds-bleu);
 
-    --radius: 0.875rem;
+    --radius: 0rem;
 
-    /* Palette Éditorial Sud */
-    --f0: 34 27% 94%;
-    --f1: 30 25% 87%;
-    --blanc: 36 33% 97%;
-    --tc: 16 53% 47%;
-    --tc2: 14 60% 34%;
-    --coral: 16 40% 61%;
-    --bleu: 224 94% 34%;
-    --bleu2: 224 94% 28%;
-    --olive: 88 15% 42%;
-    --tx: 18 12% 15%;
-    --tx2: 18 14% 33%;
-    --tx3: 18 12% 15% / 0.45;
+    /* Anciennes variables, ré-alignées sur la nouvelle palette */
+    --f0: var(--pds-fond);
+    --f1: 48 12% 89%;
+    --blanc: var(--pds-surface);
+    --tc: var(--pds-bleu);
+    --tc2: var(--pds-bleu-hover);
+    --coral: var(--pds-orange);
+    --bleu: var(--pds-bleu);
+    --bleu2: var(--pds-bleu);
+    --olive: var(--pds-gris);
+    --tx: var(--pds-encre);
+    --tx2: var(--pds-gris);
+    --tx3: 240 9% 6% / 0.55;
+    --ink: var(--pds-encre);
+    --ink-soft: var(--pds-gris);
+    --terre: var(--pds-orange-texte);
+    --lavande: var(--pds-bleu);
+    --turquoise: var(--pds-bleu);
+    --pin: var(--pds-encre);
+    --soleil: var(--pds-orange);
+    --ocre-vif: var(--pds-orange-texte);
+    --footer-bg: var(--pds-fond);
+    --sable: 48 12% 89%;
 
-    --ink: 224 94% 28%;
-    --ink-soft: 224 94% 34%;
-    --terre: 14 60% 34%;
-    --lavande: 265 20% 52%;
-    --turquoise: 180 53% 35%;
-    --pin: 148 28% 33%;
-    --soleil: 45 95% 55%;
-    --ocre-vif: 16 53% 47%;
-    --footer-bg: 224 94% 28%;
-    --sable: 30 25% 87%;
-
-    --sidebar-background: 36 33% 97%;
-    --sidebar-foreground: 18 12% 15%;
-    --sidebar-primary: 16 53% 47%;
+    --sidebar-background: var(--pds-surface);
+    --sidebar-foreground: var(--pds-encre);
+    --sidebar-primary: var(--pds-bleu);
     --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 34 22% 90%;
-    --sidebar-accent-foreground: 18 12% 15%;
-    --sidebar-border: 16 53% 47% / 0.12;
-    --sidebar-ring: 16 53% 47%;
+    --sidebar-accent: 48 12% 89%;
+    --sidebar-accent-foreground: var(--pds-encre);
+    --sidebar-border: var(--pds-filet);
+    --sidebar-ring: var(--pds-bleu);
   }
 }
 
@@ -79,105 +91,110 @@
     @apply border-border;
   }
 
+  html {
+    -webkit-text-size-adjust: 100%;
+  }
+
   body {
     @apply bg-background text-foreground antialiased;
-    font-family: 'Instrument Sans', sans-serif;
+    font-family: 'Archivo', system-ui, sans-serif;
+    font-stretch: 100%;
     font-weight: 400;
   }
 
   h1, h2, h3, h4, h5, h6 {
-    font-family: 'Fraunces', serif;
-    font-weight: 700;
-    letter-spacing: -0.02em;
+    font-family: 'Archivo', sans-serif;
+    font-weight: 900;
+    font-stretch: 72%;
+    letter-spacing: -0.01em;
+    line-height: 0.95;
     @apply text-foreground;
+  }
+
+  :focus-visible {
+    outline: 3px solid hsl(var(--pds-orange));
+    outline-offset: 2px;
   }
 }
 
-/* Subtle grid background */
-.bg-grid {
-  background-image:
-    linear-gradient(to right, hsl(16 53% 47% / 0.03) 1px, transparent 1px),
-    linear-gradient(to bottom, hsl(16 53% 47% / 0.03) 1px, transparent 1px);
-  background-size: 60px 60px;
+@layer utilities {
+  /* Titres de page : 900, largeur 64, capitales */
+  .title-page {
+    font-family: 'Archivo', sans-serif;
+    font-weight: 900;
+    font-stretch: 64%;
+    text-transform: uppercase;
+    line-height: 0.88;
+    letter-spacing: -0.01em;
+  }
+  /* Titres de section : 900, largeur 72 */
+  .title-section {
+    font-family: 'Archivo', sans-serif;
+    font-weight: 900;
+    font-stretch: 72%;
+    line-height: 0.95;
+    letter-spacing: -0.01em;
+  }
+  .font-display {
+    font-family: 'Archivo', sans-serif;
+    font-stretch: 72%;
+  }
+  .font-body {
+    font-family: 'Archivo', sans-serif;
+  }
+  .font-serif-italic {
+    font-family: 'Archivo', sans-serif;
+  }
+  .text-gradient-primary {
+    color: hsl(var(--primary));
+  }
 }
 
-/* Marquee animation */
+/* Anciennes animations (encore utilisées sur certaines pages) */
 @keyframes marquee {
   0% { transform: translateX(0); }
   100% { transform: translateX(-50%); }
 }
+.animate-marquee { animation: marquee 30s linear infinite; }
 
-.animate-marquee {
-  animation: marquee 30s linear infinite;
-}
-
-/* Sound wave pulse */
 @keyframes wave-pulse {
   0% { transform: scale(0.5); opacity: 0; }
   40% { opacity: 0.6; }
   100% { transform: scale(1.8); opacity: 0; }
 }
+.animate-wave { animation: wave-pulse 3s ease-out infinite; }
 
-.animate-wave {
-  animation: wave-pulse 3s ease-out infinite;
-}
-
-/* Float animation */
 @keyframes float {
   0%, 100% { transform: translateY(0px); }
   50% { transform: translateY(-12px); }
 }
+.animate-float { animation: float 4s ease-in-out infinite; }
 
-.animate-float {
-  animation: float 4s ease-in-out infinite;
-}
-
-/* Sun rotation */
 @keyframes sun-spin {
   0% { transform: rotate(0deg); }
   100% { transform: rotate(360deg); }
 }
+.animate-sun { animation: sun-spin 20s linear infinite; }
 
-.animate-sun {
-  animation: sun-spin 20s linear infinite;
-}
-
-/* Fill width animation */
 @keyframes fill-width {
   0% { width: 0%; }
   100% { width: var(--fill-to, 70%); }
 }
+.animate-fill { animation: fill-width 1.5s ease-out forwards; }
 
-.animate-fill {
-  animation: fill-width 1.5s ease-out forwards;
-}
-
-/* Micro pulse */
 @keyframes micro-pulse {
   0%, 100% { transform: scale(1); }
   50% { transform: scale(1.05); }
 }
+.animate-micro-pulse { animation: micro-pulse 3s ease-in-out infinite; }
 
-.animate-micro-pulse {
-  animation: micro-pulse 3s ease-in-out infinite;
-}
+.bg-grid { background-image: none; }
 
-@layer utilities {
-  .text-gradient-primary {
-    @apply bg-clip-text text-transparent;
-    background-image: linear-gradient(135deg, hsl(var(--primary)), hsl(var(--coral)));
-  }
-
-  .font-display {
-    font-family: 'Fraunces', serif;
-  }
-
-  .font-body {
-    font-family: 'Instrument Sans', sans-serif;
-  }
-
-  .font-serif-italic {
-    font-family: 'Fraunces', serif;
-    font-style: italic;
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
   }
 }
