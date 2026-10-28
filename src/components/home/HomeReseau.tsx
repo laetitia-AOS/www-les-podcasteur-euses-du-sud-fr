@@ -18,7 +18,7 @@ const HomeReseau = () => (
             <li>Validé à la main par l'équipe</li>
             <li>Pas visible sur le site</li>
           </ul>
-          <Link to="/referencer-mon-podcast" className={`${btnSecondary} mt-6 self-start`}>Créer mon profil</Link>
+          <Link to="/rejoindre-association#inscription" className={`${btnSecondary} mt-6 self-start`}>Créer mon profil</Link>
         </article>
 
         <article className="border-[3px] border-primary bg-surface p-6 flex flex-col">
