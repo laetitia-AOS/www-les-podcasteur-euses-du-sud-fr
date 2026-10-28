@@ -1,5 +1,5 @@
 import { createClient } from "npm:@supabase/supabase-js@2";
-import { fetchVerifiedOrder } from "../_shared/helloasso.ts";
+import { checkOrder, ORG_SLUG } from "../_shared/helloasso.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -35,13 +35,19 @@ Deno.serve(async (req) => {
     const rawId = data?.order?.id ?? data?.orderId ?? data?.id ?? "";
     const orderId = String(rawId);
 
-    // Tout le reste vient de HelloAsso lui-même : un faux message ne peut rien créer.
-    const order = await fetchVerifiedOrder(orderId, data?.formType, data?.formSlug);
-    if (!order) {
+    if (JSON.stringify(payload).length > 60000) return json({ error: "Payload too large" }, 413);
+    if (data?.organizationSlug && data.organizationSlug !== ORG_SLUG) return json({ error: "Wrong organization" }, 400);
+
+    // Tout vient de HelloAsso lui-même quand la lecture est possible : un faux message ne peut rien activer.
+    const check = await checkOrder(orderId, data?.formType, data?.formSlug);
+    if (check.status === "not_found") {
       console.warn("Webhook refusé : commande introuvable chez HelloAsso");
       return json({ error: "Order not verified" }, 400);
     }
-
+    // HelloAsso refuse la lecture : on garde le paiement, mais « à vérifier » (aucune fiche activée)
+    // jusqu'à ce qu'un·e admin le confirme dans l'administration.
+    const verified = check.status === "verified";
+    const order = verified ? check.order : data;
     const supabase = createClient(Deno.env.get("SUPABASE_URL")!, Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!);
 
     const { data: existing } = await supabase
@@ -68,17 +74,17 @@ Deno.serve(async (req) => {
       telephone: clean(payer.phone, 30),
       montant: typeof totalCents === "number" ? totalCents / 100 : null,
       type_adhesion: clean(firstItem.name, 150) || "adhesion",
-      statut: "active",
+      statut: verified ? "active" : "a_verifier",
       date_adhesion: order.date || new Date().toISOString(),
       helloasso_order_id: orderId,
-      raw_payload: order,
+      raw_payload: verified ? order : { non_verifie: true, ...payload },
     });
 
     if (error) {
       console.error("Insert error:", error.message);
       return json({ error: "Insert failed" }, 500);
     }
-    return json({ success: true });
+    return json({ success: true, verified });
   } catch (err) {
     console.error("Webhook error:", err instanceof Error ? err.message : "unknown");
     return json({ error: "Server error" }, 500);
