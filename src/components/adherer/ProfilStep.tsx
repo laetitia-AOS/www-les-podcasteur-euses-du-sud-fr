@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { messageServeur } from "@/lib/inscription";
 import { Link } from "react-router-dom";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
@@ -93,7 +94,7 @@ const ProfilStep = ({
       besoin: "non_specifié",
     });
     setSending(false);
-    if (error) { console.error(error); return fail("L'enregistrement n'a pas abouti. Réessayez."); }
+    if (error) { console.error(error); return fail(messageServeur(error, "L'enregistrement n'a pas abouti. Réessayez.")); }
     onDone({ type, email: profil.email.trim(), saved: true, profil });
   };
 

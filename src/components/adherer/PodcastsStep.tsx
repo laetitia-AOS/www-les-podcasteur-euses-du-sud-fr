@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { messageServeur } from "@/lib/inscription";
 import { toast } from "sonner";
 import { Plus, Trash2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
@@ -90,7 +91,7 @@ const PodcastsStep = ({
       onDone(rows.length);
     } catch (err) {
       console.error(err);
-      toast.error("L'enregistrement n'a pas abouti. Réessayez.");
+      toast.error(messageServeur(err as { code?: string; message?: string }, "L'enregistrement n'a pas abouti. Réessayez."));
     } finally {
       setSending(false);
     }
