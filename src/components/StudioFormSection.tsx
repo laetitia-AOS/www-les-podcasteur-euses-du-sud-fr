@@ -243,9 +243,11 @@ const CheckboxGroup = ({
 
 interface StudioFormSectionProps {
   onBack?: () => void;
+  /** Appelé après l'enregistrement, à la place de l'écran de confirmation (page Adhérer). */
+  onSubmitted?: (email: string) => void;
 }
 
-const StudioFormSection = ({ onBack }: StudioFormSectionProps) => {
+const StudioFormSection = ({ onBack, onSubmitted }: StudioFormSectionProps) => {
   const [submitted, setSubmitted] = useState(false);
   const [uploading, setUploading] = useState(false);
 
@@ -494,6 +496,7 @@ const StudioFormSection = ({ onBack }: StudioFormSectionProps) => {
       return;
     }
 
+    if (onSubmitted) { onSubmitted(email.trim()); return; }
     setSubmitted(true);
     window.scrollTo({ top: 0, behavior: "smooth" });
   };

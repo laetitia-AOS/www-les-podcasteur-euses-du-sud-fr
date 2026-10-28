@@ -1,5 +1,6 @@
 // Données et petites fonctions partagées par l'inscription (page Adhérer) et l'ajout d'un podcast.
 import { supabase } from "@/integrations/supabase/client";
+import { formatName } from "@/lib/pds";
 import type { CityResult } from "@/components/CityAutocomplete";
 
 export const DEPARTEMENTS = [
@@ -174,8 +175,8 @@ export type ProfilData = {
 export const profilColumns = (p: ProfilData) => {
   const dept = DEPARTEMENTS.find((d) => d.code === p.departementCode);
   return {
-    prenom: p.prenom.trim(),
-    nom: p.nom.trim(),
+    prenom: formatName(p.prenom),
+    nom: formatName(p.nom),
     email: p.email.trim(),
     telephone: p.telephone.trim() || null,
     type_profil: p.typeProfil,

@@ -108,9 +108,11 @@ const CheckboxMultiSelect = ({
 
 interface Props {
   onBack: () => void;
+  /** Appelé après l'enregistrement, à la place de l'écran de confirmation (page Adhérer). */
+  onSubmitted?: (email: string) => void;
 }
 
-const StructureEcoFormSection = ({ onBack }: Props) => {
+const StructureEcoFormSection = ({ onBack, onSubmitted }: Props) => {
   const [submitted, setSubmitted] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [form, setForm] = useState({
@@ -281,6 +283,7 @@ const StructureEcoFormSection = ({ onBack }: Props) => {
     setUploading(false);
 
     if (dbError) { toast.error("Erreur lors de l'enregistrement."); console.error(dbError); return; }
+    if (onSubmitted) { onSubmitted(form.email.trim()); return; }
     setSubmitted(true);
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
