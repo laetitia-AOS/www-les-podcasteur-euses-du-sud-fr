@@ -22,7 +22,6 @@ const COMPARATIF: { label: string; profil: string; membre: string }[] = [
   { label: "Visible dans l'annuaire et dans « Écouter »", profil: "Non", membre: "Oui" },
   { label: "Épisodes dans le lecteur du site", profil: "Non", membre: "Oui, en rotation" },
   { label: "« Cherche / Apporte » visibles et messages des autres membres", profil: "Non", membre: "Oui" },
-  { label: "Studio ou agence visible dans « Studios »", profil: "Non", membre: "Oui" },
 ];
 
 const FAQ = [
@@ -214,10 +213,13 @@ const Adhesion = () => {
                   <strong>Utilisez la même adresse e-mail que pour votre profil{result?.email ? ` (${result.email})` : ""}</strong> : c'est elle qui active votre visibilité.
                 </p>
                 <div className="mt-8 flex flex-col-reverse sm:flex-row sm:justify-between gap-4">
-                  <button type="button" onClick={() => setStep(result ? (result.type === "podcasteur" && !podcastCount ? "podcasts" : "profil") : "profil")} className={btnSecondary} hidden={!!(result?.saved || podcastCount)}>
-                    Revenir au profil
-                  </button>
-                  <span hidden={!(result?.saved || podcastCount)} />
+                  {result?.saved || podcastCount ? (
+                    <span />
+                  ) : (
+                    <button type="button" onClick={() => setStep(result?.type === "podcasteur" ? "podcasts" : "profil")} className={btnSecondary}>
+                      {result?.type === "podcasteur" ? "Revenir à mes podcasts" : "Revenir au profil"}
+                    </button>
+                  )}
                   <button type="button" onClick={() => setStep("paiement")} className={`${btnPrimary} px-8`}>Continuer vers le paiement</button>
                 </div>
               </div>
