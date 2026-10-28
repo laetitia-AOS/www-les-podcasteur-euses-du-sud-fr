@@ -16,3 +16,13 @@ describe("studios", () => {
     expect(phraseDevisEnvoye(1)).toBe("Votre demande est partie vers 1 studio.");
   });
 });
+
+import { prixDepuisTarif } from "./events";
+describe("tarif des événements", () => {
+  it("lit le prix pour les moteurs de recherche", () => {
+    expect(prixDepuisTarif("5 €")).toBe(5);
+    expect(prixDepuisTarif("Adhérent·es : 0 €")).toBe(0);
+    expect(prixDepuisTarif("Prix libre")).toBe(0);
+    expect(prixDepuisTarif("Sur réservation")).toBeNull();
+  });
+});

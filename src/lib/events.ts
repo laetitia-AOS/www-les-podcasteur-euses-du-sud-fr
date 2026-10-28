@@ -56,3 +56,28 @@ export const downloadIcs = (e: { id: string; titre: string; date_debut: string; 
   a.click();
   URL.revokeObjectURL(a.href);
 };
+
+const gDate = (d: Date) => icsDate(d);
+
+/** Lien « Ajouter à Google Agenda » (simple lien, aucune donnée envoyée par le site). */
+export const googleCalendarUrl = (e: { titre: string; date_debut: string; date_fin?: string | null; lieu?: string | null; adresse?: string | null; url: string; description?: string }) => {
+  const start = new Date(e.date_debut);
+  const end = e.date_fin ? new Date(e.date_fin) : new Date(start.getTime() + 2 * 60 * 60 * 1000);
+  const p = new URLSearchParams({
+    action: "TEMPLATE",
+    text: e.titre,
+    dates: `${gDate(start)}/${gDate(end)}`,
+    details: `${e.description ? `${e.description}\n\n` : ""}${e.url}`,
+    location: [e.lieu, e.adresse].filter(Boolean).join(", "),
+  });
+  return `https://calendar.google.com/calendar/render?${p.toString()}`;
+};
+
+/** Prix pour les données structurées : « 5 € » → 5, « Prix libre » / « 0 € » → 0, sinon null. */
+export const prixDepuisTarif = (tarif?: string | null): number | null => {
+  if (!tarif) return null;
+  const m = tarif.replace(",", ".").match(/(\d+(?:\.\d+)?)\s*€/);
+  if (m) return Number(m[1]);
+  if (/prix libre|entrée libre|libre participation/i.test(tarif)) return 0;
+  return null;
+};
