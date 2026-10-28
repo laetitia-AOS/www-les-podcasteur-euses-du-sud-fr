@@ -49,7 +49,9 @@ export const toEpisode = (r: Row): Episode => ({
   summary: r.resume,
 });
 
-const fetchRows = async (build: (q: ReturnType<typeof base>) => ReturnType<typeof base>) => {
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+type Query = any;
+const fetchRows = async (build: (q: Query) => Query) => {
   const { data, error } = await build(base());
   if (error) throw error;
   return ((data || []) as unknown as Row[]).map(toEpisode);
