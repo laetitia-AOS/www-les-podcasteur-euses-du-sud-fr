@@ -25,27 +25,45 @@ export async function getHelloAssoToken(): Promise<string> {
   return data.access_token;
 }
 
+const isOurs = (order: any) => {
+  const slug = order?.organizationSlug ?? order?.organization?.slug;
+  return !slug || slug === ORG_SLUG;
+};
+
 /**
  * Relit une commande directement chez HelloAsso. Renvoie null si elle n'existe pas
  * ou n'appartient pas à l'association : seul ce retour fait foi, jamais le message reçu.
+ * Le formulaire indiqué dans le message sert seulement à savoir où chercher.
  */
 // deno-lint-ignore no-explicit-any
-export async function fetchVerifiedOrder(orderId: string): Promise<any | null> {
+export async function fetchVerifiedOrder(orderId: string, formType?: string, formSlug?: string): Promise<any | null> {
   if (!/^\d{1,15}$/.test(orderId)) return null;
   const token = await getHelloAssoToken();
-  const res = await fetch(`${HELLOASSO_API}/v5/orders/${orderId}`, {
-    headers: { Authorization: `Bearer ${token}`, "User-Agent": UA, Accept: "application/json" },
-  });
-  if (res.status === 404 || res.status === 403 || res.status === 400) {
-    console.warn(`HelloAsso order lookup: ${res.status}`);
-    return null;
+  const headers = { Authorization: `Bearer ${token}`, "User-Agent": UA, Accept: "application/json" };
+
+  // 1. Lecture directe de la commande
+  const res = await fetch(`${HELLOASSO_API}/v5/orders/${orderId}`, { headers });
+  if (res.ok) {
+    const order = await res.json();
+    return isOurs(order) ? order : null;
   }
-  if (!res.ok) throw new Error(`HelloAsso order lookup failed [${res.status}]`);
-  const order = await res.json();
-  const slug = order?.organizationSlug ?? order?.organization?.slug;
-  if (slug && slug !== ORG_SLUG) {
-    console.warn("HelloAsso order lookup: autre association");
-    return null;
+  console.warn(`HelloAsso order lookup: ${res.status}`);
+
+  // 2. Recherche dans les commandes récentes du formulaire, au sein de l'association
+  const safe = /^[A-Za-z0-9_-]{1,120}$/;
+  if (!formType || !formSlug || !safe.test(formType) || !safe.test(formSlug)) return null;
+  for (let page = 1; page <= 5; page++) {
+    const url = `${HELLOASSO_API}/v5/organizations/${ORG_SLUG}/forms/${formType}/${formSlug}/orders?pageSize=100&pageIndex=${page}&sortOrder=Desc&withDetails=true`;
+    const r = await fetch(url, { headers });
+    if (!r.ok) {
+      console.warn(`HelloAsso form orders lookup: ${r.status}`);
+      return null;
+    }
+    const body = await r.json();
+    // deno-lint-ignore no-explicit-any
+    const found = (body?.data || []).find((o: any) => String(o?.id) === orderId);
+    if (found) return isOurs(found) ? found : null;
+    if (!body?.pagination || page >= body.pagination.totalPages) break;
   }
-  return order;
+  return null;
 }

@@ -36,7 +36,7 @@ Deno.serve(async (req) => {
     const orderId = String(rawId);
 
     // Tout le reste vient de HelloAsso lui-même : un faux message ne peut rien créer.
-    const order = await fetchVerifiedOrder(orderId);
+    const order = await fetchVerifiedOrder(orderId, data?.formType, data?.formSlug);
     if (!order) {
       console.warn("Webhook refusé : commande introuvable chez HelloAsso");
       return json({ error: "Order not verified" }, 400);
