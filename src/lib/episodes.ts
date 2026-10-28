@@ -12,6 +12,7 @@ export type Episode = {
   audioUrl: string;
   image: string | null;
   link: string | null;
+  summary?: string | null;
 };
 
 const FN_URL = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/podcast-episodes`;

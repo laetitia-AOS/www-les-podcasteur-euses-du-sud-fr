@@ -23,6 +23,7 @@ type Episode = {
   audioUrl: string;
   image: string | null;
   link: string | null;
+  summary: string | null;
 };
 
 type PodcastRow = {
@@ -113,6 +114,19 @@ const text = (v: unknown): string => {
   return String(v);
 };
 
+const summarize = (raw: string): string | null => {
+  const t = raw
+    .replace(/<[^>]*>/g, " ")
+    .replace(/&nbsp;/g, " ")
+    .replace(/&amp;/g, "&")
+    .replace(/&#39;|&rsquo;/g, "’")
+    .replace(/&quot;/g, '"')
+    .replace(/\s+/g, " ")
+    .trim();
+  if (!t) return null;
+  return t.length > 180 ? t.slice(0, 177).replace(/\s+\S*$/, "") + "…" : t;
+};
+
 const parseFeed = (xml: string, p: PodcastRow, max: number): Episode[] => {
   try {
     const doc = parser.parse(xml);
@@ -139,6 +153,7 @@ const parseFeed = (xml: string, p: PodcastRow, max: number): Episode[] => {
           audioUrl: (it.enclosure as Record<string, string>)["@_url"],
           image: p.vignette_url || (it["itunes:image"] as Record<string, string> | undefined)?.["@_href"] || channelImage,
           link: text(it.link) || null,
+          summary: summarize(text(it["itunes:summary"]) || text(it.description)),
         } as Episode;
       });
   } catch {
