@@ -77,7 +77,7 @@ const PartageEvenement = ({ info, slug }: { info: InfoPartage; slug: string }) =
       <div className="mt-5">
         <p className="text-sm font-semibold">Vignette à publier</p>
         {apercu ? (
-          <img src={apercu} alt={`Vignette de l'événement ${info.titre}`} className="mt-2 w-full border-2 border-foreground" width={1200} height={630} />
+          <img src={apercu} alt={`Affiche de ${info.titre}`} className="mt-2 w-full border-2 border-foreground" width={1200} height={630} />
         ) : (
           <div className="mt-2 aspect-[1200/630] w-full border-2 border-dashed border-border" aria-hidden />
         )}

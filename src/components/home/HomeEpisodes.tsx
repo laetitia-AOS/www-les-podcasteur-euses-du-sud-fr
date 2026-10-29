@@ -45,7 +45,7 @@ const HomeEpisodes = ({ episodes, fallback, loading }: Props) => {
                     {active ? <Pause className="w-4 h-4" fill="currentColor" /> : <Play className="w-4 h-4 ml-0.5" fill="currentColor" />}
                   </button>
                   {ep.image ? (
-                    <img src={ep.image} alt={`Pochette de ${ep.podcastName}`} className="w-14 h-14 sm:w-[72px] sm:h-[72px] object-cover" loading="lazy" />
+                    <img src={ep.image} alt={`Pochette du podcast ${ep.podcastName}`} className="w-14 h-14 sm:w-[72px] sm:h-[72px] object-cover" loading="lazy" />
                   ) : <span className="w-14 h-14 sm:w-[72px] sm:h-[72px] bg-muted" />}
                   <div className="min-w-0">
                     <p className="font-bold text-[17px] sm:text-[21px] leading-tight line-clamp-2">{ep.title}</p>
@@ -82,7 +82,7 @@ const HomeEpisodes = ({ episodes, fallback, loading }: Props) => {
                   <ExternalLink className="w-4 h-4" />
                 </a>
                 {p.vignette_url ? (
-                  <img src={p.vignette_url} alt={`Pochette de ${p.nom_podcast}`} className="w-14 h-14 sm:w-[72px] sm:h-[72px] object-cover" loading="lazy" />
+                  <img src={p.vignette_url} alt={`Pochette du podcast ${p.nom_podcast}`} className="w-14 h-14 sm:w-[72px] sm:h-[72px] object-cover" loading="lazy" />
                 ) : <span className="w-14 h-14 sm:w-[72px] sm:h-[72px] bg-muted" />}
                 <div className="min-w-0">
                   <Link to={`/ecouter/${p.slug || p.id}`} className="font-bold text-[17px] sm:text-[21px] leading-tight hover:underline underline-offset-4">{p.nom_podcast}</Link>

@@ -22,6 +22,12 @@ const setMeta = (attr: string, key: string, content: string) => {
   el.setAttribute("content", content);
 };
 
+/** Image de partage au format des réseaux (1200 × 630, allégée) quand elle vient du stockage du site. */
+export const imagePartage = (url: string) =>
+  url.includes("/storage/v1/object/public/")
+    ? `${url.replace("/storage/v1/object/public/", "/storage/v1/render/image/public/").split("?")[0]}?width=1200&height=630&resize=cover&quality=75`
+    : url;
+
 const SEOHead = ({ title, description, path = "/", image, type = "website", jsonLd, noindex = false }: SEOHeadProps) => {
   const ldKey = JSON.stringify(jsonLd ?? null);
 
@@ -30,7 +36,7 @@ const SEOHead = ({ title, description, path = "/", image, type = "website", json
     document.documentElement.lang = "fr";
 
     const url = `${SITE_URL}${path}`;
-    const img = image || DEFAULT_SHARE_IMAGE;
+    const img = imagePartage(image || DEFAULT_SHARE_IMAGE);
 
     setMeta("name", "description", description);
     setMeta("name", "robots", noindex ? "noindex, nofollow" : "index, follow");

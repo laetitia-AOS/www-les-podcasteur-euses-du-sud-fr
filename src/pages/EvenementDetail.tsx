@@ -116,7 +116,7 @@ const EvenementDetail = () => {
         : {
             "@type": "Place",
             name: evt.lieu || view.city || "Lieu à préciser",
-            address: { "@type": "PostalAddress", ...(evt.adresse && { streetAddress: cleanAddress(evt.adresse) }), ...(view.city && { addressLocality: view.city }), addressRegion: "Provence-Alpes-Côte d'Azur", addressCountry: "FR" },
+            address: { "@type": "PostalAddress", ...(evt.adresse && { streetAddress: cleanAddress(evt.adresse) }), ...(view.city && { addressLocality: view.city }), ...(evt.adresse?.match(/\b(0[4-6]|13|83|84)\d{3}\b/) && { postalCode: evt.adresse.match(/\b(0[4-6]|13|83|84)\d{3}\b/)![0] }), addressRegion: "Provence-Alpes-Côte d'Azur", addressCountry: "FR" },
           },
       image: evt.image_url || `${SITE}/vignette-partage.jpg`,
       url: view.url,

@@ -40,7 +40,7 @@ const PlayerBar = () => {
           <div className="mx-auto w-full max-w-[1240px] px-4 sm:px-8 py-3 flex flex-wrap sm:flex-nowrap items-center gap-x-4 gap-y-2">
             <Link to={podcastHref} className="group flex items-center gap-3 min-w-0 flex-1 sm:flex-none sm:w-[300px]">
               {episode.image && (
-                <img src={episode.image} alt={`Pochette de ${episode.podcastName}`} className="w-11 h-11 object-cover shrink-0" />
+                <img src={episode.image} alt={`Pochette du podcast ${episode.podcastName}`} className="w-11 h-11 object-cover shrink-0" />
               )}
               <span className="min-w-0">
                 <span className="block font-bold text-sm truncate group-hover:underline underline-offset-4">{episode.title}</span>
