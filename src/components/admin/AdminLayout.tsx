@@ -72,7 +72,7 @@ const AdminLayout = ({ titre, description, actions, children }: Props) => {
 
   return (
     <div className="min-h-screen bg-background md:flex">
-      <SEOHead title="Administration — Les Podcasteur·euses du Sud" description="Espace réservé à l'équipe de l'association." path={location.pathname} noindex />
+      <SEOHead title="Administration — Les Podcasteur·euses du Sud" description="Espace réservé à l'équipe de l'association." path={pathname} noindex />
       {/* Menu : colonne fixe sur ordinateur, déroulant sur téléphone */}
       <aside className="bg-primary text-primary-foreground md:w-60 md:shrink-0 md:sticky md:top-0 md:h-screen md:overflow-y-auto">
         <div className="flex items-center justify-between px-4 py-4 md:py-6">
