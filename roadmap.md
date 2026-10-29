@@ -81,3 +81,18 @@
 - [x] 8. Adhérer : retirer « Format de collaboration »
 - [x] 9. Confirmation d'adhésion : une seule carte selon l'adresse
 - [x] Scan + test parcours proposer (3 cas, compte fictif) + vérif 9 nov et La Claque
+
+## Corrections après revue — lot 5 (textes et téléphone)
+- [ ] 1. Phrase « D'abord un profil, gratuit… » accueil + Adhérer
+- [ ] 2. « On parle de nous » : plus récent en premier
+- [ ] 3. Pied de page : « Nous écrire » à la place de « Contact »
+- [ ] 4. « Pro de l'audio » sur les pages publiques
+- [ ] 5. Cookies : renumérotation
+- [ ] 6. Téléphone Annuaire : bouton « Filtrer (n) », encart studio sous la liste
+- [ ] 7. Téléphone Écouter : thèmes défilants, « Filtrer »
+- [ ] 8. Téléphone Adhérer : accordéons Je cherche / J'apporte
+- [ ] 9. Téléphone Espace membre : liste déroulante
+- [ ] 10. Menu déplié : « Espace membre » en dernier
+- [ ] 11. Admin Paiements : cartes sur téléphone
+- [ ] 12. Admin Fiches à compléter : cartes sur téléphone
+- [ ] Vérification à 390 px
