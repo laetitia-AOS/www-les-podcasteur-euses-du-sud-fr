@@ -174,14 +174,13 @@ const EvenementDetail = () => {
   const day = dateParis(view.start, { weekday: "long" });
   const dayNum = dateParis(view.start, { day: "numeric" });
   const monthYear = dateParis(view.start, { month: "short", year: "numeric" }).replace(".", "");
-  const typeLabel = (EVENT_TYPE_LABELS[evt.type] || "événement").toLocaleLowerCase("fr-FR");
 
   const faq = view.pds
     ? [
         { q: "Faut-il payer pour venir ?", a: evt.tarif ? `Tarif : ${evt.tarif}.` : "Non, l'entrée est libre. Les consommations sont à votre charge." },
-        { q: "Faut-il faire un podcast pour venir ?", a: "Non. Créateur·ices, auditeur·ices, curieux·ses : l'${typeLabel} est ouvert à toutes et tous." },
+        { q: "Faut-il faire un podcast pour venir ?", a: "Non. Créateur·ices, auditeur·ices, curieux·ses : la soirée est ouverte à toutes et tous." },
         { q: "Faut-il réserver ?", a: "Cliquez sur « Je viens » : cela nous aide à prévoir la place." },
-        { q: `Comment faire écouter mon podcast lors d'un ${typeLabel} ?`, a: "Écrivez à l'équipe depuis la page Contact en présentant votre podcast : elle choisit les écoutes de chaque soirée." },
+        { q: "Comment faire écouter mon podcast lors d'une soirée ?", a: "Écrivez à l'équipe depuis la page « Nous écrire » en présentant votre podcast : elle choisit les écoutes de chaque soirée." },
       ]
     : [];
 
