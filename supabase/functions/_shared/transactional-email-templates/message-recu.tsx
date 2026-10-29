@@ -1,26 +1,33 @@
 /// <reference types="npm:@types/react@18.3.1" />
+// Notification seulement : aucun texte écrit par la personne qui envoie (le message se lit dans l'espace membre).
 import * as React from 'npm:react@18.3.1'
 import { Text } from 'npm:@react-email/components@0.0.22'
 import type { TemplateEntry } from './registry.ts'
-import { Bouton, Fiche, Layout, SITE, s } from './_layout.tsx'
+import { Bouton, Fiche, Layout, Ligne, SITE, s } from './_layout.tsx'
 
-interface Props { prenom?: string; expediteur?: string; extrait?: string; fiche?: string }
+interface Props { prenom?: string; fiche?: string; date?: string }
 
-const MessageRecu = ({ prenom, expediteur, extrait, fiche }: Props) => (
-  <Layout preview={`${expediteur || "Quelqu'un"} vous a écrit depuis le site.`} kicker="Nouveau message" titre={`${prenom ? `${prenom}, q` : 'Q'}uelqu'un a pensé à vous !`}>
+const MessageRecu = ({ prenom, fiche, date }: Props) => (
+  <Layout preview="Un nouveau message vous attend dans votre espace membre." kicker="Nouveau message" titre={`${prenom ? `${prenom}, q` : 'Q'}uelqu'un a pensé à vous !`}>
     <Text style={s.text}>
-      <span style={s.strong}>{expediteur || 'Un·e visiteur·ice'}</span> vous a écrit depuis {fiche ? <>votre fiche « {fiche} »</> : 'votre fiche'} sur le site.
-      Voici le début de son message :
+      Une personne vous a écrit depuis {fiche ? <>votre fiche « {fiche} »</> : 'votre fiche'} sur le site des Podcasteur·euses du Sud.
     </Text>
-    <Fiche><Text style={s.quote}>{extrait || '…'}</Text></Fiche>
-    <Text style={s.text}>Le message complet et le bouton « Répondre » vous attendent dans votre espace membre.</Text>
-    <Bouton href={`${SITE}/mon-espace#demandes`}>Lire et répondre</Bouton>
+    <Fiche>
+      <Ligne label="Type">Message</Ligne>
+      {fiche && <Ligne label="Depuis la fiche">{fiche}</Ligne>}
+      {date && <Ligne label="Reçu le">{date}</Ligne>}
+    </Fiche>
+    <Text style={s.text}>
+      Le message, le nom de la personne et le bouton « Répondre » vous attendent dans votre espace membre.
+      Par sécurité, nous ne recopions jamais le message dans cet e-mail.
+    </Text>
+    <Bouton href={`${SITE}/mon-espace#demandes`}>Lire le message</Bouton>
   </Layout>
 )
 
 export const template = {
   component: MessageRecu,
-  subject: (d: Record<string, any>) => `${d.expediteur || "Quelqu'un"} vous a écrit`,
+  subject: 'Vous avez reçu un nouveau message',
   displayName: 'Message reçu',
-  previewData: { prenom: 'Alix', expediteur: 'Camille Martin', fiche: 'Un Pas Dehors', extrait: "Bonjour ! J'ai adoré votre dernier épisode et j'aimerais vous proposer…" },
+  previewData: { prenom: 'Alix', fiche: 'Un Pas Dehors', date: '29 octobre 2026' },
 } satisfies TemplateEntry

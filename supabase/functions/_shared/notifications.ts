@@ -13,6 +13,19 @@ export async function envoyer(template: string, to: string | null | undefined, d
   }
 }
 
+/** « 29 octobre 2026 » (heure de Paris), pour dater une notification. */
+export const jourDuJour = () =>
+  new Date().toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric', timeZone: 'Europe/Paris' })
+
+/** Au-delà de 10 demandes reçues en 24 h, un·e membre n'est plus prévenu·e par e-mail (les demandes restent dans son espace). */
+export const MAX_NOTIFS_JOUR = 10
+// deno-lint-ignore no-explicit-any
+export async function tropDeNotifs(admin: any, recipientId: string): Promise<boolean> {
+  const depuis = new Date(Date.now() - 24 * 3600_000).toISOString()
+  const { count } = await admin.from('contact_requests').select('id', { count: 'exact', head: true }).eq('recipient_id', recipientId).gte('created_at', depuis)
+  return (count || 0) > MAX_NOTIFS_JOUR
+}
+
 /** « lundi 9 novembre 2026, 18h30 » (heure de Paris). */
 export const dateLongue = (iso: string | null | undefined): string => {
   if (!iso) return ''

@@ -2,11 +2,12 @@
 // Les destinataires la lisent dans leur boîte « Demandes reçues » ; l'adresse des studios n'est jamais renvoyée.
 // La base vérifie et nettoie chaque champ et limite à 3 demandes par jour et par adresse.
 import { createClient } from "npm:@supabase/supabase-js@2";
-import { envoyer, extrait, premierPrenom } from "../_shared/notifications.ts";
+import { envoyer, jourDuJour, tropDeNotifs } from "../_shared/notifications.ts";
 import { corsHeaders } from "npm:@supabase/supabase-js@2/cors";
 
 const SERVICES = ["location", "enregistrement_audio", "video_podcast", "montage", "realisation", "direct", "studio_mobile"];
 const DEPARTEMENTS = ["04", "05", "06", "13", "83", "84"];
+const DEP_NOMS: Record<string, string> = { "04": "Alpes-de-Haute-Provence", "05": "Hautes-Alpes", "06": "Alpes-Maritimes", "13": "Bouches-du-Rhône", "83": "Var", "84": "Vaucluse" };
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 const LABELS: Record<string, string> = {
   location: "location du studio", enregistrement_audio: "enregistrement audio", video_podcast: "vidéo-podcast",
@@ -101,11 +102,12 @@ Deno.serve(async (req) => {
     let emailed = 0;
     for (const row of inseres || []) {
       const st = studios.find((x) => x.id === row.recipient_id);
-      if (!st) continue;
+      if (!st || await tropDeNotifs(admin, st.id)) continue;
       const { data: f } = await admin.from("podcasts").select("nom_podcast").eq("id", st.id).maybeSingle();
       const ok = await envoyer("devis-recu", st.email, {
-        studio: f?.nom_podcast, expediteur: nom, besoins: besoins.map((x) => LABELS[x]).join(", "),
-        format: format || undefined, periode: periode || undefined, departement: departement || undefined, extrait: extrait(description, 300),
+        // Seulement des informations issues de listes fixes : le texte libre se lit dans l'espace membre
+        studio: f?.nom_podcast, besoins: besoins.map((x) => LABELS[x]).join(", "),
+        departement: departement ? (DEP_NOMS[departement] ? `${DEP_NOMS[departement]} (${departement})` : departement) : undefined, date: jourDuJour(),
       }, `devis-recu-${row.id}`);
       if (ok) emailed++;
     }
