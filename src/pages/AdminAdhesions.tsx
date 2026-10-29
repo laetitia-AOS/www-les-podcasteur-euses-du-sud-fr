@@ -80,13 +80,20 @@ const AdminAdhesions = () => {
   });
 
   const updateAdhesion = useMutation({
-    mutationFn: async ({ id, data }: { id: string; data: any }) => {
+    mutationFn: async ({ id, data, avant }: { id: string; data: any; avant?: string }) => {
       const { error } = await supabase.from("adhesions").update(data).eq("id", id);
       if (error) throw error;
+      // Paiement validé à la main : le membre reçoit son e-mail de bienvenue (une seule fois)
+      if (data.statut === "active" && avant !== "active") {
+        const { data: r } = await supabase.functions.invoke("notifier-membre", { body: { type: "adhesion", id } });
+        return { emailed: !!r?.sent };
+      }
+      return { emailed: false };
     },
-    onSuccess: () => {
+    onSuccess: (r) => {
       queryClient.invalidateQueries({ queryKey: ["adhesions"] });
-      toast.success("Adhésion modifiée");
+      queryClient.invalidateQueries({ queryKey: ["admin-membres"] });
+      toast.success(r?.emailed ? "Adhésion validée : le membre a reçu son e-mail de bienvenue" : "Adhésion modifiée");
       setEditingAdhesion(null);
     },
     onError: (err: any) => toast.error("Erreur : " + (err.message || "Erreur inconnue")),
@@ -109,6 +116,7 @@ const AdminAdhesions = () => {
     if (!editingAdhesion) return;
     updateAdhesion.mutate({
       id: editingAdhesion.id,
+      avant: editingAdhesion.statut,
       data: {
         prenom: editForm.prenom || null,
         nom: editForm.nom || null,
