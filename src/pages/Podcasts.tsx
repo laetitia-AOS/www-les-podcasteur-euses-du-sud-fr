@@ -199,7 +199,7 @@ const Podcasts = () => {
                 const active = ep ? isCurrent(ep) && playing : false;
                 const author = fullName(p.prenom, p.nom);
                 const city = cleanCity(p.city_name || p.ville);
-                const href = `/podcasteur/${p.slug || p.id}`;
+                const href = `/ecouter/${p.slug || p.id}`;
                 return (
                   <li key={p.id} className="flex flex-col">
                     <Link to={href} className="block aspect-square bg-muted overflow-hidden" tabIndex={-1} aria-hidden>

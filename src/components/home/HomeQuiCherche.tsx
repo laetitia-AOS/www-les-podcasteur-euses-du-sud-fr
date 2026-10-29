@@ -1,3 +1,4 @@
+import { ficheHref } from "@/lib/seo";
 import { Link } from "react-router-dom";
 import { container, cleanCity, fullName, linkUnderline } from "@/lib/pds";
 import type { HomeProfile } from "./useHomeData";
@@ -37,7 +38,7 @@ const HomeQuiCherche = ({ profiles }: { profiles: HomeProfile[] }) => {
         <ul className="border-t-2 border-encre divide-y divide-filet border-b border-filet">
           {people.map((p) => (
             <li key={p.id}>
-              <Link to={`/podcasteur/${p.slug || p.id}`} className="grid grid-cols-[56px_1fr] sm:grid-cols-[80px_1fr] gap-4 sm:gap-6 py-6 hover:bg-surface">
+              <Link to={ficheHref(p)} className="grid grid-cols-[56px_1fr] sm:grid-cols-[80px_1fr] gap-4 sm:gap-6 py-6 hover:bg-surface">
                 <MemberAvatar prenom={p.prenom} nom={p.nom} photoUrl={profilePhotoFor(p, profiles)} className="w-14 h-14 sm:w-20 sm:h-20" />
                 <div className="min-w-0">
                   <p className="text-[19px] sm:text-[22px] leading-tight">

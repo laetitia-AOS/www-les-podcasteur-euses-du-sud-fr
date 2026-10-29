@@ -1,3 +1,4 @@
+import { ficheHref } from "@/lib/seo";
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { Mic2, ArrowUpRight, MapPin, Loader2, ChevronDown } from "lucide-react";
@@ -135,7 +136,7 @@ const DynamiqueSection = () => {
                       <a href={p.lien_ecoute} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1.5 text-sm font-medium text-primary hover:text-primary-hover transition-colors">
                         Écouter <ArrowUpRight className="w-3.5 h-3.5" />
                       </a>
-                      <Link to={`/podcasteur/${p.slug || p.id}`} className="inline-flex items-center gap-1 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">Voir le profil</Link>
+                      <Link to={ficheHref(p)} className="inline-flex items-center gap-1 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">Voir le profil</Link>
                     </div>
                   </div>
                 </motion.article>

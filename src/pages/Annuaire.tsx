@@ -1,3 +1,4 @@
+import { ficheHref } from "@/lib/seo";
 import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
@@ -191,7 +192,7 @@ const Annuaire = () => {
                 {filtered.slice(0, visible).map((p) => {
                   const name = fullName(p.prenom, p.nom) || p.nom_podcast || "Membre";
                   const city = cleanCity(p.city_name);
-                  const href = `/podcasteur/${p.slug || p.id}`;
+                  const href = ficheHref(p);
                   const cherche = (p.cherche_choix || []).slice(0, 3).map(collabLabel).join(", ");
                   const apporte = (besoins.length
                     ? [...(p.apporte_choix || [])].sort((a, b) => Number(besoins.includes(b)) - Number(besoins.includes(a)))

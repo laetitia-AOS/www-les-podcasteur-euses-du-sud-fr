@@ -50,7 +50,7 @@ const HomeEpisodes = ({ episodes, fallback, loading }: Props) => {
                   <div className="min-w-0">
                     <p className="font-bold text-[17px] sm:text-[21px] leading-tight line-clamp-2">{ep.title}</p>
                     <p className="text-muted-foreground text-[15px] sm:text-[17px] truncate">
-                      <Link to={`/podcasteur/${ep.podcastSlug || ep.podcastId}`} className="hover:underline underline-offset-4">{ep.podcastName}</Link>
+                      <Link to={`/ecouter/${ep.podcastSlug || ep.podcastId}`} className="hover:underline underline-offset-4">{ep.podcastName}</Link>
                       {ep.author ? ` · ${ep.author}` : ""}
                     </p>
                     <p className="sm:hidden font-mono text-xs text-muted-foreground mt-1">
@@ -85,7 +85,7 @@ const HomeEpisodes = ({ episodes, fallback, loading }: Props) => {
                   <img src={p.vignette_url} alt={`Pochette de ${p.nom_podcast}`} className="w-14 h-14 sm:w-[72px] sm:h-[72px] object-cover" loading="lazy" />
                 ) : <span className="w-14 h-14 sm:w-[72px] sm:h-[72px] bg-muted" />}
                 <div className="min-w-0">
-                  <Link to={`/podcasteur/${p.slug || p.id}`} className="font-bold text-[17px] sm:text-[21px] leading-tight hover:underline underline-offset-4">{p.nom_podcast}</Link>
+                  <Link to={`/ecouter/${p.slug || p.id}`} className="font-bold text-[17px] sm:text-[21px] leading-tight hover:underline underline-offset-4">{p.nom_podcast}</Link>
                   <p className="text-muted-foreground text-[15px] sm:text-[17px] truncate">{fullName(p.prenom, p.nom)}</p>
                 </div>
                 <p className="hidden sm:block font-mono text-sm text-muted-foreground">{cleanCity(p.city_name)}</p>

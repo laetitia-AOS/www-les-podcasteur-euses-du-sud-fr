@@ -72,7 +72,7 @@ const HomeHero = ({ profiles, latest }: Props) => {
         <ul className="grid grid-cols-2 sm:grid-cols-3 gap-4 sm:gap-5" aria-label="Quelques podcasts de la région">
           {wall.map((p) => (
             <li key={p.id}>
-              <Link to={`/podcasteur/${p.slug || p.id}`} className="group block">
+              <Link to={`/ecouter/${p.slug || p.id}`} className="group block">
                 <span className="block aspect-square border-[6px] border-surface bg-surface overflow-hidden">
                   <img
                     src={p.vignette_url!}

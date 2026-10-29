@@ -1,3 +1,4 @@
+import { ficheHref } from "@/lib/seo";
 import { motion } from "framer-motion";
 import { Search, ArrowRight } from "lucide-react";
 import { useNavigate } from "react-router-dom";
@@ -184,7 +185,7 @@ const HeroSection = () => {
               return (
                 <button
                   key={p.id}
-                  onClick={() => navigate(`/podcasteur/${p.slug || p.id}`)}
+                  onClick={() => navigate(ficheHref(p))}
                   className={`w-full flex items-center gap-3 rounded-[14px] p-3.5 transition-all hover:-translate-y-0.5 hover:shadow-lg ${
                     i === 0 ? "border-primary/25" : "border-primary/10"
                   }`}
