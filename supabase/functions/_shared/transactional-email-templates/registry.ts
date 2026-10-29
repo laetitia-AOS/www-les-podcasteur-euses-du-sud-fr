@@ -7,6 +7,7 @@ import { template as t4 } from './venue-confirmee.tsx'
 import { template as t5 } from './proposition-publiee.tsx'
 import { template as t6 } from './proposition-refusee.tsx'
 import { template as t7 } from './profil-a-completer.tsx'
+import { template as t8 } from './fiche-a-creer.tsx'
 
 export interface TemplateEntry {
   component: ComponentType<any>
@@ -34,4 +35,5 @@ export const TEMPLATES: Record<string, TemplateEntry> = {
   'proposition-publiee': t5,
   'proposition-refusee': t6,
   'profil-a-completer': t7,
+  'fiche-a-creer': t8,
 }

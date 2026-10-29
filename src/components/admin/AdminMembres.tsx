@@ -48,14 +48,6 @@ const sansFicheRattache = (m: MembreAdmin, rattachees: Set<string>) => m.nb_fich
 /** Adhérent·e de l'année sans fiche dans l'annuaire : à relancer pour qu'elle ou il crée sa fiche. */
 export const aRelancerPourFiche = (m: MembreAdmin) => m.nb_fiches === 0 && ["a_jour", "tolerance", "verification"].includes(m.etat);
 
-const SITE = "https://www.les-podcasteur-euses-du-sud.fr";
-const mailtoFiche = (m: MembreAdmin, y: number) => {
-  const prenom = m.nom && !m.nom.includes("@") ? m.nom.split(/\s+/)[0] : "";
-  const sujet = "Votre adhésion est bien là : il ne manque que votre fiche !";
-  const corps = `Bonjour${prenom ? ` ${prenom}` : ""},\n\nMerci pour votre adhésion ${y} aux Podcasteur·euses du Sud ! Il vous reste une étape pour apparaître dans l'annuaire : créer votre fiche (photo, présentation, podcast si vous en avez un, ce que vous cherchez et ce que vous apportez).\n\nCréer ma fiche : ${SITE}/rejoindre-association\nUtilisez la même adresse e-mail que pour votre paiement (${m.email}) : c'est elle qui relie votre adhésion à votre fiche.\n\nÀ très vite,\nL'équipe des Podcasteur·euses du Sud`;
-  return `mailto:${encodeURIComponent(m.email)}?subject=${encodeURIComponent(sujet)}&body=${encodeURIComponent(corps)}`;
-};
-
 /** Liste des membres (réservée aux admins : le serveur ne renvoie rien aux autres comptes). */
 const AdminMembres = ({ vue = "annee" }: { vue?: VueMembres }) => {
   const [q, setQ] = useState("");
@@ -81,6 +73,31 @@ const AdminMembres = ({ vue = "annee" }: { vue?: VueMembres }) => {
   const rattachees = useMemo(() => new Set(rattachements.map((r) => r.adhesion_id)), [rattachements]);
   const membres = useMemo(() => membresDeLaVue(tous, vue, rattachees), [tous, vue, rattachees]);
   const aRelancer = membres.filter(aRelancerPourFiche).length;
+  // Dernière relance « fiche à créer » par adresse
+  const { data: relances = {} } = useQuery({
+    queryKey: ["relances-fiche"],
+    queryFn: async () => {
+      const { data } = await supabase.from("relances_profil").select("email, envoye_le").contains("manques", ["fiche"]).order("envoye_le", { ascending: false });
+      const parEmail: Record<string, string> = {};
+      (data || []).forEach((r) => { const e = r.email.toLowerCase(); if (!parEmail[e]) parEmail[e] = r.envoye_le; });
+      return parEmail;
+    },
+  });
+  const [envoi, setEnvoi] = useState<string | null>(null);
+  const relancerFiche = async (m: MembreAdmin) => {
+    setEnvoi(m.email);
+    const { data, error } = await supabase.functions.invoke("relance-fiche", { body: { email: m.email } });
+    setEnvoi(null);
+    if (error || !data?.sent) {
+      let msg = "La relance n'est pas partie.";
+      try { msg = (await (error as any)?.context?.json())?.error || msg; } catch { /* message par défaut */ }
+      toast.error(msg);
+      return;
+    }
+    toast.success(`E-mail envoyé à ${m.nom || m.email}.`);
+    qc.invalidateQueries({ queryKey: ["relances-fiche"] });
+  };
+  const recente = (e: string) => !!relances[e] && Date.now() - new Date(relances[e]).getTime() < 24 * 3600_000;
   const anneePaiement = (m: MembreAdmin) => m.annee ?? (m.date_paiement ? new Date(m.date_paiement).getFullYear() : null);
 
   const y = anneeEnCours();
@@ -181,9 +198,11 @@ const AdminMembres = ({ vue = "annee" }: { vue?: VueMembres }) => {
                       {aRelancerPourFiche(m) ? (
                         <>
                           <span className="font-semibold">Fiche à créer</span>
-                          <a href={mailtoFiche(m, y)} className="mt-1 flex w-fit items-center gap-1 text-xs underline underline-offset-4 focus-visible:outline focus-visible:outline-2 focus-visible:outline-primary">
-                            <Mail className="w-3 h-3" aria-hidden /> Relancer par e-mail
-                          </a>
+                          <Button size="sm" className="mt-1 h-8 px-3 text-xs" onClick={() => relancerFiche(m)} disabled={envoi === m.email || recente(m.email)}>
+                            <Mail className="w-3 h-3 mr-1.5" aria-hidden />
+                            {envoi === m.email ? "Envoi…" : recente(m.email) ? "Relancé·e aujourd'hui" : "Envoyer la relance"}
+                          </Button>
+                          {relances[m.email] && <span className="mt-1 block font-mono text-[11px] text-muted-foreground">Relancé·e le {new Date(relances[m.email]).toLocaleDateString("fr-FR")}</span>}
                         </>
                       ) : m.nb_fiches === 0 ? "Aucune" : m.sursis ? "Visible en attente d'adhésion" : m.fiche_visible ? "Visible" : m.fiche_validee ? "Masquée" : "En attente"}
                       {m.fiche_validee && m.etat !== "a_jour" && m.etat !== "tolerance" && (
