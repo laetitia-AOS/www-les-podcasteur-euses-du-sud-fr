@@ -71,17 +71,6 @@ const ROLE_LABELS: Record<string, string> = {
 const SITE = SITE_URL;
 const isPlaceholderLink = (url?: string | null) => !url || /les-podcasteur-euses-du-sud\.fr\/?$/.test(url);
 
-const platformLabel = (url: string): string => {
-  const h = (() => { try { return new URL(url).hostname.replace(/^www\./, ""); } catch { return ""; } })();
-  if (h.includes("spotify")) return "Spotify";
-  if (h.includes("apple")) return "Apple Podcasts";
-  if (h.includes("deezer")) return "Deezer";
-  if (h.includes("ausha")) return "Ausha";
-  if (h.includes("acast")) return "Acast";
-  if (h.includes("youtube") || h.includes("youtu.be")) return "YouTube";
-  if (h.includes("linktr")) return "Tous les liens";
-  return "Lien d'écoute";
-};
 
 const ProfilMembre = () => {
   const { slug } = useParams<{ slug: string }>();
