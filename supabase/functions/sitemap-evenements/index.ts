@@ -31,7 +31,6 @@ Deno.serve(async (req) => {
     ["/agenda", "daily", "0.9"],
     ["/adherer", "monthly", "0.8"],
     ["/proposer-evenement-podcast", "monthly", "0.5"],
-    ["/referencer-mon-podcast", "monthly", "0.5"],
     ["/contact", "yearly", "0.4"],
     ["/mentions-legales", "yearly", "0.2"],
     ["/politique-de-confidentialite", "yearly", "0.2"],

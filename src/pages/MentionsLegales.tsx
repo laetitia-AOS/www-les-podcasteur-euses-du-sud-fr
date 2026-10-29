@@ -1,11 +1,9 @@
-import { useEffect } from "react";
 import Navbar from "@/components/Navbar";
 import SEOHead from "@/components/SEOHead";
 import { PAGES_SEO } from "@/lib/seo";
 import Footer from "@/components/Footer";
 
 const MentionsLegales = () => {
-  useEffect(() => { document.title = "Mentions légales — Les Podcasteur·euses du Sud"; }, []);
   return (
     <>
       <SEOHead title={PAGES_SEO.mentions.title} description={PAGES_SEO.mentions.description} path="/mentions-legales" />

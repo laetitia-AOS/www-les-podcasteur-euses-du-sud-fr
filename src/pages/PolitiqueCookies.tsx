@@ -1,11 +1,9 @@
-import { useEffect } from "react";
 import Navbar from "@/components/Navbar";
 import SEOHead from "@/components/SEOHead";
 import { PAGES_SEO } from "@/lib/seo";
 import Footer from "@/components/Footer";
 
 const PolitiqueCookies = () => {
-  useEffect(() => { document.title = "Politique de cookies — Les Podcasteur·euses du Sud"; }, []);
   return (
     <>
       <SEOHead title={PAGES_SEO.cookies.title} description={PAGES_SEO.cookies.description} path="/politique-cookies" />

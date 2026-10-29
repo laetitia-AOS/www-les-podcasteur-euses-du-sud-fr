@@ -1,11 +1,9 @@
-import { useEffect } from "react";
 import Navbar from "@/components/Navbar";
 import SEOHead from "@/components/SEOHead";
 import { PAGES_SEO } from "@/lib/seo";
 import Footer from "@/components/Footer";
 
 const CGU = () => {
-  useEffect(() => { document.title = "CGU — Les Podcasteur·euses du Sud"; }, []);
   return (
     <>
       <SEOHead title={PAGES_SEO.cgu.title} description={PAGES_SEO.cgu.description} path="/conditions-utilisation" />

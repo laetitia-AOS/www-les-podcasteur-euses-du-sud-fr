@@ -1,11 +1,9 @@
-import { useEffect } from "react";
 import Navbar from "@/components/Navbar";
 import SEOHead from "@/components/SEOHead";
 import { PAGES_SEO } from "@/lib/seo";
 import Footer from "@/components/Footer";
 
 const PolitiqueConfidentialite = () => {
-  useEffect(() => { document.title = "Politique de confidentialité — Les Podcasteur·euses du Sud"; }, []);
   return (
     <>
       <SEOHead title={PAGES_SEO.confidentialite.title} description={PAGES_SEO.confidentialite.description} path="/politique-de-confidentialite" />
