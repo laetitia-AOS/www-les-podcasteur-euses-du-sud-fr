@@ -1,4 +1,4 @@
-import { useMemo } from "react";
+import { useEffect, useMemo } from "react";
 import { compterStat } from "@/lib/stats";
 import { collabLabel } from "@/lib/inscription";
 import { useParams, Link } from "react-router-dom";
