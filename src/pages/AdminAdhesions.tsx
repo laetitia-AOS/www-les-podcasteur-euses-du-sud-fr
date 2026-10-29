@@ -188,8 +188,65 @@ const AdminAdhesions = () => {
   ];
   const [onglet, setOnglet] = useOnglet(onglets);
 
+  const actionsAdhesion = (a: any) => (
+      <div className="flex items-center gap-1">
+        <Button variant="ghost" size="icon" onClick={() => setLinking(a)} title="Rattacher à un compte membre" aria-label="Rattacher à un compte membre">
+          <Link2 className="w-4 h-4" />
+        </Button>
+        <Button variant="ghost" size="icon" onClick={() => startEdit(a)} title="Modifier">
+          <Pencil className="w-4 h-4" />
+        </Button>
+        <Button
+          variant="ghost" size="icon"
+          className="text-destructive hover:text-destructive hover:bg-destructive/10"
+          onClick={() => {
+            if (window.confirm(`Supprimer l'adhésion de ${fullName(a.prenom, a.nom)} ?`)) {
+              deleteAdhesion.mutate(a.id);
+            }
+          }}
+          title="Supprimer"
+        >
+          <Trash2 className="w-4 h-4" />
+        </Button>
+      </div>
+  );
+
+  const statutBadge = (a: any) => (
+    <Badge variant={a.statut === "active" ? "default" : a.statut === "a_verifier" ? "destructive" : "secondary"}>
+      {a.statut === "a_verifier" ? "À vérifier sur HelloAsso" : a.statut}
+    </Badge>
+  );
+
   const AdhesionTable = ({ items }: { items: any[] }) => (
-    <div className="border border-border overflow-x-auto bg-card">
+    <>
+    {/* Téléphone : une carte par paiement */}
+    <ul className="md:hidden space-y-3">
+      {items.map((a: any) => {
+        const liens = rattachements.filter((r) => r.adhesion_id === a.id);
+        return (
+          <li key={a.id} className="border-2 border-foreground bg-card p-4">
+            <div className="flex items-start justify-between gap-3">
+              <div className="min-w-0">
+                <p className="font-mono text-sm text-muted-foreground">{getAdhesionDate(a).toLocaleDateString("fr-FR")}</p>
+                <p className="font-bold text-[17px] leading-tight break-words">{fullName(a.prenom, a.nom) || a.email || "—"}</p>
+              </div>
+              <p className="font-bold text-[17px] whitespace-nowrap">{a.montant ? `${a.montant} €` : "—"}</p>
+            </div>
+            <dl className="mt-3 grid grid-cols-[auto_1fr] gap-x-3 gap-y-1.5 text-[15px]">
+              <dt className="text-muted-foreground">Formule</dt>
+              <dd className="min-w-0 break-words">{a.formule === "studio" ? "Studio ou agence" : a.formule === "personne" ? "Personne" : a.type_adhesion || "—"}</dd>
+              <dt className="text-muted-foreground">Statut</dt>
+              <dd>{statutBadge(a)}</dd>
+              <dt className="text-muted-foreground">Rattachement</dt>
+              <dd className="min-w-0 break-words">{liens.length ? liens.map((r) => <span key={r.id} className="block">{r.email_membre}</span>) : "Aucun"}</dd>
+              {a.email && <><dt className="text-muted-foreground">E-mail</dt><dd className="min-w-0 break-all">{a.email}</dd></>}
+            </dl>
+            <div className="mt-3 pt-2 border-t border-border">{actionsAdhesion(a)}</div>
+          </li>
+        );
+      })}
+    </ul>
+    <div className="hidden md:block border border-border overflow-x-auto bg-card">
       <Table>
         <TableHeader>
           <TableRow>
@@ -228,37 +285,17 @@ const AdminAdhesions = () => {
               <TableCell>{a.montant ? `${a.montant} €` : "—"}</TableCell>
               <TableCell className="text-sm">{a.type_adhesion || "—"}</TableCell>
               <TableCell>
-                <Badge variant={a.statut === "active" ? "default" : a.statut === "a_verifier" ? "destructive" : "secondary"}>
-                  {a.statut === "a_verifier" ? "À vérifier sur HelloAsso" : a.statut}
-                </Badge>
+                {statutBadge(a)}
               </TableCell>
               <TableCell>
-                <div className="flex items-center gap-1">
-                  <Button variant="ghost" size="icon" onClick={() => setLinking(a)} title="Rattacher à un compte membre" aria-label="Rattacher à un compte membre">
-                    <Link2 className="w-4 h-4" />
-                  </Button>
-                  <Button variant="ghost" size="icon" onClick={() => startEdit(a)} title="Modifier">
-                    <Pencil className="w-4 h-4" />
-                  </Button>
-                  <Button
-                    variant="ghost" size="icon"
-                    className="text-destructive hover:text-destructive hover:bg-destructive/10"
-                    onClick={() => {
-                      if (window.confirm(`Supprimer l'adhésion de ${fullName(a.prenom, a.nom)} ?`)) {
-                        deleteAdhesion.mutate(a.id);
-                      }
-                    }}
-                    title="Supprimer"
-                  >
-                    <Trash2 className="w-4 h-4" />
-                  </Button>
-                </div>
+                {actionsAdhesion(a)}
               </TableCell>
             </TableRow>
           ))}
         </TableBody>
       </Table>
     </div>
+    </>
   );
 
   return (
