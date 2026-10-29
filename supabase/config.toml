@@ -1,25 +1,21 @@
 project_id = "pnxbuhtqiruayzykaagw"
 
-[functions.helloasso-webhook]
-verify_jwt = false
-
-[functions.helloasso-import]
-verify_jwt = false
-
-[functions.og-evenement]
-verify_jwt = false
-
-[functions.podcast-episodes]
-verify_jwt = false
-
-[functions.contact-membre]
-verify_jwt = false
-
-[functions.envoi-image]
-verify_jwt = false
-
-[functions.valider-images]
-verify_jwt = false
-
-[functions.sitemap-evenements]
-verify_jwt = false
+[functions]
+  [functions.auth-email-hook]
+    verify_jwt = false
+  [functions.contact-membre]
+    verify_jwt = false
+  [functions.envoi-image]
+    verify_jwt = false
+  [functions.helloasso-import]
+    verify_jwt = false
+  [functions.helloasso-webhook]
+    verify_jwt = false
+  [functions.og-evenement]
+    verify_jwt = false
+  [functions.podcast-episodes]
+    verify_jwt = false
+  [functions.sitemap-evenements]
+    verify_jwt = false
+  [functions.valider-images]
+    verify_jwt = false
