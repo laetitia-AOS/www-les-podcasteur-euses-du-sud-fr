@@ -22,7 +22,7 @@ Deno.serve(async (req) => {
   const admin = createClient(Deno.env.get("SUPABASE_URL")!, Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!);
   const { data: v } = await admin.from("evenement_inscriptions")
     .select("id, prenom, created_at")
-    .eq("evenement_id", evenementId).ilike("email", email)
+    .eq("evenement_id", evenementId).eq("email", email)
     .gte("created_at", new Date(Date.now() - 15 * 60_000).toISOString())
     .order("created_at", { ascending: false }).limit(1).maybeSingle();
   if (!v) return json({ sent: false });
