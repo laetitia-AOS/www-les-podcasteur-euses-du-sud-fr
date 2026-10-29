@@ -124,6 +124,7 @@ const PodcastCard = ({ fiche, onSaved, onDeleted }: Props) => {
         </div>
         <div className="flex-1 min-w-[160px]">
           <p className="font-bold text-[17px] leading-tight">{fiche.nom_podcast}</p>
+          <p className="mt-1 font-mono text-xs text-muted-foreground" data-resume-flux>{messageFlux(etat, fiche.flux_rss).titre}</p>
           <div className="mt-1.5 flex flex-wrap items-center gap-3">
             <Badge visible={fiche.valide} />
             {fiche.valide && fiche.slug && (
