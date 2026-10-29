@@ -36,7 +36,8 @@ type Evt = HomeEvent & {
   lien_connexion: string | null;
 };
 
-const hour = (d: Date) => d.toLocaleTimeString("fr-FR", { hour: "2-digit", minute: "2-digit" }).replace(":", "h");
+// Heure et date toujours à l'heure de Paris (événements en Région Sud), quel que soit l'appareil
+const hour = (d: Date) => d.toLocaleTimeString("fr-FR", { hour: "2-digit", minute: "2-digit", timeZone: "Europe/Paris" }).replace(":", "h");
 const capitalize = (s: string) => s.charAt(0).toLocaleUpperCase("fr-FR") + s.slice(1);
 
 const EvenementDetail = () => {
@@ -83,7 +84,7 @@ const EvenementDetail = () => {
     const city = online ? "" : cityFromAddress(evt.adresse) || (evt.lieu && /marseille/i.test(evt.lieu) ? "Marseille" : "");
     const titre = readableTitle(evt.titre);
     const h1 = `${H1_TYPE[evt.type] || "Événement podcast"} ${online ? "en ligne" : city ? `à ${city}` : "en Région Sud"} : ${titre}`;
-    const dateLong = capitalize(start.toLocaleDateString("fr-FR", { weekday: "long", day: "numeric", month: "long", year: "numeric" }));
+    const dateLong = capitalize(start.toLocaleDateString("fr-FR", { weekday: "long", day: "numeric", month: "long", year: "numeric", timeZone: "Europe/Paris" }));
     const horaires = end ? `de ${hour(start)} à ${hour(end)}` : `à partir de ${hour(start)}`;
     const lieuPhrase = online ? "en ligne" : evt.lieu ? `chez ${evt.lieu}${city ? ` (${city})` : ""}` : city ? `à ${city}` : "";
     const tarif = evt.tarif || "";
