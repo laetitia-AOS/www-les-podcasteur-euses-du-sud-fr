@@ -1,4 +1,4 @@
-import { useEffect, useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { compterStat } from "@/lib/stats";
 import { Link, useParams } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
@@ -8,11 +8,10 @@ import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import SEOHead from "@/components/SEOHead";
 import { PAGES, SITE_URL, breadcrumbLd, descriptionSeo, ficheHref, titreSeo } from "@/lib/seo";
-import MembreContactForm from "@/components/MembreContactForm";
-import DevisForm from "@/components/studios/DevisForm";
-import { FaqList, LIEU_COLUMNS, PodcastsLiesList, faqJsonLd, planUrl, sdOf, useLieu, type LieuRow } from "@/components/studios/LieuParts";
+import StudioContact, { type ModeContact } from "@/components/studios/StudioContact";
+import { AgendaLieu, FaqList, LIEU_COLUMNS, PodcastsLiesList, faqJsonLd, planUrl, sdOf, useLieu, type LieuRow } from "@/components/studios/LieuParts";
 import { btnListen, btnSecondary, cleanCity, container, linkUnderline } from "@/lib/pds";
-import { SERVICES_STUDIO, ficheVide, formatCapacite, formatTarif, useAnneeAdhesion, useFichesLieux } from "@/lib/lieux";
+import { SERVICES_STUDIO, ficheVide, formatCapacite, formatTarif, liensLieu, useAnneeAdhesion, useFichesLieux } from "@/lib/lieux";
 
 const SITE = SITE_URL;
 
@@ -24,6 +23,13 @@ const StudioProfile = () => {
   const { data: fiches = {} } = useFichesLieux(studio ? [studio.id] : []);
   const f = (studio && fiches[studio.id]) || ficheVide(studio?.id || "");
   const { data: annee } = useAnneeAdhesion(studio?.id);
+  const [modeContact, setModeContact] = useState<ModeContact>("devis");
+  const ouvrirContact = (m: ModeContact) => (e: React.MouseEvent) => {
+    e.preventDefault();
+    setModeContact(m);
+    document.getElementById("contact-studio")?.scrollIntoView({ behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" });
+    setTimeout(() => (document.getElementById("contact-studio-nom") || document.getElementById("contact-studio-name"))?.focus({ preventScroll: true }), 400);
+  };
   const sd = sdOf(studio);
   const city = cleanCity(studio?.city_name);
   const adresse = sd.adresse_complete ? `${sd.adresse_complete}${studio?.city_name ? `, ${studio.city_name}` : ""}` : null;
@@ -46,10 +52,8 @@ const StudioProfile = () => {
   const proposes = SERVICES_STUDIO.filter((s) => f.services.includes(s.value));
   const nonProposes = SERVICES_STUDIO.filter((s) => !f.services.includes(s.value));
   const eq = f.equipement || {};
-  const liens = [
-    ...(studio?.lien_principal ? [{ label: "Site", url: studio.lien_principal }] : []),
-    ...f.liens.filter((l) => l.url !== studio?.lien_principal),
-  ];
+  // Chaque lien une seule fois (deux « Site » différents : le second prend le nom de son domaine)
+  const liens = liensLieu(studio?.lien_principal, f.liens, [studio?.lien_linkedin]);
 
   const jsonLd = useMemo(() => {
     if (!studio) return undefined;
@@ -122,11 +126,8 @@ const StudioProfile = () => {
 
           <p className="mt-8 text-sm font-bold text-primary">{[typeLieu, city].filter(Boolean).join(" · ")}</p>
           <h1 className="title-page text-[48px] sm:text-[80px] lg:text-[96px] mt-2 break-words">{studio.nom_podcast}</h1>
-          {(accroche || chiffres) && (
-            <p className="mt-4 text-[20px] sm:text-[24px] max-w-[46ch] leading-snug">
-              {accroche}{accroche && chiffres ? " " : ""}{chiffres && <span className="font-mono text-[17px] sm:text-[19px] whitespace-nowrap">{chiffres}.</span>}
-            </p>
-          )}
+          {/* Accroche seule : tarif et capacité restent dans « En pratique », jamais au milieu d'une phrase */}
+          {accroche && <p className="mt-4 text-[20px] sm:text-[24px] max-w-[46ch] leading-snug">{accroche}</p>}
         </div>
 
         {photos.length > 0 && (
@@ -189,6 +190,8 @@ const StudioProfile = () => {
               </section>
             )}
 
+            <AgendaLieu id={studio.id} nom={studio.nom_podcast} />
+
             {f.faq.length > 0 && (
               <section aria-labelledby="faq-title">
                 <h2 id="faq-title" className="title-section text-[32px] sm:text-[40px] pb-3 border-b-2 border-encre">Questions fréquentes</h2>
@@ -215,8 +218,8 @@ const StudioProfile = () => {
               ))}
             </dl>
             <div className="mt-6 grid gap-3">
-              {studio.consent_contact && <a href="#devis-studio" className={`${btnListen} w-full`}>Demander un devis</a>}
-              {studio.consent_contact && <a href="#ecrire-studio" className={`${btnSecondary} w-full`}>Écrire au studio</a>}
+              {studio.consent_contact && <a href="#contact-studio" onClick={ouvrirContact("devis")} className={`${btnListen} w-full`}>Demander un devis</a>}
+              {studio.consent_contact && <a href="#contact-studio" onClick={ouvrirContact("question")} className={`${btnSecondary} w-full`}>Écrire au studio</a>}
               {adresse && (
                 <a href={planUrl(adresse)} target="_blank" rel="noopener noreferrer" className={`${linkUnderline} inline-flex min-h-[44px] items-center justify-center`}>
                   Voir le plan<span className="sr-only"> (nouvel onglet)</span>
@@ -235,26 +238,15 @@ const StudioProfile = () => {
         </div>
 
         {studio.consent_contact && (
-          <>
-            <section id="devis-studio" className="mt-20 bg-encre text-surface scroll-mt-20" aria-labelledby="devis-studio-title">
-              <div className={`${container} py-12 md:py-16 grid lg:grid-cols-[minmax(0,5fr)_minmax(0,7fr)] gap-10`}>
-                <div>
-                  <h2 id="devis-studio-title" className="title-section text-surface text-[36px] sm:text-[48px]">Demander un devis à {studio.nom_podcast}</h2>
-                  <p className="mt-4 text-[17px] text-surface/85">Le studio reçoit votre demande dans son espace et vous répond directement à votre adresse.</p>
-                </div>
-                <DevisForm dark studioId={studio.id} studioName={studio.nom_podcast} idPrefix="devis" />
+          <section id="contact-studio" className={`${container} pt-16 scroll-mt-24`} aria-labelledby="contact-studio-title">
+            <div className="border-2 border-encre bg-surface p-6 sm:p-8 grid lg:grid-cols-[minmax(0,4fr)_minmax(0,8fr)] gap-8 lg:gap-12">
+              <div>
+                <h2 id="contact-studio-title" className="title-section text-[32px] sm:text-[42px]">Contacter {studio.nom_podcast}</h2>
+                <p className="mt-4 text-[17px] text-muted-foreground">Le studio reçoit votre demande dans son espace et vous répond directement à votre adresse. Son e-mail n'est jamais affiché.</p>
               </div>
-            </section>
-            <section id="ecrire-studio" className={`${container} pt-14 scroll-mt-24`} aria-labelledby="ecrire-studio-title">
-              <div className="border-2 border-encre bg-surface p-6 sm:p-8 grid md:grid-cols-[minmax(0,1fr)_minmax(0,2fr)] gap-6 md:gap-10">
-                <div>
-                  <h2 id="ecrire-studio-title" className="title-section text-[28px] sm:text-[34px]">Écrire au studio</h2>
-                  <p className="mt-3 text-[15px] text-muted-foreground">Une question avant de réserver ? Son e-mail n'est jamais affiché.</p>
-                </div>
-                <MembreContactForm recipientId={studio.id} recipientFirstName={studio.nom_podcast} type="message" idPrefix="ecrire" />
-              </div>
-            </section>
-          </>
+              <StudioContact studioId={studio.id} studioName={studio.nom_podcast} mode={modeContact} onMode={setModeContact} />
+            </div>
+          </section>
         )}
 
         {voisins.length > 0 && (
