@@ -366,15 +366,15 @@ const AdminPodcasts = () => {
               <TableHeader>
                 <TableRow>
                   <TableHead className="w-[70px]">Visible</TableHead>
-                  <TableHead>Date</TableHead>
-                  <TableHead>Profil</TableHead>
+                  <TableHead className="hidden lg:table-cell">Date</TableHead>
+                  <TableHead className="hidden sm:table-cell">Profil</TableHead>
                   <TableHead>Nom / Titre</TableHead>
-                  <TableHead>Contact</TableHead>
-                  <TableHead>Ville</TableHead>
-                  <TableHead>{filterType === "studio" ? "Type lieu" : "Thématique"}</TableHead>
-                  <TableHead>Score</TableHead>
-                  <TableHead>Segment</TableHead>
-                  <TableHead className="w-[120px] sticky right-0 bg-background z-10">Actions</TableHead>
+                  <TableHead className="hidden md:table-cell">Contact</TableHead>
+                  <TableHead className="hidden xl:table-cell">Ville</TableHead>
+                  <TableHead className="hidden xl:table-cell">{filterType === "studio" ? "Type lieu" : "Thématique"}</TableHead>
+                  <TableHead className="hidden lg:table-cell">Score</TableHead>
+                  <TableHead className="hidden lg:table-cell">Segment</TableHead>
+                  <TableHead className="w-[120px] md:sticky md:right-0 bg-card z-10">Actions</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -390,10 +390,10 @@ const AdminPodcasts = () => {
                           onCheckedChange={(checked) => toggleValide.mutate({ id: p.id, valide: checked })}
                         />
                       </TableCell>
-                      <TableCell className="text-sm whitespace-nowrap">
+                      <TableCell className="hidden lg:table-cell text-sm whitespace-nowrap">
                         {new Date(p.created_at).toLocaleDateString("fr-FR")}
                       </TableCell>
-                      <TableCell>
+                      <TableCell className="hidden sm:table-cell">
                         <Badge variant={isStudio ? "default" : "outline"} className="text-xs whitespace-nowrap">
                           {isStudio && <Building2 className="w-3 h-3 mr-1" />}
                           {getProfilLabel(p.type_profil)}
@@ -406,22 +406,23 @@ const AdminPodcasts = () => {
                           )}
                           <div>
                             <p className="font-medium text-sm">{p.nom_podcast}</p>
-                            <p className="text-xs text-muted-foreground truncate max-w-[200px]">
+                            <p className="text-xs md:hidden">{isStudio ? (sd.contact_nom || "") : `${p.prenom || ""} ${p.nom || ""}`}</p>
+                            <p className="hidden sm:block text-xs text-muted-foreground truncate max-w-[200px]">
                               {isStudio ? (sd.statut_structure || p.structure || "") : p.description}
                             </p>
                           </div>
                         </div>
                       </TableCell>
-                      <TableCell className="text-sm">
+                      <TableCell className="hidden md:table-cell text-sm">
                         <p>{isStudio ? (sd.contact_nom || "") : `${p.prenom || ""} ${p.nom || ""}`}</p>
                         <a href={`mailto:${p.email}`} className="text-primary text-xs hover:underline">{p.email}</a>
                       </TableCell>
-                      <TableCell className="text-sm">{p.city_name || p.ville || "—"}</TableCell>
-                      <TableCell className="text-sm">
+                      <TableCell className="hidden xl:table-cell text-sm">{p.city_name || p.ville || "—"}</TableCell>
+                      <TableCell className="hidden xl:table-cell text-sm">
                         {isStudio ? (sd.type_lieu || "—") : (p.thematique || "—")}
                       </TableCell>
-                      <TableCell className="text-sm font-medium">{p.score_global}/100</TableCell>
-                      <TableCell>
+                      <TableCell className="hidden lg:table-cell text-sm font-medium">{p.score_global}/100</TableCell>
+                      <TableCell className="hidden lg:table-cell">
                         <Badge
                           variant={p.segment_pds === "Ambassadeur potentiel" ? "default" : p.segment_pds === "Actif engagé" ? "secondary" : "outline"}
                           className="text-xs whitespace-nowrap"
@@ -429,12 +430,12 @@ const AdminPodcasts = () => {
                           {p.segment_pds}
                         </Badge>
                       </TableCell>
-                      <TableCell className="sticky right-0 bg-background z-10">
+                      <TableCell className="md:sticky md:right-0 bg-card z-10">
                         <div className="flex items-center gap-1">
-                          <Button variant="ghost" size="icon" onClick={() => setSelectedPodcast(p)} title="Voir le détail">
+                          <Button variant="ghost" size="icon" onClick={() => setSelectedPodcast(p)} title="Voir le détail" aria-label={`Voir « ${p.nom_podcast} »`}>
                             <Eye className="w-4 h-4" />
                           </Button>
-                          <Button variant="ghost" size="icon" onClick={() => startEdit(p)} title="Modifier">
+                          <Button variant="ghost" size="icon" onClick={() => startEdit(p)} title="Modifier" aria-label={`Modifier « ${p.nom_podcast} »`}>
                             <Pencil className="w-4 h-4" />
                           </Button>
                           <Button
