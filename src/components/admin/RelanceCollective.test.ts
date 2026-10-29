@@ -13,7 +13,7 @@ describe("relances collectives", () => {
     expect(messageRelance("1dec", 2026).sujet).toBe("Renouvelez votre adhésion pour 2027");
   });
   it("15 janvier : membres de l'année passée qui n'ont pas renouvelé", () => {
-    expect(destinatairesRelance("15jan", membres, 2027).map((x) => x.email)).toEqual(["a@x.fr", "c@x.fr"]);
+    expect(destinatairesRelance("15jan", membres, 2027).map((x) => x.email)).toEqual(["c@x.fr"]);
     expect(messageRelance("15jan", 2027).corps).toContain("pour=2027");
   });
   it("le lien mène au paiement de l'année suivante en décembre", () => {
