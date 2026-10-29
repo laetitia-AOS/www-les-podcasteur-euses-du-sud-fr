@@ -1,4 +1,5 @@
 import { useMemo, useState } from "react";
+import { formatName } from "@/lib/pds";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { Download } from "lucide-react";
@@ -66,7 +67,7 @@ const AdminMembres = ({ vue = "annee" }: { vue?: VueMembres }) => {
     queryFn: async () => {
       const { data, error } = await supabase.rpc("admin_membres");
       if (error) throw error;
-      return (data || []) as MembreAdmin[];
+      return ((data || []) as MembreAdmin[]).map((m) => ({ ...m, nom: m.nom && !m.nom.includes("@") ? formatName(m.nom) : m.nom }));
     },
   });
   const { data: rattachements = [] } = useRattachements(true);

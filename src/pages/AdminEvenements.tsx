@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect } from "react";
+import { formatName } from "@/lib/pds";
 import { toCsv } from "@/lib/csv";
 import AdminImagesEnAttente, { traiterImages } from "@/components/AdminImagesEnAttente";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
@@ -443,7 +444,7 @@ const AdminEvenements = () => {
                   <div className="flex items-center gap-2">
                     <p className="font-medium text-foreground truncate">{evt.titre}</p>
                     <Badge variant="outline" className="text-xs">{STATUT_LABEL[evt.statut] || evt.statut}</Badge>
-                    {evt.origine === "membre" && <Badge variant="outline" className="text-xs">Proposé par {evt.propose_par_nom || "un membre"}</Badge>}
+                    {evt.origine === "membre" && <Badge variant="outline" className="text-xs">Proposé par {evt.propose_par_nom ? formatName(evt.propose_par_nom) : "un membre"}</Badge>}
                   </div>
                   {evt.sous_titre && <p className="text-xs text-muted-foreground">{evt.sous_titre}</p>}
                   <p className="text-xs text-muted-foreground">

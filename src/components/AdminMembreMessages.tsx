@@ -1,4 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { formatName } from "@/lib/pds";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
@@ -99,7 +100,7 @@ const AdminMembreMessages = () => {
                       {r.nom_podcast && r.nom_podcast !== "—" && <p className="text-xs text-muted-foreground">{r.nom_podcast}</p>}
                     </TableCell>
                     <TableCell className="text-sm">
-                      <p className="font-medium">{m.sender_name}</p>
+                      <p className="font-medium">{formatName(m.sender_name)}</p>
                       <a href={`mailto:${m.sender_email}`} className="text-primary text-xs hover:underline">{m.sender_email}</a>
                     </TableCell>
                     <TableCell className="text-sm max-w-xs whitespace-pre-wrap">{m.message}</TableCell>

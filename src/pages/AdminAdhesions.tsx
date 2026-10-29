@@ -1,4 +1,5 @@
 import { useState, useMemo } from "react";
+import { formatName, fullName } from "@/lib/pds";
 import { toCsv } from "@/lib/csv";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -173,7 +174,7 @@ const AdminAdhesions = () => {
     queryFn: async () => {
       const { data, error } = await supabase.rpc("admin_membres");
       if (error) throw error;
-      return (data || []) as MembreAdmin[];
+      return ((data || []) as MembreAdmin[]).map((m) => ({ ...m, nom: m.nom && !m.nom.includes("@") ? formatName(m.nom) : m.nom }));
     },
     enabled: isAdmin,
   });
@@ -209,8 +210,8 @@ const AdminAdhesions = () => {
               <TableCell className="text-sm whitespace-nowrap">
                 {getAdhesionDate(a).toLocaleDateString("fr-FR")}
               </TableCell>
-              <TableCell>{a.prenom || "—"}</TableCell>
-              <TableCell>{a.nom || "—"}</TableCell>
+              <TableCell>{formatName(a.prenom) || "—"}</TableCell>
+              <TableCell>{formatName(a.nom) || "—"}</TableCell>
               <TableCell className="text-sm">
                 {a.email || "—"}
                 {rattachements.filter((r) => r.adhesion_id === a.id).map((r) => (
@@ -243,7 +244,7 @@ const AdminAdhesions = () => {
                     variant="ghost" size="icon"
                     className="text-destructive hover:text-destructive hover:bg-destructive/10"
                     onClick={() => {
-                      if (window.confirm(`Supprimer l'adhésion de ${a.prenom} ${a.nom} ?`)) {
+                      if (window.confirm(`Supprimer l'adhésion de ${fullName(a.prenom, a.nom)} ?`)) {
                         deleteAdhesion.mutate(a.id);
                       }
                     }}
@@ -388,7 +389,7 @@ const RelancesOnglet = () => {
     queryFn: async () => {
       const { data, error } = await supabase.rpc("admin_membres");
       if (error) throw error;
-      return (data || []) as MembreAdmin[];
+      return ((data || []) as MembreAdmin[]).map((m) => ({ ...m, nom: m.nom && !m.nom.includes("@") ? formatName(m.nom) : m.nom }));
     },
   });
   if (isLoading) return <p className="text-muted-foreground">Chargement…</p>;

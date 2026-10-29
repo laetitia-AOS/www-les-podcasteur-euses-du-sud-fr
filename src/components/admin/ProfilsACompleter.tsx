@@ -1,4 +1,5 @@
 import { useMemo, useState } from "react";
+import { formatName } from "@/lib/pds";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { ChevronDown, Send } from "lucide-react";
@@ -24,7 +25,7 @@ const ProfilsACompleter = () => {
     queryFn: async () => {
       const { data, error } = await supabase.rpc("admin_profils_a_completer");
       if (error) throw error;
-      return ((data || []) as ProfilACompleter[]).filter((p) => manquesDetectes(p).length > 0);
+      return ((data || []) as ProfilACompleter[]).map((p) => ({ ...p, nom: p.nom ? formatName(p.nom) : p.nom })).filter((p) => manquesDetectes(p).length > 0);
     },
   });
 

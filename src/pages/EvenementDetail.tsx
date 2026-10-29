@@ -12,7 +12,7 @@ import PodcastsInvitesDisplay from "@/components/PodcastsInvitesDisplay";
 import { eventHref } from "@/components/agenda/EventRow";
 import { EVENT_TYPE_LABELS, aVenirFilter, cityFromAddress, isOnline, isOrganizedByPds, type HomeEvent } from "@/components/home/useHomeData";
 import { withUtm } from "@/lib/utm";
-import { btnPrimary, btnSecondary, container, linkUnderline } from "@/lib/pds";
+import { btnPrimary, btnSecondary, container, formatName, linkUnderline } from "@/lib/pds";
 import { cleanAddress, dateParis, downloadIcs, googleCalendarUrl, heureParis, horairesParis, isoParis, prixDepuisTarif, publicDescription, readableTitle } from "@/lib/events";
 import bande from "@/assets/photos/bande-accueil-mur-rouge.jpg.asset.json";
 
@@ -89,7 +89,7 @@ const EvenementDetail = () => {
     const horaires = end ? `de ${hour(start)} à ${hour(end)}` : `à partir de ${hour(start)}`;
     const lieuPhrase = online ? "en ligne" : evt.lieu ? `chez ${evt.lieu}${city ? ` (${city})` : ""}` : city ? `à ${city}` : "";
     const tarif = evt.tarif || "";
-    const organisateur = pds ? "Les Podcasteur·euses du Sud" : evt.propose_par_nom || "Un membre du réseau";
+    const organisateur = pds ? "Les Podcasteur·euses du Sud" : formatName(evt.propose_par_nom) || "Un membre du réseau";
     const intro = `${dateLong}, ${horaires}${lieuPhrase ? `, ${lieuPhrase}` : ""}.${evt.sous_titre ? ` ${evt.sous_titre.replace(/\.$/, "")}.` : ""}${tarif ? ` ${tarif}.` : ""}`;
     const isPast = (end || start) < new Date();
     const url = `${SITE}${eventHref(evt)}`;
