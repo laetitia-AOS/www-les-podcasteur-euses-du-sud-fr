@@ -1,9 +1,10 @@
+import { useMemo } from "react";
 import { ficheHref } from "@/lib/seo";
 import { Link } from "react-router-dom";
 import { container, cleanCity, fullName, linkUnderline } from "@/lib/pds";
-import type { HomeProfile } from "./useHomeData";
-import { collabLabel } from "@/lib/inscription";
-import MemberAvatar, { profilePhotoFor } from "@/components/MemberAvatar";
+import { piocherQuiCherche, type HomeProfile } from "./useHomeData";
+import { apporteLabel, collabLabel } from "@/lib/inscription";
+import MemberAvatar, { avatarFor } from "@/components/MemberAvatar";
 
 const ROLE: Record<string, string> = {
   podcasteur: "podcasteur·euse",
@@ -14,10 +15,8 @@ const ROLE: Record<string, string> = {
 };
 
 const HomeQuiCherche = ({ profiles }: { profiles: HomeProfile[] }) => {
-  const people = profiles
-    .filter((p) => p.type_profil !== "studio" && p.type_profil !== "structure_eco")
-    .filter((p) => (p.cherche_choix?.length || 0) > 0 && (p.apporte_choix?.length || 0) > 0)
-    .slice(0, 3);
+  // Trois profils tirés au hasard à chaque chargement de la page
+  const people = useMemo(() => piocherQuiCherche(profiles), [profiles]);
 
   return (
     <section className="pb-16 md:pb-24" aria-labelledby="qcq-title">
@@ -39,7 +38,7 @@ const HomeQuiCherche = ({ profiles }: { profiles: HomeProfile[] }) => {
           {people.map((p) => (
             <li key={p.id}>
               <Link to={ficheHref(p)} className="grid grid-cols-[56px_1fr] sm:grid-cols-[80px_1fr] gap-4 sm:gap-6 py-6 hover:bg-surface">
-                <MemberAvatar prenom={p.prenom} nom={p.nom} photoUrl={profilePhotoFor(p, profiles)} className="w-14 h-14 sm:w-20 sm:h-20" />
+                {(() => { const a = avatarFor(p, profiles); return <MemberAvatar prenom={p.prenom} nom={p.nom} photoUrl={a?.url} alt={a?.alt} className="w-14 h-14 sm:w-20 sm:h-20" />; })()}
                 <div className="min-w-0">
                   <p className="text-[19px] sm:text-[22px] leading-tight">
                     <span className="font-bold">{fullName(p.prenom, p.nom) || p.nom_podcast}</span>
@@ -54,7 +53,7 @@ const HomeQuiCherche = ({ profiles }: { profiles: HomeProfile[] }) => {
                     </div>
                     <div>
                       <p className="text-sm font-bold text-accent-text">Apporte</p>
-                      <p className="text-[17px]">{p.apporte_choix!.slice(0, 2).map(collabLabel).join(", ")}</p>
+                      <p className="text-[17px]">{p.apporte_choix!.slice(0, 2).map(apporteLabel).join(", ")}</p>
                     </div>
                   </div>
                 </div>
