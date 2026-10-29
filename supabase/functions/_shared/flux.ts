@@ -147,7 +147,7 @@ const https = (u: string | null | undefined): string | null => {
 };
 
 /** Lit un flux RSS. Renvoie null si ce n'est pas un flux RSS. */
-export const parseFeed = (xml: string, max = 10): { episodes: ParsedEpisode[]; total: number } | null => {
+export const parseFeed = (xml: string, max = 10): { episodes: ParsedEpisode[]; total: number; titre: string | null; auteur: string | null } | null => {
   let doc;
   try { doc = parser.parse(xml); } catch { return null; }
   const channel = doc?.rss?.channel;
@@ -179,7 +179,10 @@ export const parseFeed = (xml: string, max = 10): { episodes: ParsedEpisode[]; t
   // Doublons éventuels dans le flux
   const seen = new Set<string>();
   const unique = withAudio.filter((e) => (seen.has(e.guid) ? false : (seen.add(e.guid), true)));
-  return { episodes: unique.slice(0, max), total: unique.length };
+  // Nom et auteur du flux : servent à l'admin pour confirmer un flux trouvé automatiquement
+  const titre = (summarize(text(channel.title), 200) || "").slice(0, 200) || null;
+  const auteur = (summarize(text(channel["itunes:author"]) || text(channel.managingEditor) || text(channel["itunes:owner"]?.["itunes:name"]), 200) || "").slice(0, 200) || null;
+  return { episodes: unique.slice(0, max), total: unique.length, titre, auteur };
 };
 
 const normalize = (s: string) =>
