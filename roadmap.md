@@ -55,3 +55,17 @@
 - [x] 11. Admin Annuaire : nom de la personne si pas de titre
 - [x] 12. Noms mis en forme partout
 - [x] Scan sécurité + vérif annuaire et 3 fiches ordinateur/téléphone
+
+## Corrections après revue — lot 3 (studios et structures)
+- [ ] 1. Tarif structuré (montant, unité, TTC/HT) — plan à valider
+- [ ] 2. Accroche + description longue — plan à valider
+- [ ] 3. Accroche de Parla sans « jusqu'à 4 voix. »
+- [ ] 4. « Micros » → « Matériel » — plan à valider
+- [ ] 5. Liens sans doublon
+- [ ] 6. Formulaire unique devis / question
+- [ ] 7. Logos entiers sur fond blanc
+- [ ] 8. Section « À l'agenda » + aide espace membre
+- [ ] 9. Page Studios : « Festivals, réseaux et partenaires », lignes avec logo
+- [ ] 10. Fiche Maritima (structure Radio, partenaire)
+- [ ] 11. Fil d'Ariane « Accueil / Studios / Nom »
+- [ ] Scan sécurité + vérif 4 fiches + test formulaire fictif
