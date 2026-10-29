@@ -34,8 +34,8 @@
 - [x] 2. Chiffres de l'accueil (personnes, podcasts, studios calculés ; 6 départements fixe) + départements vides remplis depuis la ville
 - [x] 3. Page Écouter : 9 podcasts manquants ; tri « Ajouté récemment »
 - [x] 4. Lecteur audio visible partout, boutons lecture, section Épisodes si flux confirmé
-- [ ] 5. Fusions Delphine Raymond et Clémentine Roux — plan à valider (en attente d'accord + adresse à choisir)
-- [ ] 6. Une personne = une fiche = un e-mail, rôles multiples — plan à valider (en attente d'accord)
+- [x] 5. Fusions Delphine Raymond et Clémentine Roux — plan à valider (en attente d'accord + adresse à choisir)
+- [x] 6. Une personne = une fiche = un e-mail, rôles multiples — plan à valider (en attente d'accord)
 - [x] 7. Pages 404, connexion admin, vérification du lien, « Nous écrire » au nouveau gabarit
 - [x] 8. Confidentialité : ligne « scoring » : un calcul existe, texte gardé en attendant la décision ; date octobre 2026 sur les 4 pages légales
 - [x] Scan de sécurité (lot 1, hors fusions)
@@ -57,10 +57,10 @@
 - [x] Scan sécurité + vérif annuaire et 3 fiches ordinateur/téléphone
 
 ## Corrections après revue — lot 3 (studios et structures)
-- [ ] 1. Tarif structuré (montant, unité, TTC/HT) — plan à valider
+- [x] 1. Tarif structuré (montant, unité, TTC/HT) — plan à valider
 - [ ] 2. Accroche + description longue — plan à valider
 - [x] 3. Accroche de Parla sans « jusqu'à 4 voix. »
-- [ ] 4. « Micros » → « Matériel » — plan à valider
+- [x] 4. « Micros » → « Matériel » — plan à valider
 - [x] 5. Liens sans doublon
 - [x] 6. Formulaire unique devis / question
 - [x] 7. Logos entiers sur fond blanc
@@ -69,3 +69,15 @@
 - [x] 10. Fiche Maritima (structure Radio, partenaire)
 - [x] 11. Fil d'Ariane « Accueil / Studios / Nom »
 - [x] Scan sécurité + vérif 4 fiches + test formulaire fictif
+
+## Corrections après revue — lot 4 (agenda, événements, adhésion)
+- [ ] 1. « Proposer un événement » : un seul bouton, page dédiée = formulaire ou « Réservé aux membres »
+- [ ] 2. Fusion La Claque en une fiche du 19 au 20 juin — en attente de l'accord (affichage sur plusieurs jours prêt)
+- [x] 3. Formulaire de proposition : types, aide, émojis retirés (public + admin)
+- [ ] 4. Titres en casse normale (montrer avant/après)
+- [ ] 5. Affiche en pleine largeur, colonne de texte limitée
+- [ ] 6. Questions fréquentes modifiables par événement + réponses par défaut
+- [x] 7. Tableau Adhérer : « Proposer des événements à l'agenda »
+- [x] 8. Adhérer : retirer « Format de collaboration »
+- [x] 9. Confirmation d'adhésion : une seule carte selon l'adresse
+- [x] Scan + test parcours proposer (3 cas, compte fictif) + vérif 9 nov et La Claque

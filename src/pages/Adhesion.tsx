@@ -24,6 +24,7 @@ const COMPARATIF: { label: string; profil: string; membre: string }[] = [
   { label: "Visible dans l'annuaire et dans « Écouter »", profil: "Non", membre: "Oui" },
   { label: "Épisodes dans le lecteur du site", profil: "Non", membre: "Oui, en rotation" },
   { label: "« Cherche / Apporte » visibles et messages des autres membres", profil: "Non", membre: "Oui" },
+  { label: "Proposer des événements à l'agenda", profil: "Non", membre: "Oui" },
 ];
 
 const ANNEE = anneeEnCours();
@@ -84,6 +85,12 @@ const Adhesion = () => {
     if (firstRender.current) { firstRender.current = false; return; }
     sectionRef.current?.scrollIntoView({ behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" });
   }, [step]);
+
+  // Profil enregistré dans ce navigateur avant le paiement : la page « Bienvenue » ne propose pas d'en créer un autre
+  useEffect(() => {
+    if (step !== "paiement" || !(result?.saved || podcastCount > 0)) return;
+    try { localStorage.setItem("pds_profil_cree", String(Date.now())); } catch { /* navigation privée */ }
+  }, [step, result, podcastCount]);
 
   useEffect(() => {
     if (hash !== "#inscription" && params.get("etape") !== "adhesion") return;

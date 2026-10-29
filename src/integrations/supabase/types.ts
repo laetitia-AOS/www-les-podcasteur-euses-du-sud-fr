@@ -347,6 +347,7 @@ export type Database = {
           date_debut: string
           date_fin: string | null
           description: string | null
+          faq: Json | null
           format: string
           id: string
           image_url: string | null
@@ -376,6 +377,7 @@ export type Database = {
           date_debut: string
           date_fin?: string | null
           description?: string | null
+          faq?: Json | null
           format?: string
           id?: string
           image_url?: string | null
@@ -405,6 +407,7 @@ export type Database = {
           date_debut?: string
           date_fin?: string | null
           description?: string | null
+          faq?: Json | null
           format?: string
           id?: string
           image_url?: string | null
@@ -1163,6 +1166,7 @@ export type Database = {
           date_debut: string
           date_fin: string | null
           description: string | null
+          faq: Json | null
           format: string
           id: string
           image_url: string | null

@@ -33,7 +33,7 @@ const HomeAgenda = ({ events }: { events: HomeEvent[] }) => {
       <div className={container}>
         <div className="flex flex-wrap items-end justify-between gap-4">
           <h2 id="agenda-title" className="title-section text-[48px] sm:text-[64px]">Agenda</h2>
-          <Link to="/agenda#proposer" className={btnSecondary}>
+          <Link to="/proposer-evenement-podcast" className={btnSecondary}>
             <Plus className="w-4 h-4" aria-hidden /> Proposer un événement
           </Link>
         </div>

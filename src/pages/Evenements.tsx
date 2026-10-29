@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { Plus } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
@@ -8,10 +8,9 @@ import Footer from "@/components/Footer";
 import SEOHead from "@/components/SEOHead";
 import { PAGES, PAGES_SEO } from "@/lib/seo";
 import EventRow, { eventHref } from "@/components/agenda/EventRow";
-import ProposerEvenementForm from "@/components/agenda/ProposerEvenementForm";
 import { aVenirFilter, isOnline, isOrganizedByPds, passeFilter, type HomeEvent } from "@/components/home/useHomeData";
 import { btnListen, container, h1Ligne, formatShortDate } from "@/lib/pds";
-import { cleanAddress, dateParis, isoParis, readableTitle } from "@/lib/events";
+import { cleanAddress, dateParis, isoParis, jourCourt, readableTitle } from "@/lib/events";
 import photo1 from "@/assets/photos/09-rencontre-inseec-cercle.jpg.asset.json";
 import photo2 from "@/assets/photos/16-rencontre-mur-rouge-trio.jpg.asset.json";
 import photo3 from "@/assets/photos/03-studio-installation-lumieres.jpg.asset.json";
@@ -34,7 +33,7 @@ const FILTERS = [
   { key: "place", label: "Sur place", test: (e: AgendaEvent) => !isOnline(e) },
   { key: "pds", label: "Organisés par PDS", test: (e: AgendaEvent) => isOrganizedByPds(e) },
   { key: "membres", label: "Proposés par les membres", test: (e: AgendaEvent) => !isOrganizedByPds(e) },
-  { key: "ateliers", label: "Ateliers-écoute", test: (e: AgendaEvent) => e.type === "atelier" },
+  { key: "ateliers", label: "Ateliers-écoute", test: (e: AgendaEvent) => e.type === "apero_ecoute" },
 ] as const;
 
 const SITE = "https://www.les-podcasteur-euses-du-sud.fr";
@@ -43,6 +42,7 @@ const FIELDS = "id, titre, sous_titre, description, date_debut, date_fin, lieu, 
 const Evenements = () => {
   const [filter, setFilter] = useState<(typeof FILTERS)[number]["key"]>("tous");
   const { hash } = useLocation();
+  const navigate = useNavigate();
 
   const { data: upcoming = [], isLoading } = useQuery({
     queryKey: ["agenda-upcoming"],
@@ -68,9 +68,11 @@ const Evenements = () => {
   // Ancres « #proposer » et « #passes » : on descend jusqu'à la section une fois la page chargée
   useEffect(() => {
     if (!hash) return;
+    // Ancienne ancre « #proposer » : le formulaire a sa propre page
+    if (hash === "#proposer") { navigate("/proposer-evenement-podcast", { replace: true }); return; }
     const t = setTimeout(() => document.querySelector(hash)?.scrollIntoView({ block: "start" }), 400);
     return () => clearTimeout(t);
-  }, [hash, isLoading]);
+  }, [hash, isLoading, navigate]);
 
   const test = FILTERS.find((f) => f.key === filter)!.test;
   const groups = useMemo(() => {
@@ -119,12 +121,12 @@ const Evenements = () => {
                 <span className={h1Ligne}>des rendez-vous podcast en Région Sud</span>
               </h1>
               <p className="mt-4 text-lg max-w-[54ch]">
-                Apéros écoute, ateliers, lives et rencontres, sur place ou en ligne. Chaque membre peut proposer un événement.
+                Ateliers-écoute, ateliers, lives et rencontres, sur place ou en ligne. Chaque membre peut proposer un événement.
               </p>
             </div>
-            <a href="#proposer" className={`${btnListen} px-6 self-start md:self-auto`}>
+            <Link to="/proposer-evenement-podcast" className={`${btnListen} px-6 self-start md:self-auto`}>
               <Plus className="w-4 h-4" aria-hidden /> Proposer un événement
-            </a>
+            </Link>
           </div>
         </div>
 
@@ -169,17 +171,6 @@ const Evenements = () => {
           )}
         </div>
 
-        <section id="proposer" className="mt-16 md:mt-24 bg-surface border-y border-filet scroll-mt-20" aria-labelledby="proposer-title">
-          <div className={`${container} py-14 md:py-20 grid lg:grid-cols-[minmax(0,5fr)_minmax(0,7fr)] gap-10 lg:gap-16`}>
-            <div>
-              <h2 id="proposer-title" className="title-section text-[44px] sm:text-[56px]">Proposer un événement</h2>
-              <p className="mt-4 text-[17px]">Un atelier, un live, une projection d'écoute, une rencontre : si ça parle podcast ou création sonore, il a sa place ici.</p>
-              <p className="mt-3 text-[15px] text-muted-foreground">Chaque proposition est relue par l'équipe avant publication, sous 48 à 72 heures.</p>
-            </div>
-            <ProposerEvenementForm />
-          </div>
-        </section>
-
         {past.length > 0 && (
           <section id="passes" className={`${container} py-16 md:py-20 scroll-mt-20`} aria-labelledby="passes-title">
             <h2 id="passes-title" className="title-section text-[40px] sm:text-[52px]">Déjà passés</h2>
@@ -190,10 +181,10 @@ const Evenements = () => {
                   <li key={e.id}>
                     <Link to={eventHref(e)} className="group block">
                       <span className="block aspect-[4/3] bg-muted overflow-hidden">
-                        <img src={e.image_url || fb.url} alt={e.image_url ? `Affiche de ${e.titre}` : fb.alt} className="w-full h-full object-cover" loading="lazy" />
+                        <img src={e.image_url || fb.url} alt={e.image_url ? `Affiche de ${readableTitle(e.titre)}` : fb.alt} className="w-full h-full object-cover" loading="lazy" />
                       </span>
-                      <span className="block mt-3 font-mono text-xs text-muted-foreground">{formatShortDate(e.date_debut)}{e.lieu ? ` · ${e.lieu}` : ""}</span>
-                      <span className="block mt-1 font-bold text-[18px] leading-tight group-hover:underline underline-offset-4">{e.titre}</span>
+                      <span className="block mt-3 font-mono text-xs text-muted-foreground">{jourCourt(e.date_debut, e.date_fin).length > 5 ? `${jourCourt(e.date_debut, e.date_fin)}.${dateParis(e.date_debut, { year: "numeric" })}` : formatShortDate(e.date_debut)}{e.lieu ? ` · ${e.lieu}` : ""}</span>
+                      <span className="block mt-1 font-bold text-[18px] leading-tight group-hover:underline underline-offset-4">{readableTitle(e.titre)}</span>
                     </Link>
                   </li>
                 );

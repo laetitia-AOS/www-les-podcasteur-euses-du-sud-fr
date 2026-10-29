@@ -8,7 +8,7 @@ import StudioFormSection from "@/components/StudioFormSection";
 import StructureEcoFormSection from "@/components/StructureEcoFormSection";
 import { btnPrimary } from "@/lib/pds";
 import {
-  COLLAB_CHOIX, COLLAB_CHOIX_APPORTE, DEPARTEMENTS, DISPONIBILITES, FORMATS_COLLAB, LIEN_SANS_PODCAST, SERVICES, TYPES_PROFIL,
+  COLLAB_CHOIX, COLLAB_CHOIX_APPORTE, DEPARTEMENTS, DISPONIBILITES, LIEN_SANS_PODCAST, SERVICES, TYPES_PROFIL,
   isHttpsUrl, profilColumns, uploadImage, type ProfilData, type TypeProfil,
 } from "@/lib/inscription";
 import { ChoiceList, CollabField, ImagePicker, Req, field, hintCls, labelCls } from "./fields";
@@ -255,13 +255,6 @@ const ProfilStep = ({
           <div className="sm:col-span-2">
             <CollabField id="pf-apporte-precision" legend="J'apporte" options={COLLAB_CHOIX_APPORTE} selected={p.apporte} onChange={(v) => set("apporte", v)}
               precision={p.apportePrecision} onPrecision={(v) => set("apportePrecision", v)} />
-          </div>
-          <div>
-            <label htmlFor="pf-format" className={labelCls}>Format de collaboration</label>
-            <select id="pf-format" name="formatCollaboration" value={p.formatCollaboration} onChange={onInput} className={field}>
-              <option value="">Choisir</option>
-              {FORMATS_COLLAB.map((f) => <option key={f} value={f}>{f}</option>)}
-            </select>
           </div>
 
           <fieldset className="sm:col-span-2 border-t border-filet pt-5 space-y-3">

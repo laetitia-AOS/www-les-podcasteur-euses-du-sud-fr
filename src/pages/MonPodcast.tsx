@@ -60,6 +60,12 @@ const MonEspace = () => {
     const init = async () => {
       const { data: { session } } = await supabase.auth.getSession();
       if (!session) { navigate("/espace-membre"); return; }
+      // Arrivée par le lien de connexion après « Proposer un événement » : retour à cette page (valable 1 heure)
+      try {
+        const r = JSON.parse(localStorage.getItem("pds_retour") || "null") as { to?: string; at?: number } | null;
+        localStorage.removeItem("pds_retour");
+        if (r?.to && /^\/(?!\/)[\w\-/]*$/.test(r.to) && Date.now() - (r.at || 0) < 3600_000) { navigate(r.to, { replace: true }); return; }
+      } catch { /* rien */ }
       const mail = session.user.email || "";
       setEmail(mail);
       const [f, a, d, e, st] = await Promise.all([
@@ -395,7 +401,7 @@ const MonEspace = () => {
           <section id="evenements" aria-labelledby="evenements-title" className="scroll-mt-6">
             <div className="flex flex-wrap items-center justify-between gap-3 pb-3 border-b-2 border-encre">
               <h2 id="evenements-title" className={sectionTitle}>Mes événements</h2>
-              <Link to="/agenda#proposer" className={btnSecondary}>Proposer un événement</Link>
+              <Link to="/proposer-evenement-podcast" className={btnSecondary}>Proposer un événement</Link>
             </div>
             <MesEvenements evenements={evenements} onChange={rechargerEvenements} />
           </section>

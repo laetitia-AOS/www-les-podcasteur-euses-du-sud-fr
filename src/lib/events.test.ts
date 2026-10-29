@@ -16,7 +16,8 @@ describe("horaires des événements, à l'heure de Paris", () => {
     expect(isoParis("2026-07-09T16:30:00Z")).toBe("2026-07-09T18:30:00+02:00");
   });
   it("affiche le type « Atelier-écoute »", () => {
-    expect(EVENT_TYPE_LABELS.atelier).toBe("Atelier-écoute");
+    expect(EVENT_TYPE_LABELS.apero_ecoute).toBe("Atelier-écoute");
+    expect(EVENT_TYPE_LABELS.atelier).toBe("Atelier");
   });
 });
 
@@ -33,5 +34,26 @@ describe("chiffres de l'accueil", () => {
   });
   it("garde 6 départements, le territoire de l'association", () => {
     expect(DEPARTEMENTS_PDS).toBe(6);
+  });
+});
+
+describe("lot 4 : titres et dates sur plusieurs jours", () => {
+  it("titre en casse normale, sans point d'exclamation ni émoji", async () => {
+    const { readableTitle } = await import("./events");
+    expect(readableTitle("LA CLAQUE PODCAST PARTY !")).toBe("La claque podcast party");
+    expect(readableTitle("Apéro-écoute d'avril !")).toBe("Apéro écoute d'avril");
+    expect(readableTitle("🎧 Apéro/Ecoute")).toBe("Apéro écoute");
+  });
+  it("émojis retirés à l'enregistrement, accents gardés", async () => {
+    const { sansEmojis } = await import("./events");
+    expect(sansEmojis("Soirée écoute 🎙️✨ à Marseille")).toBe("Soirée écoute à Marseille");
+  });
+  it("19 et 20 juin affichés « 19–20.06 » et « Du 19 au 20 juin 2026 »", async () => {
+    const { jourCourt, dateLongue } = await import("./events");
+    expect(jourCourt("2026-06-19T07:00:00Z", "2026-06-20T19:00:00Z")).toBe("19–20.06");
+    expect(jourCourt("2026-11-09T17:30:00Z", "2026-11-09T20:30:00Z")).toBe("09.11");
+    // Soirée qui finit à minuit : un seul jour
+    expect(jourCourt("2026-06-19T07:00:00Z", "2026-06-19T22:00:00Z")).toBe("19.06");
+    expect(dateLongue("2026-06-19T07:00:00Z", "2026-06-20T19:00:00Z")).toBe("Du 19 au 20 juin 2026");
   });
 });
