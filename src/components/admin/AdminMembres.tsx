@@ -115,9 +115,9 @@ const AdminMembres = ({ vue = "annee" }: { vue?: VueMembres }) => {
         </p>
       )}
       {vue === "annee" && <p className="text-sm text-muted-foreground mb-4">
-        {membres.length} membres {y} avec une fiche ·{" "}
-        <button type="button" className="underline underline-offset-4" onClick={() => setEtat("masquees")}>{masquees} fiche{masquees > 1 ? "s" : ""} masquée{masquees > 1 ? "s" : ""} faute d'adhésion à jour</button>
-        {" "}·{" "}<button type="button" className="underline underline-offset-4" onClick={() => setEtat("sursis")}>{membres.filter((m) => m.sursis).length} visibles en attente d'adhésion</button>
+        {membres.length} membres {y} avec une fiche
+        {membres.filter((m) => m.etat === "verification").length > 0 && <> · {membres.filter((m) => m.etat === "verification").length} paiement(s) à vérifier</>}
+        {membres.filter((m) => m.etat === "tolerance").length > 0 && <> · {membres.filter((m) => m.etat === "tolerance").length} de l'an passé, visibles jusqu'au 31 janvier</>}
         {paiementsSansFiche > 0 && <> · {paiementsSansFiche} adhérent·e{paiementsSansFiche > 1 ? "s" : ""} {y} sans fiche (non listé·e{paiementsSansFiche > 1 ? "s" : ""})</>}
         {" "}· adhésion à l'année civile, tolérance en janvier, masquage le 1er février
       </p>}
@@ -127,8 +127,8 @@ const AdminMembres = ({ vue = "annee" }: { vue?: VueMembres }) => {
             <select value={etat} onChange={(e) => setEtat(e.target.value)} className="h-10 border border-input bg-background px-3 text-sm" aria-label="Filtrer par statut">
               <option value="tous">Tous les statuts</option>
               {Object.entries(ETAT).map(([v, l]) => <option key={v} value={v}>{l}</option>)}
-              <option value="masquees">Fiches masquées</option>
-              <option value="sursis">Visibles en attente d'adhésion</option>
+              {vue !== "annee" && <option value="masquees">Fiches masquées</option>}
+              {vue !== "annee" && <option value="sursis">Visibles en attente d'adhésion</option>}
               <option value="a_renouveler">À renouveler pour {anneeCible}</option>
             </select>
             <select value={formule} onChange={(e) => setFormule(e.target.value)} className="h-10 border border-input bg-background px-3 text-sm" aria-label="Filtrer par formule">
