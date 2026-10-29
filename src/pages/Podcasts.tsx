@@ -29,12 +29,12 @@ interface Podcast {
   department_label: string | null;
 }
 
-const INITIAL_COUNT = 8;
-const LOAD_MORE_COUNT = 12;
+// 12 podcasts d'abord, puis tous les autres d'un coup : le nombre annoncé est toujours celui affiché.
+const INITIAL_COUNT = 12;
 
 const SORTS = [
+  { value: "ajout", label: "Ajouté récemment" },
   { value: "episode", label: "Dernier épisode publié" },
-  { value: "ajout", label: "Ajoutés récemment" },
   { value: "nom", label: "Nom, de A à Z" },
 ] as const;
 type SortKey = (typeof SORTS)[number]["value"];
@@ -58,7 +58,7 @@ const Podcasts = () => {
   const [visible, setVisible] = useState(INITIAL_COUNT);
   const [search, setSearch] = useState("");
   const [dept, setDept] = useState("");
-  const [sort, setSort] = useState<SortKey>("episode");
+  const [sort, setSort] = useState<SortKey>("ajout");
   const [theme, setTheme] = useState("");
 
   const { data: podcasts = [], isLoading } = useQuery({
@@ -100,6 +100,11 @@ const Podcasts = () => {
     return Array.from(m.entries()).sort((a, b) => a[0].localeCompare(b[0]));
   }, [podcasts]);
 
+  // Tri par dernier épisode proposé seulement quand tous les podcasts ont un flux lu par le site
+  const tousOntUnFlux = podcasts.length > 0 && podcasts.every((p) => episodeByPodcast.has(p.id));
+  const sorts = SORTS.filter((s) => s.value !== "episode" || tousOntUnFlux);
+  const sortActif: SortKey = sort === "episode" && !tousOntUnFlux ? "ajout" : sort;
+
   const filtered = useMemo(() => {
     let r = podcasts;
     if (theme) r = r.filter((p) => p.thematique === theme);
@@ -113,8 +118,8 @@ const Podcasts = () => {
       );
     }
     const sorted = [...r];
-    if (sort === "nom") sorted.sort((a, b) => a.nom_podcast.localeCompare(b.nom_podcast, "fr"));
-    else if (sort === "episode") {
+    if (sortActif === "nom") sorted.sort((a, b) => a.nom_podcast.localeCompare(b.nom_podcast, "fr"));
+    else if (sortActif === "episode") {
       sorted.sort((a, b) => {
         const da = episodeByPodcast.get(a.id)?.date || "";
         const db = episodeByPodcast.get(b.id)?.date || "";
@@ -123,7 +128,7 @@ const Podcasts = () => {
       });
     }
     return sorted;
-  }, [podcasts, theme, dept, search, sort, episodeByPodcast]);
+  }, [podcasts, theme, dept, search, sortActif, episodeByPodcast]);
 
   useEffect(() => setVisible(INITIAL_COUNT), [search, dept, theme, sort]);
 
@@ -171,8 +176,8 @@ const Podcasts = () => {
             </div>
             <div>
               <label htmlFor="ecouter-sort" className="block text-sm font-bold mb-1.5">Trier par</label>
-              <select id="ecouter-sort" value={sort} onChange={(e) => setSort(e.target.value as SortKey)} className={fieldClass}>
-                {SORTS.map((s) => <option key={s.value} value={s.value}>{s.label}</option>)}
+              <select id="ecouter-sort" value={sortActif} onChange={(e) => setSort(e.target.value as SortKey)} className={fieldClass}>
+                {sorts.map((s) => <option key={s.value} value={s.value}>{s.label}</option>)}
               </select>
             </div>
           </div>
@@ -191,7 +196,7 @@ const Podcasts = () => {
           </div>
 
           <p className="mt-8 font-mono text-sm text-muted-foreground" aria-live="polite">
-            {isLoading ? "Chargement…" : `${filtered.length} podcast${filtered.length > 1 ? "s" : ""}`}
+            {isLoading ? "Chargement…" : remaining > 0 ? `${visible} podcasts affichés sur ${filtered.length}` : `${filtered.length} podcast${filtered.length > 1 ? "s" : ""}`}
           </p>
 
           {!isLoading && filtered.length === 0 ? (
@@ -252,8 +257,8 @@ const Podcasts = () => {
 
           {remaining > 0 && (
             <div className="flex justify-center mt-12">
-              <button onClick={() => setVisible((v) => v + LOAD_MORE_COUNT)} className={btnSecondary}>
-                Afficher {Math.min(remaining, LOAD_MORE_COUNT) === remaining ? remaining : LOAD_MORE_COUNT} podcast{remaining > 1 ? "s" : ""} de plus
+              <button onClick={() => setVisible(filtered.length)} className={btnSecondary}>
+                {remaining > 1 ? `Voir les ${remaining} autres podcasts` : "Voir le dernier podcast"}
               </button>
             </div>
           )}

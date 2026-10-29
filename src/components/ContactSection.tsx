@@ -1,9 +1,9 @@
 import { useState } from "react";
-import { messageServeur } from "@/lib/inscription";
-import { motion } from "framer-motion";
 import { toast } from "sonner";
-import { Send } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
+import { messageServeur } from "@/lib/inscription";
+import { field, hintCls, labelCls, Req } from "@/components/adherer/fields";
+import { btnPrimary, container, h1Ligne } from "@/lib/pds";
 
 const profils = [
   "Podcasteur / Podcasteuse",
@@ -25,21 +25,15 @@ const objets = [
   "Autre",
 ];
 
-const ContactSection = () => {
-  const [formData, setFormData] = useState({
-    profil: "",
-    objet: "",
-    message: "",
-    prenom: "",
-    nom: "",
-    structure: "",
-    email: "",
-  });
-  const [submitting, setSubmitting] = useState(false);
+const VIDE = { profil: "", objet: "", message: "", prenom: "", nom: "", structure: "", email: "" };
 
-  const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
-  ) => {
+/** Formulaire « Nous écrire » : le message est enregistré pour l'équipe (contrôlé et limité côté serveur). */
+const ContactSection = () => {
+  const [formData, setFormData] = useState(VIDE);
+  const [submitting, setSubmitting] = useState(false);
+  const [envoye, setEnvoye] = useState(false);
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     setFormData((prev) => ({ ...prev, [e.target.name]: e.target.value }));
   };
 
@@ -49,7 +43,6 @@ const ContactSection = () => {
       toast.error("Veuillez remplir tous les champs obligatoires.");
       return;
     }
-
     setSubmitting(true);
     const { error } = await supabase.from("contacts").insert({
       profil: formData.profil,
@@ -61,143 +54,100 @@ const ContactSection = () => {
       email: formData.email,
     });
     setSubmitting(false);
-
     if (error) {
-      toast.error(messageServeur(error, "Erreur lors de l'envoi. Veuillez réessayer."));
-      console.error(error);
+      toast.error(messageServeur(error, "Le message n'a pas pu être envoyé. Réessayez."));
       return;
     }
-
-    toast.success("Merci ! Votre demande a bien été envoyée.");
-    setFormData({ profil: "", objet: "", message: "", prenom: "", nom: "", structure: "", email: "" });
+    setFormData(VIDE);
+    setEnvoye(true);
   };
 
-  const inputClass =
-    "w-full rounded-xl border-2 border-border/60 bg-background px-4 py-3.5 text-foreground placeholder:text-muted-foreground/40 focus:outline-none focus:ring-2 focus:ring-secondary/20 focus:border-secondary/40 transition-all shadow-sm";
-  const selectClass =
-    "w-full rounded-xl border-2 border-border/60 bg-background px-4 py-3.5 text-foreground focus:outline-none focus:ring-2 focus:ring-secondary/20 focus:border-secondary/40 transition-all appearance-none shadow-sm";
-  const labelClass = "block text-sm font-semibold text-foreground/80 mb-2";
-  const sectionCardClass = "bg-card/50 border border-border/40 rounded-2xl p-6 space-y-5";
-
   return (
-    <section id="contact" className="py-20 md:py-32 bg-background">
-      <div className="container mx-auto px-6 max-w-2xl">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, margin: "-80px" }}
-          transition={{ duration: 0.7 }}
-          className="text-center mb-14"
-        >
-          <div className="flex items-center gap-3 justify-center mb-4">
-            <div className="h-px w-8 bg-secondary/30" />
-            <span className="text-xs font-semibold uppercase tracking-[0.2em] text-secondary/70">
-              Écosystème
-            </span>
-            <div className="h-px w-8 bg-secondary/30" />
-          </div>
-          <h1 className="font-display font-bold text-2xl sm:text-3xl md:text-4xl mb-5">
-            Entrer en relation avec l'écosystème
+    <section id="contact" className={`${container} pt-10 md:pt-14 pb-20 md:pb-28`}>
+      <div className="grid lg:grid-cols-[minmax(0,5fr)_minmax(0,7fr)] gap-10 lg:gap-16">
+        <div>
+          <h1 className="title-page text-[56px] sm:text-[88px]">
+            <span className="block">Nous écrire</span>
+            <span className={h1Ligne}>à l'équipe des Podcasteur·euses du Sud</span>
           </h1>
-          <p className="text-muted-foreground leading-relaxed max-w-lg mx-auto">
-            Vous développez un projet, une idée ou une initiative en lien avec le podcast
-            ou la création audio ? Les Podcasteur·euses du Sud facilite les connexions, échanges
-            et opportunités entre acteurs de l'audio et du territoire.
+          <p className="mt-5 text-lg max-w-[44ch]">
+            Un projet, une idée, une question sur l'adhésion, un partenariat ou une demande presse : l'équipe vous répond directement à votre adresse.
           </p>
-        </motion.div>
+          <p className={`${hintCls} mt-4 max-w-[44ch]`}>
+            Pour écrire à un·e membre en particulier, passez par sa fiche dans l'annuaire.
+          </p>
+        </div>
 
-        <motion.form
-          onSubmit={handleSubmit}
-          initial={{ opacity: 0, y: 30 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, margin: "-60px" }}
-          transition={{ duration: 0.8, delay: 0.15 }}
-          className="space-y-6"
-        >
-          {/* Intention */}
-          <div className={sectionCardClass}>
-            <div className="flex items-center gap-3 mb-2">
-              <span className="w-8 h-8 rounded-xl bg-gradient-to-br from-secondary to-secondary/70 text-secondary-foreground text-sm flex items-center justify-center font-sans font-bold shadow-sm">1</span>
-               <h3 className="font-display font-bold text-xl text-foreground">Votre intention</h3>
-            </div>
-
-            <div>
-              <label className={labelClass}>
-                Vous êtes <span className="text-primary">*</span>
-              </label>
-              <select name="profil" value={formData.profil} onChange={handleChange} className={selectClass} required>
-                <option value="">Sélectionner votre profil</option>
-                {profils.map((p) => (
-                  <option key={p} value={p}>{p}</option>
-                ))}
-              </select>
-            </div>
-
-            <div>
-              <label className={labelClass}>
-                Objet de la prise de contact <span className="text-primary">*</span>
-              </label>
-              <select name="objet" value={formData.objet} onChange={handleChange} className={selectClass} required>
-                <option value="">Sélectionner l'objet</option>
-                {objets.map((o) => (
-                  <option key={o} value={o}>{o}</option>
-                ))}
-              </select>
-            </div>
-
-            <div>
-              <label className={labelClass}>
-                Votre message <span className="text-primary">*</span>
-              </label>
-              <textarea
-                name="message"
-                value={formData.message}
-                onChange={handleChange}
-                className={inputClass + " min-h-[120px] resize-y"}
-                placeholder="Décrivez votre projet, besoin ou intention…"
-                required
-              />
-            </div>
+        {envoye ? (
+          <div className="border-2 border-encre bg-surface p-6 sm:p-8 self-start" role="status">
+            <h2 className="title-section text-[32px]">Message envoyé</h2>
+            <p className="mt-3 text-[17px]">Merci. L'équipe l'a bien reçu et vous répond par e-mail.</p>
+            <button type="button" onClick={() => setEnvoye(false)} className={`${btnPrimary} mt-6`}>
+              Écrire un autre message
+            </button>
           </div>
-
-          {/* Coordonnées */}
-          <div className={sectionCardClass}>
-            <div className="flex items-center gap-3 mb-2">
-              <span className="w-8 h-8 rounded-xl bg-gradient-to-br from-secondary to-secondary/70 text-secondary-foreground text-sm flex items-center justify-center font-sans font-bold shadow-sm">2</span>
-               <h3 className="font-display font-bold text-xl text-foreground">Vos coordonnées</h3>
-            </div>
-
-            <div className="grid sm:grid-cols-2 gap-4">
+        ) : (
+          <form onSubmit={handleSubmit} className="border-2 border-encre bg-surface p-6 sm:p-8 space-y-6" noValidate>
+            <fieldset className="space-y-5">
+              <legend className="title-section text-[26px] mb-1">Votre message</legend>
               <div>
-                <label className={labelClass}>Prénom <span className="text-primary">*</span></label>
-                <input name="prenom" value={formData.prenom} onChange={handleChange} className={inputClass} placeholder="Votre prénom" required />
+                <label htmlFor="contact-profil" className={labelCls}>Vous êtes<Req /></label>
+                <select id="contact-profil" name="profil" value={formData.profil} onChange={handleChange} className={field} required>
+                  <option value="">Choisir</option>
+                  {profils.map((p) => <option key={p} value={p}>{p}</option>)}
+                </select>
               </div>
               <div>
-                <label className={labelClass}>Nom <span className="text-primary">*</span></label>
-                <input name="nom" value={formData.nom} onChange={handleChange} className={inputClass} placeholder="Votre nom" required />
+                <label htmlFor="contact-objet" className={labelCls}>Objet<Req /></label>
+                <select id="contact-objet" name="objet" value={formData.objet} onChange={handleChange} className={field} required>
+                  <option value="">Choisir</option>
+                  {objets.map((o) => <option key={o} value={o}>{o}</option>)}
+                </select>
               </div>
-            </div>
+              <div>
+                <label htmlFor="contact-message" className={labelCls}>Message<Req /></label>
+                <textarea
+                  id="contact-message"
+                  name="message"
+                  value={formData.message}
+                  onChange={handleChange}
+                  className={`${field} min-h-[160px] py-3 resize-y`}
+                  placeholder="Votre projet, votre besoin, votre question"
+                  required
+                />
+              </div>
+            </fieldset>
 
-            <div>
-              <label className={labelClass}>Structure / Projet</label>
-              <input name="structure" value={formData.structure} onChange={handleChange} className={inputClass} placeholder="Si applicable" />
-            </div>
+            <div aria-hidden className="border-t border-filet" />
+            <fieldset className="space-y-5">
+              <legend className="title-section text-[26px] mb-1">Vos coordonnées</legend>
+              <div className="grid sm:grid-cols-2 gap-5">
+                <div>
+                  <label htmlFor="contact-prenom" className={labelCls}>Prénom<Req /></label>
+                  <input id="contact-prenom" name="prenom" value={formData.prenom} onChange={handleChange} className={field} autoComplete="given-name" required />
+                </div>
+                <div>
+                  <label htmlFor="contact-nom" className={labelCls}>Nom<Req /></label>
+                  <input id="contact-nom" name="nom" value={formData.nom} onChange={handleChange} className={field} autoComplete="family-name" required />
+                </div>
+              </div>
+              <div>
+                <label htmlFor="contact-structure" className={labelCls}>Structure ou projet</label>
+                <input id="contact-structure" name="structure" value={formData.structure} onChange={handleChange} className={field} autoComplete="organization" />
+              </div>
+              <div>
+                <label htmlFor="contact-email" className={labelCls}>Adresse e-mail<Req /></label>
+                <input id="contact-email" name="email" type="email" value={formData.email} onChange={handleChange} className={field} autoComplete="email" placeholder="vous@exemple.com" required />
+                <p className={hintCls}>Seulement pour vous répondre.</p>
+              </div>
+            </fieldset>
 
-            <div>
-              <label className={labelClass}>Email <span className="text-primary">*</span></label>
-              <input name="email" type="email" value={formData.email} onChange={handleChange} className={inputClass} placeholder="vous@exemple.com" required />
-            </div>
-          </div>
-
-          <button
-            type="submit"
-            disabled={submitting}
-            className="group w-full flex items-center justify-center gap-3 bg-gradient-to-r from-secondary to-secondary/85 text-secondary-foreground py-4.5 rounded-2xl text-base font-semibold hover:brightness-110 transition-all duration-300 shadow-lg hover:shadow-xl mt-2 disabled:opacity-60 disabled:cursor-not-allowed"
-          >
-            {submitting ? "Envoi en cours…" : "Envoyer la demande"}
-            {!submitting && <Send className="w-4 h-4 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />}
-          </button>
-        </motion.form>
+            <p className="text-sm text-muted-foreground"><span aria-hidden>*</span> Champs obligatoires</p>
+            <button type="submit" disabled={submitting} className={`${btnPrimary} w-full`}>
+              {submitting ? "Envoi en cours…" : "Envoyer le message"}
+            </button>
+          </form>
+        )}
       </div>
     </section>
   );

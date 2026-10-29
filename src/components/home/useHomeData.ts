@@ -33,6 +33,19 @@ export const useHomeProfiles = () =>
     staleTime: 5 * 60 * 1000,
   });
 
+/** Territoire de l'association : les 6 départements de la Région Sud (chiffre fixe). */
+export const DEPARTEMENTS_PDS = 6;
+
+/**
+ * Chiffres de l'accueil, calculés sur les fiches visibles :
+ * personnes = podcasteur·euses + acteur·ices de l'écosystème + soutiens ; podcasts ; studios.
+ */
+export const chiffresAccueil = (profiles: Pick<HomeProfile, "type_profil">[]) => ({
+  personnes: profiles.filter((p) => ["podcasteur", "pro_podcast", "soutien"].includes(p.type_profil)).length,
+  podcasts: profiles.filter((p) => p.type_profil === "podcasteur").length,
+  studios: profiles.filter((p) => p.type_profil === "studio").length,
+});
+
 export type HomeEvent = {
   id: string;
   titre: string;
@@ -86,7 +99,7 @@ export const isOrganizedByPds = (e: Pick<HomeEvent, "origine">) => (e.origine ??
 
 export const EVENT_TYPES = [
   { value: "apero_ecoute", label: "Apéro écoute" },
-  { value: "atelier", label: "Atelier" },
+  { value: "atelier", label: "Atelier-écoute" },
   { value: "live", label: "Live" },
   { value: "ecoute", label: "Écoute" },
   { value: "rencontre", label: "Rencontre" },

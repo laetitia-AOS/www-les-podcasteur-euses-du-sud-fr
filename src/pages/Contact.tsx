@@ -13,7 +13,7 @@ const Contact = () => {
         path="/contact"
       />
       <Navbar />
-      <main className="min-h-screen pt-16">
+      <main className="min-h-screen pt-16 md:pt-[76px]">
         <ContactSection />
       </main>
       <Footer />

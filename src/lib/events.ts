@@ -23,6 +23,35 @@ export const cleanAddress = (a?: string | null): string =>
     .replace(/,\s*$/, "")
     .trim();
 
+// Dates et heures des événements : toujours à l'heure de Paris, quel que soit l'appareil.
+const TZ = "Europe/Paris";
+
+/** « 18h30 » */
+export const heureParis = (iso: string | Date): string =>
+  new Date(iso).toLocaleTimeString("fr-FR", { hour: "2-digit", minute: "2-digit", timeZone: TZ }).replace(":", "h");
+
+/** « 18h30–21h30 », ou « 18h30 » sans heure de fin. */
+export const horairesParis = (debut: string, fin?: string | null): string =>
+  fin ? `${heureParis(debut)}–${heureParis(fin)}` : heureParis(debut);
+
+/** Parties de date à l'heure de Paris (jour du mois, jour de la semaine…). */
+export const dateParis = (iso: string | Date, opts: Intl.DateTimeFormatOptions): string =>
+  new Date(iso).toLocaleDateString("fr-FR", { ...opts, timeZone: TZ });
+
+/** Date ISO avec le décalage de Paris (« 2026-11-09T18:30:00+01:00 »), pour les données structurées. */
+export const isoParis = (iso: string): string => {
+  const d = new Date(iso);
+  const parts = Object.fromEntries(
+    new Intl.DateTimeFormat("en-GB", { timeZone: TZ, year: "numeric", month: "2-digit", day: "2-digit", hour: "2-digit", minute: "2-digit", second: "2-digit", hourCycle: "h23" })
+      .formatToParts(d).map((p) => [p.type, p.value]),
+  );
+  const local = Date.UTC(+parts.year, +parts.month - 1, +parts.day, +parts.hour, +parts.minute, +parts.second);
+  const offMin = Math.round((local - Math.floor(d.getTime() / 1000) * 1000) / 60000);
+  const sign = offMin >= 0 ? "+" : "-";
+  const abs = Math.abs(offMin);
+  return `${parts.year}-${parts.month}-${parts.day}T${parts.hour}:${parts.minute}:${parts.second}${sign}${pad(Math.floor(abs / 60))}:${pad(abs % 60)}`;
+};
+
 const pad = (n: number) => String(n).padStart(2, "0");
 const icsDate = (d: Date) =>
   `${d.getUTCFullYear()}${pad(d.getUTCMonth() + 1)}${pad(d.getUTCDate())}T${pad(d.getUTCHours())}${pad(d.getUTCMinutes())}00Z`;

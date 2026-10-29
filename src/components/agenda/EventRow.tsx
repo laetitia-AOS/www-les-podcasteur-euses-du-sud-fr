@@ -1,16 +1,15 @@
 import { Link } from "react-router-dom";
 import { Globe } from "lucide-react";
 import { btnPrimary, btnSecondary } from "@/lib/pds";
-import { readableTitle } from "@/lib/events";
+import { dateParis, horairesParis, readableTitle } from "@/lib/events";
 import { EVENT_TYPE_LABELS, cityFromAddress, isOnline, organisateurLabel, type HomeEvent } from "@/components/home/useHomeData";
 
 export const eventHref = (e: Pick<HomeEvent, "slug" | "id">) => `/agenda/${e.slug || e.id}`;
 
 /** Ligne d'événement partagée par l'accueil et l'agenda. */
 const EventRow = ({ e, primary, cta }: { e: HomeEvent; primary?: boolean; cta?: string }) => {
-  const d = new Date(e.date_debut);
-  const dayMonth = d.toLocaleDateString("fr-FR", { day: "2-digit", month: "2-digit" }).replace("/", ".");
-  const dayHour = `${d.toLocaleDateString("fr-FR", { weekday: "short" })} ${d.toLocaleTimeString("fr-FR", { hour: "2-digit", minute: "2-digit" }).replace(":", "h")}`;
+  const dayMonth = dateParis(e.date_debut, { day: "2-digit", month: "2-digit" }).replace("/", ".");
+  const dayHour = `${dateParis(e.date_debut, { weekday: "short" })} ${horairesParis(e.date_debut, e.date_fin)}`;
   const online = isOnline(e);
   const city = cityFromAddress(e.adresse);
   const href = eventHref(e);

@@ -129,7 +129,7 @@ const PolitiqueCookies = () => {
             </section>
 
             <p className="text-xs text-muted-foreground/60 pt-4">
-              Dernière mise à jour : février 2026
+              Dernière mise à jour : octobre 2026
             </p>
           </div>
         </div>

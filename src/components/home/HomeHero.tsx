@@ -4,7 +4,7 @@ import { useMemo } from "react";
 import { btnListen, container, h1Ligne } from "@/lib/pds";
 import { usePlayer } from "@/contexts/PlayerContext";
 import type { Episode } from "@/lib/episodes";
-import type { HomeProfile } from "./useHomeData";
+import { DEPARTEMENTS_PDS, chiffresAccueil, type HomeProfile } from "./useHomeData";
 
 // Pochettes mises en avant en premier sur le mur, dans cet ordre, si elles existent.
 const WALL_PRIORITY = ["vitamine sud", "marseille creative", "chaos debout", "symbioses", "un pas dehors"];
@@ -17,7 +17,7 @@ const HomeHero = ({ profiles, latest }: Props) => {
   const { play } = usePlayer();
 
   const podcasts = profiles.filter((p) => p.type_profil === "podcasteur");
-  const departements = new Set(profiles.map((p) => p.department_code).filter(Boolean)).size;
+  const chiffres = chiffresAccueil(profiles);
 
   const wall = useMemo(() => {
     const withCover = podcasts.filter((p) => p.vignette_url);
@@ -66,7 +66,7 @@ const HomeHero = ({ profiles, latest }: Props) => {
           </div>
           {profiles.length > 0 && (
             <p className="mt-10 text-[17px]">
-              {profiles.length} créateur·ices · {podcasts.length} podcasts · {departements} départements
+              {chiffres.personnes} créateur·ices et pros · {chiffres.podcasts} podcasts · {chiffres.studios} studio{chiffres.studios > 1 ? "s" : ""} · {DEPARTEMENTS_PDS} départements
             </p>
           )}
         </div>

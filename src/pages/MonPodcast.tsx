@@ -2,9 +2,9 @@ import { useEffect, useMemo, useState } from "react";
 import MesEvenements, { type MonEvenement } from "@/components/espace-membre/MesEvenements";
 import LieuEditor from "@/components/studios/LieuEditor";
 import { Link, useNavigate } from "react-router-dom";
-import { Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
+import { ConnexionEnCours } from "@/components/ConnexionShell";
 import SEOHead from "@/components/SEOHead";
 import ProfilCard from "@/components/espace-membre/ProfilCard";
 import PodcastCard from "@/components/espace-membre/PodcastCard";
@@ -136,10 +136,7 @@ const MonEspace = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-background flex items-center justify-center" role="status" aria-live="polite">
-        <Loader2 className="w-6 h-6 animate-spin text-primary" aria-hidden />
-        <span className="sr-only">Chargement de votre espace</span>
-      </div>
+      <ConnexionEnCours />
     );
   }
 
@@ -427,7 +424,7 @@ const MonEspace = () => {
                 <p className="mt-4 text-[15px]">Aucune adhésion n'est enregistrée avec l'adresse <strong className="break-all">{email}</strong>.</p>
               )}
               <p className="mt-5 text-sm text-muted-foreground max-w-[62ch]">
-                L'adhésion suit l'année civile : elle est valable jusqu'au 31 décembre de l'année payée, quelle que soit la date de paiement. Le renouvellement ouvre le 1er décembre. Sans renouvellement, votre fiche reste visible en janvier, puis elle est masquée le 1er février, sans être supprimée. Vous avez payé avec une autre adresse e-mail ou un autre nom ? Écrivez-nous depuis la page Contact pour que l'équipe relie votre paiement à votre profil.
+                L'adhésion suit l'année civile : elle est valable jusqu'au 31 décembre de l'année payée, quelle que soit la date de paiement. Le renouvellement ouvre le 1er décembre. Sans renouvellement, votre fiche reste visible en janvier, puis elle est masquée le 1er février, sans être supprimée. Vous avez payé avec une autre adresse e-mail ou un autre nom ? Écrivez-nous depuis la page « Nous écrire » pour que l'équipe relie votre paiement à votre profil.
               </p>
               {peutRenouveler && <Link to={ADHERER} className={`${btnPrimary} mt-5`}>{adhesion ? `Renouveler pour ${anneeRenouv}` : "Adhérer"}</Link>}
             </div>

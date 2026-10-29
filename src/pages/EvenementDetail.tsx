@@ -13,7 +13,7 @@ import { eventHref } from "@/components/agenda/EventRow";
 import { EVENT_TYPE_LABELS, aVenirFilter, cityFromAddress, isOnline, isOrganizedByPds, type HomeEvent } from "@/components/home/useHomeData";
 import { withUtm } from "@/lib/utm";
 import { btnPrimary, btnSecondary, container, linkUnderline } from "@/lib/pds";
-import { cleanAddress, downloadIcs, googleCalendarUrl, prixDepuisTarif, publicDescription, readableTitle } from "@/lib/events";
+import { cleanAddress, dateParis, downloadIcs, googleCalendarUrl, heureParis, horairesParis, isoParis, prixDepuisTarif, publicDescription, readableTitle } from "@/lib/events";
 import bande from "@/assets/photos/bande-accueil-mur-rouge.jpg.asset.json";
 
 const SITE = SITE_URL;
@@ -21,7 +21,7 @@ const SITE = SITE_URL;
 // Libellé du type d'événement pour le titre principal « [Type] à [Ville] : [Titre] »
 const H1_TYPE: Record<string, string> = {
   apero_ecoute: "Apéro écoute podcast",
-  atelier: "Atelier podcast",
+  atelier: "Atelier-écoute podcast",
   live: "Podcast en live",
   ecoute: "Écoute de podcast",
   rencontre: "Rencontre podcast",
@@ -38,7 +38,7 @@ type Evt = HomeEvent & {
 };
 
 // Heure et date toujours à l'heure de Paris (événements en Région Sud), quel que soit l'appareil
-const hour = (d: Date) => d.toLocaleTimeString("fr-FR", { hour: "2-digit", minute: "2-digit", timeZone: "Europe/Paris" }).replace(":", "h");
+const hour = (d: Date) => heureParis(d);
 const capitalize = (s: string) => s.charAt(0).toLocaleUpperCase("fr-FR") + s.slice(1);
 
 const EvenementDetail = () => {
@@ -103,8 +103,8 @@ const EvenementDetail = () => {
       "@type": "Event",
       name: view.h1,
       description: view.description || view.intro,
-      startDate: evt.date_debut,
-      ...(evt.date_fin && { endDate: evt.date_fin }),
+      startDate: isoParis(evt.date_debut),
+      ...(evt.date_fin && { endDate: isoParis(evt.date_fin) }),
       eventStatus: "https://schema.org/EventScheduled",
       eventAttendanceMode: view.online ? "https://schema.org/OnlineEventAttendanceMode" : "https://schema.org/OfflineEventAttendanceMode",
       location: view.online
@@ -171,15 +171,16 @@ const EvenementDetail = () => {
   const mapsQuery = evt.adresse || evt.lieu;
   const invites = Array.isArray(evt.podcasts_invites) ? (evt.podcasts_invites as never[]) : [];
   const agendaInfo = { titre: view.h1, date_debut: evt.date_debut, date_fin: evt.date_fin, lieu: evt.lieu, adresse: evt.adresse ? cleanAddress(evt.adresse) : null, url: view.url, description: view.intro };
-  const day = view.start.toLocaleDateString("fr-FR", { weekday: "long" });
-  const monthYear = view.start.toLocaleDateString("fr-FR", { month: "short", year: "numeric" }).replace(".", "");
+  const day = dateParis(view.start, { weekday: "long" });
+  const dayNum = dateParis(view.start, { day: "numeric" });
+  const monthYear = dateParis(view.start, { month: "short", year: "numeric" }).replace(".", "");
 
   const faq = view.pds
     ? [
         { q: "Faut-il payer pour venir ?", a: evt.tarif ? `Tarif : ${evt.tarif}.` : "Non, l'entrée est libre. Les consommations sont à votre charge." },
-        { q: "Faut-il faire un podcast pour venir ?", a: "Non. Créateur·ices, auditeur·ices, curieux·ses : l'apéro écoute est ouvert à toustes." },
+        { q: "Faut-il faire un podcast pour venir ?", a: "Non. Créateur·ices, auditeur·ices, curieux·ses : la soirée est ouverte à toutes et tous." },
         { q: "Faut-il réserver ?", a: "Cliquez sur « Je viens » : cela nous aide à prévoir la place." },
-        { q: "Comment faire écouter mon podcast lors d'un apéro ?", a: "Écrivez à l'équipe depuis la page Contact en présentant votre podcast : elle choisit les écoutes de chaque soirée." },
+        { q: "Comment faire écouter mon podcast lors d'une soirée ?", a: "Écrivez à l'équipe depuis la page « Nous écrire » en présentant votre podcast : elle choisit les écoutes de chaque soirée." },
       ]
     : [];
 
@@ -200,14 +201,14 @@ const EvenementDetail = () => {
             <li aria-hidden>/</li>
             <li><Link to="/agenda" className="underline underline-offset-4">Agenda</Link></li>
             <li aria-hidden>/</li>
-            <li aria-current="page" className="text-muted-foreground">{view.titre}, {view.start.toLocaleDateString("fr-FR", { day: "numeric", month: "long" })}</li>
+            <li aria-current="page" className="text-muted-foreground">{view.titre}, {dateParis(view.start, { day: "numeric", month: "long" })}</li>
           </ol>
         </nav>
 
         <header className={`${container} pt-6 pb-10 grid sm:grid-cols-[150px_1fr] gap-6 sm:gap-10 items-start`}>
           <div className="border-2 border-encre bg-surface w-[130px] sm:w-[150px] text-center py-3" aria-hidden>
             <p className="text-sm font-bold uppercase">{day}</p>
-            <p className="title-section text-[72px] leading-none my-1">{view.start.getDate()}</p>
+            <p className="title-section text-[72px] leading-none my-1">{dayNum}</p>
             <p className="text-sm font-bold uppercase">{monthYear}</p>
           </div>
           <div className="min-w-0">
@@ -235,7 +236,7 @@ const EvenementDetail = () => {
             <h2 id="infos-title" className="title-section text-[28px]">Infos pratiques</h2>
             <dl className="mt-4 space-y-3 text-[16px]">
               <div><dt className="text-sm font-bold">Date</dt><dd>{view.dateLong}</dd></div>
-              <div><dt className="text-sm font-bold">Horaires</dt><dd className="font-mono">{hour(view.start)}{view.end ? ` – ${hour(view.end)}` : ""}</dd></div>
+              <div><dt className="text-sm font-bold">Horaires</dt><dd className="font-mono">{horairesParis(evt.date_debut, evt.date_fin)}</dd></div>
               <div>
                 <dt className="text-sm font-bold">Lieu</dt>
                 <dd>
@@ -320,7 +321,7 @@ const EvenementDetail = () => {
                 {next.map((n) => (
                   <li key={n.id}>
                     <Link to={eventHref(n)} className="grid grid-cols-[72px_1fr] sm:grid-cols-[90px_1fr_auto] gap-x-5 py-4 items-baseline group">
-                      <span className="title-section text-[26px]">{new Date(n.date_debut).toLocaleDateString("fr-FR", { day: "2-digit", month: "2-digit" }).replace("/", ".")}</span>
+                      <span className="title-section text-[26px]">{dateParis(n.date_debut, { day: "2-digit", month: "2-digit" }).replace("/", ".")}</span>
                       <span className="font-bold text-[17px] group-hover:underline underline-offset-4">{readableTitle(n.titre)}</span>
                       <span className="col-start-2 sm:col-start-auto font-mono text-sm text-muted-foreground">{isOnline(n) ? "En ligne" : n.lieu}</span>
                     </Link>

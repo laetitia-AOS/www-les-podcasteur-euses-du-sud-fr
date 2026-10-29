@@ -28,3 +28,15 @@
 - [x] Admin Annuaire sur téléphone : noms visibles
 - [x] Relance collective : envoi direct depuis le site, une personne à la fois
 - [x] Vérification finale : référencement, scan sécurité, parcours visiteur / admin
+
+## Corrections après revue — lot 1
+- [x] 1. Événement du 9 novembre : horaires 18h30–21h30, « Atelier-écoute », titres, bandeau agenda, description sans date ni émojis
+- [x] 2. Chiffres de l'accueil (personnes, podcasts, studios calculés ; 6 départements fixe) + départements vides remplis depuis la ville
+- [x] 3. Page Écouter : 9 podcasts manquants ; tri « Ajouté récemment »
+- [x] 4. Lecteur audio visible partout, boutons lecture, section Épisodes si flux confirmé
+- [ ] 5. Fusions Delphine Raymond et Clémentine Roux — plan à valider (en attente d'accord + adresse à choisir)
+- [ ] 6. Une personne = une fiche = un e-mail, rôles multiples — plan à valider (en attente d'accord)
+- [x] 7. Pages 404, connexion admin, vérification du lien, « Nous écrire » au nouveau gabarit
+- [x] 8. Confidentialité : ligne « scoring » : un calcul existe, texte gardé en attendant la décision ; date octobre 2026 sur les 4 pages légales
+- [x] Scan de sécurité (lot 1, hors fusions)
+- [ ] Tests des fiches fusionnées avec compte fictif (après points 5 et 6)

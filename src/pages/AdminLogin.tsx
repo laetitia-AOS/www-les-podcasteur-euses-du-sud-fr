@@ -1,8 +1,8 @@
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
-import { Lock, ArrowLeft } from "lucide-react";
+import { ConnexionShell } from "@/components/ConnexionShell";
+import { field, labelCls } from "@/components/adherer/fields";
+import { btnPrimary, btnSecondary, linkUnderline } from "@/lib/pds";
 import { useNavigate } from "react-router-dom";
 import SEOHead from "@/components/SEOHead";
 
@@ -56,9 +56,9 @@ const AdminLogin = () => {
     if (authError) {
       setError(
         authError.message === "Invalid login credentials"
-          ? "Email ou mot de passe incorrect"
+          ? "Adresse e-mail ou mot de passe incorrect."
           : authError.message === "Email not confirmed"
-          ? "Veuillez confirmer votre email avant de vous connecter"
+          ? "Confirmez d'abord votre adresse e-mail."
           : authError.message
       );
       setLoading(false);
@@ -74,7 +74,7 @@ const AdminLogin = () => {
       });
       if (!hasAdmin) {
         await supabase.auth.signOut();
-        setError("Ce compte n'a pas les droits administrateur");
+        setError("Ce compte n'a pas accès à l'administration.");
         setLoading(false);
         return;
       }
@@ -84,68 +84,47 @@ const AdminLogin = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background flex items-center justify-center px-4">
+    <ConnexionShell espace="Administration">
       <SEOHead title="Connexion administration — Les Podcasteur·euses du Sud" description="Accès réservé à l'équipe de l'association." path="/admin/login" noindex />
-      <form onSubmit={resetMode ? handleResetPassword : handleLogin} className="w-full max-w-sm space-y-6">
-        <div className="text-center">
-          <div className="mx-auto w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center mb-4">
-            <Lock className="w-6 h-6 text-primary" />
-          </div>
-          <h1 className="font-display font-bold text-2xl text-foreground">Espace admin</h1>
-          <p className="text-muted-foreground mt-1">
-            {resetMode ? "Réinitialisez votre mot de passe" : "Connectez-vous avec votre compte"}
+      <h1 className="title-page text-[40px] min-[420px]:text-[52px] sm:text-[72px] break-words">Administration</h1>
+      <p className="mt-4 text-lg">{resetMode ? "Recevez un lien pour choisir un nouveau mot de passe." : "Accès réservé à l'équipe de l'association."}</p>
+
+      {resetSent ? (
+        <div className="mt-10 bg-surface border border-filet p-6 space-y-3" role="status">
+          <h2 className="title-section text-[28px]">Lien envoyé</h2>
+          <p className="text-[15px]">
+            Un lien a été envoyé à <strong className="break-all">{email}</strong>. Regardez votre boîte de réception, et vos courriers indésirables.
           </p>
+          <button type="button" className={`${btnSecondary} mt-2`} onClick={() => { setResetMode(false); setResetSent(false); }}>
+            Retour à la connexion
+          </button>
         </div>
-        {resetSent ? (
-          <div className="text-center space-y-3">
-            <p className="text-sm text-muted-foreground">
-              Un email de réinitialisation a été envoyé à <strong>{email}</strong>. Vérifiez votre boîte de réception.
-            </p>
-            <Button type="button" variant="outline" className="w-full" onClick={() => { setResetMode(false); setResetSent(false); }}>
-              Retour à la connexion
-            </Button>
+      ) : (
+        <form onSubmit={resetMode ? handleResetPassword : handleLogin} className="mt-10 space-y-5">
+          <div>
+            <label htmlFor="admin-email" className={labelCls}>Adresse e-mail</label>
+            <input id="admin-email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} autoComplete="email" className={field} required />
           </div>
-        ) : (
-          <div className="space-y-3">
-            <Input
-              type="email"
-              placeholder="Email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              required
-            />
-            {!resetMode && (
-              <Input
-                type="password"
-                placeholder="Mot de passe"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                required
-              />
-            )}
-            {error && <p className="text-sm text-destructive">{error}</p>}
-            <Button type="submit" className="w-full" disabled={loading}>
-              {loading ? (resetMode ? "Envoi…" : "Connexion…") : (resetMode ? "Envoyer le lien" : "Se connecter")}
-            </Button>
-            <Button
-              type="button"
-              variant="link"
-              className="w-full text-sm text-muted-foreground"
-              onClick={() => { setResetMode(!resetMode); setError(""); }}
-            >
-              {resetMode ? "Retour à la connexion" : "Mot de passe oublié ?"}
-            </Button>
-          </div>
-        )}
-        <Button
-          type="button"
-          variant="ghost"
-          className="w-full text-muted-foreground"
-          onClick={() => navigate("/")}>
-          <ArrowLeft className="w-4 h-4 mr-2" /> Retour au site
-        </Button>
-      </form>
-    </div>
+          {!resetMode && (
+            <div>
+              <label htmlFor="admin-password" className={labelCls}>Mot de passe</label>
+              <input id="admin-password" type="password" value={password} onChange={(e) => setPassword(e.target.value)} autoComplete="current-password" className={field} required />
+            </div>
+          )}
+          {error && <p className="text-sm font-bold text-destructive" role="alert">{error}</p>}
+          <button type="submit" className={`${btnPrimary} w-full`} disabled={loading}>
+            {loading ? (resetMode ? "Envoi en cours…" : "Connexion…") : (resetMode ? "Recevoir le lien" : "Se connecter")}
+          </button>
+          <button
+            type="button"
+            className={`${linkUnderline} text-[15px] min-h-[44px] inline-flex items-center`}
+            onClick={() => { setResetMode(!resetMode); setError(""); }}
+          >
+            {resetMode ? "Retour à la connexion" : "Mot de passe oublié ?"}
+          </button>
+        </form>
+      )}
+    </ConnexionShell>
   );
 };
 
