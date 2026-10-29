@@ -118,8 +118,9 @@ const ContactSection = () => {
               </div>
             </fieldset>
 
-            <fieldset className="space-y-5 pt-2 border-t border-filet">
-              <legend className="title-section text-[26px] pt-5 mb-1">Vos coordonnées</legend>
+            <div aria-hidden className="border-t border-filet" />
+            <fieldset className="space-y-5">
+              <legend className="title-section text-[26px] mb-1">Vos coordonnées</legend>
               <div className="grid sm:grid-cols-2 gap-5">
                 <div>
                   <label htmlFor="contact-prenom" className={labelCls}>Prénom<Req /></label>

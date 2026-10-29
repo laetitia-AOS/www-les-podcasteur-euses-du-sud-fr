@@ -86,7 +86,7 @@ const AdminLogin = () => {
   return (
     <ConnexionShell espace="Administration">
       <SEOHead title="Connexion administration — Les Podcasteur·euses du Sud" description="Accès réservé à l'équipe de l'association." path="/admin/login" noindex />
-      <h1 className="title-page text-[52px] sm:text-[72px]">Administration</h1>
+      <h1 className="title-page text-[40px] min-[420px]:text-[52px] sm:text-[72px] break-words">Administration</h1>
       <p className="mt-4 text-lg">{resetMode ? "Recevez un lien pour choisir un nouveau mot de passe." : "Accès réservé à l'équipe de l'association."}</p>
 
       {resetSent ? (
