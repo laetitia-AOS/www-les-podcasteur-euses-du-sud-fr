@@ -1,11 +1,10 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { formatName } from "@/lib/pds";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Mail, Trash2 } from "lucide-react";
 import { toast } from "sonner";
-import { fullName } from "@/lib/pds";
+import { formatName, fullName } from "@/lib/pds";
 
 const STATUS: Record<string, string> = { pending: "À transmettre", transmis: "Transmis", archive: "Archivé" };
 

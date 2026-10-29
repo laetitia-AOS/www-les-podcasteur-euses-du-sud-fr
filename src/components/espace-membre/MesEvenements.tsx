@@ -1,11 +1,10 @@
 import { useState } from "react";
-import { fullName } from "@/lib/pds";
 import { Link } from "react-router-dom";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { readableTitle } from "@/lib/events";
 import { formatLongDate } from "@/lib/espaceMembre";
-import { linkUnderline } from "@/lib/pds";
+import { fullName, linkUnderline } from "@/lib/pds";
 import ProposerEvenementForm, { type PropositionInitiale } from "@/components/agenda/ProposerEvenementForm";
 
 export type MonEvenement = {
