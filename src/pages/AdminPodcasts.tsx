@@ -1,4 +1,4 @@
-import { COLLAB_CHOIX, checkImage, cropToSquare, uploadImage } from "@/lib/inscription";
+import { COLLAB_CHOIX, COLLAB_CHOIX_APPORTE, checkImage, cropToSquare, uploadImage } from "@/lib/inscription";
 import LieuEditor from "@/components/studios/LieuEditor";
 import { CollabField } from "@/components/adherer/fields";
 import { verifierFlux } from "@/lib/episodes";
@@ -907,7 +907,7 @@ const PersonEditForm = ({ editForm, setEditForm, inputClass, selectClass, labelC
       <CollabField id="adm-cherche-precision" legend="Je cherche" options={COLLAB_CHOIX}
         selected={(editForm as any).cherche_choix || []} onChange={(v) => setEditForm({ ...editForm, cherche_choix: v } as any)}
         precision={(editForm as any).cherche_precision || ""} onPrecision={(v) => setEditForm({ ...editForm, cherche_precision: v } as any)} />
-      <CollabField id="adm-apporte-precision" legend="J'apporte" options={COLLAB_CHOIX}
+      <CollabField id="adm-apporte-precision" legend="J'apporte" options={COLLAB_CHOIX_APPORTE}
         selected={(editForm as any).apporte_choix || []} onChange={(v) => setEditForm({ ...editForm, apporte_choix: v } as any)}
         precision={(editForm as any).apporte_precision || ""} onPrecision={(v) => setEditForm({ ...editForm, apporte_precision: v } as any)} />
     </div>

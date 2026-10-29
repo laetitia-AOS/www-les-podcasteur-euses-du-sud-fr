@@ -8,7 +8,7 @@ import StudioFormSection from "@/components/StudioFormSection";
 import StructureEcoFormSection from "@/components/StructureEcoFormSection";
 import { btnPrimary } from "@/lib/pds";
 import {
-  COLLAB_CHOIX, DEPARTEMENTS, DISPONIBILITES, FORMATS_COLLAB, LIEN_SANS_PODCAST, SERVICES, TYPES_PROFIL,
+  COLLAB_CHOIX, COLLAB_CHOIX_APPORTE, DEPARTEMENTS, DISPONIBILITES, FORMATS_COLLAB, LIEN_SANS_PODCAST, SERVICES, TYPES_PROFIL,
   isHttpsUrl, profilColumns, uploadImage, type ProfilData, type TypeProfil,
 } from "@/lib/inscription";
 import { ChoiceList, CollabField, ImagePicker, Req, field, hintCls, labelCls } from "./fields";
@@ -253,7 +253,7 @@ const ProfilStep = ({
               precision={p.cherchePrecision} onPrecision={(v) => set("cherchePrecision", v)} />
           </div>
           <div className="sm:col-span-2">
-            <CollabField id="pf-apporte-precision" legend="J'apporte" options={COLLAB_CHOIX} selected={p.apporte} onChange={(v) => set("apporte", v)}
+            <CollabField id="pf-apporte-precision" legend="J'apporte" options={COLLAB_CHOIX_APPORTE} selected={p.apporte} onChange={(v) => set("apporte", v)}
               precision={p.apportePrecision} onPrecision={(v) => set("apportePrecision", v)} />
           </div>
           <div>
