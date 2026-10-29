@@ -24,6 +24,7 @@ const COMPARATIF: { label: string; profil: string; membre: string }[] = [
   { label: "Visible dans l'annuaire et dans « Écouter »", profil: "Non", membre: "Oui" },
   { label: "Épisodes dans le lecteur du site", profil: "Non", membre: "Oui, en rotation" },
   { label: "« Cherche / Apporte » visibles et messages des autres membres", profil: "Non", membre: "Oui" },
+  { label: "Proposer un événement à l'agenda", profil: "Non", membre: "Oui" },
 ];
 
 const ANNEE = anneeEnCours();
