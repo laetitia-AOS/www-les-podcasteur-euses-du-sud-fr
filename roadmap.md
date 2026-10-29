@@ -14,7 +14,8 @@
 - [x] 9. Espace membre (menu à gauche, statut d'adhésion, rôles et majuscules)
 - [x] Fiches studio et structure au nouveau style
 - [x] Agenda : propositions des membres, relecture admin, « Je viens », agenda .ics/Google, archives, sitemap événements
-- [ ] Fin : référencement (titres, sitemap), scan de sécurité, revue SEO, tests visiteur / membre / admin
+- [x] Fin : référencement (titres, sitemap), scan de sécurité, revue SEO, tests visiteur / admin
+- [ ] HelloAsso : droits de lecture des commandes (en attente de HelloAsso)
 
 - [x] Adhésion HelloAsso : échéance, masquage à l'échéance, espace membre (statut, chiffres, suppression), liste des membres admin
 
@@ -23,7 +24,7 @@
 - [x] Relance collective : bouton dans Admin > Adhésions (envoi depuis la boîte mail de l'équipe).
 - [x] Admin Annuaire : relance individuelle « Fiches à compléter » (photo, pochette, RSS, Je cherche / J'apporte).
 - [x] Administration réorganisée : menu latéral, accueil « À traiter », rubriques Membres / Annuaire / Agenda / Messages en onglets.
-- [ ] Effacer les messages « test »
-- [ ] Admin Annuaire sur téléphone : noms visibles
-- [ ] Relance collective : envoi direct depuis le site, une personne à la fois
-- [ ] Vérification finale : référencement, scan sécurité, parcours visiteur / membre / admin (comptes fictifs)
+- [x] Effacer les messages « test »
+- [x] Admin Annuaire sur téléphone : noms visibles
+- [x] Relance collective : envoi direct depuis le site, une personne à la fois
+- [x] Vérification finale : référencement, scan sécurité, parcours visiteur / admin
