@@ -43,7 +43,10 @@ const MentionsLegales = () => {
             <section>
               <h2 className="font-display font-bold text-xl text-foreground">3. Hébergement du site</h2>
               <p>
-                Le site est hébergé par <strong>Lovable / Supabase</strong>, infrastructure cloud sécurisée.
+                Le site est hébergé par <strong>Lovable Labs Sweden AB</strong>, Regeringsgatan 25, 111 53 Stockholm, Suède, <a href="mailto:privacy@lovable.dev" className="underline underline-offset-4">privacy@lovable.dev</a>.
+              </p>
+              <p>
+                La base de données est hébergée par <strong>Supabase Pte. Ltd.</strong>, 65 Chulia Street #38-02/03, OCBC Centre, Singapour 049513, <a href="mailto:legal@supabase.io" className="underline underline-offset-4">legal@supabase.io</a>.
               </p>
               <p>
                 Les données sont stockées au sein de l'Union européenne ou dans des pays assurant un niveau de protection adéquat au sens du Règlement (UE) 2016/679 relatif à la protection des données à caractère personnel (RGPD).

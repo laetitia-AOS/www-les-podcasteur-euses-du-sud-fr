@@ -97,21 +97,31 @@ const CGU = () => {
             </section>
 
             <section>
-              <h2 className="font-display font-bold text-xl text-foreground">10. Modification des conditions</h2>
+              <h2 className="font-display font-bold text-xl text-foreground">10. Mise en relation et propositions</h2>
+              <ul className="list-disc pl-5 space-y-1">
+                <li>Les messages entre membres servent à des collaborations autour du podcast, sans démarchage commercial non sollicité.</li>
+                <li>L'association peut suspendre l'accès en cas d'abus.</li>
+                <li>Les événements proposés sont relus sous 48 à 72 heures et peuvent être refusés sans justification.</li>
+                <li>Les demandes de devis sont transmises aux studios, qui y répondent sous leur seule responsabilité.</li>
+              </ul>
+            </section>
+
+            <section>
+              <h2 className="font-display font-bold text-xl text-foreground">11. Modification des conditions</h2>
               <p>
                 L'association se réserve le droit de modifier les présentes CGU à tout moment. Les modifications prennent effet dès leur publication sur le site.
               </p>
             </section>
 
             <section>
-              <h2 className="font-display font-bold text-xl text-foreground">11. Droit applicable</h2>
+              <h2 className="font-display font-bold text-xl text-foreground">12. Droit applicable</h2>
               <p>
                 Les présentes conditions sont soumises au droit français. En cas de litige, et après tentative de résolution amiable, les tribunaux compétents seront ceux du ressort du Tribunal judiciaire de Marseille.
               </p>
             </section>
 
             <p className="text-xs text-muted-foreground/60 pt-4">
-              Dernière mise à jour : février 2026
+              Dernière mise à jour : octobre 2026
             </p>
           </div>
         </div>
