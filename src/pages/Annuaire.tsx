@@ -6,6 +6,7 @@ import { supabase } from "@/integrations/supabase/client";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import SEOHead from "@/components/SEOHead";
+import { PAGES, PAGES_SEO } from "@/lib/seo";
 import { btnSecondary, cleanCity, container, fullName } from "@/lib/pds";
 import MemberAvatar, { profilePhotoFor } from "@/components/MemberAvatar";
 import { COLLAB_CHOIX, collabLabel, phraseApportent } from "@/lib/inscription";
@@ -114,14 +115,17 @@ const Annuaire = () => {
   return (
     <div className="min-h-screen bg-background">
       <SEOHead
-        title="Annuaire des podcasteur·euses et pros du podcast en Région Sud — Les Podcasteur·euses du Sud"
-        description="Podcasteur·euses, monteur·euses, voix off, sound designers, consultant·es de Marseille et de la Région Sud. Dites ce que vous cherchez, l'annuaire vous montre qui l'apporte."
-        path="/annuaire"
+        title={PAGES_SEO.annuaire.title}
+        description={PAGES_SEO.annuaire.description}
+        path={PAGES.annuaire}
       />
       <Navbar />
       <main className="pt-16 md:pt-[76px]">
         <div className={`${container} pt-10 md:pt-14 pb-20`}>
-          <h1 className="title-page text-[60px] sm:text-[96px]">Annuaire</h1>
+          <h1 className="title-page text-[60px] sm:text-[96px]">
+            <span className="block">Annuaire</span>
+            <span className={h1Ligne}>des podcasteur·euses et pros de l'audio en Région Sud</span>
+          </h1>
           <p className="mt-4 text-lg max-w-[56ch]">
             Podcasteur·euses, monteur·euses, voix off, sound designers, consultant·es. Dites ce que vous cherchez, on vous montre qui l'apporte.
           </p>

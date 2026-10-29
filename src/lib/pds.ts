@@ -8,6 +8,8 @@ const btnBase =
 export const btnPrimary = `${btnBase} bg-primary text-primary-foreground hover:bg-primary-hover`;
 export const btnSecondary = `${btnBase} border-2 border-encre text-foreground bg-transparent hover:bg-encre hover:text-surface`;
 export const btnListen = `${btnBase} bg-accent text-accent-foreground hover:bg-accent-hover`;
+/** Ligne descriptive placée dans le H1, sous le grand titre : plus petite, en casse normale. */
+export const h1Ligne = "block mt-4 text-[19px] sm:text-[23px] font-semibold normal-case [font-stretch:100%] leading-snug tracking-normal max-w-[40ch]";
 export const linkUnderline = "font-bold underline underline-offset-4 decoration-2 hover:decoration-accent";
 
 /** Met une majuscule à chaque mot d'un prénom ou d'un nom (gère les traits d'union et apostrophes). */

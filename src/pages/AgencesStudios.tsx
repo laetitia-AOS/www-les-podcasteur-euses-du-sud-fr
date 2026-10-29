@@ -5,6 +5,7 @@ import { supabase } from "@/integrations/supabase/client";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import SEOHead from "@/components/SEOHead";
+import { PAGES, PAGES_SEO, SITE_URL, ficheHref } from "@/lib/seo";
 import { btnListen, btnPrimary, btnSecondary, cleanCity, container } from "@/lib/pds";
 import DevisForm from "@/components/studios/DevisForm";
 import { SERVICES_STUDIO, formatCapacite, formatTarif, serviceLabel, useFichesLieux } from "@/lib/lieux";
@@ -112,7 +113,7 @@ const AgencesStudios = () => {
     itemListElement: studios.map((s, i) => ({
       "@type": "ListItem",
       position: i + 1,
-      url: `https://www.les-podcasteur-euses-du-sud.fr/studios/${s.slug || s.id}`,
+      url: `${SITE_URL}${ficheHref(s)}`,
       name: s.nom_podcast,
     })),
   }), [studios]);
@@ -120,9 +121,9 @@ const AgencesStudios = () => {
   return (
     <div className="min-h-screen bg-background">
       <SEOHead
-        title="Studios podcast et agences à Marseille et en Région Sud — Les Podcasteur·euses du Sud"
-        description="Où enregistrer, avec qui produire, qui peut monter ou réaliser votre podcast en Région Sud : studios audio, plateaux vidéo, agences. Demandez un devis en une fois."
-        path="/studios"
+        title={PAGES_SEO.studios.title}
+        description={PAGES_SEO.studios.description}
+        path={PAGES.studios}
         jsonLd={jsonLd}
       />
       <Navbar />
@@ -130,9 +131,12 @@ const AgencesStudios = () => {
         <div className={`${container} pt-10 md:pt-14`}>
           <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-6">
             <div>
-              <h1 className="title-page text-[56px] sm:text-[88px]">Studios<br />&amp; agences</h1>
+              <h1 className="title-page text-[56px] sm:text-[88px]">
+                <span className="block">Studios<br />&amp; agences</span>
+                <span className={h1Ligne}>podcast en Région Sud</span>
+              </h1>
               <p className="mt-4 text-lg max-w-[52ch]">
-                Où enregistrer, avec qui produire, qui peut monter ou réaliser votre podcast dans la région.
+                Où enregistrer, avec qui produire, qui peut monter ou réaliser votre podcast près de chez vous.
               </p>
             </div>
             <button onClick={() => openDevis(null)} className={`${btnListen} px-6 self-start md:self-auto`}>Je cherche un studio</button>
@@ -185,7 +189,7 @@ const AgencesStudios = () => {
               const f = fiches[p.id];
               const services = (f?.services || []).map(serviceLabel);
               const photo = f?.photos?.[0] || sd.galerie_urls?.[0] || p.vignette_url;
-              const href = `/studios/${p.slug || p.id}`;
+              const href = ficheHref(p);
               const accroche = sd.accroche || sd.phrase_accroche || p.description || p.bio_750 || "";
               const meta = [
                 { k: "Tarif", v: formatTarif(f?.tarif_heure) || sd.indication_tarifaire },
@@ -269,7 +273,7 @@ const AgencesStudios = () => {
             <ul className="divide-y divide-filet border-b border-filet">
               {structures.map((s) => (
                 <li key={s.id}>
-                  <Link to={`/structures/${s.slug || s.id}`} className="flex flex-wrap items-baseline justify-between gap-x-6 gap-y-1 py-4 group">
+                  <Link to={ficheHref(s)} className="flex flex-wrap items-baseline justify-between gap-x-6 gap-y-1 py-4 group">
                     <span className="font-bold text-[18px] group-hover:underline underline-offset-4">{s.nom_podcast}</span>
                     <span className="font-mono text-sm text-muted-foreground">{[s.metier_principal, cleanCity(s.city_name)].filter(Boolean).join(" · ")}</span>
                   </Link>

@@ -6,6 +6,7 @@ import { supabase } from "@/integrations/supabase/client";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import SEOHead from "@/components/SEOHead";
+import { PAGES, PAGES_SEO } from "@/lib/seo";
 import EventRow, { eventHref } from "@/components/agenda/EventRow";
 import ProposerEvenementForm from "@/components/agenda/ProposerEvenementForm";
 import { aVenirFilter, isOnline, isOrganizedByPds, passeFilter, type HomeEvent } from "@/components/home/useHomeData";
@@ -102,9 +103,9 @@ const Evenements = () => {
   return (
     <div className="min-h-screen bg-background">
       <SEOHead
-        title="Agenda podcast à Marseille et en Région Sud : apéros écoute, ateliers, rencontres"
-        description="Apéros écoute le 9 de chaque mois, ateliers, lives et rencontres podcast à Marseille, en Région Sud et en ligne. Chaque membre peut proposer un événement."
-        path="/agenda"
+        title={PAGES_SEO.agenda.title}
+        description={PAGES_SEO.agenda.description}
+        path={PAGES.agenda}
         jsonLd={jsonLd.length ? jsonLd : undefined}
       />
       <Navbar />
@@ -112,9 +113,12 @@ const Evenements = () => {
         <div className={`${container} pt-10 md:pt-14`}>
           <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-6">
             <div>
-              <h1 className="title-page text-[64px] sm:text-[96px]">Agenda</h1>
+              <h1 className="title-page text-[64px] sm:text-[96px]">
+                <span className="block">Agenda</span>
+                <span className={h1Ligne}>des rendez-vous podcast en Région Sud</span>
+              </h1>
               <p className="mt-4 text-lg max-w-[54ch]">
-                Apéros écoute, ateliers, lives et rencontres podcast en Région Sud et en ligne. Chaque membre peut proposer un événement.
+                Apéros écoute, ateliers, lives et rencontres, sur place ou en ligne. Chaque membre peut proposer un événement.
               </p>
             </div>
             <a href="#proposer" className={`${btnListen} px-6 self-start md:self-auto`}>

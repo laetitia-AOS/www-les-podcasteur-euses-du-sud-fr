@@ -3,6 +3,7 @@ import { Link, useLocation, useSearchParams } from "react-router-dom";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import SEOHead from "@/components/SEOHead";
+import { PAGES, PAGES_SEO } from "@/lib/seo";
 import ProfilStep, { type ProfilResult } from "@/components/adherer/ProfilStep";
 import PodcastsStep from "@/components/adherer/PodcastsStep";
 import { btnPrimary, btnSecondary, container, linkUnderline } from "@/lib/pds";
@@ -124,15 +125,18 @@ const Adhesion = () => {
   return (
     <div className="min-h-screen bg-background">
       <SEOHead
-        title="Adhérer aux Podcasteur·euses du Sud : profil, adhésion et visibilité"
-        description={`Créez votre profil dans l'annuaire podcast de la Région Sud, puis adhérez pour être visible : ${TARIFS.personne} € par an pour une personne, ${TARIFS.studio} € pour un studio ou une agence.`}
-        path="/adherer"
+        title={PAGES_SEO.adherer.title}
+        description={PAGES_SEO.adherer.description}
+        path={PAGES.adherer}
         jsonLd={jsonLd}
       />
       <Navbar />
       <main className="pt-16 md:pt-[76px]">
         <div className={`${container} pt-10 md:pt-14 pb-12 md:pb-16`}>
-          <h1 className="title-page text-[56px] sm:text-[96px] max-w-[12ch]">Entrer dans le réseau</h1>
+          <h1 className="title-page text-[56px] sm:text-[96px]">
+            <span className="block max-w-[12ch]">Entrer dans le réseau</span>
+            <span className={h1Ligne}>Adhésion aux Podcasteur·euses du Sud</span>
+          </h1>
           <p className="mt-5 text-lg max-w-[56ch]">
             D'abord un profil, gratuit mais sans visibilité publique. Ensuite l'adhésion, pour être vu·e, entendu·e et mis·e en relation.
           </p>
