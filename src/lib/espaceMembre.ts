@@ -6,10 +6,9 @@ import { TYPES_PROFIL } from "@/lib/inscription";
  * Profil encore visible en janvier (tolérance), masqué le 1er février. La règle fait foi en base ; ces fonctions servent à l'affichage.
  */
 const parisYM = (now: Date) => {
-  const [y, m] = new Intl.DateTimeFormat("fr-FR", { timeZone: "Europe/Paris", year: "numeric", month: "numeric" })
-    .formatToParts(now).filter((p) => p.type === "year" || p.type === "month").map((p) => Number(p.value));
-  // formatToParts renvoie le mois avant l'année en fr-FR
-  return y > 12 ? { annee: y, mois: m } : { annee: m, mois: y };
+  const parts = new Intl.DateTimeFormat("fr-FR", { timeZone: "Europe/Paris", year: "numeric", month: "numeric" }).formatToParts(now);
+  const get = (t: string) => Number(parts.find((p) => p.type === t)?.value);
+  return { annee: get("year"), mois: get("month") };
 };
 
 /** Année en cours (heure de Paris). */
