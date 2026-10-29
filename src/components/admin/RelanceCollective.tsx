@@ -6,6 +6,7 @@ import { Check, Copy, Mail, Send, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { anneeEnCours } from "@/lib/espaceMembre";
 import type { MembreAdmin } from "@/components/admin/AdminMembres";
+import { useRattachements } from "@/components/RattacherAdhesionDialog";
 
 const SITE = "https://www.les-podcasteur-euses-du-sud.fr";
 
@@ -39,11 +40,12 @@ export const messageRelance = (r: Relance, y: number) => {
 };
 
 /** Destinataires de chaque relance, d'après la liste des membres (aucune adresse n'est envoyée ailleurs). */
-export const destinatairesRelance = (r: Relance, membres: MembreAdmin[], y: number) =>
+export const destinatairesRelance = (r: Relance, membres: MembreAdmin[], y: number, rattachees: Set<string> = new Set()) =>
   membres.filter((m) =>
-    r === "1dec" || r === "20dec" ? m.etat === "a_jour" && m.annee === y
+    // Paiement relié à la fiche d'une autre personne : on écrit à la fiche, pas à la personne qui a payé
+    !(m.nb_fiches === 0 && !!m.adhesion_id && rattachees.has(m.adhesion_id)) && (r === "1dec" || r === "20dec" ? m.etat === "a_jour" && m.annee === y
       : r === "15jan" ? m.annee === y - 1 && m.etat !== "a_jour"
-      : m.sursis);
+      : m.sursis));
 
 const RELANCES: { id: Relance; label: string; quand: string }[] = [
   { id: "1dec", label: "1er décembre", quand: "Ouverture du renouvellement" },
@@ -60,7 +62,9 @@ const RelanceCollective = ({ membres, onClose }: { membres: MembreAdmin[]; onClo
   const y = anneeEnCours();
   const [r, setR] = useState<Relance>(new Date().getMonth() === 0 ? "15jan" : "1dec");
   const msg = messageRelance(r, y);
-  const dest = useMemo(() => destinatairesRelance(r, membres, y), [r, membres, y]);
+  const { data: rattachements = [] } = useRattachements(true);
+  const rattachees = useMemo(() => new Set(rattachements.map((x) => x.adhesion_id)), [rattachements]);
+  const dest = useMemo(() => destinatairesRelance(r, membres, y, rattachees), [r, membres, y, rattachees]);
   const adresses = dest.map((m) => m.email).join(", ");
   // Envoi direct depuis le site, une personne à la fois (le serveur vérifie qu'elle est concernée)
   const qc = useQueryClient();
