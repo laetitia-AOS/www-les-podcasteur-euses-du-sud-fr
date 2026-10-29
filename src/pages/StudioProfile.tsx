@@ -11,7 +11,7 @@ import { PAGES, SITE_URL, breadcrumbLd, descriptionSeo, ficheHref, titreSeo } fr
 import StudioContact, { type ModeContact } from "@/components/studios/StudioContact";
 import { AgendaLieu, FaqList, LIEU_COLUMNS, PodcastsLiesList, faqJsonLd, planUrl, sdOf, useLieu, type LieuRow } from "@/components/studios/LieuParts";
 import { btnListen, btnSecondary, cleanCity, container, linkUnderline } from "@/lib/pds";
-import { SERVICES_STUDIO, ficheVide, formatCapacite, formatTarif, liensLieu, useAnneeAdhesion, useFichesLieux } from "@/lib/lieux";
+import { SERVICES_STUDIO, TARIF_UNITES, accrocheLieu, ficheVide, formatCapacite, formatTarif, liensLieu, tarifAffiche, useAnneeAdhesion, useFichesLieux } from "@/lib/lieux";
 
 const SITE = SITE_URL;
 
@@ -45,9 +45,11 @@ const StudioProfile = () => {
     enabled: !!studio?.city_name,
   });
 
-  const accroche = sd.accroche || sd.phrase_accroche || "";
-  const chiffres = [formatTarif(f.tarif_heure), formatCapacite(f.capacite_voix) && `jusqu'à ${formatCapacite(f.capacite_voix)}`].filter(Boolean).join(", ");
-  const description = studio?.bio_750 || studio?.description || "";
+  const accroche = accrocheLieu(f, sd);
+  const chiffres = [formatTarif(f.tarif_heure, f.tarif_unite, f.tarif_taxe), formatCapacite(f.capacite_voix) && `jusqu'à ${formatCapacite(f.capacite_voix)}`].filter(Boolean).join(", ");
+  // Description longue de la fiche détaillée ; vide : section « Le studio » masquée (on ne répète pas l'accroche)
+  const description = (f.description_longue || "").trim();
+  const uniteTarif = TARIF_UNITES.find((u) => u.value === (f.tarif_unite || "heure"))?.label.toLowerCase() || "heure";
   const photos = f.photos.length ? f.photos : (sd.galerie_urls || []).slice(0, 5);
   const proposes = SERVICES_STUDIO.filter((s) => f.services.includes(s.value));
   const nonProposes = SERVICES_STUDIO.filter((s) => !f.services.includes(s.value));
@@ -71,12 +73,12 @@ const StudioProfile = () => {
         addressRegion: "Provence-Alpes-Côte d'Azur",
         addressCountry: "FR",
       },
-      ...(f.tarif_heure != null && { priceRange: `À partir de ${f.tarif_heure} € / heure` }),
+      ...(f.tarif_heure != null && { priceRange: formatTarif(f.tarif_heure, f.tarif_unite, f.tarif_taxe)!.replace(/^à/, "À") }),
       ...(proposes.length && {
         makesOffer: proposes.map((s) => ({
           "@type": "Offer",
           itemOffered: { "@type": "Service", name: s.label },
-          ...(f.tarif_heure != null && { priceSpecification: { "@type": "UnitPriceSpecification", price: f.tarif_heure, priceCurrency: "EUR", unitText: "heure" } }),
+          ...(f.tarif_heure != null && { priceSpecification: { "@type": "UnitPriceSpecification", price: f.tarif_heure, priceCurrency: "EUR", unitText: uniteTarif, valueAddedTaxIncluded: (f.tarif_taxe || "TTC") === "TTC" } }),
         })),
       }),
       ...(liens.length && { sameAs: liens.map((l) => l.url) }),
@@ -164,13 +166,12 @@ const StudioProfile = () => {
               </ul>
             </section>
 
-            {(eq.micros || eq.cameras || eq.lumieres_decor || eq.technicien != null) && (
+            {(eq.materiel || eq.lumieres_decor || eq.technicien != null) && (
               <section aria-labelledby="equipement-title">
                 <h2 id="equipement-title" className="title-section text-[32px] sm:text-[40px] pb-3 border-b-2 border-encre">Équipement</h2>
                 <dl className="mt-2 divide-y divide-filet">
                   {[
-                    { k: "Micros", v: eq.micros },
-                    { k: "Caméras", v: eq.cameras },
+                    { k: "Matériel", v: eq.materiel },
                     { k: "Lumières et décor", v: eq.lumieres_decor },
                     { k: "Technicien·ne sur place", v: eq.technicien == null ? null : eq.technicien ? "Oui" : "Non" },
                   ].filter((x) => x.v).map((x) => (
@@ -205,7 +206,7 @@ const StudioProfile = () => {
             <h2 id="pratique-title" className="title-section text-[28px]">En pratique</h2>
             <dl className="mt-4 space-y-3 text-[16px]">
               {[
-                { k: "Tarif", v: formatTarif(f.tarif_heure) || sd.indication_tarifaire },
+                { k: "Tarif", v: tarifAffiche(f) },
                 { k: "Capacité", v: formatCapacite(f.capacite_voix) },
                 { k: "Adresse", v: adresse },
                 { k: "Accès", v: f.acces_transports },
