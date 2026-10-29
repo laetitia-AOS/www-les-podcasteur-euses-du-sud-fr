@@ -18,6 +18,9 @@ import { useAdminAuth } from "@/hooks/useAdminAuth";
 import { EVENT_TYPES } from "@/components/home/useHomeData";
 import EvenementInscriptionsDialog from "@/components/EvenementInscriptionsDialog";
 import PodcastsInvitesEditor, { type PodcastInvite } from "@/components/PodcastsInvitesEditor";
+import FaqEvenementEditor from "@/components/admin/FaqEvenementEditor";
+import { faqParDefaut, lireFaq, type FaqItem } from "@/lib/faqEvenement";
+import { sansEmojis } from "@/lib/events";
 
 type EventForm = {
   titre: string;
@@ -39,6 +42,7 @@ type EventForm = {
   lien_connexion: string;
   tarif: string;
   statut: string;
+  faq: FaqItem[];
 };
 
 const STATUT_LABEL: Record<string, string> = { en_relecture: "En relecture", publie: "Publié", refuse: "Refusé" };
@@ -48,7 +52,7 @@ const emptyForm: EventForm = {
   lieu: "", adresse: "", type: "rencontre", lien_externe: "", publie: true,
   image_url: "", places: "", inscription_activee: false,
   podcasts_invites: [], structure_id: "",
-  format: "sur_place", lien_connexion: "", tarif: "", statut: "publie",
+  format: "sur_place", lien_connexion: "", tarif: "", statut: "publie", faq: [],
 };
 
 const AdminEvenements = () => {
@@ -102,9 +106,10 @@ const AdminEvenements = () => {
   const saveMutation = useMutation({
     mutationFn: async (values: EventForm) => {
       const payload = {
-        titre: values.titre,
-        sous_titre: values.sous_titre || null,
-        description: values.description || null,
+        // Émojis retirés à l'enregistrement
+        titre: sansEmojis(values.titre),
+        sous_titre: sansEmojis(values.sous_titre) || null,
+        description: sansEmojis(values.description) || null,
         date_debut: new Date(values.date_debut).toISOString(),
         date_fin: values.date_fin ? new Date(values.date_fin).toISOString() : null,
         lieu: values.lieu || null,
@@ -122,6 +127,7 @@ const AdminEvenements = () => {
         podcasts_invites: (values.podcasts_invites || []).filter(
           (p) => p && (p.nom_podcast || p.host || p.vignette_url)
         ) as any,
+        faq: (lireFaq(values.faq).length ? lireFaq(values.faq) : null) as any,
       };
       if (editingId) {
         const { error } = await supabase.from("evenements").update(payload).eq("id", editingId);
@@ -197,6 +203,12 @@ const AdminEvenements = () => {
   };
 
   const resetForm = () => { setForm(emptyForm); setEditingId(null); setShowForm(false); };
+  // Réponses du dernier événement qui en a, sinon réponses habituelles : reprises pour un nouvel événement
+  const faqReprise: FaqItem[] = (() => {
+    const dernier = (evenements || []).find((e: any) => lireFaq(e.faq).length);
+    return dernier ? lireFaq((dernier as any).faq) : faqParDefaut();
+  })();
+  const nouveau = () => { setForm({ ...emptyForm, faq: faqReprise.map((f) => ({ ...f })) }); setEditingId(null); setShowForm(true); };
 
   const toLocalDatetime = (iso: string) => {
     const d = new Date(iso);
@@ -219,6 +231,7 @@ const AdminEvenements = () => {
       structure_id: (evt as { structure_id?: string | null }).structure_id || "",
       format: evt.format || "sur_place", lien_connexion: evt.lien_connexion || "",
       tarif: evt.tarif || "", statut: evt.statut || "publie",
+      faq: lireFaq(evt.faq),
     });
     setEditingId(evt.id);
     setShowForm(true);
@@ -269,7 +282,7 @@ const AdminEvenements = () => {
   // Raccourci « Nouvel événement » depuis l'accueil de l'admin
   useEffect(() => {
     if (params.get("nouveau") === "1") {
-      setForm(emptyForm); setEditingId(null); setShowForm(true);
+      nouveau();
       const p = new URLSearchParams(params); p.delete("nouveau"); setParams(p, { replace: true });
     }
   }, [params, setParams]);
@@ -282,7 +295,7 @@ const AdminEvenements = () => {
         <Button variant="outline" size="sm" onClick={exportCSV} disabled={!evenements?.length}>
           <Download className="w-4 h-4 mr-2" /> Export CSV
         </Button>
-        <Button size="sm" onClick={() => { resetForm(); setShowForm(true); }}>
+        <Button size="sm" onClick={nouveau}>
           <Plus className="w-4 h-4 mr-2" /> Nouvel événement
         </Button>
       </>}
@@ -407,6 +420,10 @@ const AdminEvenements = () => {
                   value={form.podcasts_invites}
                   onChange={(next) => setForm({ ...form, podcasts_invites: next })}
                 />
+              </div>
+
+              <div className="md:col-span-2 pt-2 border-t border-border">
+                <FaqEvenementEditor value={form.faq} onChange={(faq) => setForm({ ...form, faq })} reprise={faqReprise} />
               </div>
             </div>
             <div className="flex gap-3 pt-2">
