@@ -69,3 +69,15 @@
 - [x] 10. Fiche Maritima (structure Radio, partenaire)
 - [x] 11. Fil d'Ariane « Accueil / Studios / Nom »
 - [x] Scan sécurité + vérif 4 fiches + test formulaire fictif
+
+## Corrections après revue — lot 4 (agenda, événements, adhésion)
+- [ ] 1. « Proposer un événement » : un seul bouton, page dédiée = formulaire ou « Réservé aux membres »
+- [ ] 2. Événements sur plusieurs jours + fusion La Claque — plan à valider
+- [ ] 3. Formulaire de proposition : types, aide, émojis retirés (public + admin)
+- [ ] 4. Titres en casse normale (montrer avant/après)
+- [ ] 5. Affiche en pleine largeur, colonne de texte limitée
+- [ ] 6. Questions fréquentes modifiables par événement + réponses par défaut
+- [ ] 7. Tableau Adhérer : « Proposer des événements à l'agenda »
+- [ ] 8. Adhérer : retirer « Format de collaboration »
+- [ ] 9. Confirmation d'adhésion : une seule carte selon l'adresse
+- [ ] Scan + test parcours proposer (3 cas, compte fictif) + vérif 9 nov et La Claque
