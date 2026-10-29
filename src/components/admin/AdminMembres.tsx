@@ -39,6 +39,11 @@ const AdminMembres = () => {
     },
   });
 
+  const y = anneeEnCours();
+  // Décembre : membres de l'année à renouveler pour l'an prochain ; le reste de l'année : membres de l'an passé
+  const decembre = periodeRenouvellement();
+  const anneeCible = decembre ? y + 1 : y;
+  const aRenouveler = (m: MembreAdmin) => decembre ? m.etat === "a_jour" && m.annee === y : m.annee === y - 1 && m.etat !== "a_jour";
   const liste = useMemo(() => {
     const s = q.trim().toLowerCase();
     return membres.filter((m) =>
@@ -49,11 +54,6 @@ const AdminMembres = () => {
       (!s || m.nom.toLowerCase().includes(s) || m.email.includes(s)));
   }, [membres, q, etat, formule]);
 
-  const y = anneeEnCours();
-  // Décembre : membres de l'année à renouveler pour l'an prochain ; le reste de l'année : membres de l'an passé
-  const decembre = periodeRenouvellement();
-  const anneeCible = decembre ? y + 1 : y;
-  const aRenouveler = (m: MembreAdmin) => decembre ? m.etat === "a_jour" && m.annee === y : m.annee === y - 1 && m.etat !== "a_jour";
 
   const masquees = membres.filter((m) => m.fiche_validee && !m.fiche_visible).length;
 
