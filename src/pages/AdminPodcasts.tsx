@@ -17,6 +17,7 @@ import { BookOpen, ArrowLeft, LogOut, Loader2, Download, Eye, ExternalLink, Tras
 import { useNavigate, Navigate } from "react-router-dom";
 import { useAdminAuth } from "@/hooks/useAdminAuth";
 import AdminFlux from "@/components/admin/AdminFlux";
+import ProfilsACompleter from "@/components/admin/ProfilsACompleter";
 import { toast } from "sonner";
 import {
   Dialog,
@@ -343,6 +344,7 @@ const AdminPodcasts = () => {
         </div>
 
         <AdminImagesEnAttente />
+        <ProfilsACompleter />
         <AdminFlux />
 
         <Tabs value={filterType} onValueChange={setFilterType} className="mb-6">

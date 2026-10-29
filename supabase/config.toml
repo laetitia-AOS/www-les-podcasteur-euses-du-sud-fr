@@ -28,3 +28,6 @@ verify_jwt = false
 
 [functions.confirmer-venue]
 verify_jwt = false
+
+[functions.relance-profil]
+verify_jwt = false

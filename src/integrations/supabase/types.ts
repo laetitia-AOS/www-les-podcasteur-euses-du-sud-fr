@@ -832,6 +832,30 @@ export type Database = {
           },
         ]
       }
+      relances_profil: {
+        Row: {
+          email: string
+          envoye_le: string
+          envoye_par: string | null
+          id: string
+          manques: string[]
+        }
+        Insert: {
+          email: string
+          envoye_le?: string
+          envoye_par?: string | null
+          id?: string
+          manques?: string[]
+        }
+        Update: {
+          email?: string
+          envoye_le?: string
+          envoye_par?: string | null
+          id?: string
+          manques?: string[]
+        }
+        Relationships: []
+      }
       stats_empreintes: {
         Row: {
           empreinte: string
@@ -989,6 +1013,21 @@ export type Database = {
           nb_fiches: number
           nom: string
           sursis: boolean
+          type_profil: string
+        }[]
+      }
+      admin_profils_a_completer: {
+        Args: never
+        Returns: {
+          derniere_relance: string
+          email: string
+          fiche_validee: boolean
+          nb_relances: number
+          nom: string
+          podcasts_sans_pochette: string[]
+          podcasts_sans_rss: string[]
+          sans_collab: boolean
+          sans_photo: boolean
           type_profil: string
         }[]
       }
