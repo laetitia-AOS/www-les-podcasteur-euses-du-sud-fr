@@ -131,7 +131,7 @@ const MonEspace = () => {
   // Fiche publique seulement si elle est validée et l'adhésion à jour (même règle que le serveur)
   // Sursis accordé par l'équipe : la fiche reste visible le temps de la relance d'adhésion
   const sursis = !aJour && fiches.some((f) => f.valide && f.visible_sans_adhesion);
-  const publicPath = profil && profil.valide && (aJour || profil.visible_sans_adhesion) ? publicProfilePath(profil.type_profil, profil.slug) : null;
+  const publicPath = profil && profil.valide && (aJour || profil.visible_sans_adhesion) ? publicProfilePath(profil.type_profil, profil.slug, profil.nom_podcast) : null;
   const nomFiche = (id: string) => fiches.find((f) => f.id === id);
 
   if (loading) {

@@ -48,7 +48,14 @@ const queryClient = new QueryClient();
 
 const SlugRedirect = ({ to }: { to: string }) => {
   const { slug } = useParams();
-  return <Navigate to={`${to}/${slug}`} replace />;
+  const { search, hash } = useLocation();
+  return <Navigate to={{ pathname: `${to}/${slug}`, search, hash }} replace />;
+};
+
+/** Ancienne adresse d'une page : on garde les paramètres (?etape=…) et l'ancre (#inscription). */
+const KeepRedirect = ({ to }: { to: string }) => {
+  const { search, hash } = useLocation();
+  return <Navigate to={{ pathname: to, search, hash }} replace />;
 };
 
 const PageLoader = () => (
@@ -74,29 +81,35 @@ const App = () => (
             <Route path="/conditions-utilisation" element={<CGU />} />
             <Route path="/politique-cookies" element={<PolitiqueCookies />} />
             <Route path="/agenda" element={<Evenements />} />
-            <Route path="/evenements-podcast" element={<Navigate to="/agenda" replace />} />
-            <Route path="/ecouter" element={<Podcasts />} />
-            <Route path="/podcasts" element={<Navigate to="/ecouter" replace />} />
-            <Route path="/proposer-evenement-podcast" element={<ProposerEvenement />} />
             <Route path="/agenda/:slug" element={<EvenementDetail />} />
-            <Route path="/evenement-podcast/:slug" element={<SlugRedirect to="/agenda" />} />
-            <Route path="/rejoindre-association" element={<Adhesion />} />
-            <Route path="/annuaire-podcasts" element={<Annuaire />} />
-            <Route path="/annuaire" element={<Navigate to="/annuaire-podcasts" replace />} />
-            <Route path="/podcasteur/:slug" element={<ProfilMembre />} />
-            <Route path="/annuaire-podcasts/studios/:slug" element={<StudioProfile />} />
-            <Route path="/annuaire-podcasts/structures/:slug" element={<StructureEcoProfile />} />
+            <Route path="/ecouter" element={<Podcasts />} />
+            <Route path="/ecouter/:slug" element={<ProfilMembre />} />
+            <Route path="/annuaire" element={<Annuaire />} />
+            <Route path="/annuaire/:slug" element={<ProfilMembre />} />
+            <Route path="/studios" element={<AgencesStudios />} />
+            <Route path="/studios/:slug" element={<StudioProfile />} />
+            <Route path="/structures/:slug" element={<StructureEcoProfile />} />
+            <Route path="/adherer" element={<Adhesion />} />
+            <Route path="/proposer-evenement-podcast" element={<ProposerEvenement />} />
             <Route path="/bienvenue" element={<Bienvenue />} />
             <Route path="/referencer-mon-podcast" element={<Formulaire />} />
-            <Route path="/studios-podcast" element={<AgencesStudios />} />
-            {/* Redirections anciennes URLs */}
-            <Route path="/evenements" element={<Navigate to="/agenda" replace />} />
+            {/* Anciennes adresses : redirection vers l'adresse actuelle (adresse, paramètres et ancre conservés) */}
+            <Route path="/podcasts" element={<KeepRedirect to="/ecouter" />} />
+            <Route path="/podcasteur/:slug" element={<ProfilMembre />} />
+            <Route path="/profil/:slug" element={<ProfilMembre />} />
+            <Route path="/annuaire-podcasts" element={<KeepRedirect to="/annuaire" />} />
+            <Route path="/annuaire-podcasts/studios/:slug" element={<SlugRedirect to="/studios" />} />
+            <Route path="/annuaire-podcasts/structures/:slug" element={<SlugRedirect to="/structures" />} />
+            <Route path="/studios-podcast" element={<KeepRedirect to="/studios" />} />
+            <Route path="/agences-studios" element={<KeepRedirect to="/studios" />} />
+            <Route path="/evenements" element={<KeepRedirect to="/agenda" />} />
+            <Route path="/evenements-podcast" element={<KeepRedirect to="/agenda" />} />
             <Route path="/evenement/:slug" element={<SlugRedirect to="/agenda" />} />
-            <Route path="/proposer-evenement" element={<Navigate to="/proposer-evenement-podcast" replace />} />
-            <Route path="/adhesion" element={<Navigate to="/rejoindre-association" replace />} />
-            <Route path="/profil/:slug" element={<SlugRedirect to="/podcasteur" />} />
-            <Route path="/formulaire" element={<Navigate to="/referencer-mon-podcast" replace />} />
-            <Route path="/agences-studios" element={<Navigate to="/studios-podcast" replace />} />
+            <Route path="/evenement-podcast/:slug" element={<SlugRedirect to="/agenda" />} />
+            <Route path="/rejoindre-association" element={<KeepRedirect to="/adherer" />} />
+            <Route path="/adhesion" element={<KeepRedirect to="/adherer" />} />
+            <Route path="/proposer-evenement" element={<KeepRedirect to="/proposer-evenement-podcast" />} />
+            <Route path="/formulaire" element={<KeepRedirect to="/referencer-mon-podcast" />} />
             <Route path="/admin" element={<AdminDashboard />} />
             <Route path="/admin/login" element={<AdminLogin />} />
             <Route path="/admin/membres" element={<AdminAdhesions />} />
