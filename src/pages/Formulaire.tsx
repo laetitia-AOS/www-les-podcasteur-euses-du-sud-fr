@@ -3,6 +3,7 @@ import { Link, Navigate, useSearchParams } from "react-router-dom";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import SEOHead from "@/components/SEOHead";
+import { PAGES_SEO } from "@/lib/seo";
 import PodcastsStep from "@/components/adherer/PodcastsStep";
 import { field, labelCls, Req } from "@/components/adherer/fields";
 import { supabase } from "@/integrations/supabase/client";
@@ -67,7 +68,7 @@ const Formulaire = () => {
 
   return (
     <div className="min-h-screen bg-background">
-      <SEOHead title="Ajouter un podcast à mon profil — Les Podcasteur·euses du Sud" description="Ajoutez un ou plusieurs podcasts à votre profil dans l'annuaire des Podcasteur·euses du Sud." path="/referencer-mon-podcast" />
+      <SEOHead title={PAGES_SEO.ajouterPodcast.title} description={PAGES_SEO.ajouterPodcast.description} path="/referencer-mon-podcast" />
       <Navbar />
       <main className="pt-16 md:pt-[76px]">
         <div className={`${container} pt-10 md:pt-14 pb-8`}>

@@ -161,7 +161,7 @@ const MonEspace = () => {
   if (!profil) {
     return (
       <div className="min-h-screen bg-background">
-        <SEOHead title="Espace membre — Les Podcasteur·euses du Sud" description="Gérez votre profil, vos podcasts et votre adhésion." path="/mon-espace" />
+        <SEOHead title="Espace membre — Les Podcasteur·euses du Sud" description="Gérez votre profil, vos podcasts et votre adhésion." path="/mon-espace" noindex />
         {header}
         <main className="mx-auto max-w-[640px] px-5 sm:px-8 py-16">
           <h1 className="title-page text-[48px] sm:text-[64px]">Aucun profil trouvé</h1>
@@ -182,7 +182,7 @@ const MonEspace = () => {
 
   return (
     <div className="min-h-screen bg-background">
-      <SEOHead title="Espace membre — Les Podcasteur·euses du Sud" description="Gérez votre profil, vos podcasts et votre adhésion." path="/mon-espace" />
+      <SEOHead title="Espace membre — Les Podcasteur·euses du Sud" description="Gérez votre profil, vos podcasts et votre adhésion." path="/mon-espace" noindex />
       {header}
 
       <div className="mx-auto max-w-[1240px] px-5 sm:px-8 lg:grid lg:grid-cols-[230px_1fr] lg:gap-12 pb-24">

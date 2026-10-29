@@ -4,6 +4,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Lock } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import SEOHead from "@/components/SEOHead";
 import { toast } from "sonner";
 
 const ResetPassword = () => {
@@ -67,6 +68,7 @@ const ResetPassword = () => {
   if (!ready) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center px-4">
+      <SEOHead title="Nouveau mot de passe — Les Podcasteur·euses du Sud" description="Choisir un nouveau mot de passe." path="/reset-password" noindex />
         <div className="text-center space-y-4">
           <Lock className="w-8 h-8 text-muted-foreground mx-auto" />
           <p className="text-muted-foreground">Vérification du lien de réinitialisation…</p>
@@ -77,6 +79,7 @@ const ResetPassword = () => {
 
   return (
     <div className="min-h-screen bg-background flex items-center justify-center px-4">
+      <SEOHead title="Nouveau mot de passe — Les Podcasteur·euses du Sud" description="Choisir un nouveau mot de passe." path="/reset-password" noindex />
       <form onSubmit={handleSubmit} className="w-full max-w-sm space-y-6">
         <div className="text-center">
           <div className="mx-auto w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center mb-4">

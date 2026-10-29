@@ -8,7 +8,7 @@ import { btnPrimary, btnSecondary, container } from "@/lib/pds";
 /** Page d'arrivée après le paiement HelloAsso. */
 const Bienvenue = () => (
   <div className="min-h-screen bg-background">
-    <SEOHead title="Bienvenue dans l'association — Les Podcasteur·euses du Sud" description="Merci pour votre adhésion aux Podcasteur·euses du Sud." path="/bienvenue" />
+    <SEOHead title="Bienvenue dans l'association — Les Podcasteur·euses du Sud" description="Merci pour votre adhésion aux Podcasteur·euses du Sud." path="/bienvenue" noindex />
     <Navbar />
     <main className="pt-16 md:pt-[76px]">
       <section className="bg-primary text-primary-foreground">

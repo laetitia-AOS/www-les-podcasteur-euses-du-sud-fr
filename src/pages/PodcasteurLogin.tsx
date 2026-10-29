@@ -49,6 +49,7 @@ const EspaceMembre = () => {
         title="Connexion à l'espace membre — Les Podcasteur·euses du Sud"
         description="Connectez-vous pour modifier votre profil, vos podcasts et suivre votre adhésion."
         path="/espace-membre"
+        noindex
       />
       <header className="border-b border-encre">
         <div className="mx-auto max-w-[1240px] px-5 sm:px-8 min-h-[64px] flex items-center justify-between gap-4">

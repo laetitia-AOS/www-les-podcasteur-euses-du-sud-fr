@@ -4,6 +4,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Lock, ArrowLeft } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import SEOHead from "@/components/SEOHead";
 
 const AdminLogin = () => {
   const [email, setEmail] = useState("");
@@ -84,6 +85,7 @@ const AdminLogin = () => {
 
   return (
     <div className="min-h-screen bg-background flex items-center justify-center px-4">
+      <SEOHead title="Connexion administration — Les Podcasteur·euses du Sud" description="Accès réservé à l'équipe de l'association." path="/admin/login" noindex />
       <form onSubmit={resetMode ? handleResetPassword : handleLogin} className="w-full max-w-sm space-y-6">
         <div className="text-center">
           <div className="mx-auto w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center mb-4">
