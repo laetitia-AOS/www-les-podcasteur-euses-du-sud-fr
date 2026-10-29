@@ -29,14 +29,13 @@ Deno.serve(async (req) => {
       .eq("type_profil", "podcasteur");
     const all = (rows || []) as Row[];
 
-    // Membres à jour (une seule vérification par adresse)
-    const emails = [...new Set(all.map((r) => r.email.toLowerCase()))];
-    const aJour = new Set<string>();
-    for (const e of emails) {
-      const { data } = await admin.rpc("membre_a_jour", { _email: e });
-      if (data) aJour.add(e);
+    // Fiches visibles sur le site (membre à jour, ou sursis accordé par l'équipe) : même règle que les pages publiques
+    const visibles = new Set<string>();
+    for (const r of all) {
+      const { data } = await admin.rpc("podcast_visible", { _id: r.id });
+      if (data) visibles.add(r.id);
     }
-    const eligibles = all.filter((r) => aJour.has(r.email.toLowerCase()));
+    const eligibles = all.filter((r) => visibles.has(r.id));
 
     // Les épisodes des podcasts qui ne sont plus éligibles sont retirés
     const eligibleIds = eligibles.map((r) => r.id);
