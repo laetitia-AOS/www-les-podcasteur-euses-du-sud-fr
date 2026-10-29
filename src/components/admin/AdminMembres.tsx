@@ -9,6 +9,8 @@ import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { anneeEnCours, periodeRenouvellement } from "@/lib/espaceMembre";
+import RelanceCollective from "@/components/admin/RelanceCollective";
+import { Mail } from "lucide-react";
 
 export type MembreAdmin = {
   email: string; nom: string; type_profil: string | null; formule: string; etat: string;
@@ -30,6 +32,7 @@ const AdminMembres = () => {
   const [q, setQ] = useState("");
   const [etat, setEtat] = useState("tous");
   const [formule, setFormule] = useState("toutes");
+  const [relance, setRelance] = useState(false);
 
   const qc = useQueryClient();
   const changerSursis = async (m: MembreAdmin, actif: boolean) => {
@@ -91,6 +94,7 @@ const AdminMembres = () => {
         {" "}·{" "}<button type="button" className="underline underline-offset-4" onClick={() => setEtat("sursis")}>{membres.filter((m) => m.sursis).length} visibles en attente d'adhésion</button>
         {" "}· adhésion à l'année civile, tolérance en janvier, masquage le 1er février
       </p>
+      {relance && <RelanceCollective membres={membres} onClose={() => setRelance(false)} />}
       <div className="space-y-3">
           <div className="flex flex-wrap gap-2 items-center">
             <Input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Nom ou e-mail" className="max-w-xs" aria-label="Rechercher un membre" />
@@ -106,6 +110,7 @@ const AdminMembres = () => {
               <option value="personne">Personne</option>
               <option value="studio">Studio / agence</option>
             </select>
+            <Button size="sm" onClick={() => setRelance((v) => !v)} aria-expanded={relance}><Mail className="w-4 h-4 mr-2" aria-hidden /> Relance collective</Button>
             <Button variant="outline" size="sm" onClick={exporter} disabled={!liste.length}><Download className="w-4 h-4 mr-2" /> Export CSV ({liste.length})</Button>
           </div>
           <div className="border border-border overflow-x-auto">

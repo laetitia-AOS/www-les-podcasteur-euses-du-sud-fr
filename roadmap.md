@@ -20,4 +20,4 @@
 
 ## En attente
 - Envoi d'e-mails : domaine d'envoi à configurer par l'utilisatrice (envoi intégré Lovable) ; ensuite basculer « Écrire à… », devis studios, confirmations d'inscription aux événements, e-mail au membre quand sa proposition est publiée ou refusée, et e-mail de confirmation d'adhésion (« Valable jusqu'au 31 décembre [année] »).
-- Renouvellement collectif (1er déc., 20 déc., 15 janv.) : envoi groupé impossible via les e-mails intégrés ; choix de l'outil d'envoi à faire par l'utilisatrice.
+- [x] Relance collective : bouton dans Admin > Adhésions (envoi depuis la boîte mail de l'équipe).
