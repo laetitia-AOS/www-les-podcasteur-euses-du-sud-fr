@@ -1,12 +1,12 @@
 import { useMemo } from "react";
 import { useParams, Link } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
-import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import SEOHead from "@/components/SEOHead";
 import JeViens from "@/components/agenda/JeViens";
+import PartageEvenement from "@/components/agenda/PartageEvenement";
 import PodcastsInvitesDisplay from "@/components/PodcastsInvitesDisplay";
 import { eventHref } from "@/components/agenda/EventRow";
 import { EVENT_TYPE_LABELS, aVenirFilter, cityFromAddress, isOnline, isOrganizedByPds, type HomeEvent } from "@/components/home/useHomeData";
@@ -36,7 +36,8 @@ type Evt = HomeEvent & {
   lien_connexion: string | null;
 };
 
-const hour = (d: Date) => d.toLocaleTimeString("fr-FR", { hour: "2-digit", minute: "2-digit" }).replace(":", "h");
+// Heure et date toujours à l'heure de Paris (événements en Région Sud), quel que soit l'appareil
+const hour = (d: Date) => d.toLocaleTimeString("fr-FR", { hour: "2-digit", minute: "2-digit", timeZone: "Europe/Paris" }).replace(":", "h");
 const capitalize = (s: string) => s.charAt(0).toLocaleUpperCase("fr-FR") + s.slice(1);
 
 const EvenementDetail = () => {
@@ -83,7 +84,7 @@ const EvenementDetail = () => {
     const city = online ? "" : cityFromAddress(evt.adresse) || (evt.lieu && /marseille/i.test(evt.lieu) ? "Marseille" : "");
     const titre = readableTitle(evt.titre);
     const h1 = `${H1_TYPE[evt.type] || "Événement podcast"} ${online ? "en ligne" : city ? `à ${city}` : "en Région Sud"} : ${titre}`;
-    const dateLong = capitalize(start.toLocaleDateString("fr-FR", { weekday: "long", day: "numeric", month: "long", year: "numeric" }));
+    const dateLong = capitalize(start.toLocaleDateString("fr-FR", { weekday: "long", day: "numeric", month: "long", year: "numeric", timeZone: "Europe/Paris" }));
     const horaires = end ? `de ${hour(start)} à ${hour(end)}` : `à partir de ${hour(start)}`;
     const lieuPhrase = online ? "en ligne" : evt.lieu ? `chez ${evt.lieu}${city ? ` (${city})` : ""}` : city ? `à ${city}` : "";
     const tarif = evt.tarif || "";
@@ -149,14 +150,22 @@ const EvenementDetail = () => {
     );
   }
 
-  // Partage : lien servi par la fonction d'aperçu (image et titre de l'événement pour les réseaux)
-  const ogShareUrl = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/og-evenement/${evt.slug}?v=${Date.now()}`;
-  const shareText = `${view.titre} — Les Podcasteur·euses du Sud`;
-  const copy = async () => {
-    try { await navigator.clipboard.writeText(ogShareUrl); toast.success("Lien copié."); }
-    catch { toast.error("Le lien n'a pas pu être copié."); }
+  // Partage : toujours l'adresse publique de la page de l'événement
+  const partage = {
+    titre: view.titre,
+    type: (H1_TYPE[evt.type] || "Événement podcast").replace(/ podcast$/, "").replace(/^Podcast en live$/, "Live podcast"),
+    dateLong: view.dateLong,
+    horaires: view.horaires,
+    lieu: evt.lieu,
+    adresse: evt.adresse ? cleanAddress(evt.adresse) : null,
+    ville: view.city,
+    enLigne: view.online,
+    tarif: evt.tarif,
+    sousTitre: evt.sous_titre,
+    url: view.url,
+    image: evt.image_url,
+    jeViens: !view.isPast,
   };
-  const openShare = (u: string) => window.open(u, "_blank", "noopener,noreferrer,width=600,height=600");
 
   const mapsQuery = evt.adresse || evt.lieu;
   const invites = Array.isArray(evt.podcasts_invites) ? (evt.podcasts_invites as never[]) : [];
@@ -266,13 +275,7 @@ const EvenementDetail = () => {
               </div>
             )}
 
-            <div className="mt-6 pt-4 border-t border-filet flex flex-wrap items-center gap-x-4 gap-y-1 text-sm">
-              <span className="text-muted-foreground">Partager</span>
-              <button onClick={() => openShare(`https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(ogShareUrl)}`)} className="min-h-[44px] underline underline-offset-4">LinkedIn</button>
-              <button onClick={() => openShare(`https://wa.me/?text=${encodeURIComponent(`${shareText} ${ogShareUrl}`)}`)} className="min-h-[44px] underline underline-offset-4">WhatsApp</button>
-              <button onClick={() => openShare(`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(ogShareUrl)}`)} className="min-h-[44px] underline underline-offset-4">Facebook</button>
-              <button onClick={copy} className="min-h-[44px] underline underline-offset-4">Copier le lien</button>
-            </div>
+            <PartageEvenement info={partage} slug={evt.slug || "evenement"} />
           </aside>
 
           <div className="min-w-0">
