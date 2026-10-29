@@ -120,6 +120,13 @@
       "when": 1793225934791,
       "tag": "0016_podcasts_owner_cannot_self_validate",
       "breakpoints": true
+    },
+    {
+      "idx": 17,
+      "version": "7",
+      "when": 1793274868284,
+      "tag": "0017_adhesion_echeance_visibilite_stats",
+      "breakpoints": true
     }
   ]
 }
