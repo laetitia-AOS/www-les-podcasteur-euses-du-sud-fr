@@ -94,7 +94,8 @@ const PlayerBar = () => {
             </button>
             <p className="min-w-0 flex-1 text-sm">
               <span className="font-bold">Lecteur</span>
-              <span className="text-surface/75"> · Lancez un épisode : il continue pendant que vous naviguez.</span>
+              <span className="text-surface/75 hidden sm:inline"> · Lancez un épisode : il continue pendant que vous naviguez.</span>
+              <span className="text-surface/75 sm:hidden"> · aucun épisode</span>
             </p>
             {pathname !== "/ecouter" && (
               <Link to="/ecouter" className="inline-flex min-h-[44px] items-center text-sm font-bold underline underline-offset-4 shrink-0">
