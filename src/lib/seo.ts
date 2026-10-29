@@ -3,8 +3,8 @@
 
 export const SITE_URL = "https://www.les-podcasteur-euses-du-sud.fr";
 export const SITE_NAME = "Les Podcasteur·euses du Sud";
-/** Image de partage par défaut (logo sur fond bleu, 1200 × 630). */
-export const DEFAULT_SHARE_IMAGE = `${SITE_URL}/og-image.jpg`;
+/** Image de partage par défaut (nom du site sur fond bleu et photo d’un apéro écoute, 1200 × 630). */
+export const DEFAULT_SHARE_IMAGE = `${SITE_URL}/vignette-partage.jpg`;
 
 /** Adresses des pages principales. */
 export const PAGES = {
