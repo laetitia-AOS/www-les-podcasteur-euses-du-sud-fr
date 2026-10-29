@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { anneeEnCours } from "@/lib/espaceMembre";
+import { anneeEnCours, periodeRenouvellement } from "@/lib/espaceMembre";
 
 export type MembreAdmin = {
   email: string; nom: string; type_profil: string | null; formule: string; etat: string;
@@ -43,13 +43,17 @@ const AdminMembres = () => {
     const s = q.trim().toLowerCase();
     return membres.filter((m) =>
       (etat === "tous" || (etat === "masquees" ? m.fiche_validee && !m.fiche_visible
-        : etat === "a_renouveler" ? (m.etat === "a_jour" && m.annee === y) || m.etat === "tolerance"
+        : etat === "a_renouveler" ? aRenouveler(m)
         : m.etat === etat)) &&
       (formule === "toutes" || m.formule === formule) &&
       (!s || m.nom.toLowerCase().includes(s) || m.email.includes(s)));
   }, [membres, q, etat, formule]);
 
   const y = anneeEnCours();
+  // Décembre : membres de l'année à renouveler pour l'an prochain ; le reste de l'année : membres de l'an passé
+  const decembre = periodeRenouvellement();
+  const anneeCible = decembre ? y + 1 : y;
+  const aRenouveler = (m: MembreAdmin) => decembre ? m.etat === "a_jour" && m.annee === y : m.annee === y - 1 && m.etat !== "a_jour";
 
   const masquees = membres.filter((m) => m.fiche_validee && !m.fiche_visible).length;
 
@@ -84,7 +88,7 @@ const AdminMembres = () => {
               <option value="tous">Tous les statuts</option>
               {Object.entries(ETAT).map(([v, l]) => <option key={v} value={v}>{l}</option>)}
               <option value="masquees">Fiches masquées</option>
-              <option value="a_renouveler">À renouveler pour {y + 1 > y && new Date().getMonth() === 0 ? y : y + 1}</option>
+              <option value="a_renouveler">À renouveler pour {anneeCible}</option>
             </select>
             <select value={formule} onChange={(e) => setFormule(e.target.value)} className="h-10 border border-input bg-background px-3 text-sm" aria-label="Filtrer par formule">
               <option value="toutes">Toutes les formules</option>
