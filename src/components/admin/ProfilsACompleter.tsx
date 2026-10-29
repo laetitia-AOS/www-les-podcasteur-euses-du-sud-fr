@@ -80,7 +80,7 @@ const ProfilsACompleter = () => {
 
       {ouvert && (
         <div className="border-t-2 border-foreground p-4 space-y-4">
-          <p className="text-sm text-muted-foreground max-w-2xl">
+          <p className="text-base md:text-sm text-muted-foreground max-w-2xl">
             Les manques sont cochés d'office. Décochez ce que vous ne voulez pas mentionner, puis « Relancer » : la personne reçoit
             un e-mail aux couleurs du site qui liste uniquement les éléments cochés, avec un lien vers son espace membre.
             Une seule relance par personne et par 24 heures.
@@ -93,43 +93,43 @@ const ProfilsACompleter = () => {
             </select>
           </div>
 
-          <ul className="divide-y divide-border border border-border">
+          <ul className="space-y-3 md:space-y-0 md:divide-y md:divide-border md:border md:border-border">
             {liste.map((p) => {
               const detectes = manquesDetectes(p);
               const recente = relanceRecente(p);
               return (
-                <li key={p.email} className="p-3 grid gap-3 md:grid-cols-[minmax(0,14rem)_1fr_auto] md:items-center">
+                <li key={p.email} className="border-2 border-foreground md:border-0 bg-card md:bg-transparent p-4 md:p-3 grid gap-3 md:grid-cols-[minmax(0,14rem)_1fr_auto] md:items-center">
                   <div className="min-w-0">
-                    <p className="font-medium">{p.nom || "Sans nom"}</p>
-                    <p className="text-xs text-muted-foreground break-all">{p.email}</p>
-                    <p className="text-xs font-mono text-muted-foreground mt-1">
+                    <p className="font-medium text-[17px] md:text-base">{p.nom || "Sans nom"}</p>
+                    <p className="text-[15px] md:text-xs text-muted-foreground break-all">{p.email}</p>
+                    <p className="text-sm md:text-xs font-mono text-muted-foreground mt-1">
                       {p.derniere_relance ? `Relancé·e le ${date(p.derniere_relance)}${p.nb_relances > 1 ? ` · ${p.nb_relances} relances` : ""}` : "Jamais relancé·e"}
                       {!p.fiche_validee && " · fiche en attente"}
                     </p>
                   </div>
-                  <fieldset className="flex flex-wrap gap-x-5 gap-y-2">
+                  <fieldset className="flex flex-col md:flex-row md:flex-wrap gap-x-5 gap-y-1 md:gap-y-2">
                     <legend className="sr-only">Éléments à compléter pour {p.nom || p.email}</legend>
                     {MANQUES.map((m) => {
                       const id = `${p.email}-${m.code}`;
                       const manque = detectes.includes(m.code);
                       return (
-                        <label key={m.code} htmlFor={id} className={`flex items-center gap-2 text-sm ${manque ? "" : "text-muted-foreground"}`}>
+                        <label key={m.code} htmlFor={id} className={`flex items-center gap-3 md:gap-2 min-h-[44px] md:min-h-0 text-base md:text-sm ${manque ? "" : "text-muted-foreground"}`}>
                           <Checkbox id={id} checked={coches(p).includes(m.code)} onCheckedChange={(v) => basculer(p, m.code, v === true)} />
                           {m.label}
                           {manque && m.code === "pochette" && p.podcasts_sans_pochette.length > 1 && <span className="font-mono text-xs">×{p.podcasts_sans_pochette.length}</span>}
-                          {!manque && <span className="text-xs">(déjà là)</span>}
+                          {!manque && <span className="text-sm md:text-xs">(déjà là)</span>}
                         </label>
                       );
                     })}
                   </fieldset>
-                  <Button size="sm" onClick={() => relancer(p)} disabled={recente || envoi === p.email || !coches(p).length}>
+                  <Button size="sm" className="w-full md:w-auto min-h-[44px] md:min-h-0" onClick={() => relancer(p)} disabled={recente || envoi === p.email || !coches(p).length}>
                     <Send className="w-4 h-4 mr-2" aria-hidden />
                     {envoi === p.email ? "Envoi…" : recente ? "Relancé·e aujourd'hui" : "Relancer"}
                   </Button>
                 </li>
               );
             })}
-            {!isLoading && !liste.length && <li className="p-4 text-sm text-muted-foreground">Aucune fiche à compléter pour ce filtre.</li>}
+            {!isLoading && !liste.length && <li className="p-4 text-base md:text-sm text-muted-foreground">Aucune fiche à compléter pour ce filtre.</li>}
           </ul>
         </div>
       )}

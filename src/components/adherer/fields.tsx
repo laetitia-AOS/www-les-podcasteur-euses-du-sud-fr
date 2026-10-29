@@ -1,5 +1,5 @@
-import { useRef } from "react";
-import { X } from "lucide-react";
+import { useId, useRef, useState } from "react";
+import { ChevronDown, X } from "lucide-react";
 import { toast } from "sonner";
 import { btnSecondary } from "@/lib/pds";
 import { checkImage, cropToSquare } from "@/lib/inscription";
@@ -73,7 +73,10 @@ export const CollabField = ({
   precision,
   onPrecision,
   max = 120,
+  replieMobile = false,
 }: {
+  /** Sur téléphone : accordéon fermé par défaut, avec le nombre de cases cochées dans le titre */
+  replieMobile?: boolean;
   id: string;
   legend: string;
   options: readonly Opt[];
@@ -86,7 +89,9 @@ export const CollabField = ({
   // Un texte repris de l'ancienne version peut dépasser 120 caractères : il reste tel quel, on peut seulement le raccourcir.
   const limit = Math.max(max, precision.length);
   const trop = precision.length > max;
-  return (
+  const [ouvert, setOuvert] = useState(false);
+  const zone = useId();
+  const contenu = (
     <div className="space-y-3">
       <ChoiceList legend={legend} options={options} selected={selected} onChange={onChange} />
       <div>
@@ -103,6 +108,25 @@ export const CollabField = ({
           {precision.length}/{max} caractères{trop ? " : trop long, raccourcissez ce texte pour le modifier" : ""}
         </p>
       </div>
+    </div>
+  );
+  if (!replieMobile) return contenu;
+  return (
+    <div>
+      <button
+        type="button"
+        onClick={() => setOuvert((o) => !o)}
+        aria-expanded={ouvert}
+        aria-controls={zone}
+        className="md:hidden w-full min-h-[52px] px-4 flex items-center justify-between gap-3 border-2 border-encre bg-surface text-left font-bold text-[17px] focus-visible:outline focus-visible:outline-[3px] focus-visible:outline-accent"
+      >
+        <span>
+          {legend}
+          <span className="font-normal text-muted-foreground"> ({selected.length} {selected.length > 1 ? "cochées" : "cochée"})</span>
+        </span>
+        <ChevronDown className={`w-5 h-5 shrink-0 motion-safe:transition-transform ${ouvert ? "rotate-180" : ""}`} aria-hidden />
+      </button>
+      <div id={zone} className={`${ouvert ? "block mt-4" : "hidden"} md:block md:mt-0`}>{contenu}</div>
     </div>
   );
 };

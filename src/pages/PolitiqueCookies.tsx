@@ -105,21 +105,21 @@ const PolitiqueCookies = () => {
             </section>
 
             <section>
-              <h2 className="font-display font-bold text-xl text-foreground">Mesure des vues et des écoutes, sans cookie</h2>
+              <h2 className="font-display font-bold text-xl text-foreground">6. Mesure des vues et des écoutes, sans cookie</h2>
               <p>
                 Pour donner à chaque membre le nombre de vues de sa fiche et d'écoutes lancées depuis le site, nous comptons ces actions sans déposer de cookie et sans conserver votre adresse IP. Une empreinte brouillée et anonyme, recalculée chaque jour, sert seulement à ne compter qu'une fois par jour la même personne ; elle est effacée sous 48 heures. Seuls des totaux par fiche et par jour sont gardés, visibles uniquement par le membre concerné.
               </p>
             </section>
 
             <section>
-              <h2 className="font-display font-bold text-xl text-foreground">6. Mise à jour de la présente politique</h2>
+              <h2 className="font-display font-bold text-xl text-foreground">7. Mise à jour de la présente politique</h2>
               <p>
                 La présente politique de cookies peut être modifiée à tout moment afin de refléter les évolutions techniques, légales ou réglementaires. La version en vigueur est celle accessible sur le site à la date de votre consultation.
               </p>
             </section>
 
             <section>
-              <h2 className="font-display font-bold text-xl text-foreground">7. Contact</h2>
+              <h2 className="font-display font-bold text-xl text-foreground">8. Contact</h2>
               <p>
                 Pour toute question relative à l'utilisation des cookies sur ce site, vous pouvez nous contacter à l'adresse suivante :
               </p>

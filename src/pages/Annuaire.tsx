@@ -9,18 +9,19 @@ import SEOHead from "@/components/SEOHead";
 import { PAGES, PAGES_SEO } from "@/lib/seo";
 import { btnSecondary, cleanCity, container, h1Ligne, fullName } from "@/lib/pds";
 import MemberAvatar, { avatarFor } from "@/components/MemberAvatar";
+import FiltresRepliables from "@/components/FiltresRepliables";
 import { COLLAB_CHOIX_APPORTE, apporteLabel, collabLabel, phraseApportent } from "@/lib/inscription";
 
 const PROFILS = [
   { value: "", label: "Tous" },
   { value: "podcasteur", label: "Podcasteur·euses" },
-  { value: "pro_podcast", label: "Acteur·ices de l'écosystème" },
+  { value: "pro_podcast", label: "Pros de l'audio" },
   { value: "soutien", label: "Soutiens" },
 ];
 
 const ROLE: Record<string, string> = {
   podcasteur: "podcasteur·euse",
-  pro_podcast: "acteur·ice de l'écosystème",
+  pro_podcast: "pro de l'audio",
   soutien: "soutien",
 };
 
@@ -104,6 +105,7 @@ const Annuaire = () => {
   useEffect(() => setVisible(PAGE), [search, besoins, profil, dept]);
 
   const hasFilters = !!(search || besoins.length || profil || dept);
+  const nbActifs = (search.trim() ? 1 : 0) + besoins.length + (profil ? 1 : 0) + (dept ? 1 : 0);
   const clear = () => { setSearch(""); setBesoins([]); setProfil(""); setDept(""); };
   const toggle = (v: string) => setBesoins((b) => (b.includes(v) ? b.filter((x) => x !== v) : [...b, v]));
 
@@ -127,13 +129,15 @@ const Annuaire = () => {
             <span className="block">Annuaire</span>
             <span className={h1Ligne}>des podcasteur·euses et pros de l'audio en Région Sud</span>
           </h1>
-          <p className="mt-4 text-lg max-w-[56ch]">
+          <p className="mt-3 md:mt-4 text-[17px] md:text-lg max-w-[56ch]">
             Podcasteur·euses, monteur·euses, voix off, sound designers, consultant·es. Dites ce que vous cherchez, on vous montre qui l'apporte.
           </p>
 
-          <div className="mt-8 grid lg:grid-cols-[240px_1fr] gap-8 lg:gap-10 items-start">
-            {/* Filtres */}
-            <aside aria-label="Filtres" className="border-t-2 border-encre pt-4 space-y-5">
+          <div className="mt-6 md:mt-8 grid lg:grid-cols-[240px_1fr] gap-5 md:gap-8 lg:gap-10 items-start">
+            {/* Filtres : repliés derrière « Filtrer » sur téléphone */}
+            <aside aria-label="Filtres" className="md:border-t-2 md:border-encre md:pt-4">
+              <FiltresRepliables actifs={nbActifs}>
+              <div className="space-y-5">
               <div>
                 <label htmlFor="annuaire-search" className="block text-sm font-bold mb-1.5">Rechercher</label>
                 <input id="annuaire-search" type="search" value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Un nom, une compétence" className={fieldClass} />
@@ -171,10 +175,14 @@ const Annuaire = () => {
                 </select>
               </div>
 
+              <div className="hidden md:block">
               <Link to="/studios" className="block border-2 border-encre bg-surface p-4 hover:border-primary">
                 <span className="block font-bold text-[17px]">Vous cherchez un studio ?</span>
                 <span className="block mt-1 text-[15px]">Studios et agences ont leur propre rubrique <span aria-hidden>→</span></span>
               </Link>
+              </div>
+              </div>
+              </FiltresRepliables>
             </aside>
 
             {/* Résultats */}
@@ -243,6 +251,14 @@ const Annuaire = () => {
                   <button onClick={() => setVisible((v) => v + PAGE)} className={btnSecondary}>Afficher plus de profils</button>
                 </div>
               )}
+
+              {/* Sur téléphone, l'encart studio passe sous la liste */}
+              <div className="md:hidden mt-10">
+                <Link to="/studios" className="block border-2 border-encre bg-surface p-4 hover:border-primary">
+                  <span className="block font-bold text-[17px]">Vous cherchez un studio ?</span>
+                  <span className="block mt-1 text-[15px]">Studios et agences ont leur propre rubrique <span aria-hidden>→</span></span>
+                </Link>
+              </div>
             </section>
           </div>
         </div>

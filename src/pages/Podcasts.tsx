@@ -5,6 +5,7 @@ import { useQuery } from "@tanstack/react-query";
 import { ExternalLink, Pause, Play } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import Navbar from "@/components/Navbar";
+import FiltresRepliables from "@/components/FiltresRepliables";
 import Footer from "@/components/Footer";
 import SEOHead from "@/components/SEOHead";
 import { PAGES_SEO } from "@/lib/seo";
@@ -149,11 +150,26 @@ const Podcasts = () => {
             <span className="block">Écouter</span>
             <span className={h1Ligne}>les podcasts de Marseille et de Région Sud</span>
           </h1>
-          <p className="mt-4 text-lg max-w-[52ch]">
+          <p className="mt-3 md:mt-4 text-[17px] md:text-lg max-w-[52ch]">
             {podcasts.length > 0 ? `${podcasts.length} podcasts à lancer ici.` : "Lancez un épisode ici."} Il continue pendant que vous naviguez d'une page à l'autre.
           </p>
 
-          <div className="mt-8 grid gap-4 md:grid-cols-[2fr_1fr_1fr] pb-6 border-b-2 border-encre">
+          {/* Thèmes : une bande qui défile sur téléphone, sur plusieurs lignes au-delà */}
+          <div role="group" aria-label="Filtrer par thème" className="mt-5 md:mt-6 -mx-5 px-5 sm:-mx-8 sm:px-8 md:mx-0 md:px-0 flex flex-nowrap md:flex-wrap gap-2 overflow-x-auto md:overflow-visible pb-2 md:pb-0 [scrollbar-width:thin]">
+            {["", ...themes].map((t) => (
+              <button
+                key={t || "tous"}
+                onClick={() => setTheme(t)}
+                aria-pressed={theme === t}
+                className={`shrink-0 whitespace-nowrap min-h-[44px] px-4 border font-semibold text-[15px] ${theme === t ? "bg-encre text-surface border-encre" : "border-encre bg-surface hover:bg-muted"}`}
+              >
+                {t || "Tous les thèmes"}
+              </button>
+            ))}
+          </div>
+
+          <FiltresRepliables actifs={(search.trim() ? 1 : 0) + (dept ? 1 : 0)} className="mt-4 md:mt-6">
+          <div className="grid gap-4 md:grid-cols-[2fr_1fr_1fr] pb-6 md:border-b-2 md:border-encre">
             <div>
               <label htmlFor="ecouter-search" className="block text-sm font-bold mb-1.5">Rechercher</label>
               <input
@@ -181,21 +197,9 @@ const Podcasts = () => {
               </select>
             </div>
           </div>
+          </FiltresRepliables>
 
-          <div role="group" aria-label="Filtrer par thème" className="mt-6 flex flex-wrap gap-2">
-            {["", ...themes].map((t) => (
-              <button
-                key={t || "tous"}
-                onClick={() => setTheme(t)}
-                aria-pressed={theme === t}
-                className={`min-h-[44px] px-4 border font-semibold text-[15px] ${theme === t ? "bg-encre text-surface border-encre" : "border-encre bg-surface hover:bg-muted"}`}
-              >
-                {t || "Tous les thèmes"}
-              </button>
-            ))}
-          </div>
-
-          <p className="mt-8 font-mono text-sm text-muted-foreground" aria-live="polite">
+          <p className="mt-5 md:mt-8 font-mono text-sm text-muted-foreground" aria-live="polite">
             {isLoading ? "Chargement…" : remaining > 0 ? `${visible} podcasts affichés sur ${filtered.length}` : `${filtered.length} podcast${filtered.length > 1 ? "s" : ""}`}
           </p>
 

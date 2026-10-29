@@ -1,3 +1,4 @@
+import { PHRASE_ADHESION } from "@/lib/inscription";
 import { Link } from "react-router-dom";
 import { btnPrimary, btnSecondary, container } from "@/lib/pds";
 
@@ -6,7 +7,7 @@ const HomeReseau = () => (
     <div className={`${container} grid lg:grid-cols-[minmax(0,1fr)_minmax(0,2fr)] gap-10 lg:gap-16 items-start`}>
       <div>
         <h2 id="reseau-title" className="title-section text-[48px] sm:text-[64px]">Entrer dans le réseau</h2>
-        <p className="mt-5 text-lg max-w-[36ch]">D'abord un profil, gratuit. Ensuite l'adhésion, pour être vu et entendu.</p>
+        <p className="mt-5 text-lg max-w-[36ch]">{PHRASE_ADHESION}</p>
       </div>
 
       <div className="grid sm:grid-cols-2 gap-5">

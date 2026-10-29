@@ -15,6 +15,10 @@ const ARTICLES = [
   },
 ];
 
+// Le plus récent en premier (dates au format JJ.MM.AAAA)
+const cle = (d: string) => d.split(".").reverse().join("");
+const ARTICLES_RECENTS = [...ARTICLES].sort((a, b) => cle(b.date).localeCompare(cle(a.date)));
+
 const PARTNERS = [
   { name: "Maritima", desc: "Radio · des membres invités à l'antenne", href: "https://maritima.fr/" },
   { name: "CultureShock", desc: "Lieu des apéros écoute · Marseille", href: null },
@@ -27,7 +31,7 @@ const HomePresse = () => (
       <div>
         <h2 className="title-section text-[44px] sm:text-[56px] pb-5 border-b-2 border-encre">On parle de nous</h2>
         <ul className="divide-y divide-filet border-b border-filet">
-          {ARTICLES.map((a) => (
+          {ARTICLES_RECENTS.map((a) => (
             <li key={a.href}>
               <a href={a.href} target="_blank" rel="noopener noreferrer" className="grid grid-cols-1 sm:grid-cols-[110px_1fr_auto] gap-x-6 gap-y-1 py-5 group">
                 <span className="font-mono text-sm text-muted-foreground">{a.date}</span>

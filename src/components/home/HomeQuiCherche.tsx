@@ -8,7 +8,7 @@ import MemberAvatar, { avatarFor } from "@/components/MemberAvatar";
 
 const ROLE: Record<string, string> = {
   podcasteur: "podcasteur·euse",
-  pro_podcast: "acteur·ice de l'écosystème",
+  pro_podcast: "pro de l'audio",
   studio: "studio",
   structure_eco: "structure",
   soutien: "soutien",

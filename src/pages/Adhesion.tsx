@@ -8,7 +8,7 @@ import ProfilStep, { type ProfilResult } from "@/components/adherer/ProfilStep";
 import PodcastsStep from "@/components/adherer/PodcastsStep";
 import { btnPrimary, btnSecondary, container, h1Ligne, linkUnderline } from "@/lib/pds";
 import { anneeEnCours, libelleValidite, periodeRenouvellement } from "@/lib/espaceMembre";
-import { FORMULES_HELLOASSO, HELLOASSO_WIDGET, TARIFS, TYPES_PROFIL, formulePourType, profilColumns, type TypeProfil } from "@/lib/inscription";
+import { FORMULES_HELLOASSO, HELLOASSO_WIDGET, PHRASE_ADHESION, TARIFS, TYPES_PROFIL, formulePourType, profilColumns, type TypeProfil } from "@/lib/inscription";
 
 type StepKey = "profil" | "podcasts" | "adhesion" | "paiement";
 
@@ -145,7 +145,7 @@ const Adhesion = () => {
             <span className={h1Ligne}>Adhésion aux Podcasteur·euses du Sud</span>
           </h1>
           <p className="mt-5 text-lg max-w-[56ch]">
-            D'abord un profil, gratuit mais sans visibilité publique. Ensuite l'adhésion, pour être vu·e, entendu·e et mis·e en relation.
+            {PHRASE_ADHESION}
           </p>
           <p className="mt-3 font-bold text-[17px]">Adhésion {ANNEE} : {libelleValidite(ANNEE).toLowerCase()}, quelle que soit la date de paiement.</p>
 
