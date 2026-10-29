@@ -1,4 +1,11 @@
 import type { ComponentType } from 'npm:react@18.3.1'
+import { template as t0 } from './adhesion-confirmee.tsx'
+import { template as t1 } from './message-recu.tsx'
+import { template as t2 } from './collab-recue.tsx'
+import { template as t3 } from './devis-recu.tsx'
+import { template as t4 } from './venue-confirmee.tsx'
+import { template as t5 } from './proposition-publiee.tsx'
+import { template as t6 } from './proposition-refusee.tsx'
 
 export interface TemplateEntry {
   component: ComponentType<any>
@@ -18,6 +25,11 @@ export interface TemplateEntry {
  *   // then add to TEMPLATES: 'welcome': welcomeTemplate
  */
 export const TEMPLATES: Record<string, TemplateEntry> = {
-  // Add templates here as they are created, e.g.:
-  // 'welcome': welcomeTemplate,
+  'adhesion-confirmee': t0,
+  'message-recu': t1,
+  'collab-recue': t2,
+  'devis-recu': t3,
+  'venue-confirmee': t4,
+  'proposition-publiee': t5,
+  'proposition-refusee': t6,
 }
