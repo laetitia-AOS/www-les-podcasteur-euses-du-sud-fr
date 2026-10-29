@@ -139,3 +139,58 @@ export const envoyerDevis = async (input: DevisInput): Promise<{ ok: boolean; co
 /** Phrase de confirmation : « Votre demande est partie vers 4 studios. » */
 export const phraseDevisEnvoye = (n: number) =>
   n === 1 ? "Votre demande est partie vers 1 studio." : `Votre demande est partie vers ${n} studios.`;
+
+/** Adresse sans « https:// » ni « www. » ni barre finale, pour repérer deux fois le même lien. */
+const cleLien = (u: string) => u.trim().toLowerCase().replace(/^https?:\/\//, "").replace(/^www\./, "").replace(/\/+$/, "");
+const domaine = (u: string) => { try { return new URL(u).hostname.replace(/^www\./, ""); } catch { return u; } };
+
+/**
+ * Liens d'un studio ou d'une structure, chacun une seule fois : le site principal s'appelle « Site » ;
+ * un autre lien nommé « Site » prend le nom de son domaine (« agencesonore.fr »).
+ */
+export const liensLieu = (principal: string | null | undefined, liens: Lien[], extra: (string | null | undefined)[] = []): Lien[] => {
+  const vus = new Set<string>();
+  const out: Lien[] = [];
+  const ajouter = (label: string, url?: string | null) => {
+    if (!url || !url.trim()) return;
+    const k = cleLien(url);
+    if (vus.has(k)) return;
+    vus.add(k);
+    const pris = out.some((l) => l.label.toLowerCase() === label.toLowerCase());
+    out.push({ label: pris || (label === "Site" && out.length && url !== principal) ? domaine(url) : label, url });
+  };
+  ajouter("Site", principal);
+  for (const l of liens) ajouter(l.label || "Lien", l.url);
+  for (const u of extra) ajouter(/linkedin\.com/i.test(u || "") ? "LinkedIn" : domaine(u || ""), u);
+  return out;
+};
+
+export type EvenementLieu = { id: string; titre: string; slug: string | null; date_debut: string; date_fin: string | null; lieu: string | null };
+
+/** Trie les événements d'un lieu : à venir d'abord (du plus proche au plus lointain), puis passés (du plus récent). */
+export const trierEvenementsLieu = (evts: EvenementLieu[], now = Date.now()) => {
+  const fin = (e: EvenementLieu) => new Date(e.date_fin || e.date_debut).getTime();
+  const aVenir = evts.filter((e) => fin(e) >= now).sort((a, b) => a.date_debut.localeCompare(b.date_debut));
+  const passes = evts.filter((e) => fin(e) < now).sort((a, b) => b.date_debut.localeCompare(a.date_debut));
+  return { aVenir, passes };
+};
+
+/**
+ * Événements publiés de l'agenda liés à un studio ou une structure : reliés par l'équipe, proposés par lui,
+ * ou dont le titre ou le lieu porte son nom.
+ */
+export const useEvenementsLieu = (id?: string, nom?: string) =>
+  useQuery({
+    queryKey: ["evenements-lieu", id, nom],
+    queryFn: async () => {
+      const motif = (nom || "").normalize("NFC").replace(/[^\p{L}\p{N} '’-]+/gu, " ").replace(/\s+/g, " ").trim();
+      const conds = [`structure_id.eq.${id}`, `propose_par.eq.${id}`];
+      if (motif.length >= 4) conds.push(`titre.ilike.*${motif}*`, `lieu.ilike.*${motif}*`);
+      const { data, error } = await supabase.from("evenements").select("id, titre, slug, date_debut, date_fin, lieu")
+        .eq("statut", "publie").or(conds.join(",")).order("date_debut", { ascending: false }).limit(20);
+      if (error) throw error;
+      return trierEvenementsLieu((data || []) as EvenementLieu[]);
+    },
+    enabled: !!id,
+    staleTime: 5 * 60 * 1000,
+  });
