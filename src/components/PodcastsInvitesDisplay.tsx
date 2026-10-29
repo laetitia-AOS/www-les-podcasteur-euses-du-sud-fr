@@ -1,5 +1,10 @@
 import type { PodcastInvite } from "./PodcastsInvitesEditor";
 import { withUtm } from "@/lib/utm";
+import { formatName } from "@/lib/pds";
+import { useHomeProfiles } from "@/components/home/useHomeData";
+import MemberAvatar, { avatarFor } from "@/components/MemberAvatar";
+
+const norm = (s?: string | null) => (s || "").normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().replace(/[^a-z0-9]+/g, " ").trim();
 
 interface Props {
   podcasts: PodcastInvite[];
@@ -8,6 +13,15 @@ interface Props {
 /** « Les podcasts de la soirée » : pochettes carrées, nom du podcast et de l'hôte·sse. */
 const PodcastsInvitesDisplay = ({ podcasts }: Props) => {
   const items = (podcasts || []).filter((p) => p && (p.nom_podcast || p.host || p.vignette_url));
+  // Sans visuel saisi : la pochette du podcast s'il est dans l'annuaire, sinon la photo ou le premier podcast de l'hôte·sse
+  const { data: profils = [] } = useHomeProfiles();
+  const visuel = (p: PodcastInvite): { url: string; alt: string } | null => {
+    if (p.vignette_url) return { url: p.vignette_url, alt: `Pochette du podcast ${p.nom_podcast || formatName(p.host)}` };
+    const podcast = p.nom_podcast ? profils.find((f) => f.type_profil === "podcasteur" && f.vignette_url && norm(f.nom_podcast) === norm(p.nom_podcast)) : undefined;
+    if (podcast) return { url: podcast.vignette_url!, alt: `Pochette du podcast ${podcast.nom_podcast}` };
+    const hote = p.host ? profils.find((f) => norm(`${f.prenom} ${f.nom}`) === norm(p.host)) : undefined;
+    return hote ? avatarFor(hote, profils) : null;
+  };
   if (items.length === 0) return null;
 
   return (
@@ -20,10 +34,19 @@ const PodcastsInvitesDisplay = ({ podcasts }: Props) => {
           const inner = (
             <>
               <span className="block aspect-square bg-muted overflow-hidden">
-                {p.vignette_url && <img src={p.vignette_url} alt={`Pochette du podcast ${p.nom_podcast || p.host}`} className="w-full h-full object-cover" loading="lazy" />}
+                {(() => {
+                  const v = visuel(p);
+                  if (v) return <img src={v.url} alt={v.alt} className="w-full h-full object-cover" loading="lazy" />;
+                  const [prenom, ...reste] = formatName(p.host).split(" ");
+                  return (
+                    <span className="flex w-full h-full items-center justify-center">
+                      <MemberAvatar prenom={prenom} nom={reste.join(" ")} className="w-24 h-24 text-3xl" />
+                    </span>
+                  );
+                })()}
               </span>
               {p.nom_podcast && <span className="block mt-2 font-bold text-[16px] leading-tight">{p.nom_podcast}</span>}
-              {p.host && <span className="block text-sm text-muted-foreground">{p.host}</span>}
+              {p.host && <span className="block text-sm text-muted-foreground">{formatName(p.host)}</span>}
             </>
           );
           return (
