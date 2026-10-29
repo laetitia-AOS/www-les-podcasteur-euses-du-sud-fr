@@ -13,18 +13,15 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Badge } from "@/components/ui/badge";
 import { Switch } from "@/components/ui/switch";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { BookOpen, ArrowLeft, LogOut, Loader2, Download, Eye, ExternalLink, Trash2, Pencil, Save, X, Building2 } from "lucide-react";
-import { useNavigate, Navigate } from "react-router-dom";
+import { BookOpen, Loader2, Download, Eye, ExternalLink, Trash2, Pencil, Save, X, Building2 } from "lucide-react";
+import AdminLayout from "@/components/admin/AdminLayout";
+import { AdminOnglets, Panneau, useOnglet } from "@/components/admin/AdminOnglets";
+import { useATraiter } from "@/components/admin/useATraiter";
 import { useAdminAuth } from "@/hooks/useAdminAuth";
 import AdminFlux from "@/components/admin/AdminFlux";
 import ProfilsACompleter from "@/components/admin/ProfilsACompleter";
 import { toast } from "sonner";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
+import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 
 const thematiques = [
   "Conversations & société", "Business & parcours de vie", "Culture, création & récits",
@@ -49,8 +46,8 @@ const getProfilLabel = (type: string) => {
 };
 
 const AdminPodcasts = () => {
-  const navigate = useNavigate();
-  const { user, isAdmin, loading: authLoading, signOut } = useAdminAuth();
+  const { isAdmin } = useAdminAuth();
+  const { data: compteurs } = useATraiter(isAdmin);
   const queryClient = useQueryClient();
   const [selectedPodcast, setSelectedPodcast] = useState<any>(null);
   const [editingPodcast, setEditingPodcast] = useState<any>(null);
@@ -82,6 +79,7 @@ const AdminPodcasts = () => {
     onSuccess: (_, { valide }) => {
       queryClient.invalidateQueries({ queryKey: ["admin-podcasts"] });
       queryClient.invalidateQueries({ queryKey: ["images-en-attente"] });
+      queryClient.invalidateQueries({ queryKey: ["admin-a-traiter"] });
       toast.success(valide ? "Fiche activée dans le flux" : "Fiche retirée du flux");
     },
     onError: (err: any) => toast.error("Erreur : " + (err.message || "Erreur inconnue")),
@@ -295,58 +293,51 @@ const AdminPodcasts = () => {
     URL.revokeObjectURL(url);
   };
 
-  if (authLoading) {
-    return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
-        <Loader2 className="w-6 h-6 animate-spin text-primary" />
-      </div>
-    );
-  }
-
-  if (!user || !isAdmin) {
-    return <Navigate to="/admin/login" replace />;
-  }
-
   const validCount = podcasts?.filter((p) => p.valide).length ?? 0;
   const totalCount = podcasts?.length ?? 0;
   const studioCount = podcasts?.filter((p) => p.type_profil === "studio").length ?? 0;
+  const nonValidees = podcasts?.filter((p) => !p.valide) ?? [];
+  const onglets = [
+    { id: "fiches", label: `Fiches (${totalCount})` },
+    { id: "a-valider", label: "À valider", compte: (compteurs?.fiches ?? nonValidees.length) + (compteurs?.images ?? 0) },
+    { id: "a-completer", label: "Fiches à compléter" },
+    { id: "flux", label: "Flux d'épisodes", compte: compteurs?.flux ?? 0 },
+  ];
+  const [onglet, setOnglet] = useOnglet(onglets);
+  const liste = onglet === "a-valider" ? nonValidees : filteredPodcasts;
 
   const inputClass = "w-full rounded-lg border border-border bg-card px-3 py-2 text-sm text-foreground";
   const selectClass = "w-full rounded-lg border border-border bg-card px-3 py-2 text-sm text-foreground appearance-none";
   const labelClass = "block text-xs font-medium text-muted-foreground mb-1";
 
   return (
-    <div className="min-h-screen bg-background">
-      <div className="container mx-auto px-6 py-10 max-w-7xl">
-        <div className="flex items-center justify-between mb-8">
-          <div className="flex items-center gap-3">
-            <Button variant="ghost" size="icon" onClick={() => navigate("/admin")}>
-              <ArrowLeft className="w-5 h-5" />
-            </Button>
-            <div>
-              <h1 className="font-display font-bold text-3xl text-foreground flex items-center gap-2">
-                <BookOpen className="w-7 h-7 text-primary" />
-                Annuaire
-              </h1>
-              <p className="text-muted-foreground">
-                {totalCount} fiche{totalCount > 1 ? "s" : ""} · {validCount} visible{validCount > 1 ? "s" : ""} · {studioCount} studio{studioCount > 1 ? "s" : ""}
-              </p>
-            </div>
-          </div>
-          <div className="flex items-center gap-2">
-            <Button variant="outline" size="sm" onClick={exportCSV} disabled={!podcasts?.length}>
-              <Download className="w-4 h-4 mr-2" /> Export CSV
-            </Button>
-            <Button variant="outline" size="sm" onClick={signOut}>
-              <LogOut className="w-4 h-4 mr-2" /> Déconnexion
-            </Button>
-          </div>
-        </div>
-
-        <AdminImagesEnAttente />
-        <ProfilsACompleter />
-        <AdminFlux />
-
+    <AdminLayout
+      titre="Annuaire"
+      description={`${totalCount} fiche${totalCount > 1 ? "s" : ""} · ${validCount} validée${validCount > 1 ? "s" : ""} · ${studioCount} studio${studioCount > 1 ? "s" : ""}`}
+      actions={
+        <Button variant="outline" size="sm" onClick={exportCSV} disabled={!podcasts?.length}>
+          <Download className="w-4 h-4 mr-2" /> Export CSV
+        </Button>
+      }
+    >
+        <AdminOnglets label="Rubriques de l'annuaire" onglets={onglets} courant={onglet} onChange={setOnglet} />
+        {onglet === "a-completer" && <Panneau id="a-completer"><ProfilsACompleter /></Panneau>}
+        {onglet === "flux" && (
+          <Panneau id="flux">
+            <AdminFlux />
+            {!compteurs?.flux && <p className="text-muted-foreground">Aucun flux trouvé automatiquement n'attend de confirmation.</p>}
+          </Panneau>
+        )}
+        {(onglet === "fiches" || onglet === "a-valider") && (
+        <Panneau id={onglet}>
+        {onglet === "a-valider" && (
+          <>
+            <AdminImagesEnAttente />
+            <h2 className="font-display font-bold text-xl mb-1">Fiches en attente de validation</h2>
+            <p className="text-sm text-muted-foreground mb-4">Activez l'interrupteur « Visible » pour valider une fiche : ses images envoyées sans connexion sont validées en même temps.</p>
+          </>
+        )}
+        {onglet === "fiches" && (
         <Tabs value={filterType} onValueChange={setFilterType} className="mb-6">
           <TabsList>
             <TabsTrigger value="all">Tous ({totalCount})</TabsTrigger>
@@ -360,16 +351,17 @@ const AdminPodcasts = () => {
             <TabsTrigger value="soutien">Soutiens ({podcasts?.filter(p => p.type_profil === "soutien").length ?? 0})</TabsTrigger>
           </TabsList>
         </Tabs>
+        )}
 
         {isLoading ? (
           <p className="text-muted-foreground">Chargement…</p>
-        ) : !filteredPodcasts.length ? (
-          <div className="text-center py-20">
-            <BookOpen className="w-12 h-12 text-muted-foreground/40 mx-auto mb-4" />
-            <p className="text-muted-foreground">Aucune fiche dans cette catégorie.</p>
+        ) : !liste.length ? (
+          <div className="text-center py-16 border-2 border-dashed border-border">
+            <BookOpen className="w-10 h-10 text-muted-foreground/40 mx-auto mb-3" aria-hidden />
+            <p className="text-muted-foreground">{onglet === "a-valider" ? "Aucune fiche n'attend de validation." : "Aucune fiche dans cette catégorie."}</p>
           </div>
         ) : (
-          <div className="border rounded-xl overflow-x-auto">
+          <div className="border border-border overflow-x-auto bg-card">
             <Table>
               <TableHeader>
                 <TableRow>
@@ -386,13 +378,14 @@ const AdminPodcasts = () => {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {filteredPodcasts.map((p) => {
+                {liste.map((p) => {
                   const isStudio = p.type_profil === "studio";
                   const sd = getStudioData(p);
                   return (
                     <TableRow key={p.id} className={!p.valide ? "opacity-60" : ""}>
                       <TableCell>
                         <Switch
+                          aria-label={p.valide ? `Retirer « ${p.nom_podcast} » de l'annuaire` : `Valider « ${p.nom_podcast} »`}
                           checked={p.valide}
                           onCheckedChange={(checked) => toggleValide.mutate({ id: p.id, valide: checked })}
                         />
@@ -465,15 +458,16 @@ const AdminPodcasts = () => {
             </Table>
           </div>
         )}
-      </div>
+        </Panneau>
+        )}
 
-      {/* Detail Dialog */}
-      <Dialog open={!!selectedPodcast} onOpenChange={() => setSelectedPodcast(null)}>
-        <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
+      {/* Détail : panneau à droite */}
+      <Sheet open={!!selectedPodcast} onOpenChange={(o) => !o && setSelectedPodcast(null)}>
+        <SheetContent side="right" className="w-full sm:max-w-2xl overflow-y-auto">
           {selectedPodcast && (
             <>
-              <DialogHeader>
-                <DialogTitle className="flex items-center gap-3">
+              <SheetHeader>
+                <SheetTitle className="flex items-center gap-3">
                   {selectedPodcast.vignette_url && (
                     <img src={selectedPodcast.vignette_url} alt="" className="w-12 h-12 rounded-lg object-cover" />
                   )}
@@ -483,8 +477,8 @@ const AdminPodcasts = () => {
                       <Badge variant="default" className="ml-2 text-xs"><Building2 className="w-3 h-3 mr-1" />Studio</Badge>
                     )}
                   </div>
-                </DialogTitle>
-              </DialogHeader>
+                </SheetTitle>
+              </SheetHeader>
               {selectedPodcast.type_profil === "studio" ? (
                 <StudioDetailView podcast={selectedPodcast} />
               ) : (
@@ -497,20 +491,20 @@ const AdminPodcasts = () => {
               </div>
             </>
           )}
-        </DialogContent>
-      </Dialog>
+        </SheetContent>
+      </Sheet>
 
-      {/* Edit Dialog */}
-      <Dialog open={!!editingPodcast} onOpenChange={() => setEditingPodcast(null)}>
-        <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
+      {/* Modification : panneau à droite */}
+      <Sheet open={!!editingPodcast} onOpenChange={(o) => !o && setEditingPodcast(null)}>
+        <SheetContent side="right" className="w-full sm:max-w-2xl overflow-y-auto">
           {editingPodcast && (
             <>
-              <DialogHeader>
-                <DialogTitle className="flex items-center gap-2">
+              <SheetHeader>
+                <SheetTitle className="flex items-center gap-2">
                   {editingPodcast.type_profil === "studio" && <Building2 className="w-5 h-5 text-primary" />}
                   Modifier la fiche {editingPodcast.type_profil === "studio" ? "studio" : ""}
-                </DialogTitle>
-              </DialogHeader>
+                </SheetTitle>
+              </SheetHeader>
               {editingPodcast.type_profil === "studio" ? (
                 <StudioEditForm editForm={editForm} setEditForm={setEditForm} inputClass={inputClass} selectClass={selectClass} labelClass={labelClass} />
               ) : (
@@ -533,9 +527,9 @@ const AdminPodcasts = () => {
               )}
             </>
           )}
-        </DialogContent>
-      </Dialog>
-    </div>
+        </SheetContent>
+      </Sheet>
+    </AdminLayout>
   );
 };
 
