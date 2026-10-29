@@ -488,7 +488,9 @@ export type Database = {
         Row: {
           acces_transports: string | null
           accessibilite: string | null
+          accroche: string | null
           capacite_voix: number | null
+          description_longue: string | null
           equipement: Json
           faq: Json
           intitule_membres: string
@@ -500,12 +502,16 @@ export type Database = {
           propositions: Json
           services: string[]
           tarif_heure: number | null
+          tarif_taxe: string | null
+          tarif_unite: string | null
           updated_at: string
         }
         Insert: {
           acces_transports?: string | null
           accessibilite?: string | null
+          accroche?: string | null
           capacite_voix?: number | null
+          description_longue?: string | null
           equipement?: Json
           faq?: Json
           intitule_membres?: string
@@ -517,12 +523,16 @@ export type Database = {
           propositions?: Json
           services?: string[]
           tarif_heure?: number | null
+          tarif_taxe?: string | null
+          tarif_unite?: string | null
           updated_at?: string
         }
         Update: {
           acces_transports?: string | null
           accessibilite?: string | null
+          accroche?: string | null
           capacite_voix?: number | null
+          description_longue?: string | null
           equipement?: Json
           faq?: Json
           intitule_membres?: string
@@ -534,6 +544,8 @@ export type Database = {
           propositions?: Json
           services?: string[]
           tarif_heure?: number | null
+          tarif_taxe?: string | null
+          tarif_unite?: string | null
           updated_at?: string
         }
         Relationships: [
