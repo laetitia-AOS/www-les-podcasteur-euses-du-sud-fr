@@ -1,4 +1,5 @@
 import { useEffect, useMemo } from "react";
+import { compterStat } from "@/lib/stats";
 import { Link, useParams } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { Check, Minus } from "lucide-react";
