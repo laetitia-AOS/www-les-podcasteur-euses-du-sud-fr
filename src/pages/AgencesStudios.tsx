@@ -9,7 +9,7 @@ import { PAGES, PAGES_SEO, SITE_URL, ficheHref } from "@/lib/seo";
 import { btnListen, btnPrimary, btnSecondary, cleanCity, container, h1Ligne } from "@/lib/pds";
 import DevisForm from "@/components/studios/DevisForm";
 import { LogoLieu } from "@/components/studios/LieuParts";
-import { SERVICES_STUDIO, formatCapacite, formatTarif, serviceLabel, useFichesLieux } from "@/lib/lieux";
+import { SERVICES_STUDIO, accrocheLieu, formatCapacite, serviceLabel, tarifAffiche, useFichesLieux } from "@/lib/lieux";
 
 const DEPARTEMENTS = [
   { code: "04", label: "Alpes-de-Haute-Provence" },
@@ -198,9 +198,9 @@ const AgencesStudios = () => {
               const services = (f?.services || []).map(serviceLabel);
               const photo = f?.photos?.[0] || sd.galerie_urls?.[0] || p.vignette_url;
               const href = ficheHref(p);
-              const accroche = sd.accroche || sd.phrase_accroche || p.description || p.bio_750 || "";
+              const accroche = accrocheLieu(f, sd);
               const meta = [
-                { k: "Tarif", v: formatTarif(f?.tarif_heure) || sd.indication_tarifaire },
+                { k: "Tarif", v: tarifAffiche(f) },
                 { k: "Capacité", v: formatCapacite(f?.capacite_voix) },
                 { k: "Accès", v: f?.acces_transports },
               ].filter((m) => m.v);

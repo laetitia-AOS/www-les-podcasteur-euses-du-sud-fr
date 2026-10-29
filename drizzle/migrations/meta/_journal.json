@@ -197,6 +197,13 @@
       "when": 1793292070406,
       "tag": "0027_evenements_faq",
       "breakpoints": true
+    },
+    {
+      "idx": 28,
+      "version": "7",
+      "when": 1793293253265,
+      "tag": "0028_fiches_lieux_accroche_tarif_materiel",
+      "breakpoints": true
     }
   ]
 }

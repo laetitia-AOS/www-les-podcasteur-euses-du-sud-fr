@@ -6,7 +6,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { ChoiceList, field, hintCls, labelCls } from "@/components/adherer/fields";
 import { checkImage, messageServeur, uploadImages } from "@/lib/inscription";
 import { btnPrimary, btnSecondary, fullName } from "@/lib/pds";
-import { SERVICES_STUDIO, ficheVide, type FicheLieu } from "@/lib/lieux";
+import { ACCROCHE_MAX, SERVICES_STUDIO, TARIF_UNITES, ficheVide, type FicheLieu, type TarifTaxe, type TarifUnite } from "@/lib/lieux";
 
 type Props = { podcastId: string; type: "studio" | "structure_eco"; nom: string };
 
@@ -31,6 +31,10 @@ const LieuEditor = ({ podcastId, type, nom }: Props) => {
     },
   });
   useEffect(() => { if (initial) setF({ ...ficheVide(podcastId), ...initial }); }, [initial, podcastId]);
+  // Une accroche déjà enregistrée plus longue que 160 caractères reste telle quelle : on peut seulement la raccourcir
+  const accrocheInitiale = initial?.accroche?.length || 0;
+  const accrocheLimite = Math.max(ACCROCHE_MAX, accrocheInitiale);
+  const accrocheTrop = (f.accroche?.length || 0) > ACCROCHE_MAX;
 
   // Podcasts visibles, pour « Enregistrés ici » / « Membres accompagnés »
   const { data: podcasts = [] } = useQuery({
@@ -70,9 +74,14 @@ const LieuEditor = ({ podcastId, type, nom }: Props) => {
   const save = async (e: React.FormEvent) => {
     e.preventDefault();
     setSaving(true);
+    const montant = f.tarif_heure === null || (f.tarif_heure as unknown) === "" ? null : Number(f.tarif_heure);
     const payload = {
       podcast_id: podcastId,
-      tarif_heure: f.tarif_heure === null || (f.tarif_heure as unknown) === "" ? null : Number(f.tarif_heure),
+      accroche: f.accroche?.trim() || null,
+      description_longue: f.description_longue?.trim() || null,
+      tarif_heure: montant,
+      tarif_unite: montant === null ? null : f.tarif_unite || "heure",
+      tarif_taxe: montant === null ? null : f.tarif_taxe || "TTC",
       capacite_voix: f.capacite_voix === null || (f.capacite_voix as unknown) === "" ? null : Number(f.capacite_voix),
       acces_transports: f.acces_transports || null,
       services: f.services,
@@ -99,14 +108,57 @@ const LieuEditor = ({ podcastId, type, nom }: Props) => {
 
   return (
     <form onSubmit={save} className="space-y-7" noValidate>
+      <div>
+        <label htmlFor={id("accroche")} className={labelCls}>Accroche</label>
+        <textarea id={id("accroche")} rows={2} value={f.accroche ?? ""} maxLength={accrocheLimite}
+          onChange={(e) => {
+            const v = e.target.value;
+            // Au-delà de 160 caractères, on peut seulement raccourcir
+            if (v.length > ACCROCHE_MAX && v.length > (f.accroche?.length || 0)) return;
+            set("accroche", v);
+          }}
+          className={`${field} py-2`} aria-describedby={`${id("accroche")}-aide`} />
+        <p id={`${id("accroche")}-aide`} className={`${hintCls} font-mono ${accrocheTrop ? "!text-destructive font-bold" : ""}`}>
+          {f.accroche?.length || 0}/{ACCROCHE_MAX} caractères{accrocheTrop ? " : trop long, raccourcissez ce texte pour le modifier" : ""}
+        </p>
+        <p className={hintCls}>Une phrase sous le nom, sans tarif ni capacité : ils s'affichent dans « En pratique ».</p>
+      </div>
+      <div>
+        <label htmlFor={id("description")} className={labelCls}>{isStudio ? "Le studio (description longue)" : "Présentation (description longue)"}</label>
+        <textarea id={id("description")} rows={6} maxLength={3000} value={f.description_longue ?? ""} onChange={(e) => set("description_longue", e.target.value)} className={`${field} py-2`} />
+        <div className="flex flex-wrap justify-between gap-x-4">
+          <p className={hintCls}>
+            {isStudio ? "Laissée vide, la section « Le studio » n'apparaît pas." : "Pas de dates ici : vos événements viennent de l'agenda. Laissée vide, la section « Présentation » n'apparaît pas."}
+          </p>
+          <p className={`${hintCls} font-mono`}>{f.description_longue?.length || 0}/3000</p>
+        </div>
+      </div>
+      {isStudio && (
+        <fieldset className="grid sm:grid-cols-[1fr_1fr_1fr] gap-4">
+          <legend className={`${labelCls} sm:col-span-3`}>Tarif « à partir de »</legend>
+          <div>
+            <label htmlFor={id("tarif")} className="block text-sm mb-1">Montant (€)</label>
+            <input id={id("tarif")} type="number" min={0} max={100000} step="1" inputMode="decimal" value={f.tarif_heure ?? ""}
+              onChange={(e) => set("tarif_heure", (e.target.value === "" ? null : Number(e.target.value)) as number | null)} className={field} />
+          </div>
+          <div>
+            <label htmlFor={id("tarif-unite")} className="block text-sm mb-1">Par</label>
+            <select id={id("tarif-unite")} value={f.tarif_unite || "heure"} onChange={(e) => set("tarif_unite", e.target.value as TarifUnite)} className={field}>
+              {TARIF_UNITES.map((u) => <option key={u.value} value={u.value}>{u.label}</option>)}
+            </select>
+          </div>
+          <div>
+            <label htmlFor={id("tarif-taxe")} className="block text-sm mb-1">Taxes</label>
+            <select id={id("tarif-taxe")} value={f.tarif_taxe || "TTC"} onChange={(e) => set("tarif_taxe", e.target.value as TarifTaxe)} className={field}>
+              <option value="TTC">TTC</option>
+              <option value="HT">HT</option>
+            </select>
+          </div>
+          <p className={`${hintCls} sm:col-span-3 mt-0`}>Affiché « à partir de 48 € TTC / h ». Sans montant, la fiche affiche « Sur devis ».</p>
+        </fieldset>
+      )}
       {isStudio && (
         <div className="grid sm:grid-cols-2 gap-4">
-          <div>
-            <label htmlFor={id("tarif")} className={labelCls}>Tarif indicatif (€ / heure)</label>
-            <input id={id("tarif")} type="number" min={0} max={10000} step="1" inputMode="decimal" value={f.tarif_heure ?? ""}
-              onChange={(e) => set("tarif_heure", (e.target.value === "" ? null : Number(e.target.value)) as number | null)} className={field} />
-            <p className={hintCls}>Affiché « à partir de … € / heure ».</p>
-          </div>
           <div>
             <label htmlFor={id("capacite")} className={labelCls}>Capacité (nombre de voix)</label>
             <input id={id("capacite")} type="number" min={1} max={50} value={f.capacite_voix ?? ""}
@@ -149,12 +201,14 @@ const LieuEditor = ({ podcastId, type, nom }: Props) => {
       {isStudio && (
         <fieldset className="grid sm:grid-cols-2 gap-4">
           <legend className={`${labelCls} sm:col-span-2`}>Équipement</legend>
-          {([["micros", "Micros"], ["cameras", "Caméras"], ["lumieres_decor", "Lumières et décor"]] as const).map(([k, l]) => (
-            <div key={k}>
-              <label htmlFor={id(k)} className="block text-sm mb-1">{l}</label>
-              <input id={id(k)} maxLength={200} value={(f.equipement[k] as string) ?? ""} onChange={(e) => set("equipement", { ...f.equipement, [k]: e.target.value })} className={small} />
-            </div>
-          ))}
+          <div className="sm:col-span-2">
+            <label htmlFor={id("materiel")} className="block text-sm mb-1">Matériel</label>
+            <textarea id={id("materiel")} rows={3} maxLength={600} value={f.equipement.materiel ?? ""} onChange={(e) => set("equipement", { ...f.equipement, materiel: e.target.value })} className={`${small} py-2`} placeholder="Micros, caméras, console, logiciels…" />
+          </div>
+          <div>
+            <label htmlFor={id("lumieres_decor")} className="block text-sm mb-1">Lumières et décor</label>
+            <input id={id("lumieres_decor")} maxLength={200} value={f.equipement.lumieres_decor ?? ""} onChange={(e) => set("equipement", { ...f.equipement, lumieres_decor: e.target.value })} className={small} />
+          </div>
           <label className="flex items-center gap-3 min-h-[44px] cursor-pointer self-end">
             <input type="checkbox" className="w-5 h-5 accent-primary" checked={!!f.equipement.technicien} onChange={(e) => set("equipement", { ...f.equipement, technicien: e.target.checked })} />
             Technicien·ne sur place

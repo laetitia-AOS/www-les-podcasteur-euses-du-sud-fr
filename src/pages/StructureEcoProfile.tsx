@@ -8,7 +8,7 @@ import { PAGES, SITE_URL, breadcrumbLd, descriptionSeo, ficheHref, titreSeo } fr
 import MembreContactForm from "@/components/MembreContactForm";
 import { AgendaLieu, FaqList, LogoLieu, PodcastsLiesList, faqJsonLd, sdOf, useLieu } from "@/components/studios/LieuParts";
 import { btnPrimary, btnSecondary, cleanCity, container, linkUnderline } from "@/lib/pds";
-import { ficheVide, formatDateCourte, liensLieu, useAnneeAdhesion, useFichesLieux } from "@/lib/lieux";
+import { accrocheLieu, ficheVide, formatDateCourte, liensLieu, useAnneeAdhesion, useFichesLieux } from "@/lib/lieux";
 
 const SITE = SITE_URL;
 
@@ -27,8 +27,9 @@ const StructureEcoProfile = () => {
   // Partenaire (sans adhésion) : marqué « Partenaire » et non « Membre »
   const partenaire = sd.partenaire === true;
 
-  const accroche = sd.phrase_accroche || sd.accroche || "";
-  const description = s?.bio_750 || s?.description || "";
+  const accroche = accrocheLieu(f, sd);
+  // Description longue de la fiche détaillée ; vide : section « Présentation » masquée
+  const description = (f.description_longue || "").trim();
   const site = s?.lien_principal || f.liens[0]?.url || null;
   // Le site principal a son bouton en tête : la liste du bas montre les autres liens, chacun une seule fois
   const liens = liensLieu(site, f.liens, [s?.lien_linkedin]).filter((l) => l.url !== site);

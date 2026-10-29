@@ -29,11 +29,28 @@ export type Lien = { label: string; url: string };
 export type Proposition = { titre: string; texte: string };
 export type Presse = { titre: string; url: string; date?: string };
 export type PodcastLie = { id: string; date?: string; url?: string };
-export type Equipement = { micros?: string; cameras?: string; lumieres_decor?: string; technicien?: boolean };
+/** « Matériel » regroupe tout (micros, caméras, console, logiciels) ; « Technicien·ne sur place » reste à part. */
+export type Equipement = { materiel?: string; lumieres_decor?: string; technicien?: boolean };
+
+export type TarifUnite = "heure" | "demi_journee" | "jour";
+export type TarifTaxe = "TTC" | "HT";
+export const TARIF_UNITES: { value: TarifUnite; label: string; court: string }[] = [
+  { value: "heure", label: "Heure", court: "h" },
+  { value: "demi_journee", label: "Demi-journée", court: "demi-journée" },
+  { value: "jour", label: "Journée", court: "jour" },
+];
+
+/** Accroche affichée sous le titre : 160 caractères (un texte plus ancien plus long reste tel quel). */
+export const ACCROCHE_MAX = 160;
 
 export type FicheLieu = {
   podcast_id: string;
+  accroche: string | null;
+  description_longue: string | null;
+  /** Montant « à partir de » ; unité et TTC/HT à côté */
   tarif_heure: number | null;
+  tarif_unite: TarifUnite | null;
+  tarif_taxe: TarifTaxe | null;
   capacite_voix: number | null;
   acces_transports: string | null;
   services: string[];
@@ -50,7 +67,11 @@ export type FicheLieu = {
 
 export const ficheVide = (podcastId: string): FicheLieu => ({
   podcast_id: podcastId,
+  accroche: null,
+  description_longue: null,
   tarif_heure: null,
+  tarif_unite: null,
+  tarif_taxe: null,
   capacite_voix: null,
   acces_transports: null,
   services: [],
@@ -65,9 +86,26 @@ export const ficheVide = (podcastId: string): FicheLieu => ({
   intitule_membres: "accompagnes",
 });
 
-/** « à partir de 45 € / heure » */
-export const formatTarif = (t: number | null | undefined) =>
-  t == null ? null : `à partir de ${Number.isInteger(Number(t)) ? Number(t) : Number(t).toFixed(2).replace(".", ",")} € / heure`;
+/** « à partir de 48 € TTC / h », « … / demi-journée », « … / jour » ; sans montant : null. */
+export const formatTarif = (
+  t: number | null | undefined,
+  unite: TarifUnite | null | undefined = "heure",
+  taxe: TarifTaxe | null | undefined = "TTC",
+) => {
+  if (t == null || (t as unknown) === "") return null;
+  const n = Number(t);
+  const montant = Number.isInteger(n) ? String(n) : n.toFixed(2).replace(".", ",");
+  const u = TARIF_UNITES.find((x) => x.value === (unite || "heure"))?.court || "h";
+  return `à partir de ${montant} € ${taxe || "TTC"} / ${u}`;
+};
+
+/** Tarif affiché d'une fiche : montant structuré, sinon « Sur devis ». */
+export const tarifAffiche = (f: Pick<FicheLieu, "tarif_heure" | "tarif_unite" | "tarif_taxe"> | null | undefined) =>
+  formatTarif(f?.tarif_heure, f?.tarif_unite, f?.tarif_taxe) || "Sur devis";
+
+/** Accroche d'un lieu : celle de la fiche détaillée, sinon celle saisie à l'inscription. */
+export const accrocheLieu = (f: Pick<FicheLieu, "accroche"> | null | undefined, sd: { accroche?: unknown; phrase_accroche?: unknown }) =>
+  (f?.accroche || (typeof sd.accroche === "string" ? sd.accroche : "") || (typeof sd.phrase_accroche === "string" ? sd.phrase_accroche : "") || "").trim();
 
 /** « 4 voix » */
 export const formatCapacite = (n: number | null | undefined) => (n == null ? null : `${n} voix`);
