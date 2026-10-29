@@ -40,7 +40,7 @@ const AdminMembres = () => {
     toast.success(actif ? "La fiche reste visible en attendant l'adhésion." : "La fiche sera masquée tant que l'adhésion n'est pas réglée.");
     qc.invalidateQueries({ queryKey: ["admin-membres"] });
   };
-  const { data: membres = [], isLoading } = useQuery({
+  const { data: tous = [], isLoading } = useQuery({
     queryKey: ["admin-membres"],
     queryFn: async () => {
       const { data, error } = await supabase.rpc("admin_membres");
@@ -48,6 +48,9 @@ const AdminMembres = () => {
       return (data || []) as MembreAdmin[];
     },
   });
+  // Seules les personnes qui ont une fiche dans l'annuaire apparaissent ici
+  const membres = useMemo(() => tous.filter((m) => m.nb_fiches > 0), [tous]);
+  const paiementsSansFiche = tous.filter((m) => m.nb_fiches === 0 && m.etat === "a_jour").length;
 
   const y = anneeEnCours();
   // Décembre : membres de l'année à renouveler pour l'an prochain ; le reste de l'année : membres de l'an passé
@@ -88,9 +91,10 @@ const AdminMembres = () => {
     <section aria-labelledby="membres-title" className="mb-12">
       <h2 id="membres-title" className="sr-only">Liste des membres</h2>
       <p className="text-sm text-muted-foreground mb-4">
-        {membres.filter((m) => m.etat === "a_jour").length} membres {y} ·{" "}
+        {membres.length} personnes avec une fiche · {membres.filter((m) => m.etat === "a_jour").length} à jour {y} ·{" "}
         <button type="button" className="underline underline-offset-4" onClick={() => setEtat("masquees")}>{masquees} fiche{masquees > 1 ? "s" : ""} masquée{masquees > 1 ? "s" : ""} faute d'adhésion à jour</button>
         {" "}·{" "}<button type="button" className="underline underline-offset-4" onClick={() => setEtat("sursis")}>{membres.filter((m) => m.sursis).length} visibles en attente d'adhésion</button>
+        {paiementsSansFiche > 0 && <> · {paiementsSansFiche} adhérent·e{paiementsSansFiche > 1 ? "s" : ""} {y} sans fiche (non listé·e{paiementsSansFiche > 1 ? "s" : ""})</>}
         {" "}· adhésion à l'année civile, tolérance en janvier, masquage le 1er février
       </p>
       <div className="space-y-3">
