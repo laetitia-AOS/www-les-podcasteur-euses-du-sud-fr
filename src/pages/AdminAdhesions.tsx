@@ -11,7 +11,8 @@ import { Users, Loader2, Download, RefreshCw, Trash2, Pencil, Save, X, Link2 } f
 import AdminLayout from "@/components/admin/AdminLayout";
 import { AdminOnglets, Panneau, useOnglet } from "@/components/admin/AdminOnglets";
 import RelanceCollective from "@/components/admin/RelanceCollective";
-import type { MembreAdmin } from "@/components/admin/AdminMembres";
+import { membresDeLaVue, type MembreAdmin } from "@/components/admin/AdminMembres";
+import { anneeEnCours } from "@/lib/espaceMembre";
 import { useAdminAuth } from "@/hooks/useAdminAuth";
 import AddAdhesionDialog from "@/components/AddAdhesionDialog";
 import AdminMembres from "@/components/admin/AdminMembres";
@@ -167,8 +168,20 @@ const AdminAdhesions = () => {
   };
 
   const aVerifier = (adhesions || []).filter((a: any) => a.statut === "a_verifier").length;
+  const { data: tousMembres = [] } = useQuery({
+    queryKey: ["admin-membres"],
+    queryFn: async () => {
+      const { data, error } = await supabase.rpc("admin_membres");
+      if (error) throw error;
+      return (data || []) as MembreAdmin[];
+    },
+    enabled: isAdmin,
+  });
+  const yy = anneeEnCours();
   const onglets = [
-    { id: "membres", label: "Membres" },
+    { id: "membres", label: `Membres ${yy} (${membresDeLaVue(tousMembres, "annee").length})` },
+    { id: "anciens", label: `Anciens membres (${membresDeLaVue(tousMembres, "anciens").length})` },
+    { id: "sans-adhesion", label: `Fiches sans adhésion (${membresDeLaVue(tousMembres, "sans").length})` },
     { id: "paiements", label: "Paiements HelloAsso", compte: aVerifier },
     { id: "relances", label: "Relances" },
   ];
@@ -254,7 +267,9 @@ const AdminAdhesions = () => {
     >
       <AdminOnglets label="Rubriques membres" onglets={onglets} courant={onglet} onChange={setOnglet} />
 
-      {onglet === "membres" && <Panneau id="membres"><AdminMembres /></Panneau>}
+      {onglet === "membres" && <Panneau id="membres"><AdminMembres vue="annee" /></Panneau>}
+      {onglet === "anciens" && <Panneau id="anciens"><AdminMembres vue="anciens" /></Panneau>}
+      {onglet === "sans-adhesion" && <Panneau id="sans-adhesion"><AdminMembres vue="sans" /></Panneau>}
 
       {onglet === "relances" && <Panneau id="relances"><RelancesOnglet /></Panneau>}
 

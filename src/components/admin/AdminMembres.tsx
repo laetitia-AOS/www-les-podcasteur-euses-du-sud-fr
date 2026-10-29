@@ -27,8 +27,22 @@ const TYPE: Record<string, string> = {
 };
 const date = (d: string | null) => (d ? new Date(d).toLocaleDateString("fr-FR") : "—");
 
+export type VueMembres = "annee" | "anciens" | "sans";
+
+/**
+ * Qui apparaît dans chaque onglet :
+ * - « annee » : membres de l'année avec une fiche (à jour, tolérance de janvier ou paiement à vérifier) ;
+ * - « anciens » : adhésion terminée les années précédentes, avec ou sans fiche ;
+ * - « sans » : fiche dans l'annuaire, mais aucune adhésion trouvée.
+ */
+export const membresDeLaVue = (tous: MembreAdmin[], vue: VueMembres) =>
+  tous.filter((m) =>
+    vue === "annee" ? m.nb_fiches > 0 && ["a_jour", "tolerance", "verification"].includes(m.etat)
+    : vue === "anciens" ? m.etat === "terminee"
+    : m.nb_fiches > 0 && m.etat === "sans_adhesion");
+
 /** Liste des membres (réservée aux admins : le serveur ne renvoie rien aux autres comptes). */
-const AdminMembres = () => {
+const AdminMembres = ({ vue = "annee" }: { vue?: VueMembres }) => {
   const [q, setQ] = useState("");
   const [etat, setEtat] = useState("tous");
   const [formule, setFormule] = useState("toutes");
@@ -48,9 +62,9 @@ const AdminMembres = () => {
       return (data || []) as MembreAdmin[];
     },
   });
-  // Seules les personnes qui ont une fiche dans l'annuaire apparaissent ici
-  const membres = useMemo(() => tous.filter((m) => m.nb_fiches > 0), [tous]);
+  const membres = useMemo(() => membresDeLaVue(tous, vue), [tous, vue]);
   const paiementsSansFiche = tous.filter((m) => m.nb_fiches === 0 && m.etat === "a_jour").length;
+  const anneePaiement = (m: MembreAdmin) => m.annee ?? (m.date_paiement ? new Date(m.date_paiement).getFullYear() : null);
 
   const y = anneeEnCours();
   // Décembre : membres de l'année à renouveler pour l'an prochain ; le reste de l'année : membres de l'an passé
@@ -74,13 +88,13 @@ const AdminMembres = () => {
   const exporter = () => {
     const rows = liste.map((m) => [
       m.nom, m.email, m.formule === "studio" ? "Studio / agence" : "Personne", TYPE[m.type_profil || ""] || "",
-      ETAT[m.etat] || m.etat, m.annee ?? "", m.montant ?? "", date(m.date_paiement), m.fiche_visible ? "Oui" : "Non",
+      ETAT[m.etat] || m.etat, anneePaiement(m) ?? "", m.montant ?? "", date(m.date_paiement), m.fiche_visible ? "Oui" : "Non",
     ]);
     const csv = toCsv([["Nom", "E-mail", "Formule", "Profil", "Statut", "Année payée", "Montant payé (€)", "Dernier paiement", "Fiche visible"], ...rows]);
     const blob = new Blob(["\ufeff" + csv], { type: "text/csv;charset=utf-8" });
     const a = document.createElement("a");
     a.href = URL.createObjectURL(blob);
-    a.download = `membres-${new Date().toISOString().slice(0, 10)}.csv`;
+    a.download = `${vue === "annee" ? `membres-${y}` : vue === "anciens" ? "anciens-membres" : "fiches-sans-adhesion"}-${new Date().toISOString().slice(0, 10)}.csv`;
     a.click();
     URL.revokeObjectURL(a.href);
   };
@@ -90,21 +104,31 @@ const AdminMembres = () => {
   return (
     <section aria-labelledby="membres-title" className="mb-12">
       <h2 id="membres-title" className="sr-only">Liste des membres</h2>
-      <p className="text-sm text-muted-foreground mb-4">
-        {membres.length} personnes avec une fiche · {membres.filter((m) => m.etat === "a_jour").length} à jour {y} ·{" "}
-        <button type="button" className="underline underline-offset-4" onClick={() => setEtat("masquees")}>{masquees} fiche{masquees > 1 ? "s" : ""} masquée{masquees > 1 ? "s" : ""} faute d'adhésion à jour</button>
-        {" "}·{" "}<button type="button" className="underline underline-offset-4" onClick={() => setEtat("sursis")}>{membres.filter((m) => m.sursis).length} visibles en attente d'adhésion</button>
+      {vue === "anciens" && (
+        <p className="text-sm text-muted-foreground mb-4">
+          {membres.length} ancien·nes membres : leur dernière adhésion date d'une année précédente et n'a pas été renouvelée. {membres.filter((m) => m.nb_fiches > 0).length} ont une fiche, masquée tant qu'elles et ils n'ont pas réadhéré (sauf sursis).
+        </p>
+      )}
+      {vue === "sans" && (
+        <p className="text-sm text-muted-foreground mb-4">
+          {membres.length} personnes ont une fiche dans l'annuaire mais aucune adhésion enregistrée, même en cherchant par le nom. Si l'une a payé sous un autre nom, reliez son paiement depuis l'onglet Paiements HelloAsso.
+        </p>
+      )}
+      {vue === "annee" && <p className="text-sm text-muted-foreground mb-4">
+        {membres.length} membres {y} avec une fiche
+        {membres.filter((m) => m.etat === "verification").length > 0 && <> · {membres.filter((m) => m.etat === "verification").length} paiement(s) à vérifier</>}
+        {membres.filter((m) => m.etat === "tolerance").length > 0 && <> · {membres.filter((m) => m.etat === "tolerance").length} de l'an passé, visibles jusqu'au 31 janvier</>}
         {paiementsSansFiche > 0 && <> · {paiementsSansFiche} adhérent·e{paiementsSansFiche > 1 ? "s" : ""} {y} sans fiche (non listé·e{paiementsSansFiche > 1 ? "s" : ""})</>}
         {" "}· adhésion à l'année civile, tolérance en janvier, masquage le 1er février
-      </p>
+      </p>}
       <div className="space-y-3">
           <div className="flex flex-wrap gap-2 items-center">
             <Input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Nom ou e-mail" className="max-w-xs" aria-label="Rechercher un membre" />
             <select value={etat} onChange={(e) => setEtat(e.target.value)} className="h-10 border border-input bg-background px-3 text-sm" aria-label="Filtrer par statut">
               <option value="tous">Tous les statuts</option>
               {Object.entries(ETAT).map(([v, l]) => <option key={v} value={v}>{l}</option>)}
-              <option value="masquees">Fiches masquées</option>
-              <option value="sursis">Visibles en attente d'adhésion</option>
+              {vue !== "annee" && <option value="masquees">Fiches masquées</option>}
+              {vue !== "annee" && <option value="sursis">Visibles en attente d'adhésion</option>}
               <option value="a_renouveler">À renouveler pour {anneeCible}</option>
             </select>
             <select value={formule} onChange={(e) => setFormule(e.target.value)} className="h-10 border border-input bg-background px-3 text-sm" aria-label="Filtrer par formule">
@@ -129,7 +153,7 @@ const AdminMembres = () => {
                     <TableCell><p className="font-medium">{m.nom}</p><p className="text-xs text-muted-foreground break-all">{m.email}</p></TableCell>
                     <TableCell className="text-sm">{m.formule === "studio" ? "Studio / agence" : "Personne"}{m.type_profil && <span className="block text-xs text-muted-foreground">{TYPE[m.type_profil] || m.type_profil}</span>}</TableCell>
                     <TableCell><Badge variant={m.etat === "a_jour" ? "default" : m.etat === "verification" ? "destructive" : "secondary"}>{ETAT[m.etat] || m.etat}</Badge></TableCell>
-                    <TableCell className="font-mono text-sm">{m.annee ? `Membre ${m.annee}` : "—"}</TableCell>
+                    <TableCell className="font-mono text-sm">{m.annee ? `Membre ${m.annee}` : anneePaiement(m) ? `Dernière : ${anneePaiement(m)}` : "—"}</TableCell>
                     <TableCell className="font-mono text-sm">{m.montant != null ? `${Number(m.montant)} €` : "—"}<span className="block text-xs text-muted-foreground">{m.date_paiement ? `le ${date(m.date_paiement)}` : ""}</span></TableCell>
                     <TableCell className="text-sm">
                       {m.nb_fiches === 0 ? "Aucune" : m.sursis ? "Visible en attente d'adhésion" : m.fiche_visible ? "Visible" : m.fiche_validee ? "Masquée" : "En attente"}
