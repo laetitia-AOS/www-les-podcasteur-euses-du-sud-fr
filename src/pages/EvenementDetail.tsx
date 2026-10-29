@@ -224,7 +224,7 @@ const EvenementDetail = () => {
         {evt.image_url ? (
           // Affiche entière, à sa taille naturelle, jamais recadrée ni étirée ; sur ordinateur, pas plus large que la colonne de texte
           <div className={container}>
-            <img src={evt.image_url} alt={`Affiche de ${view.titre}`} className="block w-auto max-w-full lg:max-w-[720px] h-auto max-h-none object-contain border border-filet" />
+            <img src={evt.image_url} alt={`Affiche de ${view.titre}`} className="block w-full lg:max-w-[720px] h-auto border border-filet" />
           </div>
         ) : (
           <img src={bande.url} alt="Un apéro écoute des Podcasteur·euses du Sud dans une salle aux murs rouges." className="w-full aspect-[16/9] sm:aspect-[1800/650] object-cover" />
