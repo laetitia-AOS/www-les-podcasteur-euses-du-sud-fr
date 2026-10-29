@@ -155,6 +155,13 @@
       "when": 1793276517515,
       "tag": "0021_membre_a_jour_date_testable",
       "breakpoints": true
+    },
+    {
+      "idx": 22,
+      "version": "7",
+      "when": 1793276764460,
+      "tag": "0022_fiches_visibles_en_attente_adhesion",
+      "breakpoints": true
     }
   ]
 }
