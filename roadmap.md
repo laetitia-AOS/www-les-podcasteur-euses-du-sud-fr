@@ -98,16 +98,16 @@
 - [x] Vérification à 390 px
 
 ## Corrections après revue — lot 6 (pages légales et référencement)
-- [ ] 1. Mentions légales : coordonnées complètes des hébergeurs
-- [ ] 2. Confidentialité : nouveaux traitements (sections 2, 3, 5)
-- [ ] 3. Confidentialité : vérifier la région des données — question avant d'écrire
-- [ ] 4. CGU : article « Mise en relation et propositions »
-- [ ] 5. H1 avec ligne descriptive (accueil, écouter, annuaire, studios, agenda, adhérer)
-- [ ] 6. Titres et descriptions uniques
-- [ ] 7. Image de partage par page
-- [ ] 8. Données structurées
-- [ ] 9. Adresses et redirections, canonique
-- [ ] 10. Plan du site, robots, noindex
-- [ ] 11. Textes alternatifs, langue
-- [ ] 12. Tableau de vérification
-- [ ] Revue SEO & AI search, puis scan de sécurité
+- [x] 1. Mentions légales : coordonnées complètes des hébergeurs
+- [x] 2. Confidentialité : nouveaux traitements (sections 2, 3, 5)
+- [ ] 3. Confidentialité : région des données — en attente de la réponse (base et images à Francfort)
+- [x] 4. CGU : article « Mise en relation et propositions »
+- [x] 5. H1 avec ligne descriptive (accueil, écouter, annuaire, studios, agenda, adhérer)
+- [x] 6. Titres et descriptions uniques
+- [x] 7. Image de partage par page
+- [x] 8. Données structurées
+- [x] 9. Adresses et redirections, canonique
+- [x] 10. Plan du site, robots, noindex
+- [x] 11. Textes alternatifs, langue
+- [x] 12. Tableau de vérification
+- [x] Revue SEO & AI search, puis scan de sécurité
