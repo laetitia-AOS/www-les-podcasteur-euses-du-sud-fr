@@ -13,7 +13,7 @@ type Relance = "1dec" | "20dec" | "15jan" | "sursis";
 export const messageRelance = (r: Relance, y: number) => {
   // En janvier, on relance les membres de l'année précédente pour l'année en cours
   const base = r === "15jan" ? y - 1 : y;
-  const cible = r === "15jan" || r === "sursis" ? (r === "sursis" ? y : y) : y + 1;
+  const cible = r === "1dec" || r === "20dec" ? y + 1 : y;
   const lien = `${SITE}/rejoindre-association?etape=adhesion&pour=${cible}`;
   const espace = `${SITE}/espace-membre`;
   const fin = "Utilisez la même adresse e-mail que pour votre profil : c'est elle qui relie le paiement à votre fiche.";
