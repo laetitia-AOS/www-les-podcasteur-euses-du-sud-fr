@@ -127,6 +127,13 @@
       "when": 1793274868284,
       "tag": "0017_adhesion_echeance_visibilite_stats",
       "breakpoints": true
+    },
+    {
+      "idx": 18,
+      "version": "7",
+      "when": 1793274981125,
+      "tag": "0018_effacement_images_partagees",
+      "breakpoints": true
     }
   ]
 }
