@@ -523,7 +523,7 @@ const AdminPodcasts = () => {
               </div>
               {(editingPodcast.type_profil === "studio" || editingPodcast.type_profil === "structure_eco") && (
                 <section className="mt-8 pt-6 border-t border-border" aria-label="Fiche détaillée">
-                  <h3 className="font-bold text-lg mb-4">Fiche détaillée (tarif, services, photos, équipement, questions…)</h3>
+                  <h3 className="font-bold text-lg mb-4">Fiche détaillée (accroche, description, tarif, services, photos, matériel, questions…)</h3>
                   <LieuEditor podcastId={editingPodcast.id} type={editingPodcast.type_profil as "studio" | "structure_eco"} nom={editingPodcast.nom_podcast} />
                 </section>
               )}
@@ -552,7 +552,7 @@ const StudioDetailView = ({ podcast }: { podcast: any }) => {
       <DetailRow label="Adresse" value={sd.adresse} />
       <DetailRow label="Type de lieu" value={sd.type_lieu} />
       <DetailRow label="Capacité" value={sd.capacite} />
-      <div className="col-span-2"><DetailRow label="Phrase d'accroche" value={sd.phrase_accroche} /></div>
+      <div className="col-span-2"><DetailRow label="Phrase d'accroche (inscription, archive)" value={sd.phrase_accroche} /></div>
       <div className="col-span-2"><DetailRow label="Présentation" value={podcast.description} /></div>
       <div className="col-span-2"><DetailRow label="Bio (750 car.)" value={podcast.bio_750} /></div>
       <div className="col-span-2"><DetailRow label="Services" value={Array.isArray(sd.services) ? sd.services.join(", ") : null} /></div>
@@ -563,7 +563,7 @@ const StudioDetailView = ({ podcast }: { podcast: any }) => {
       <DetailRow label="Disponibilité" value={sd.disponibilite} />
       <DetailRow label="Mode de réservation" value={sd.mode_reservation} />
       <DetailRow label="Tarification" value={sd.tarification} />
-      <div className="col-span-2"><DetailRow label="Indication tarifaire" value={sd.indication_tarifaire} /></div>
+      <div className="col-span-2"><DetailRow label="Indication tarifaire (inscription, archive)" value={sd.indication_tarifaire} /></div>
       <div className="col-span-2"><DetailRow label="Public ciblé" value={Array.isArray(sd.public_cible) ? sd.public_cible.join(", ") : null} /></div>
       <div className="col-span-2"><DetailRow label="Ouvert à" value={Array.isArray(sd.ouvert_a) ? sd.ouvert_a.join(", ") : null} /></div>
       <div className="col-span-2"><DetailRow label="Recherche" value={Array.isArray(sd.recherche) ? sd.recherche.join(", ") : null} /></div>
@@ -708,7 +708,7 @@ const StudioEditForm = ({ editForm, setEditForm, inputClass, selectClass, labelC
       <input value={editForm.capacite} onChange={(e) => setEditForm({ ...editForm, capacite: e.target.value })} className={inputClass} />
     </div>
     <div className="sm:col-span-2">
-      <label className={labelClass}>Phrase d'accroche</label>
+      <label className={labelClass}>Phrase d'accroche saisie à l'inscription (archive : l'accroche affichée se modifie dans la fiche détaillée)</label>
       <input value={editForm.phrase_accroche} onChange={(e) => setEditForm({ ...editForm, phrase_accroche: e.target.value })} className={inputClass} />
     </div>
     <div>
@@ -764,7 +764,7 @@ const StudioEditForm = ({ editForm, setEditForm, inputClass, selectClass, labelC
       </select>
     </div>
     <div className="sm:col-span-2">
-      <label className={labelClass}>Indication tarifaire</label>
+      <label className={labelClass}>Indication tarifaire saisie à l'inscription (archive : le tarif affiché se modifie dans la fiche détaillée)</label>
       <input value={editForm.indication_tarifaire} onChange={(e) => setEditForm({ ...editForm, indication_tarifaire: e.target.value })} className={inputClass} />
     </div>
     <div className="sm:col-span-2">

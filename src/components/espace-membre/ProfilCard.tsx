@@ -142,6 +142,9 @@ const ProfilCard = ({ profil, fiches, onSaved }: Props) => {
         </div>
       </div>
 
+      {profil.type_profil === "studio" || profil.type_profil === "structure_eco" ? (
+        <p className={`${hintCls} mt-0`}>L'accroche et la description de votre lieu se modifient plus bas, dans la fiche détaillée.</p>
+      ) : (
       <div>
         <label htmlFor="em-bio" className={labelCls}>Présentation</label>
         <textarea id="em-bio" value={bio} onChange={(e) => setBio(e.target.value.slice(0, 750))} rows={5} className={`${field} py-2`} />
@@ -150,6 +153,7 @@ const ProfilCard = ({ profil, fiches, onSaved }: Props) => {
           <p className={`${hintCls} font-mono`}>{bio.length}/750</p>
         </div>
       </div>
+      )}
 
       <div className="grid sm:grid-cols-2 gap-4">
         <div>
