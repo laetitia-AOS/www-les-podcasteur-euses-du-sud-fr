@@ -118,7 +118,7 @@ const EvenementDetail = () => {
             name: evt.lieu || view.city || "Lieu à préciser",
             address: { "@type": "PostalAddress", ...(evt.adresse && { streetAddress: cleanAddress(evt.adresse) }), ...(view.city && { addressLocality: view.city }), addressRegion: "Provence-Alpes-Côte d'Azur", addressCountry: "FR" },
           },
-      image: evt.image_url || `${SITE}/og-image.jpg`,
+      image: evt.image_url || `${SITE}/vignette-partage.jpg`,
       url: view.url,
       ...(prixDepuisTarif(evt.tarif) !== null && {
         ...(prixDepuisTarif(evt.tarif) === 0 && { isAccessibleForFree: true }),
