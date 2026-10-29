@@ -140,7 +140,7 @@ export const PAGES_SEO = {
   mentions: {
     title: titreSeo("Mentions légales"),
     description:
-      "Mentions légales du site des Podcasteur·euses du Sud, association loi 1901 à Marseille : éditeur, directrice de la publication, hébergeurs du site et des données.",
+      "Mentions légales du site des Podcasteur·euses du Sud, association loi 1901 à Marseille : éditeur, direction de la publication, hébergeurs du site et des données.",
   },
   confidentialite: {
     title: titreSeo("Politique de confidentialité"),
