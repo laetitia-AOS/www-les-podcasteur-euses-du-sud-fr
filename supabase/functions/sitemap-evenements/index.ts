@@ -1,4 +1,4 @@
-// Plan du site des événements : chaque événement publié (à venir et archives), lu avec les droits d'un visiteur.
+// Plan du site des pages qui changent : événements publiés (à venir et archives) et fiches visibles de l'annuaire, lus avec les droits d'un visiteur.
 import { createClient } from "npm:@supabase/supabase-js@2.45.0";
 
 const SITE_URL = "https://www.les-podcasteur-euses-du-sud.fr";
@@ -32,6 +32,23 @@ Deno.serve(async (req) => {
     <priority>${avenir ? "0.8" : "0.4"}</priority>
   </url>`;
   });
+
+  // Fiches publiques de l'annuaire (la lecture visiteur ne renvoie que les fiches visibles)
+  const { data: fiches } = await supabase
+    .from("podcasts")
+    .select("slug, type_profil, created_at")
+    .not("slug", "is", null)
+    .limit(5000);
+  const chemin = (t: string | null) =>
+    t === "studio" ? "/annuaire-podcasts/studios/" : t === "structure_eco" ? "/annuaire-podcasts/structures/" : "/podcasteur/";
+  for (const f of fiches || []) {
+    urls.push(`  <url>
+    <loc>${esc(`${SITE_URL}${chemin(f.type_profil)}${f.slug}`)}</loc>
+    <lastmod>${String(f.created_at).slice(0, 10)}</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>`);
+  }
 
   const xml = `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">

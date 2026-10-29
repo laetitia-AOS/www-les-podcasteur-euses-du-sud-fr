@@ -188,7 +188,7 @@ const ProfilMembre = () => {
   if (profile.flux_rss) alsoOn.push({ label: "Flux RSS", href: profile.flux_rss });
 
   const seoTitle = isPodcast
-    ? `${profile.nom_podcast}, podcast de ${name}${city ? ` (${city})` : ""} — Les Podcasteur·euses du Sud`
+    ? `${(profile.nom_podcast || "").trim()}, podcast de ${name}${city ? ` (${city})` : ""} — Les Podcasteur·euses du Sud`
     : `${name}${profile.metier_principal ? `, ${profile.metier_principal}` : ""}${city ? ` à ${city}` : ""} — Les Podcasteur·euses du Sud`;
   const seoDesc = (intro || `${title}, membre des Podcasteur·euses du Sud.`).slice(0, 155);
 
