@@ -123,9 +123,15 @@ export const DISPONIBILITES = [
 
 export type TypeProfil = "podcasteur" | "pro_podcast" | "studio" | "soutien" | "structure_eco";
 
+/** Même phrase sur l'accueil et sur la page Adhérer. */
+export const PHRASE_ADHESION = "D'abord un profil, gratuit. Ensuite l'adhésion, pour être vu·e, entendu·e et mis·e en relation.";
+
+/** Nom public du rôle `pro_podcast` (l'administration garde « Acteur·ice de l'écosystème »). */
+export const PRO_AUDIO = "Pro de l'audio";
+
 export const TYPES_PROFIL: { value: TypeProfil; label: string; hint: string }[] = [
   { value: "podcasteur", label: "Podcasteur·euse", hint: "J'ai un ou plusieurs podcasts" },
-  { value: "pro_podcast", label: "Acteur·ice de l'écosystème", hint: "Je propose des compétences" },
+  { value: "pro_podcast", label: PRO_AUDIO, hint: "Je propose des compétences" },
   { value: "studio", label: "Studio ou agence", hint: "Lieu d'enregistrement, production" },
   { value: "structure_eco", label: "Structure", hint: "Radio, festival, incubateur, institution" },
   { value: "soutien", label: "Curieux·se, soutien", hint: "Je veux suivre et contribuer" },

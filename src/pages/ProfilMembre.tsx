@@ -62,7 +62,7 @@ interface ProfileData {
 
 const ROLE_LABELS: Record<string, string> = {
   podcasteur: "Podcast",
-  pro_podcast: "Acteur·ice de l'écosystème",
+  pro_podcast: "Pro de l'audio",
   soutien: "Soutien",
   structure_eco: "Structure",
   studio: "Studio",

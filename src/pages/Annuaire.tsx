@@ -14,13 +14,13 @@ import { COLLAB_CHOIX_APPORTE, apporteLabel, collabLabel, phraseApportent } from
 const PROFILS = [
   { value: "", label: "Tous" },
   { value: "podcasteur", label: "Podcasteur·euses" },
-  { value: "pro_podcast", label: "Acteur·ices de l'écosystème" },
+  { value: "pro_podcast", label: "Pros de l'audio" },
   { value: "soutien", label: "Soutiens" },
 ];
 
 const ROLE: Record<string, string> = {
   podcasteur: "podcasteur·euse",
-  pro_podcast: "acteur·ice de l'écosystème",
+  pro_podcast: "pro de l'audio",
   soutien: "soutien",
 };
 
