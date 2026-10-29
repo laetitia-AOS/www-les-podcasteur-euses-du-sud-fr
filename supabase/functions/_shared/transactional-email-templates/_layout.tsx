@@ -2,7 +2,7 @@
 // Gabarit commun des e-mails du site : bandeau bleu avec logo, gros titre Archivo, trait orange,
 // boutons carrés, données en IBM Plex Mono. Styles en ligne uniquement (pas de feuille de style).
 import * as React from 'npm:react@18.3.1'
-import { Body, Button, Container, Head, Heading, Html, Img, Link, Preview, Section, Text } from 'npm:@react-email/components@0.0.22'
+import { Body, Button, Column, Container, Head, Heading, Html, Img, Link, Preview, Row, Section, Text } from 'npm:@react-email/components@0.0.22'
 
 export const SITE = 'https://www.les-podcasteur-euses-du-sud.fr'
 const LOGO = `${SITE}/favicon.png`
@@ -75,7 +75,19 @@ export const Layout = ({ preview, kicker, titre, children }: LayoutProps) => (
     <Body style={{ backgroundColor: '#ffffff', margin: 0, padding: '24px 0' }}>
       <Container style={{ maxWidth: '600px', width: '100%', margin: '0 auto' }}>
         <Section style={{ backgroundColor: C.bleu, padding: '22px 28px' }}>
-          <Img src={LOGO} alt="Les Podcasteur·euses du Sud" width="56" height="56" style={{ display: 'block', border: '2px solid #ffffff' }} />
+          <Row>
+            <Column style={{ width: '68px', verticalAlign: 'middle' }}>
+              <Img src={LOGO} alt="Les Podcasteur·euses du Sud" width="56" height="56" style={{ display: 'block', border: '2px solid #ffffff' }} />
+            </Column>
+            <Column style={{ verticalAlign: 'middle' }}>
+              <Text style={{ fontFamily: SANS, fontSize: '19px', fontWeight: 900, color: '#ffffff', margin: 0, lineHeight: '1.1' }}>
+                Les Podcasteur·euses du Sud
+              </Text>
+              <Text style={{ fontFamily: MONO, fontSize: '11px', letterSpacing: '1.5px', textTransform: 'uppercase', color: '#FFD9B0', margin: '4px 0 0' }}>
+                Podcast · audio · Région Sud
+              </Text>
+            </Column>
+          </Row>
         </Section>
         <Section style={{ height: '8px', backgroundColor: C.orange, lineHeight: '8px', fontSize: '1px' }}>&nbsp;</Section>
         <Section style={{ padding: '34px 28px 10px', border: `2px solid ${C.encre}`, borderTop: 'none' }}>
