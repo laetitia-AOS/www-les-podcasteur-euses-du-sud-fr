@@ -22,6 +22,7 @@ export interface FicheMembre {
   services_3: string[] | null;
   disponibilite: string | null;
   valide: boolean;
+  visible_sans_adhesion?: boolean;
   niveau_avancement: string | null;
   frequence_publication: string | null;
   monetise: string | null;

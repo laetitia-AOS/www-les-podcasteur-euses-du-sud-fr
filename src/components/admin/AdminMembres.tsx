@@ -1,5 +1,6 @@
 import { useMemo, useState } from "react";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { toast } from "sonner";
 import { Download } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toCsv } from "@/lib/csv";
@@ -12,7 +13,7 @@ import { anneeEnCours, periodeRenouvellement } from "@/lib/espaceMembre";
 export type MembreAdmin = {
   email: string; nom: string; type_profil: string | null; formule: string; etat: string;
   annee: number | null; montant: number | null; date_paiement: string | null; adhesion_id: string | null;
-  nb_fiches: number; fiche_validee: boolean; fiche_visible: boolean;
+  nb_fiches: number; fiche_validee: boolean; fiche_visible: boolean; sursis: boolean;
 };
 
 const ETAT: Record<string, string> = {
@@ -30,6 +31,13 @@ const AdminMembres = () => {
   const [etat, setEtat] = useState("tous");
   const [formule, setFormule] = useState("toutes");
 
+  const qc = useQueryClient();
+  const changerSursis = async (m: MembreAdmin, actif: boolean) => {
+    const { error } = await supabase.rpc("sursis_adhesion", { _email: m.email, _actif: actif });
+    if (error) { toast.error("La modification n'a pas été enregistrée."); return; }
+    toast.success(actif ? "La fiche reste visible en attendant l'adhésion." : "La fiche sera masquée tant que l'adhésion n'est pas réglée.");
+    qc.invalidateQueries({ queryKey: ["admin-membres"] });
+  };
   const { data: membres = [], isLoading } = useQuery({
     queryKey: ["admin-membres"],
     queryFn: async () => {
@@ -49,6 +57,7 @@ const AdminMembres = () => {
     return membres.filter((m) =>
       (etat === "tous" || (etat === "masquees" ? m.fiche_validee && !m.fiche_visible
         : etat === "a_renouveler" ? aRenouveler(m)
+        : etat === "sursis" ? m.sursis
         : m.etat === etat)) &&
       (formule === "toutes" || m.formule === formule) &&
       (!s || m.nom.toLowerCase().includes(s) || m.email.includes(s)));
@@ -79,6 +88,7 @@ const AdminMembres = () => {
       <p className="text-sm text-muted-foreground mb-4">
         {membres.filter((m) => m.etat === "a_jour").length} membres {y} ·{" "}
         <button type="button" className="underline underline-offset-4" onClick={() => setEtat("masquees")}>{masquees} fiche{masquees > 1 ? "s" : ""} masquée{masquees > 1 ? "s" : ""} faute d'adhésion à jour</button>
+        {" "}·{" "}<button type="button" className="underline underline-offset-4" onClick={() => setEtat("sursis")}>{membres.filter((m) => m.sursis).length} visibles en attente d'adhésion</button>
         {" "}· adhésion à l'année civile, tolérance en janvier, masquage le 1er février
       </p>
       <div className="space-y-3">
@@ -88,6 +98,7 @@ const AdminMembres = () => {
               <option value="tous">Tous les statuts</option>
               {Object.entries(ETAT).map(([v, l]) => <option key={v} value={v}>{l}</option>)}
               <option value="masquees">Fiches masquées</option>
+              <option value="sursis">Visibles en attente d'adhésion</option>
               <option value="a_renouveler">À renouveler pour {anneeCible}</option>
             </select>
             <select value={formule} onChange={(e) => setFormule(e.target.value)} className="h-10 border border-input bg-background px-3 text-sm" aria-label="Filtrer par formule">
@@ -113,7 +124,14 @@ const AdminMembres = () => {
                     <TableCell><Badge variant={m.etat === "a_jour" ? "default" : m.etat === "verification" ? "destructive" : "secondary"}>{ETAT[m.etat] || m.etat}</Badge></TableCell>
                     <TableCell className="font-mono text-sm">{m.annee ? `Membre ${m.annee}` : "—"}</TableCell>
                     <TableCell className="font-mono text-sm">{m.montant != null ? `${Number(m.montant)} €` : "—"}<span className="block text-xs text-muted-foreground">{m.date_paiement ? `le ${date(m.date_paiement)}` : ""}</span></TableCell>
-                    <TableCell className="text-sm">{m.nb_fiches === 0 ? "Aucune" : m.fiche_visible ? "Visible" : m.fiche_validee ? "Masquée" : "En attente"}</TableCell>
+                    <TableCell className="text-sm">
+                      {m.nb_fiches === 0 ? "Aucune" : m.sursis ? "Visible en attente d'adhésion" : m.fiche_visible ? "Visible" : m.fiche_validee ? "Masquée" : "En attente"}
+                      {m.fiche_validee && m.etat !== "a_jour" && m.etat !== "tolerance" && (
+                        <button type="button" onClick={() => changerSursis(m, !m.sursis)} className="block mt-1 text-xs underline underline-offset-4">
+                          {m.sursis ? "Masquer jusqu'à l'adhésion" : "Garder visible"}
+                        </button>
+                      )}
+                    </TableCell>
                   </TableRow>
                 ))}
               </TableBody>
