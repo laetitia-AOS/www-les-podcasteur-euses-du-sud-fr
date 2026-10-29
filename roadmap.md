@@ -19,5 +19,5 @@
 - [x] Adhésion HelloAsso : échéance, masquage à l'échéance, espace membre (statut, chiffres, suppression), liste des membres admin
 
 ## En attente
-- Envoi d'e-mails : domaine d'envoi à configurer par l'utilisatrice (envoi intégré Lovable) ; ensuite basculer « Écrire à… », devis studios, confirmations d'inscription aux événements, e-mail au membre quand sa proposition est publiée ou refusée, et e-mail de confirmation d'adhésion (« Valable jusqu'au 31 décembre [année] »).
+- [x] E-mails du site branchés (adhésion confirmée, message, collab, devis, « Je viens », proposition publiée / refusée) sur le domaine de l'association.
 - [x] Relance collective : bouton dans Admin > Adhésions (envoi depuis la boîte mail de l'équipe).
