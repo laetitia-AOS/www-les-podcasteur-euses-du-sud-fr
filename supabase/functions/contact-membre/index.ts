@@ -2,7 +2,7 @@
 // Le message est enregistré dans contact_requests, puis le membre est prévenu par e-mail (e-mails intégrés Lovable).
 
 import { createClient } from "npm:@supabase/supabase-js@2.45.0";
-import { envoyer, extrait, premierPrenom } from "../_shared/notifications.ts";
+import { envoyer, jourDuJour, premierPrenom, tropDeNotifs } from "../_shared/notifications.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -75,9 +75,10 @@ Deno.serve(async (req) => {
     let emailed = 0;
     for (const row of inseres || []) {
       const f = (fiches || []).find((x) => x.id === row.recipient_id);
-      if (!f) continue;
+      if (!f || await tropDeNotifs(admin, f.id)) continue;
+      // Notification sans le texte de l'expéditeur·ice : le message se lit dans l'espace membre
       const ok = await envoyer(type === "collab" ? "collab-recue" : "message-recu", f.email, {
-        prenom: premierPrenom(f.prenom), expediteur: name, extrait: extrait(msg), fiche: f.nom_podcast,
+        prenom: premierPrenom(f.prenom), fiche: f.nom_podcast, date: jourDuJour(),
       }, `${type}-recu-${row.id}`);
       if (ok) emailed++;
     }
