@@ -157,7 +157,7 @@ export const liensLieu = (principal: string | null | undefined, liens: Lien[], e
     if (vus.has(k)) return;
     vus.add(k);
     const pris = out.some((l) => l.label.toLowerCase() === label.toLowerCase());
-    out.push({ label: pris || (label === "Site" && out.length && url !== principal) ? domaine(url) : label, url });
+    out.push({ label: pris ? domaine(url) : label, url });
   };
   ajouter("Site", principal);
   for (const l of liens) ajouter(l.label || "Lien", l.url);
