@@ -18,6 +18,7 @@ const SITE = "https://www.les-podcasteur-euses-du-sud.fr";
 const StudioProfile = () => {
   const { slug } = useParams<{ slug: string }>();
   const { data: studio, isLoading } = useLieu("studio", slug);
+  useEffect(() => { if (studio?.id) compterStat(studio.id, "vue"); }, [studio?.id]);
   const { data: fiches = {} } = useFichesLieux(studio ? [studio.id] : []);
   const f = (studio && fiches[studio.id]) || ficheVide(studio?.id || "");
   const { data: annee } = useAnneeAdhesion(studio?.id);

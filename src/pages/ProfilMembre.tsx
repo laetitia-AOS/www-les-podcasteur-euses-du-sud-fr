@@ -1,4 +1,5 @@
 import { useMemo } from "react";
+import { compterStat } from "@/lib/stats";
 import { collabLabel } from "@/lib/inscription";
 import { useParams, Link } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
@@ -105,6 +106,7 @@ const ProfilMembre = () => {
   const city = cleanCity(profile?.city_name);
   const title = profile ? (isPodcast ? profile.nom_podcast! : name || profile.structure || "Profil") : "";
   const intro = profile ? (isPodcast ? profile.description : profile.bio_750 || profile.description) : "";
+  useEffect(() => { if (profile?.id) compterStat(profile.id, "vue"); }, [profile?.id]);
   const canonicalPath = profile ? `/podcasteur/${profile.slug || profile.id}` : `/podcasteur/${slug}`;
 
   const jsonLd = useMemo(() => {
@@ -234,7 +236,7 @@ const ProfilMembre = () => {
                 </button>
               )}
               {isPodcast && !latest && !epLoading && !isPlaceholderLink(profile.lien_ecoute) && (
-                <a href={withUtm(profile.lien_ecoute!, "fiche-membre")} target="_blank" rel="noopener noreferrer" className={`${btnPrimary} px-6`}>
+                <a href={withUtm(profile.lien_ecoute!, "fiche-membre")} onClick={() => compterStat(profile.id, "ecoute")} target="_blank" rel="noopener noreferrer" className={`${btnPrimary} px-6`}>
                   <Play className="w-4 h-4" fill="currentColor" aria-hidden /> Écouter<span className="sr-only"> (nouvel onglet)</span>
                 </a>
               )}
@@ -313,7 +315,7 @@ const ProfilMembre = () => {
               <p className="py-6 text-[17px] border-b border-filet">
                 Les épisodes ne sont pas encore affichés ici.
                 {!isPlaceholderLink(profile.lien_ecoute) && (
-                  <> <a href={withUtm(profile.lien_ecoute!, "fiche-membre")} target="_blank" rel="noopener noreferrer" className="font-bold underline underline-offset-4">Écouter sur {platformLabel(profile.lien_ecoute!)}</a>.</>
+                  <> <a href={withUtm(profile.lien_ecoute!, "fiche-membre")} onClick={() => compterStat(profile.id, "ecoute")} target="_blank" rel="noopener noreferrer" className="font-bold underline underline-offset-4">Écouter sur {platformLabel(profile.lien_ecoute!)}</a>.</>
                 )}
               </p>
             ) : (
