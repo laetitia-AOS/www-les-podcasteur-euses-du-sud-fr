@@ -143,7 +143,7 @@ const ProfilCard = ({ profil, fiches, onSaved }: Props) => {
       </div>
 
       {profil.type_profil === "studio" || profil.type_profil === "structure_eco" ? (
-        <p className={`${hintCls} mt-0`}>L'accroche et la description de votre lieu se modifient plus bas, dans la fiche détaillée.</p>
+        <p className={`${hintCls} mt-0`}>L'accroche et la description de votre lieu se modifient plus bas, dans « Mon studio » ou « Ma structure ».</p>
       ) : (
       <div>
         <label htmlFor="em-bio" className={labelCls}>Présentation</label>
