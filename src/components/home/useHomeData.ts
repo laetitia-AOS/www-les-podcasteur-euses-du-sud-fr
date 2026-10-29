@@ -86,7 +86,7 @@ export const isOrganizedByPds = (e: Pick<HomeEvent, "origine">) => (e.origine ??
 
 export const EVENT_TYPES = [
   { value: "apero_ecoute", label: "Apéro écoute" },
-  { value: "atelier", label: "Atelier" },
+  { value: "atelier", label: "Atelier-écoute" },
   { value: "live", label: "Live" },
   { value: "ecoute", label: "Écoute" },
   { value: "rencontre", label: "Rencontre" },

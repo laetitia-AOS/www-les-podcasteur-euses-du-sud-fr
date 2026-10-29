@@ -33,7 +33,7 @@ const FILTERS = [
   { key: "place", label: "Sur place", test: (e: AgendaEvent) => !isOnline(e) },
   { key: "pds", label: "Organisés par PDS", test: (e: AgendaEvent) => isOrganizedByPds(e) },
   { key: "membres", label: "Proposés par les membres", test: (e: AgendaEvent) => !isOrganizedByPds(e) },
-  { key: "ateliers", label: "Ateliers", test: (e: AgendaEvent) => e.type === "atelier" },
+  { key: "ateliers", label: "Ateliers-écoute", test: (e: AgendaEvent) => e.type === "atelier" },
 ] as const;
 
 const SITE = "https://www.les-podcasteur-euses-du-sud.fr";
@@ -75,7 +75,7 @@ const Evenements = () => {
   const groups = useMemo(() => {
     const m = new Map<string, AgendaEvent[]>();
     upcoming.filter((e) => test(e)).forEach((e) => {
-      const key = new Date(e.date_debut).toLocaleDateString("fr-FR", { month: "long", year: "numeric" });
+      const key = dateParis(e.date_debut, { month: "long", year: "numeric" });
       m.set(key, [...(m.get(key) || []), e]);
     });
     return Array.from(m.entries());
@@ -84,15 +84,15 @@ const Evenements = () => {
   const jsonLd = upcoming.map((e) => ({
     "@context": "https://schema.org",
     "@type": "Event",
-    name: e.titre,
+    name: readableTitle(e.titre),
     description: e.sous_titre || e.description?.split("\n---")[0] || "Événement podcast en Région Sud",
-    startDate: e.date_debut,
-    ...(e.date_fin && { endDate: e.date_fin }),
+    startDate: isoParis(e.date_debut),
+    ...(e.date_fin && { endDate: isoParis(e.date_fin) }),
     eventStatus: "https://schema.org/EventScheduled",
     eventAttendanceMode: isOnline(e) ? "https://schema.org/OnlineEventAttendanceMode" : "https://schema.org/OfflineEventAttendanceMode",
     location: isOnline(e)
       ? { "@type": "VirtualLocation", url: e.lien_externe || `${SITE}${eventHref(e)}` }
-      : { "@type": "Place", name: e.lieu || "Lieu à préciser", ...(e.adresse && { address: { "@type": "PostalAddress", streetAddress: e.adresse, addressRegion: "Provence-Alpes-Côte d'Azur", addressCountry: "FR" } }) },
+      : { "@type": "Place", name: e.lieu || "Lieu à préciser", ...(e.adresse && { address: { "@type": "PostalAddress", streetAddress: cleanAddress(e.adresse), addressRegion: "Provence-Alpes-Côte d'Azur", addressCountry: "FR" } }) },
     ...(e.image_url && { image: e.image_url }),
     url: `${SITE}${eventHref(e)}`,
     organizer: { "@type": "Organization", name: "Les Podcasteur·euses du Sud", url: SITE },
@@ -131,7 +131,7 @@ const Evenements = () => {
           <div className={`${container} py-7 flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-8`}>
             <p className="title-section text-primary-foreground text-[48px] sm:text-[56px] shrink-0">Le 9</p>
             <p className="text-[17px] sm:text-lg">
-              de chaque mois, l'apéro écoute des Podcasteur·euses du Sud. Ouvert à toustes, entrée libre.
+              <span className="sr-only">Le 9 </span>de chaque mois, l'atelier-écoute des Podcasteur·euses du Sud. Ouvert à toutes et tous, entrée libre.
             </p>
           </div>
         </section>
