@@ -11,15 +11,6 @@ project_id = "pnxbuhtqiruayzykaagw"
     verify_jwt = false
   [functions.helloasso-webhook]
     verify_jwt = false
-  [functions.og-evenement]
-    verify_jwt = false
-  [functions.podcast-episodes]
-    verify_jwt = false
-  [functions.sitemap-evenements]
-    verify_jwt = false
-  [functions.valider-images]
-    verify_jwt = false
-
 [functions.preview-transactional-email]
 verify_jwt = false
 
