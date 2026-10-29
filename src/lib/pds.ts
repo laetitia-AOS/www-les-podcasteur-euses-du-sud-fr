@@ -13,16 +13,30 @@ export const h1Ligne = "block mt-4 text-[19px] sm:text-[23px] font-semibold norm
 export const linkUnderline = "font-bold underline underline-offset-4 decoration-2 hover:decoration-accent";
 
 /** Met une majuscule à chaque mot d'un prénom ou d'un nom (gère les traits d'union et apostrophes). */
+// Petits mots laissés en minuscules au milieu d'un nom (« Anne et Paul », « Marie de Lattre »)
+const PARTICULES = new Set(["de", "du", "des", "et", "d", "van", "von", "da", "di"]);
+
 export const formatName = (s?: string | null): string => {
   if (!s) return "";
   return s
     .trim()
+    .replace(/\s+/g, " ")
     .toLocaleLowerCase("fr-FR")
-    .replace(/(^|[\s\-'’])(\p{L})/gu, (_m, sep: string, ch: string) => sep + ch.toLocaleUpperCase("fr-FR"));
+    .replace(/(^|[\s\-'’])(\p{L}+)/gu, (_m, sep: string, mot: string, offset: number) =>
+      offset > 0 && sep === " " && PARTICULES.has(mot) ? sep + mot
+      : offset > 0 && /['’]/.test(sep) && mot.length === 1 ? sep + mot
+      : sep + mot.charAt(0).toLocaleUpperCase("fr-FR") + mot.slice(1));
 };
 
 export const fullName = (prenom?: string | null, nom?: string | null) =>
   [formatName(prenom), formatName(nom)].filter(Boolean).join(" ");
+
+/** Titre d'une fiche : le nom du podcast, ou à défaut le nom de la personne (jamais « — »). */
+export const titreFiche = (p: { nom_podcast?: string | null; prenom?: string | null; nom?: string | null; structure?: string | null }): string => {
+  const t = (p.nom_podcast || "").trim();
+  if (t && !/^[—–\-.\s]+$/.test(t)) return t;
+  return fullName(p.prenom, p.nom) || (p.structure || "").trim() || "Sans titre";
+};
 
 /** Ville sans code postal ni arrondissement (« Marseille 6e Arrondissement » → « Marseille »). */
 export const cleanCity = (city?: string | null): string => {

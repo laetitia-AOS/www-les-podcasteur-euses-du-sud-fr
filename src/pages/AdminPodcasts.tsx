@@ -3,6 +3,7 @@ import LieuEditor from "@/components/studios/LieuEditor";
 import { CollabField } from "@/components/adherer/fields";
 import { verifierFlux } from "@/lib/episodes";
 import { toCsv } from "@/lib/csv";
+import { formatName, fullName, titreFiche } from "@/lib/pds";
 import AdminImagesEnAttente, { traiterImages } from "@/components/AdminImagesEnAttente";
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
@@ -586,8 +587,8 @@ const StudioDetailView = ({ podcast }: { podcast: any }) => {
 const PersonDetailView = ({ podcast }: { podcast: any }) => (
   <div className="grid grid-cols-2 gap-4 text-sm mt-4">
     <DetailRow label="Type de profil" value={getProfilLabel(podcast.type_profil)} />
-    <DetailRow label="Prénom" value={podcast.prenom} />
-    <DetailRow label="Nom" value={podcast.nom} />
+    <DetailRow label="Prénom" value={formatName(podcast.prenom)} />
+    <DetailRow label="Nom" value={formatName(podcast.nom)} />
     <DetailRow label="Email" value={podcast.email} />
     <DetailRow label="Téléphone" value={podcast.telephone} />
     <DetailRow label="Structure" value={podcast.structure} />
