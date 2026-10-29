@@ -1,3 +1,4 @@
+import { readableTitle } from "@/lib/events";
 import { useQuery } from "@tanstack/react-query";
 import { motion } from "framer-motion";
 import { CalendarDays, MapPin, ArrowRight } from "lucide-react";
@@ -72,7 +73,7 @@ const ProchainEvenement = () => {
                 <span className="inline-block text-xs font-semibold px-3 py-1 rounded-full mb-3" style={{ background: "rgba(253,250,245,0.08)", color: "rgba(253,250,245,0.8)" }}>
                   {TYPE_LABELS[evt.type] || evt.type}
                 </span>
-                <h2 id="next-event-heading" className="font-display font-bold text-xl md:text-2xl mb-2 leading-tight" style={{ color: "#FDFAF5" }}>{evt.titre}</h2>
+                <h2 id="next-event-heading" className="font-display font-bold text-xl md:text-2xl mb-2 leading-tight" style={{ color: "#FDFAF5" }}>{readableTitle(evt.titre)}</h2>
                 {evt.sous_titre && <p className="text-base mb-4" style={{ color: "rgba(253,250,245,0.65)" }}>{evt.sous_titre}</p>}
                 <div className="flex flex-wrap gap-4 text-sm" style={{ color: "rgba(253,250,245,0.65)" }}>
                   <span className="flex items-center gap-1.5 rounded-lg px-3 py-1.5" style={{ background: "rgba(253,250,245,0.06)" }}>

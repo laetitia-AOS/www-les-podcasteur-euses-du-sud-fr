@@ -36,3 +36,22 @@ describe("chiffres de l'accueil", () => {
     expect(DEPARTEMENTS_PDS).toBe(6);
   });
 });
+
+describe("lot 4 : titres et dates sur plusieurs jours", () => {
+  it("titre en casse normale, sans point d'exclamation ni émoji", async () => {
+    const { readableTitle } = await import("./events");
+    expect(readableTitle("LA CLAQUE PODCAST PARTY !")).toBe("La claque podcast party");
+    expect(readableTitle("Apéro-écoute d'avril !")).toBe("Apéro écoute d'avril");
+    expect(readableTitle("🎧 Apéro/Ecoute")).toBe("Apéro écoute");
+  });
+  it("émojis retirés à l'enregistrement, accents gardés", async () => {
+    const { sansEmojis } = await import("./events");
+    expect(sansEmojis("Soirée écoute 🎙️✨ à Marseille")).toBe("Soirée écoute à Marseille");
+  });
+  it("19 et 20 juin affichés « 19–20.06 » et « Du 19 au 20 juin 2026 »", async () => {
+    const { jourCourt, dateLongue } = await import("./events");
+    expect(jourCourt("2026-06-19T07:00:00Z", "2026-06-20T19:00:00Z")).toBe("19–20.06");
+    expect(jourCourt("2026-11-09T17:30:00Z", "2026-11-09T20:30:00Z")).toBe("09.11");
+    expect(dateLongue("2026-06-19T07:00:00Z", "2026-06-20T19:00:00Z")).toBe("Du 19 au 20 juin 2026");
+  });
+});
