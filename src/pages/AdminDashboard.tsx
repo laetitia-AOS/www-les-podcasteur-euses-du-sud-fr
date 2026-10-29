@@ -75,7 +75,7 @@ const AdminDashboard = () => {
               <section aria-labelledby="ajour-titre">
                 <h2 id="ajour-titre" className="font-mono text-xs uppercase tracking-widest text-muted-foreground mb-3">À jour</h2>
                 <ul className="text-sm text-muted-foreground space-y-1">
-                  {calmes.map((t) => <li key={t.cle}>Aucun·e {t.un}</li>)}
+                  {calmes.map((t) => <li key={t.cle}><span className="font-mono">0</span> {t.plusieurs}</li>)}
                 </ul>
               </section>
             )}

@@ -7,8 +7,11 @@ import { Input } from "@/components/ui/input";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Users, ArrowLeft, LogOut, Loader2, Download, RefreshCw, Trash2, Pencil, Save, X, Link2 } from "lucide-react";
-import { useNavigate, Navigate } from "react-router-dom";
+import { Users, Loader2, Download, RefreshCw, Trash2, Pencil, Save, X, Link2 } from "lucide-react";
+import AdminLayout from "@/components/admin/AdminLayout";
+import { AdminOnglets, Panneau, useOnglet } from "@/components/admin/AdminOnglets";
+import RelanceCollective from "@/components/admin/RelanceCollective";
+import type { MembreAdmin } from "@/components/admin/AdminMembres";
 import { useAdminAuth } from "@/hooks/useAdminAuth";
 import AddAdhesionDialog from "@/components/AddAdhesionDialog";
 import AdminMembres from "@/components/admin/AdminMembres";
@@ -25,8 +28,7 @@ const getAdhesionDate = (a: any) =>
   a.date_adhesion ? new Date(a.date_adhesion) : new Date(a.created_at);
 
 const AdminAdhesions = () => {
-  const navigate = useNavigate();
-  const { user, isAdmin, loading: authLoading, signOut } = useAdminAuth();
+  const { isAdmin } = useAdminAuth();
   const [importing, setImporting] = useState(false);
   const queryClient = useQueryClient();
   const [editingAdhesion, setEditingAdhesion] = useState<any>(null);
@@ -164,20 +166,16 @@ const AdminAdhesions = () => {
     URL.revokeObjectURL(url);
   };
 
-  if (authLoading) {
-    return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
-        <Loader2 className="w-6 h-6 animate-spin text-primary" />
-      </div>
-    );
-  }
-
-  if (!user || !isAdmin) {
-    return <Navigate to="/admin/login" replace />;
-  }
+  const aVerifier = (adhesions || []).filter((a: any) => a.statut === "a_verifier").length;
+  const onglets = [
+    { id: "membres", label: "Membres" },
+    { id: "paiements", label: "Paiements HelloAsso", compte: aVerifier },
+    { id: "relances", label: "Relances" },
+  ];
+  const [onglet, setOnglet] = useOnglet(onglets);
 
   const AdhesionTable = ({ items }: { items: any[] }) => (
-    <div className="border rounded-xl overflow-hidden">
+    <div className="border border-border overflow-x-auto bg-card">
       <Table>
         <TableHeader>
           <TableRow>
@@ -250,65 +248,56 @@ const AdminAdhesions = () => {
   );
 
   return (
-    <div className="min-h-screen bg-background">
-      <div className="container mx-auto px-6 py-10 max-w-6xl">
-        <div className="flex items-center justify-between mb-8">
-          <div className="flex items-center gap-3">
-            <Button variant="ghost" size="icon" onClick={() => navigate("/admin")}>
-              <ArrowLeft className="w-5 h-5" />
-            </Button>
-            <div>
-              <h1 className="font-display font-bold text-3xl text-foreground flex items-center gap-2">
-                <Users className="w-7 h-7 text-primary" />
-                Adhésions
-              </h1>
-              <p className="text-muted-foreground">
-                {activeAdhesions.length} active{activeAdhesions.length > 1 ? "s" : ""} · {adhesions?.length ?? 0} au total
-              </p>
-            </div>
-          </div>
-          <div className="flex items-center gap-2 flex-wrap">
+    <AdminLayout
+      titre="Membres"
+      description={`${activeAdhesions.length} adhésion${activeAdhesions.length > 1 ? "s" : ""} active${activeAdhesions.length > 1 ? "s" : ""} · ${adhesions?.length ?? 0} paiements enregistrés`}
+    >
+      <AdminOnglets label="Rubriques membres" onglets={onglets} courant={onglet} onChange={setOnglet} />
+
+      {onglet === "membres" && <Panneau id="membres"><AdminMembres /></Panneau>}
+
+      {onglet === "relances" && <Panneau id="relances"><RelancesOnglet /></Panneau>}
+
+      {onglet === "paiements" && (
+        <Panneau id="paiements">
+          <div className="flex flex-wrap items-center gap-2 mb-4">
             <Button variant="outline" size="sm" onClick={importFromHelloAsso} disabled={importing}>
-              <RefreshCw className={`w-4 h-4 mr-2 ${importing ? "animate-spin" : ""}`} /> {importing ? "Import…" : "Import HelloAsso"}
+              <RefreshCw className={`w-4 h-4 mr-2 ${importing ? "animate-spin motion-reduce:animate-none" : ""}`} /> {importing ? "Import…" : "Import HelloAsso"}
             </Button>
             <Button variant="outline" size="sm" onClick={exportCSV} disabled={!adhesions?.length}>
               <Download className="w-4 h-4 mr-2" /> Export CSV
             </Button>
             <AddAdhesionDialog />
-            <Button variant="outline" size="sm" onClick={signOut}>
-              <LogOut className="w-4 h-4 mr-2" /> Déconnexion
-            </Button>
           </div>
-        </div>
-
-        {isLoading ? (
-          <p className="text-muted-foreground">Chargement…</p>
-        ) : !adhesions?.length ? (
-          <div className="text-center py-20">
-            <Users className="w-12 h-12 text-muted-foreground/40 mx-auto mb-4" />
-            <p className="text-muted-foreground">Aucune adhésion pour le moment.</p>
-          </div>
-        ) : (
-          <>
-          <AdminMembres />
-          <h2 className="font-display font-bold text-2xl mb-4">Paiements HelloAsso</h2>
-          <Tabs defaultValue="active" className="space-y-4">
-            <TabsList>
-              <TabsTrigger value="active">Actives ({activeAdhesions.length})</TabsTrigger>
+          {isLoading ? (
+            <p className="text-muted-foreground">Chargement…</p>
+          ) : !adhesions?.length ? (
+            <div className="text-center py-20">
+              <Users className="w-12 h-12 text-muted-foreground/40 mx-auto mb-4" />
+              <p className="text-muted-foreground">Aucune adhésion pour le moment.</p>
+            </div>
+          ) : (
+            <Tabs defaultValue={aVerifier ? "a_verifier" : "active"} className="space-y-4">
+              <TabsList className="flex-wrap h-auto">
+                {aVerifier > 0 && <TabsTrigger value="a_verifier">À vérifier ({aVerifier})</TabsTrigger>}
+                <TabsTrigger value="active">Actives ({activeAdhesions.length})</TabsTrigger>
+                {expiredYears.map((year) => (
+                  <TabsTrigger key={year} value={year}>{year} ({expiredByYear[year].length})</TabsTrigger>
+                ))}
+              </TabsList>
+              {aVerifier > 0 && (
+                <TabsContent value="a_verifier"><AdhesionTable items={adhesions.filter((a: any) => a.statut === "a_verifier")} /></TabsContent>
+              )}
+              <TabsContent value="active">
+                {activeAdhesions.length > 0 ? <AdhesionTable items={activeAdhesions} /> : <p className="text-muted-foreground text-center py-10">Aucune adhésion active.</p>}
+              </TabsContent>
               {expiredYears.map((year) => (
-                <TabsTrigger key={year} value={year}>{year} ({expiredByYear[year].length})</TabsTrigger>
+                <TabsContent key={year} value={year}><AdhesionTable items={expiredByYear[year]} /></TabsContent>
               ))}
-            </TabsList>
-            <TabsContent value="active">
-              {activeAdhesions.length > 0 ? <AdhesionTable items={activeAdhesions} /> : <p className="text-muted-foreground text-center py-10">Aucune adhésion active.</p>}
-            </TabsContent>
-            {expiredYears.map((year) => (
-              <TabsContent key={year} value={year}><AdhesionTable items={expiredByYear[year]} /></TabsContent>
-            ))}
-          </Tabs>
-          </>
-        )}
-      </div>
+            </Tabs>
+          )}
+        </Panneau>
+      )}
 
       <RattacherAdhesionDialog adhesion={linking} rattachements={rattachements} onClose={() => setLinking(null)} />
 
@@ -373,8 +362,22 @@ const AdminAdhesions = () => {
           )}
         </DialogContent>
       </Dialog>
-    </div>
+    </AdminLayout>
   );
+};
+
+/** Relance collective de renouvellement, dans son propre onglet. */
+const RelancesOnglet = () => {
+  const { data: membres = [], isLoading } = useQuery({
+    queryKey: ["admin-membres"],
+    queryFn: async () => {
+      const { data, error } = await supabase.rpc("admin_membres");
+      if (error) throw error;
+      return (data || []) as MembreAdmin[];
+    },
+  });
+  if (isLoading) return <p className="text-muted-foreground">Chargement…</p>;
+  return <RelanceCollective membres={membres} />;
 };
 
 export default AdminAdhesions;
