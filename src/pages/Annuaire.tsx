@@ -8,8 +8,8 @@ import Footer from "@/components/Footer";
 import SEOHead from "@/components/SEOHead";
 import { PAGES, PAGES_SEO } from "@/lib/seo";
 import { btnSecondary, cleanCity, container, h1Ligne, fullName } from "@/lib/pds";
-import MemberAvatar, { profilePhotoFor } from "@/components/MemberAvatar";
-import { COLLAB_CHOIX, collabLabel, phraseApportent } from "@/lib/inscription";
+import MemberAvatar, { avatarFor } from "@/components/MemberAvatar";
+import { COLLAB_CHOIX_APPORTE, apporteLabel, collabLabel, phraseApportent } from "@/lib/inscription";
 
 const PROFILS = [
   { value: "", label: "Tous" },
@@ -57,6 +57,7 @@ interface Profile {
   apporte_choix: string[] | null;
   cherche_precision: string | null;
   apporte_precision: string | null;
+  created_at: string;
 }
 
 const Annuaire = () => {
@@ -71,7 +72,7 @@ const Annuaire = () => {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("podcasts")
-        .select("id, slug, prenom, nom, type_profil, city_name, department_code, department_label, bio_750, nom_podcast, metier_principal, services_3, thematique, vignette_url, photo_profil_url, cherche_choix, apporte_choix, cherche_precision, apporte_precision")
+        .select("id, slug, prenom, nom, type_profil, city_name, department_code, department_label, bio_750, nom_podcast, metier_principal, services_3, thematique, vignette_url, photo_profil_url, cherche_choix, apporte_choix, cherche_precision, apporte_precision, created_at")
         .eq("valide", true)
         .in("type_profil", ["podcasteur", "pro_podcast", "soutien"])
         .order("created_at", { ascending: false });
@@ -90,7 +91,7 @@ const Annuaire = () => {
       if (besoins.length && !besoins.some((b) => p.apporte_choix?.includes(b))) return false;
       if (q) {
         const hay = norm(
-          [p.prenom, p.nom, p.nom_podcast, p.metier_principal, p.bio_750, p.city_name, p.thematique, ...(p.services_3 || []), ...(p.apporte_choix || []).map(collabLabel), p.apporte_precision]
+          [p.prenom, p.nom, p.nom_podcast, p.metier_principal, p.bio_750, p.city_name, p.thematique, ...(p.services_3 || []), ...(p.apporte_choix || []).map(apporteLabel), p.apporte_precision]
             .filter(Boolean)
             .join(" "),
         );
@@ -129,9 +130,6 @@ const Annuaire = () => {
           <p className="mt-4 text-lg max-w-[56ch]">
             Podcasteur·euses, monteur·euses, voix off, sound designers, consultant·es. Dites ce que vous cherchez, on vous montre qui l'apporte.
           </p>
-          <Link to="/espace-membre" className="mt-3 inline-flex min-h-[44px] items-center text-[15px] font-bold underline underline-offset-4">
-            Déjà dans l'annuaire ? Ajouter mon podcast depuis l'espace membre
-          </Link>
 
           <div className="mt-8 grid lg:grid-cols-[240px_1fr] gap-8 lg:gap-10 items-start">
             {/* Filtres */}
@@ -144,7 +142,7 @@ const Annuaire = () => {
               <fieldset>
                 <legend className="text-sm font-bold mb-2">Je cherche quelqu'un pour</legend>
                 <ul className="space-y-0.5">
-                  {COLLAB_CHOIX.map((b) => {
+                  {COLLAB_CHOIX_APPORTE.map((b) => {
                     const id = `besoin-${b.value}`;
                     return (
                       <li key={b.value}>
@@ -201,10 +199,10 @@ const Annuaire = () => {
                   const apporte = (besoins.length
                     ? [...(p.apporte_choix || [])].sort((a, b) => Number(besoins.includes(b)) - Number(besoins.includes(a)))
                     : p.apporte_choix || []
-                  ).slice(0, 3).map(collabLabel).join(", ");
+                  ).slice(0, 3).map(apporteLabel).join(", ");
                   return (
                     <li key={p.id} className="grid grid-cols-[56px_1fr] sm:grid-cols-[64px_1fr_auto] gap-x-4 sm:gap-x-5 gap-y-2 py-5">
-                      <MemberAvatar prenom={p.prenom} nom={p.nom} photoUrl={profilePhotoFor(p, profiles)} />
+                      {(() => { const a = avatarFor(p, profiles); return <MemberAvatar prenom={p.prenom} nom={p.nom} photoUrl={a?.url} alt={a?.alt} />; })()}
                       <div className="min-w-0">
                         <h2 className="text-[19px] sm:text-[21px] leading-tight font-bold [font-stretch:100%]">
                           <Link to={href} className="hover:underline underline-offset-4">{name}</Link>

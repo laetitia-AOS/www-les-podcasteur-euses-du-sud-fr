@@ -291,6 +291,9 @@ const MonEspace = () => {
                 </div>
               ))}
             </dl>
+            <p className="mt-2 text-xs text-muted-foreground">
+              Écoutes : clics sur les boutons d'écoute du site et lectures dans le lecteur, une fois par jour et par personne. Comptage anonyme, sans cookie.
+            </p>
           </section>
 
           {/* Mon profil */}

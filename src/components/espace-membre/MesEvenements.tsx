@@ -4,7 +4,7 @@ import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { readableTitle } from "@/lib/events";
 import { formatLongDate } from "@/lib/espaceMembre";
-import { linkUnderline } from "@/lib/pds";
+import { fullName, linkUnderline } from "@/lib/pds";
 import ProposerEvenementForm, { type PropositionInitiale } from "@/components/agenda/ProposerEvenementForm";
 
 export type MonEvenement = {
@@ -100,7 +100,7 @@ const MesEvenements = ({ evenements, onChange }: { evenements: MonEvenement[]; o
                 <ul className="mt-2 text-sm divide-y divide-filet border border-filet bg-surface">
                   {list.map((v) => (
                     <li key={v.email} className="px-3 py-2 flex flex-wrap justify-between gap-2">
-                      <span className="font-semibold">{[v.prenom, v.nom].filter(Boolean).join(" ")}</span>
+                      <span className="font-semibold">{fullName(v.prenom, v.nom)}</span>
                       <a href={`mailto:${encodeURIComponent(v.email)}`} className="underline underline-offset-4">{v.email}</a>
                     </li>
                   ))}

@@ -1,5 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import { formatName } from "@/lib/pds";
 
 export type HomeProfile = {
   id: string;
@@ -16,6 +17,7 @@ export type HomeProfile = {
   apporte_choix: string[] | null;
   lien_ecoute: string | null;
   created_at: string;
+  visible_sans_adhesion?: boolean | null;
 };
 
 export const useHomeProfiles = () =>
@@ -24,7 +26,7 @@ export const useHomeProfiles = () =>
     queryFn: async () => {
       const { data, error } = await supabase
         .from("podcasts")
-        .select("id, slug, nom_podcast, prenom, nom, city_name, vignette_url, photo_profil_url, type_profil, department_code, cherche_choix, apporte_choix, lien_ecoute, created_at")
+        .select("id, slug, nom_podcast, prenom, nom, city_name, vignette_url, photo_profil_url, type_profil, department_code, cherche_choix, apporte_choix, lien_ecoute, created_at, visible_sans_adhesion")
         .eq("valide", true)
         .order("created_at", { ascending: false });
       if (error) throw error;
@@ -45,6 +47,26 @@ export const chiffresAccueil = (profiles: Pick<HomeProfile, "type_profil">[]) =>
   podcasts: profiles.filter((p) => p.type_profil === "podcasteur").length,
   studios: profiles.filter((p) => p.type_profil === "studio").length,
 });
+
+/**
+ * « Qui cherche quoi » : personnes (ni studio ni structure) qui ont rempli « Je cherche » et « J'apporte »,
+ * membres à jour (une fiche visible grâce à un sursis est écartée), mélangées au hasard.
+ */
+export const piocherQuiCherche = <T extends Pick<HomeProfile, "type_profil" | "cherche_choix" | "apporte_choix" | "visible_sans_adhesion">>(
+  profiles: T[], n = 3, rand = Math.random,
+): T[] => {
+  const pool = profiles.filter(
+    (p) => ["podcasteur", "pro_podcast", "soutien"].includes(p.type_profil)
+      && (p.cherche_choix?.length || 0) > 0 && (p.apporte_choix?.length || 0) > 0
+      && !p.visible_sans_adhesion,
+  );
+  const melange = [...pool];
+  for (let i = melange.length - 1; i > 0; i--) {
+    const j = Math.floor(rand() * (i + 1));
+    [melange[i], melange[j]] = [melange[j], melange[i]];
+  }
+  return melange.slice(0, n);
+};
 
 export type HomeEvent = {
   id: string;
@@ -110,7 +132,7 @@ export const EVENT_TYPE_LABELS: Record<string, string> = Object.fromEntries(EVEN
 
 /** « organisé par PDS » ou « proposé par Marie Dupont » */
 export const organisateurLabel = (e: Pick<HomeEvent, "origine" | "propose_par_nom">) =>
-  isOrganizedByPds(e) ? "organisé par PDS" : e.propose_par_nom ? `proposé par ${e.propose_par_nom}` : "proposé par un membre";
+  isOrganizedByPds(e) ? "organisé par PDS" : e.propose_par_nom ? `proposé par ${formatName(e.propose_par_nom)}` : "proposé par un membre";
 
 /** Ville tirée de l'adresse, sans code postal ni arrondissement. */
 export const cityFromAddress = (adresse?: string | null): string => {

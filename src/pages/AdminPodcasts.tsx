@@ -1,8 +1,9 @@
-import { COLLAB_CHOIX, checkImage, cropToSquare, uploadImage } from "@/lib/inscription";
+import { COLLAB_CHOIX, COLLAB_CHOIX_APPORTE, checkImage, cropToSquare, uploadImage } from "@/lib/inscription";
 import LieuEditor from "@/components/studios/LieuEditor";
 import { CollabField } from "@/components/adherer/fields";
 import { verifierFlux } from "@/lib/episodes";
 import { toCsv } from "@/lib/csv";
+import { formatName, fullName, titreFiche } from "@/lib/pds";
 import AdminImagesEnAttente, { traiterImages } from "@/components/AdminImagesEnAttente";
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
@@ -385,7 +386,7 @@ const AdminPodcasts = () => {
                     <TableRow key={p.id} className={!p.valide ? "opacity-60" : ""}>
                       <TableCell>
                         <Switch
-                          aria-label={p.valide ? `Retirer « ${p.nom_podcast} » de l'annuaire` : `Valider « ${p.nom_podcast} »`}
+                          aria-label={p.valide ? `Retirer « ${titreFiche(p)} » de l'annuaire` : `Valider « ${titreFiche(p)} »`}
                           checked={p.valide}
                           onCheckedChange={(checked) => toggleValide.mutate({ id: p.id, valide: checked })}
                         />
@@ -405,8 +406,8 @@ const AdminPodcasts = () => {
                             <img src={p.vignette_url} alt="" className="w-8 h-8 rounded object-cover" />
                           )}
                           <div>
-                            <p className="font-medium text-sm">{p.nom_podcast}</p>
-                            <p className="text-xs md:hidden">{isStudio ? (sd.contact_nom || "") : `${p.prenom || ""} ${p.nom || ""}`}</p>
+                            <p className="font-medium text-sm">{titreFiche(p)}</p>
+                            <p className="text-xs md:hidden">{isStudio ? formatName(sd.contact_nom || "") : fullName(p.prenom, p.nom)}</p>
                             <p className="hidden sm:block text-xs text-muted-foreground truncate max-w-[200px]">
                               {isStudio ? (sd.statut_structure || p.structure || "") : p.description}
                             </p>
@@ -414,7 +415,7 @@ const AdminPodcasts = () => {
                         </div>
                       </TableCell>
                       <TableCell className="hidden md:table-cell text-sm">
-                        <p>{isStudio ? (sd.contact_nom || "") : `${p.prenom || ""} ${p.nom || ""}`}</p>
+                        <p>{isStudio ? formatName(sd.contact_nom || "") : fullName(p.prenom, p.nom)}</p>
                         <a href={`mailto:${p.email}`} className="text-primary text-xs hover:underline">{p.email}</a>
                       </TableCell>
                       <TableCell className="hidden xl:table-cell text-sm">{p.city_name || p.ville || "—"}</TableCell>
@@ -432,17 +433,17 @@ const AdminPodcasts = () => {
                       </TableCell>
                       <TableCell className="md:sticky md:right-0 bg-card z-10">
                         <div className="flex items-center gap-1">
-                          <Button variant="ghost" size="icon" onClick={() => setSelectedPodcast(p)} title="Voir le détail" aria-label={`Voir « ${p.nom_podcast} »`}>
+                          <Button variant="ghost" size="icon" onClick={() => setSelectedPodcast(p)} title="Voir le détail" aria-label={`Voir « ${titreFiche(p)} »`}>
                             <Eye className="w-4 h-4" />
                           </Button>
-                          <Button variant="ghost" size="icon" onClick={() => startEdit(p)} title="Modifier" aria-label={`Modifier « ${p.nom_podcast} »`}>
+                          <Button variant="ghost" size="icon" onClick={() => startEdit(p)} title="Modifier" aria-label={`Modifier « ${titreFiche(p)} »`}>
                             <Pencil className="w-4 h-4" />
                           </Button>
                           <Button
                             variant="ghost" size="icon"
                             className="text-destructive hover:text-destructive hover:bg-destructive/10"
                             onClick={() => {
-                              if (window.confirm(`Supprimer la fiche "${p.nom_podcast}" ? Cette action est irréversible.`)) {
+                              if (window.confirm(`Supprimer la fiche « ${titreFiche(p)} » ? Cette action est irréversible.`)) {
                                 deletePodcast.mutate(p.id);
                               }
                             }}
@@ -473,7 +474,7 @@ const AdminPodcasts = () => {
                     <img src={selectedPodcast.vignette_url} alt="" className="w-12 h-12 rounded-lg object-cover" />
                   )}
                   <div>
-                    {selectedPodcast.nom_podcast}
+                    {titreFiche(selectedPodcast)}
                     {selectedPodcast.type_profil === "studio" && (
                       <Badge variant="default" className="ml-2 text-xs"><Building2 className="w-3 h-3 mr-1" />Studio</Badge>
                     )}
@@ -586,8 +587,8 @@ const StudioDetailView = ({ podcast }: { podcast: any }) => {
 const PersonDetailView = ({ podcast }: { podcast: any }) => (
   <div className="grid grid-cols-2 gap-4 text-sm mt-4">
     <DetailRow label="Type de profil" value={getProfilLabel(podcast.type_profil)} />
-    <DetailRow label="Prénom" value={podcast.prenom} />
-    <DetailRow label="Nom" value={podcast.nom} />
+    <DetailRow label="Prénom" value={formatName(podcast.prenom)} />
+    <DetailRow label="Nom" value={formatName(podcast.nom)} />
     <DetailRow label="Email" value={podcast.email} />
     <DetailRow label="Téléphone" value={podcast.telephone} />
     <DetailRow label="Structure" value={podcast.structure} />
@@ -907,7 +908,7 @@ const PersonEditForm = ({ editForm, setEditForm, inputClass, selectClass, labelC
       <CollabField id="adm-cherche-precision" legend="Je cherche" options={COLLAB_CHOIX}
         selected={(editForm as any).cherche_choix || []} onChange={(v) => setEditForm({ ...editForm, cherche_choix: v } as any)}
         precision={(editForm as any).cherche_precision || ""} onPrecision={(v) => setEditForm({ ...editForm, cherche_precision: v } as any)} />
-      <CollabField id="adm-apporte-precision" legend="J'apporte" options={COLLAB_CHOIX}
+      <CollabField id="adm-apporte-precision" legend="J'apporte" options={COLLAB_CHOIX_APPORTE}
         selected={(editForm as any).apporte_choix || []} onChange={(v) => setEditForm({ ...editForm, apporte_choix: v } as any)}
         precision={(editForm as any).apporte_precision || ""} onPrecision={(v) => setEditForm({ ...editForm, apporte_precision: v } as any)} />
     </div>

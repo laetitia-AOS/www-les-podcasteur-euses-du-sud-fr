@@ -1,4 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
+import { fullName } from "@/lib/pds";
 import { toCsv } from "@/lib/csv";
 import { supabase } from "@/integrations/supabase/client";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
@@ -80,7 +81,7 @@ const EvenementInscriptionsDialog = ({ evenementId, evenementTitre, open, onClos
                 <div className="flex items-start justify-between gap-3 flex-wrap">
                   <div className="min-w-0 flex-1">
                     <p className="font-semibold text-foreground">
-                      {i.prenom} {i.nom}
+                      {fullName(i.prenom, i.nom)}
                     </p>
                     {i.structure && <p className="text-xs text-muted-foreground">{i.structure}</p>}
                     <div className="flex flex-wrap gap-3 mt-2 text-xs text-muted-foreground">

@@ -1,6 +1,7 @@
 import { useEffect, useMemo } from "react";
 import { compterStat } from "@/lib/stats";
-import { collabLabel } from "@/lib/inscription";
+import { apporteLabel, collabLabel } from "@/lib/inscription";
+import { liensFiche } from "@/lib/liens";
 import { useParams, Link, Navigate, useLocation } from "react-router-dom";
 import { PAGES, SITE_NAME, SITE_URL, breadcrumbLd, descriptionSeo, ficheHref, titreSeo } from "@/lib/seo";
 import { useQuery } from "@tanstack/react-query";
@@ -70,17 +71,6 @@ const ROLE_LABELS: Record<string, string> = {
 const SITE = SITE_URL;
 const isPlaceholderLink = (url?: string | null) => !url || /les-podcasteur-euses-du-sud\.fr\/?$/.test(url);
 
-const platformLabel = (url: string): string => {
-  const h = (() => { try { return new URL(url).hostname.replace(/^www\./, ""); } catch { return ""; } })();
-  if (h.includes("spotify")) return "Spotify";
-  if (h.includes("apple")) return "Apple Podcasts";
-  if (h.includes("deezer")) return "Deezer";
-  if (h.includes("ausha")) return "Ausha";
-  if (h.includes("acast")) return "Acast";
-  if (h.includes("youtube") || h.includes("youtu.be")) return "YouTube";
-  if (h.includes("linktr")) return "Tous les liens";
-  return "Lien d'écoute";
-};
 
 const ProfilMembre = () => {
   const { slug } = useParams<{ slug: string }>();
@@ -186,15 +176,18 @@ const ProfilMembre = () => {
   if (pathname !== canonicalPath) return <Navigate to={{ pathname: canonicalPath, hash: window.location.hash }} replace />;
 
   const cherche = (profile.cherche_choix || []).map(collabLabel);
-  const apporte = (profile.apporte_choix || []).map(collabLabel);
+  const apporte = (profile.apporte_choix || []).map(apporteLabel);
   const latest = episodes[0];
   const latestActive = latest ? isCurrent(latest) && playing : false;
 
-  const alsoOn: { label: string; href: string }[] = [];
-  if (!isPlaceholderLink(profile.lien_ecoute)) alsoOn.push({ label: platformLabel(profile.lien_ecoute!), href: withUtm(profile.lien_ecoute!, "fiche-membre") });
-  if (profile.lien_principal && profile.lien_principal !== profile.lien_ecoute) alsoOn.push({ label: "Site", href: withUtm(profile.lien_principal, "fiche-membre") });
-  if (profile.lien_linkedin) alsoOn.push({ label: "LinkedIn", href: withUtm(profile.lien_linkedin, "fiche-membre") });
-  if (profile.flux_rss) alsoOn.push({ label: "Flux RSS", href: profile.flux_rss });
+  // Deux lignes : « Écouter sur » (plateformes, flux RSS) et « Suivre » (site, réseaux), classées selon le domaine
+  const liens = liensFiche({
+    ecoute: isPlaceholderLink(profile.lien_ecoute) ? null : profile.lien_ecoute,
+    site: isPlaceholderLink(profile.lien_principal) ? null : profile.lien_principal,
+    reseau: profile.lien_linkedin,
+    flux: profile.flux_rss,
+  });
+  const lienHref = (l: { label: string; href: string }) => (l.label.startsWith("Flux RSS") ? l.href : withUtm(l.href, "fiche-membre"));
 
   const metier = (profile.metier_principal || "").trim() || "pro de l'audio";
   const seoTitle = titreSeo(
@@ -259,21 +252,27 @@ const ProfilMembre = () => {
                   <Play className="w-4 h-4" fill="currentColor" aria-hidden /> Écouter<span className="sr-only"> (nouvel onglet)</span>
                 </a>
               )}
-              {profile.consent_contact && (
-                <a href="#ecrire" className={btnSecondary}>Proposer une collab</a>
-              )}
             </div>
 
-            {alsoOn.length > 0 && (
-              <p className="mt-5 text-sm flex flex-wrap items-center gap-x-4 gap-y-1">
-                <span className="text-muted-foreground">{isPodcast ? "Aussi sur" : "Liens"}</span>
-                {alsoOn.map((l) => (
-                  <a key={l.label} href={l.href} target="_blank" rel="noopener noreferrer" className="inline-flex min-h-[36px] items-center underline underline-offset-4 hover:text-primary">
-                    {l.label}
-                  </a>
-                ))}
-              </p>
-            )}
+            {[{ titre: "Écouter sur", items: liens.ecoute, ecoute: true }, { titre: "Suivre", items: liens.suivre, ecoute: false }]
+              .filter((g) => g.items.length > 0)
+              .map((g, i) => (
+                <p key={g.titre} className={`${i === 0 ? "mt-5" : "mt-1"} text-sm flex flex-wrap items-center gap-x-4 gap-y-1`}>
+                  <span className="text-muted-foreground">{g.titre}</span>
+                  {g.items.map((l) => (
+                    <a
+                      key={l.href}
+                      href={lienHref(l)}
+                      onClick={g.ecoute ? () => compterStat(profile.id, "ecoute") : undefined}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex min-h-[36px] items-center underline underline-offset-4 hover:text-primary"
+                    >
+                      {l.label}<span className="sr-only"> (nouvel onglet)</span>
+                    </a>
+                  ))}
+                </p>
+              ))}
           </div>
         </section>
 

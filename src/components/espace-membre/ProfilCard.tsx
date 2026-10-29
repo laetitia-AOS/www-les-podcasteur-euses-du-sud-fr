@@ -4,7 +4,7 @@ import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import CityAutocomplete, { type CityResult } from "@/components/CityAutocomplete";
 import { ChoiceList, CollabField, ImagePicker, field, hintCls, labelCls } from "@/components/adherer/fields";
-import { COLLAB_CHOIX, DEPARTEMENTS, DISPONIBILITES, SERVICES, uploadImage } from "@/lib/inscription";
+import { COLLAB_CHOIX, COLLAB_CHOIX_APPORTE, DEPARTEMENTS, SERVICES, uploadImage } from "@/lib/inscription";
 import { roleLabel } from "@/lib/espaceMembre";
 import { btnPrimary, formatName } from "@/lib/pds";
 import { cardCls, sectionTitle, type FicheMembre } from "./types";
@@ -35,12 +35,9 @@ const ProfilCard = ({ profil, fiches, onSaved }: Props) => {
   const [apportePrecision, setApportePrecision] = useState(profil.apporte_precision || "");
   const [metier, setMetier] = useState(profil.metier_principal || "");
   const [services, setServices] = useState<string[]>(profil.services_3 || []);
-  const [dispo, setDispo] = useState(profil.disponibilite || "");
   const [photo, setPhoto] = useState<string | null>(initialPhoto);
   const [photoFile, setPhotoFile] = useState<File | null>(null);
   const [saving, setSaving] = useState(false);
-
-  const dispoOptions = dispo && !DISPONIBILITES.includes(dispo) ? [dispo, ...DISPONIBILITES] : DISPONIBILITES;
 
   const save = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -75,7 +72,8 @@ const ProfilCard = ({ profil, fiches, onSaved }: Props) => {
       if (error) throw error;
       let own: Partial<FicheMembre> = {};
       if (isPro) {
-        own = { metier_principal: metier || null, services_3: services.length ? services : null, disponibilite: dispo || null };
+        // La disponibilité reste en base, sans être montrée ni modifiée ici
+        own = { metier_principal: metier || null, services_3: services.length ? services : null };
         const { error: e2 } = await supabase.from("podcasts").update(own).eq("id", profil.id);
         if (e2) throw e2;
       }
@@ -163,23 +161,14 @@ const ProfilCard = ({ profil, fiches, onSaved }: Props) => {
 
       {isPro && (
         <div className="space-y-4">
-          <div className="grid sm:grid-cols-2 gap-4">
-            <div>
-              <label htmlFor="em-metier" className={labelCls}>Métier principal</label>
-              <select id="em-metier" value={metier} onChange={(e) => setMetier(e.target.value)} className={field}>
-                <option value="">Choisir</option>
-                {SERVICES.map((s) => <option key={s} value={s}>{s}</option>)}
-              </select>
-            </div>
-            <div>
-              <label htmlFor="em-dispo" className={labelCls}>Disponibilité</label>
-              <select id="em-dispo" value={dispo} onChange={(e) => setDispo(e.target.value)} className={field}>
-                <option value="">Choisir</option>
-                {dispoOptions.map((d) => <option key={d} value={d}>{d}</option>)}
-              </select>
-            </div>
+          <div className="sm:max-w-[50%] sm:pr-2">
+            <label htmlFor="em-metier" className={labelCls}>Métier principal</label>
+            <select id="em-metier" value={metier} onChange={(e) => setMetier(e.target.value)} className={field}>
+              <option value="">Choisir</option>
+              {SERVICES.map((s) => <option key={s} value={s}>{s}</option>)}
+            </select>
           </div>
-          <ChoiceList legend="Services proposés" options={SERVICES} selected={services} onChange={setServices} max={5} />
+          <ChoiceList legend="Services proposés" hint="Cinq maximum : choisissez les plus importants." options={SERVICES} selected={services} onChange={setServices} max={5} />
         </div>
       )}
 
@@ -189,7 +178,7 @@ const ProfilCard = ({ profil, fiches, onSaved }: Props) => {
             precision={cherchePrecision} onPrecision={setCherchePrecision} />
         </div>
         <div className="[&_legend]:text-accent-text">
-          <CollabField id="em-apporte-precision" legend="J'apporte" options={COLLAB_CHOIX} selected={apporte} onChange={setApporte}
+          <CollabField id="em-apporte-precision" legend="J'apporte" options={COLLAB_CHOIX_APPORTE} selected={apporte} onChange={setApporte}
             precision={apportePrecision} onPrecision={setApportePrecision} />
         </div>
       </div>

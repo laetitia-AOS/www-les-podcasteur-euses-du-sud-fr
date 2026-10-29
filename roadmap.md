@@ -40,3 +40,18 @@
 - [x] 8. Confidentialité : ligne « scoring » : un calcul existe, texte gardé en attendant la décision ; date octobre 2026 sur les 4 pages légales
 - [x] Scan de sécurité (lot 1, hors fusions)
 - [ ] Tests des fiches fusionnées avec compte fictif (après points 5 et 6)
+
+## Corrections après revue — lot 2 (annuaire et fiches)
+- [x] 1. Sans photo : pochette du premier podcast, initiales en dernier recours (annuaire, accueil, événement, recherche)
+- [x] 2. Annuaire public : retirer « Déjà dans l'annuaire ? Ajouter mon podcast »
+- [x] 3. Accueil « Qui cherche quoi » : 3 profils au hasard parmi membres à jour avec cherche + apporte
+- [x] 4. « Être invité·e » → « Intervenir comme invité·e » côté J'apporte seulement
+- [x] 5. Fiches : « Écouter sur » / « Suivre » séparés
+- [x] 6. Fiches : retirer « Proposer une collab » du haut ; bouton orange vers le formulaire
+- [x] 7. Espace membre : retirer « Disponibilité »
+- [x] 8. Espace membre : « Cinq maximum : choisissez les plus importants »
+- [x] 9. Espace membre : « Précisez » bloqué à 120 caractères, compteur rouge si dépassement existant
+- [x] 10. Compteur d'écoutes : clics externes + lectures du lecteur
+- [x] 11. Admin Annuaire : nom de la personne si pas de titre
+- [x] 12. Noms mis en forme partout
+- [x] Scan sécurité + vérif annuaire et 3 fiches ordinateur/téléphone

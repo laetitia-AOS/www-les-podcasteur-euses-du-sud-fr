@@ -1,4 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { fullName } from "@/lib/pds";
 import { toCsv } from "@/lib/csv";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -135,7 +136,7 @@ const AdminContacts = () => {
                     </TableCell>
                     <TableCell className="text-sm">{c.profil}</TableCell>
                     <TableCell className="text-sm">
-                      <p className="font-medium">{c.prenom} {c.nom}</p>
+                      <p className="font-medium">{fullName(c.prenom, c.nom)}</p>
                       <a href={`mailto:${c.email}`} className="text-primary text-xs hover:underline">{c.email}</a>
                       {c.structure && <p className="text-xs text-muted-foreground">{c.structure}</p>}
                     </TableCell>
@@ -159,7 +160,7 @@ const AdminContacts = () => {
                           variant="ghost" size="icon"
                           className="text-destructive hover:text-destructive hover:bg-destructive/10"
                           onClick={() => {
-                            if (window.confirm(`Supprimer le message de ${c.prenom} ${c.nom} ?`)) {
+                            if (window.confirm(`Supprimer le message de ${fullName(c.prenom, c.nom)} ?`)) {
                               deleteContact.mutate(c.id);
                             }
                           }}
@@ -190,7 +191,7 @@ const AdminContacts = () => {
                 <div className="grid grid-cols-2 gap-4">
                   <div>
                     <p className="text-muted-foreground text-xs">Contact</p>
-                    <p className="font-medium">{selectedContact.prenom} {selectedContact.nom}</p>
+                    <p className="font-medium">{fullName(selectedContact.prenom, selectedContact.nom)}</p>
                   </div>
                   <div>
                     <p className="text-muted-foreground text-xs">Email</p>
