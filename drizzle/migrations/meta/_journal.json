@@ -141,6 +141,13 @@
       "when": 1793275648490,
       "tag": "0019_flux_devines_a_confirmer",
       "breakpoints": true
+    },
+    {
+      "idx": 20,
+      "version": "7",
+      "when": 1793276262696,
+      "tag": "0020_adhesion_annee_civile",
+      "breakpoints": true
     }
   ]
 }

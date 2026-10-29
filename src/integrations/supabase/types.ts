@@ -48,6 +48,7 @@ export type Database = {
       }
       adhesions: {
         Row: {
+          annee: number | null
           created_at: string
           date_adhesion: string | null
           date_echeance: string | null
@@ -64,6 +65,7 @@ export type Database = {
           type_adhesion: string | null
         }
         Insert: {
+          annee?: number | null
           created_at?: string
           date_adhesion?: string | null
           date_echeance?: string | null
@@ -80,6 +82,7 @@ export type Database = {
           type_adhesion?: string | null
         }
         Update: {
+          annee?: number | null
           created_at?: string
           date_adhesion?: string | null
           date_echeance?: string | null
@@ -972,7 +975,7 @@ export type Database = {
         Args: never
         Returns: {
           adhesion_id: string
-          date_echeance: string
+          annee: number
           date_paiement: string
           email: string
           etat: string
@@ -982,12 +985,11 @@ export type Database = {
           montant: number
           nb_fiches: number
           nom: string
-          rappel_30: string
-          rappel_7: string
           type_profil: string
         }[]
       }
       annee_adhesion: { Args: { _podcast_id: string }; Returns: number }
+      annee_couverte: { Args: { _email: string }; Returns: number }
       compter_stat: {
         Args: {
           _email_visiteur?: string
@@ -1078,8 +1080,9 @@ export type Database = {
       mon_adhesion: {
         Args: never
         Returns: {
+          annee: number
+          annee_renouvellement: number
           date_adhesion: string
-          date_echeance: string
           etat: string
           formule: string
           montant: number
