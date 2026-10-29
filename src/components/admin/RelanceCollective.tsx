@@ -1,6 +1,8 @@
 import { useMemo, useState } from "react";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import { Copy, Mail, X } from "lucide-react";
+import { Check, Copy, Mail, Send, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { anneeEnCours } from "@/lib/espaceMembre";
 import type { MembreAdmin } from "@/components/admin/AdminMembres";
@@ -60,13 +62,34 @@ const RelanceCollective = ({ membres, onClose }: { membres: MembreAdmin[]; onClo
   const msg = messageRelance(r, y);
   const dest = useMemo(() => destinatairesRelance(r, membres, y), [r, membres, y]);
   const adresses = dest.map((m) => m.email).join(", ");
-  // Message personnalisé pour un seul membre (« Bonjour Alix, »)
-  const mailtoMembre = (mb: MembreAdmin) => {
-    const prenom = mb.nom && !mb.nom.includes("@") ? mb.nom.split(/\s+/)[0] : "";
-    const corps = prenom ? msg.corps.replace(/^Bonjour,/, `Bonjour ${prenom},`) : msg.corps;
-    return `mailto:${encodeURIComponent(mb.email)}?subject=${encodeURIComponent(msg.sujet)}&body=${encodeURIComponent(corps)}`;
+  // Envoi direct depuis le site, une personne à la fois (le serveur vérifie qu'elle est concernée)
+  const qc = useQueryClient();
+  const cible = r === "1dec" || r === "20dec" ? y + 1 : y;
+  const code = `renouvellement:${r}:${cible}`;
+  const { data: envoyes = {} } = useQuery({
+    queryKey: ["relances-renouvellement", code],
+    queryFn: async () => {
+      const { data } = await supabase.from("relances_profil").select("email, envoye_le").contains("manques", [code]);
+      const o: Record<string, string> = {};
+      (data || []).forEach((x) => { o[x.email.toLowerCase()] = x.envoye_le; });
+      return o;
+    },
+  });
+  const [envoi, setEnvoi] = useState<string | null>(null);
+  const envoyer = async (mb: MembreAdmin) => {
+    setEnvoi(mb.email);
+    const { data, error } = await supabase.functions.invoke("relance-renouvellement", { body: { email: mb.email, relance: r } });
+    setEnvoi(null);
+    if (error || !data?.sent) {
+      let m = "La relance n'est pas partie.";
+      try { m = (await (error as any)?.context?.json())?.error || m; } catch { /* message par défaut */ }
+      toast.error(m);
+      return;
+    }
+    toast.success(`Relance envoyée à ${mb.nom}.`);
+    qc.invalidateQueries({ queryKey: ["relances-renouvellement", code] });
   };
-  const [faits, setFaits] = useState<Set<string>>(new Set());
+  const restants = dest.filter((mb) => !envoyes[mb.email.toLowerCase()]).length;
   const mailto = `mailto:?bcc=${encodeURIComponent(dest.map((m) => m.email).join(","))}&subject=${encodeURIComponent(msg.sujet)}&body=${encodeURIComponent(msg.corps)}`;
 
   const copier = async (texte: string, quoi: string) => {
@@ -80,7 +103,7 @@ const RelanceCollective = ({ membres, onClose }: { membres: MembreAdmin[]; onClo
         <div>
           <h3 id="relance-title" className="font-display font-bold text-xl">Relance collective</h3>
           <p className="text-sm text-muted-foreground max-w-prose mt-1">
-            Le message part de votre boîte mail. « Écrire » ouvre un e-mail personnalisé pour un membre ; « Ouvrir dans ma messagerie » prépare un envoi à tous, en copie cachée (Cci).
+            « Envoyer » fait partir tout de suite, depuis l'adresse de l'association, un e-mail aux couleurs du site et au prénom de la personne. Une seule fois par personne et par relance. Vous pouvez aussi passer par votre propre messagerie, en bas.
           </p>
         </div>
         {onClose && <Button variant="ghost" size="icon" onClick={onClose} aria-label="Fermer la relance"><X className="w-4 h-4" /></Button>}
@@ -101,7 +124,7 @@ const RelanceCollective = ({ membres, onClose }: { membres: MembreAdmin[]; onClo
 
       <div className="mt-5 grid gap-4 md:grid-cols-2">
         <div>
-          <p className="text-sm font-bold">{dest.length} destinataire{dest.length > 1 ? "s" : ""}</p>
+          <p className="text-sm font-bold">{dest.length} destinataire{dest.length > 1 ? "s" : ""}{dest.length > 0 && <span className="font-normal text-muted-foreground"> · {restants} à envoyer</span>}</p>
           <ul className="mt-1 max-h-72 overflow-y-auto border border-input bg-surface divide-y divide-border" aria-label="Destinataires">
             {dest.map((mb) => (
               <li key={mb.email} className="flex items-center justify-between gap-2 px-2 py-1.5">
@@ -109,11 +132,15 @@ const RelanceCollective = ({ membres, onClose }: { membres: MembreAdmin[]; onClo
                   <span className="block text-sm font-medium truncate">{mb.nom}</span>
                   <span className="block text-xs text-muted-foreground break-all">{mb.email}</span>
                 </span>
-                <Button asChild size="sm" variant={faits.has(mb.email) ? "secondary" : "outline"} className="shrink-0">
-                  <a href={mailtoMembre(mb)} onClick={() => setFaits((f) => new Set(f).add(mb.email))} aria-label={`Écrire à ${mb.nom}`}>
-                    {faits.has(mb.email) ? "Ouvert" : "Écrire"}
-                  </a>
-                </Button>
+                {envoyes[mb.email.toLowerCase()] ? (
+                  <span className="shrink-0 inline-flex items-center gap-1 text-xs font-semibold">
+                    <Check className="w-3.5 h-3.5" aria-hidden /> Envoyé le {new Date(envoyes[mb.email.toLowerCase()]).toLocaleDateString("fr-FR")}
+                  </span>
+                ) : (
+                  <Button size="sm" className="shrink-0" onClick={() => envoyer(mb)} disabled={envoi === mb.email} aria-label={`Envoyer la relance à ${mb.nom}`}>
+                    <Send className="w-3.5 h-3.5 mr-1.5" aria-hidden /> {envoi === mb.email ? "Envoi…" : "Envoyer"}
+                  </Button>
+                )}
               </li>
             ))}
           </ul>
@@ -131,8 +158,8 @@ const RelanceCollective = ({ membres, onClose }: { membres: MembreAdmin[]; onClo
       </div>
 
       <div className="mt-4 flex flex-wrap items-center gap-3">
-        <Button asChild disabled={!dest.length}>
-          <a href={mailto}><Mail className="w-4 h-4 mr-2" aria-hidden /> Ouvrir dans ma messagerie</a>
+        <Button asChild variant="outline" disabled={!dest.length}>
+          <a href={mailto}><Mail className="w-4 h-4 mr-2" aria-hidden /> Ou : ouvrir dans ma messagerie (Cci)</a>
         </Button>
         <p className="text-xs text-muted-foreground max-w-prose">
           Si votre messagerie ne s'ouvre pas (Gmail dans le navigateur, par exemple), copiez les adresses dans le champ « Cci », puis collez le message.
