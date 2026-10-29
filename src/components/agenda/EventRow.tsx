@@ -22,7 +22,7 @@ const EventRow = ({ e, primary, cta }: { e: HomeEvent; primary?: boolean; cta?: 
   return (
     <li className="grid grid-cols-[80px_1fr] sm:grid-cols-[110px_1fr_220px_auto] gap-x-5 gap-y-3 py-6 items-start sm:items-center">
       <div>
-        <p className="title-section text-[34px] sm:text-[44px]"><time dateTime={e.date_debut}>{dayMonth}</time></p>
+        <p className={`title-section ${plusieursJours ? "text-[22px] sm:text-[30px]" : "text-[34px] sm:text-[44px]"}`}><time dateTime={e.date_debut}>{dayMonth}</time></p>
         <p className="font-mono text-xs text-muted-foreground mt-1">{dayHour}</p>
       </div>
       <div className="min-w-0">
