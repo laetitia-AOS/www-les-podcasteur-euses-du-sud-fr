@@ -176,6 +176,13 @@
       "when": 1793280417952,
       "tag": "0024_admin_a_traiter",
       "breakpoints": true
+    },
+    {
+      "idx": 25,
+      "version": "7",
+      "when": 1793283454464,
+      "tag": "0025_revoke_trigger_functions",
+      "breakpoints": true
     }
   ]
 }

@@ -34,3 +34,6 @@ verify_jwt = false
 
 [functions.relance-fiche]
 verify_jwt = false
+
+[functions.relance-renouvellement]
+verify_jwt = false
