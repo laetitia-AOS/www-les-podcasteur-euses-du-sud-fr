@@ -96,3 +96,18 @@
 - [x] 11. Admin Paiements : cartes sur téléphone
 - [x] 12. Admin Fiches à compléter : cartes sur téléphone
 - [x] Vérification à 390 px
+
+## Corrections après revue — lot 6 (pages légales et référencement)
+- [ ] 1. Mentions légales : coordonnées complètes des hébergeurs
+- [ ] 2. Confidentialité : nouveaux traitements (sections 2, 3, 5)
+- [ ] 3. Confidentialité : vérifier la région des données — question avant d'écrire
+- [ ] 4. CGU : article « Mise en relation et propositions »
+- [ ] 5. H1 avec ligne descriptive (accueil, écouter, annuaire, studios, agenda, adhérer)
+- [ ] 6. Titres et descriptions uniques
+- [ ] 7. Image de partage par page
+- [ ] 8. Données structurées
+- [ ] 9. Adresses et redirections, canonique
+- [ ] 10. Plan du site, robots, noindex
+- [ ] 11. Textes alternatifs, langue
+- [ ] 12. Tableau de vérification
+- [ ] Revue SEO & AI search, puis scan de sécurité
