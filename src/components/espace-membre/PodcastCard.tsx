@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { verifierFlux } from "@/lib/episodes";
+import { messageFlux, type EtatFlux } from "@/lib/flux";
 import { Link } from "react-router-dom";
 import { Loader2 } from "lucide-react";
 import { toast } from "sonner";
@@ -22,7 +23,6 @@ const Badge = ({ visible }: { visible: boolean }) => (
   </span>
 );
 
-type EtatFlux = { podcast_id: string; statut: string; message: string | null; nb_episodes: number; derniere_lecture: string };
 
 /** État de lecture des flux des podcasts de la personne connectée (limité à son e-mail côté serveur). */
 const useMesFlux = () =>
@@ -159,13 +159,15 @@ const PodcastCard = ({ fiche, onSaved, onDeleted }: Props) => {
             <label htmlFor={`${formId}-rss`} className={labelCls}>Flux RSS (facultatif)</label>
             <input id={`${formId}-rss`} type="url" value={f.flux_rss} onChange={set("flux_rss")} className={field} placeholder="https://feed.ausha.co/…" />
             <p className={hintCls}>Il permet d'afficher vos 10 derniers épisodes et de les écouter sur le site (mise à jour toutes les 6 heures). Vous le trouvez chez votre hébergeur (Ausha, Acast, Spotify for Creators…).</p>
-            {etat && (
-              <p role="status" className={`mt-2 text-sm font-bold ${etat.statut === "ok" ? "text-primary" : "text-destructive"}`}>
-                {etat.statut === "ok"
-                  ? `Flux lu : ${etat.nb_episodes} épisode${etat.nb_episodes > 1 ? "s" : ""} affiché${etat.nb_episodes > 1 ? "s" : ""} sur votre fiche.`
-                  : etat.message || "Votre flux n'a pas pu être lu."}
-              </p>
-            )}
+            {(() => {
+              const m = messageFlux(etat, fiche.flux_rss);
+              return (
+                <div role="status" data-etat-flux={m.ton} className={`mt-3 border-l-[4px] pl-3 py-1 text-sm ${m.ton === "ok" ? "border-primary" : m.ton === "attente" ? "border-accent" : "border-destructive"}`}>
+                  <p className="font-bold">{m.titre}</p>
+                  <p className="mt-0.5">{m.texte}</p>
+                </div>
+              );
+            })()}
           </div>
           <div>
             <label htmlFor={`${formId}-desc`} className={labelCls}>Description courte</label>
