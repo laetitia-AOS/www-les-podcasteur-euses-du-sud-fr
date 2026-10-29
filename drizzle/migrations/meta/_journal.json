@@ -134,6 +134,13 @@
       "when": 1793274981125,
       "tag": "0018_effacement_images_partagees",
       "breakpoints": true
+    },
+    {
+      "idx": 19,
+      "version": "7",
+      "when": 1793275648490,
+      "tag": "0019_flux_devines_a_confirmer",
+      "breakpoints": true
     }
   ]
 }
