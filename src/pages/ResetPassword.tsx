@@ -3,7 +3,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { ConnexionEnCours, ConnexionShell } from "@/components/ConnexionShell";
 import { field, hintCls, labelCls } from "@/components/adherer/fields";
 import { btnPrimary } from "@/lib/pds";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import SEOHead from "@/components/SEOHead";
 import { toast } from "sonner";
 
@@ -13,6 +13,7 @@ const ResetPassword = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [ready, setReady] = useState(false);
+  const [expire, setExpire] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -30,7 +31,9 @@ const ResetPassword = () => {
     supabase.auth.getSession().then(({ data: { session } }) => {
       if (session) setReady(true);
     });
-    return () => subscription.unsubscribe();
+    // Sans lien valide après quelques secondes : on l'explique au lieu d'attendre indéfiniment
+    const t = setTimeout(() => setExpire(true), 8000);
+    return () => { subscription.unsubscribe(); clearTimeout(t); };
   }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -64,6 +67,17 @@ const ResetPassword = () => {
     }
     navigate("/admin/login", { replace: true });
   };
+
+  if (!ready && expire) {
+    return (
+      <ConnexionShell espace="Mot de passe">
+        <SEOHead title="Nouveau mot de passe — Les Podcasteur·euses du Sud" description="Choisir un nouveau mot de passe." path="/reset-password" noindex />
+        <h1 className="title-page text-[40px] sm:text-[56px]">Lien expiré</h1>
+        <p className="mt-4 text-lg">Ce lien n'est plus valable : il ne sert qu'une fois et pendant une heure. Demandez-en un nouveau.</p>
+        <Link to="/admin/login" className={`${btnPrimary} mt-8`}>Demander un nouveau lien</Link>
+      </ConnexionShell>
+    );
+  }
 
   if (!ready) {
     return (
