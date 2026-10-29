@@ -198,3 +198,9 @@
     scroll-behavior: auto !important;
   }
 }
+
+/* Barre de progression de l'écran « Connexion en cours… » */
+@keyframes connexion {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(300%); }
+}
