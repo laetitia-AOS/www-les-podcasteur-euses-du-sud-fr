@@ -16,5 +16,7 @@
 - [x] Agenda : propositions des membres, relecture admin, « Je viens », agenda .ics/Google, archives, sitemap événements
 - [ ] Fin : référencement (titres, sitemap), scan de sécurité, revue SEO, tests visiteur / membre / admin
 
+- [x] Adhésion HelloAsso : échéance, masquage à l'échéance, espace membre (statut, chiffres, suppression), liste des membres admin
+
 ## En attente
-- Envoi d'e-mails : domaine d'envoi à configurer par l'utilisatrice (envoi intégré Lovable) ; ensuite basculer « Écrire à… », devis studios, confirmations d'inscription aux événements et e-mail au membre quand sa proposition est publiée ou refusée.
+- Envoi d'e-mails : domaine d'envoi à configurer par l'utilisatrice (envoi intégré Lovable) ; ensuite basculer « Écrire à… », devis studios, confirmations d'inscription aux événements, e-mail au membre quand sa proposition est publiée ou refusée, et rappels d'échéance 30 j / 7 j (bouton déjà en place dans Admin > Adhésions).

@@ -53,3 +53,18 @@ export const publicProfilePath = (type: string, slug: string | null): string | n
   if (type === "soutien") return null;
   return `/podcasteur/${slug}`;
 };
+
+/** État d'adhésion renvoyé par le serveur (échéance = 1 an après confirmation du paiement). */
+export type EtatServeur = "a_jour" | "bientot" | "terminee" | "verification" | "aucune";
+
+/** Nombre de jours avant l'échéance (négatif si elle est passée). */
+export const joursRestants = (echeance: string | Date | null | undefined, now: Date = new Date()): number | null => {
+  if (!echeance) return null;
+  const d = typeof echeance === "string" ? new Date(echeance) : echeance;
+  if (isNaN(d.getTime())) return null;
+  return Math.ceil((d.getTime() - now.getTime()) / 86400000);
+};
+
+/** Lien « Renouveler » : la page Adhérer s'ouvre sur l'étape paiement avec la bonne formule. */
+export const lienRenouveler = (formule: string | null | undefined) =>
+  `/rejoindre-association?etape=adhesion${formule === "studio" || formule === "personne" ? `&formule=${formule}` : ""}`;

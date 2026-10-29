@@ -1,4 +1,5 @@
-import { useMemo } from "react";
+import { useEffect, useMemo } from "react";
+import { compterStat } from "@/lib/stats";
 import { Link, useParams } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { Check, Minus } from "lucide-react";
@@ -18,6 +19,7 @@ const SITE = "https://www.les-podcasteur-euses-du-sud.fr";
 const StudioProfile = () => {
   const { slug } = useParams<{ slug: string }>();
   const { data: studio, isLoading } = useLieu("studio", slug);
+  useEffect(() => { if (studio?.id) compterStat(studio.id, "vue"); }, [studio?.id]);
   const { data: fiches = {} } = useFichesLieux(studio ? [studio.id] : []);
   const f = (studio && fiches[studio.id]) || ficheVide(studio?.id || "");
   const { data: annee } = useAnneeAdhesion(studio?.id);

@@ -50,7 +50,9 @@ export type Database = {
         Row: {
           created_at: string
           date_adhesion: string | null
+          date_echeance: string | null
           email: string | null
+          formule: string | null
           helloasso_order_id: string | null
           id: string
           montant: number | null
@@ -64,7 +66,9 @@ export type Database = {
         Insert: {
           created_at?: string
           date_adhesion?: string | null
+          date_echeance?: string | null
           email?: string | null
+          formule?: string | null
           helloasso_order_id?: string | null
           id?: string
           montant?: number | null
@@ -78,7 +82,9 @@ export type Database = {
         Update: {
           created_at?: string
           date_adhesion?: string | null
+          date_echeance?: string | null
           email?: string | null
+          formule?: string | null
           helloasso_order_id?: string | null
           id?: string
           montant?: number | null
@@ -770,6 +776,96 @@ export type Database = {
         }
         Relationships: []
       }
+      rappels_adhesion: {
+        Row: {
+          adhesion_id: string
+          envoye_le: string
+          envoye_par: string | null
+          id: string
+          palier: number
+        }
+        Insert: {
+          adhesion_id: string
+          envoye_le?: string
+          envoye_par?: string | null
+          id?: string
+          palier: number
+        }
+        Update: {
+          adhesion_id?: string
+          envoye_le?: string
+          envoye_par?: string | null
+          id?: string
+          palier?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "rappels_adhesion_adhesion_id_fkey"
+            columns: ["adhesion_id"]
+            isOneToOne: false
+            referencedRelation: "adhesions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      stats_empreintes: {
+        Row: {
+          empreinte: string
+          jour: string
+          podcast_id: string
+          type: string
+        }
+        Insert: {
+          empreinte: string
+          jour: string
+          podcast_id: string
+          type: string
+        }
+        Update: {
+          empreinte?: string
+          jour?: string
+          podcast_id?: string
+          type?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "stats_empreintes_podcast_id_fkey"
+            columns: ["podcast_id"]
+            isOneToOne: false
+            referencedRelation: "podcasts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      stats_fiches_jour: {
+        Row: {
+          ecoutes: number
+          jour: string
+          podcast_id: string
+          vues: number
+        }
+        Insert: {
+          ecoutes?: number
+          jour: string
+          podcast_id: string
+          vues?: number
+        }
+        Update: {
+          ecoutes?: number
+          jour?: string
+          podcast_id?: string
+          vues?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "stats_fiches_jour_podcast_id_fkey"
+            columns: ["podcast_id"]
+            isOneToOne: false
+            referencedRelation: "podcasts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       sync_episodes_runs: {
         Row: {
           episodes: number | null
@@ -835,8 +931,37 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      admin_membres: {
+        Args: never
+        Returns: {
+          adhesion_id: string
+          date_echeance: string
+          date_paiement: string
+          email: string
+          etat: string
+          fiche_validee: boolean
+          fiche_visible: boolean
+          formule: string
+          montant: number
+          nb_fiches: number
+          nom: string
+          rappel_30: string
+          rappel_7: string
+          type_profil: string
+        }[]
+      }
       annee_adhesion: { Args: { _podcast_id: string }; Returns: number }
+      compter_stat: {
+        Args: {
+          _email_visiteur?: string
+          _empreinte: string
+          _podcast_id: string
+          _type: string
+        }
+        Returns: boolean
+      }
       demarrer_sync_episodes: { Args: never; Returns: number }
+      effacer_donnees_membre: { Args: { _email: string }; Returns: string[] }
       episodes_visibles: { Args: { _podcast_id: string }; Returns: boolean }
       has_role: {
         Args: {
@@ -889,6 +1014,15 @@ export type Database = {
           statut: string
         }[]
       }
+      mes_stats: {
+        Args: never
+        Returns: {
+          demandes: number
+          ecoutes: number
+          mois: string
+          vues: number
+        }[]
+      }
       mes_venues: {
         Args: { _evenement_id: string }
         Returns: {
@@ -902,6 +1036,9 @@ export type Database = {
         Args: never
         Returns: {
           date_adhesion: string
+          date_echeance: string
+          etat: string
+          formule: string
           montant: number
           statut: string
           type_adhesion: string
@@ -967,6 +1104,7 @@ export type Database = {
         Returns: string
       }
       peut_proposer_evenement: { Args: never; Returns: boolean }
+      podcast_visible: { Args: { _id: string }; Returns: boolean }
       unaccent: { Args: { "": string }; Returns: string }
     }
     Enums: {

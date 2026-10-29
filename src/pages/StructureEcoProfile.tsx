@@ -1,4 +1,5 @@
-import { useMemo } from "react";
+import { useEffect, useMemo } from "react";
+import { compterStat } from "@/lib/stats";
 import { Link, useParams } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -16,6 +17,7 @@ const SITE = "https://www.les-podcasteur-euses-du-sud.fr";
 const StructureEcoProfile = () => {
   const { slug } = useParams<{ slug: string }>();
   const { data: s, isLoading } = useLieu("structure_eco", slug);
+  useEffect(() => { if (s?.id) compterStat(s.id, "vue"); }, [s?.id]);
   const { data: fiches = {} } = useFichesLieux(s ? [s.id] : []);
   const f = (s && fiches[s.id]) || ficheVide(s?.id || "");
   const { data: annee } = useAnneeAdhesion(s?.id);

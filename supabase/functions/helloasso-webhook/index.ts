@@ -83,6 +83,8 @@ Deno.serve(async (req) => {
       telephone: clean(payer.phone, 30),
       montant: typeof totalCents === "number" ? totalCents / 100 : null,
       type_adhesion: clean(firstItem.name, 150) || "adhesion",
+      // Formule d'après ce qui a été réellement payé chez HelloAsso ; l'échéance (1 an) est calculée en base
+      formule: /morale|studio|agence/i.test(String(firstItem.name || "")) ? "studio" : "personne",
       statut: verified ? "active" : "a_verifier",
       date_adhesion: dateAdhesion,
       helloasso_order_id: orderId,

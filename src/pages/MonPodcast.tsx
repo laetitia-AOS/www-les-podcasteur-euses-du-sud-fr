@@ -9,12 +9,14 @@ import SEOHead from "@/components/SEOHead";
 import ProfilCard from "@/components/espace-membre/ProfilCard";
 import PodcastCard from "@/components/espace-membre/PodcastCard";
 import { FICHE_COLUMNS, cardCls, sectionTitle, type FicheMembre } from "@/components/espace-membre/types";
-import { formatLongDate, ilYA, publicProfilePath, statutAdhesion } from "@/lib/espaceMembre";
+import { formatLongDate, ilYA, joursRestants, lienRenouveler, publicProfilePath, type EtatServeur } from "@/lib/espaceMembre";
+import SupprimerDonnees from "@/components/espace-membre/SupprimerDonnees";
 import { readableTitle } from "@/lib/events";
 import { btnPrimary, btnSecondary, formatName, linkUnderline } from "@/lib/pds";
 import logoPds from "@/assets/logo-pds.png";
 
-type Adhesion = { date_adhesion: string | null; type_adhesion: string | null; statut: string | null; montant: number | null };
+type Adhesion = { date_adhesion: string | null; type_adhesion: string | null; statut: string | null; montant: number | null; date_echeance: string | null; formule: string | null; etat: EtatServeur };
+type Stats = { vues: number; ecoutes: number; demandes: number };
 type Demande = { id: string; recipient_id: string; sender_name: string; sender_email: string; message: string; created_at: string; type: string; lu_le: string | null };
 
 const TYPE_DEMANDE: Record<string, { label: string; sujet: string }> = {
@@ -31,9 +33,9 @@ const SECTIONS = [
   { id: "demandes", label: "Demandes reçues" },
   { id: "evenements", label: "Mes événements" },
   { id: "adhesion", label: "Adhésion" },
+  { id: "suppression", label: "Mes données" },
 ];
 
-const ADHERER = "/rejoindre-association?etape=adhesion";
 
 const MonEspace = () => {
   const navigate = useNavigate();
@@ -44,6 +46,7 @@ const MonEspace = () => {
   const [demandes, setDemandes] = useState<Demande[]>([]);
   const [evenements, setEvenements] = useState<MonEvenement[]>([]);
   const [active, setActive] = useState("tableau");
+  const [stats, setStats] = useState<Stats | null>(null);
 
   useEffect(() => {
     const robots = document.createElement("meta");
@@ -59,17 +62,19 @@ const MonEspace = () => {
       if (!session) { navigate("/espace-membre"); return; }
       const mail = session.user.email || "";
       setEmail(mail);
-      const [f, a, d, e] = await Promise.all([
+      const [f, a, d, e, st] = await Promise.all([
         supabase.from("podcasts").select(FICHE_COLUMNS).eq("email", mail).order("created_at", { ascending: true }),
         supabase.rpc("mon_adhesion"),
         supabase.rpc("mes_demandes"),
         supabase.rpc("mes_evenements"),
+        supabase.rpc("mes_stats"),
       ]);
       if (f.error) { console.error(f.error); toast.error("Vos fiches n'ont pas pu être chargées."); }
       setFiches((f.data as unknown as FicheMembre[]) || []);
       setAdhesion(((a.data as Adhesion[] | null) || [])[0] || null);
       setDemandes((d.data as Demande[] | null) || []);
       setEvenements((e.data as MonEvenement[] | null) || []);
+      setStats(((st.data as Stats[] | null) || [])[0] || null);
       setLoading(false);
     };
     init();
@@ -112,9 +117,12 @@ const MonEspace = () => {
 
   const profil = useMemo(() => fiches.find((f) => f.type_profil !== "podcasteur") || fiches[0], [fiches]);
   const podcasts = useMemo(() => fiches.filter((f) => f.type_profil === "podcasteur"), [fiches]);
-  const statut = statutAdhesion(adhesion?.date_adhesion);
-  const aJour = statut.etat === "a_jour";
-  const publicPath = profil && profil.valide ? publicProfilePath(profil.type_profil, profil.slug) : null;
+  const etat: EtatServeur = adhesion?.etat || "aucune";
+  const aJour = etat === "a_jour" || etat === "bientot";
+  const jours = joursRestants(adhesion?.date_echeance);
+  const ADHERER = lienRenouveler(adhesion?.formule);
+  // Fiche publique seulement si elle est validée et l'adhésion à jour (même règle que le serveur)
+  const publicPath = profil && profil.valide && aJour ? publicProfilePath(profil.type_profil, profil.slug) : null;
   const nomFiche = (id: string) => fiches.find((f) => f.id === id);
 
   if (loading) {
@@ -196,15 +204,25 @@ const MonEspace = () => {
               <div>
                 <h1 id="bonjour" className="title-section text-[44px] sm:text-[60px]">Bonjour {prenom}</h1>
                 <p className="mt-3 flex flex-wrap items-center gap-2 text-[15px]">
-                  {aJour ? (
+                  {etat === "a_jour" ? (
                     <>
                       <span className="px-2 py-1 text-xs font-bold bg-primary text-primary-foreground">Membre à jour</span>
-                      <span>jusqu'au <span className="font-mono">{formatLongDate(statut.echeance)}</span></span>
+                      <span>jusqu'au <span className="font-mono">{formatLongDate(adhesion?.date_echeance)}</span></span>
                     </>
-                  ) : statut.etat === "expiree" ? (
+                  ) : etat === "bientot" ? (
                     <>
-                      <span className="px-2 py-1 text-xs font-bold border-2 border-encre">Adhésion à renouveler</span>
-                      <span>dernier paiement le <span className="font-mono">{formatLongDate(adhesion?.date_adhesion)}</span></span>
+                      <span className="px-2 py-1 text-xs font-bold bg-accent text-accent-foreground">Se termine bientôt</span>
+                      <span>le <span className="font-mono">{formatLongDate(adhesion?.date_echeance)}</span>{jours != null && ` (dans ${jours} jour${jours > 1 ? "s" : ""})`}</span>
+                    </>
+                  ) : etat === "verification" ? (
+                    <>
+                      <span className="px-2 py-1 text-xs font-bold border-2 border-encre">Paiement en vérification</span>
+                      <span>reçu le <span className="font-mono">{formatLongDate(adhesion?.date_adhesion)}</span></span>
+                    </>
+                  ) : etat === "terminee" ? (
+                    <>
+                      <span className="px-2 py-1 text-xs font-bold border-2 border-encre">Adhésion terminée</span>
+                      {adhesion?.date_echeance && <span>depuis le <span className="font-mono">{formatLongDate(adhesion.date_echeance)}</span></span>}
                     </>
                   ) : (
                     <span className="px-2 py-1 text-xs font-bold border-2 border-encre">Profil sans adhésion</span>
@@ -213,11 +231,30 @@ const MonEspace = () => {
               </div>
               <div className="flex flex-wrap gap-3">
                 {publicPath && <Link to={publicPath} className={btnSecondary}>Voir mon profil public</Link>}
-                <Link to={ADHERER} className="inline-flex items-center justify-center gap-2 min-h-[44px] px-5 font-bold text-[15px] leading-none bg-encre text-surface border-2 border-encre hover:bg-surface hover:text-foreground transition-colors">{aJour ? "Renouveler" : "Adhérer"}</Link>
+                <Link to={ADHERER} className="inline-flex items-center justify-center gap-2 min-h-[44px] px-5 font-bold text-[15px] leading-none bg-encre text-surface border-2 border-encre hover:bg-surface hover:text-foreground transition-colors">{adhesion ? "Renouveler" : "Adhérer"}</Link>
               </div>
             </div>
 
-            {!aJour && (
+            {(etat === "bientot" || etat === "terminee") && (
+              <div role="status" className="mt-6 border-2 border-accent bg-accent/10 p-5 sm:p-6">
+                <p className="font-bold text-[17px]">
+                  {etat === "bientot" ? `Votre adhésion se termine le ${formatLongDate(adhesion?.date_echeance)}` : "Votre fiche n'est plus visible sur le site"}
+                </p>
+                <p className="mt-2 text-[15px] max-w-[62ch]">
+                  {etat === "bientot"
+                    ? "Renouvelez-la avant cette date pour que votre fiche et vos podcasts restent visibles. L'année s'ajoute à la date de fin actuelle : vous ne perdez aucun jour."
+                    : "Votre adhésion est arrivée à échéance. Rien n'est supprimé : votre fiche réapparaît dès le renouvellement."}
+                </p>
+                <Link to={ADHERER} className={`${btnPrimary} mt-4`}>Renouveler</Link>
+              </div>
+            )}
+            {etat === "verification" && (
+              <div role="status" className="mt-6 border-2 border-encre bg-surface p-5 sm:p-6">
+                <p className="font-bold text-[17px]">Votre paiement est en cours de vérification</p>
+                <p className="mt-2 text-[15px] max-w-[62ch]">L'équipe le confirme avec HelloAsso. Votre fiche devient visible dès la confirmation, pour un an.</p>
+              </div>
+            )}
+            {etat === "aucune" && (
               <div className="mt-6 border-2 border-primary bg-primary/5 p-5 sm:p-6">
                 <p className="font-bold text-[17px]">Adhérez pour activer votre visibilité</p>
                 <p className="mt-2 text-[15px] max-w-[62ch]">
@@ -227,11 +264,12 @@ const MonEspace = () => {
               </div>
             )}
 
-            <dl className="mt-6 grid grid-cols-3 border border-filet bg-surface">
+            <p className="mt-8 font-mono text-xs text-muted-foreground">Ce mois-ci · chiffres visibles par vous seul·e</p>
+            <dl className="mt-2 grid grid-cols-3 border border-filet bg-surface">
               {[
-                { label: "Demandes reçues", value: demandes.length },
-                { label: "Podcasts référencés", value: podcasts.length },
-                { label: "Événements proposés", value: evenements.length },
+                { label: "Vues du profil", value: stats?.vues ?? 0 },
+                { label: "Écoutes lancées depuis le site", value: stats?.ecoutes ?? 0 },
+                { label: "Demandes reçues", value: stats?.demandes ?? 0 },
               ].map((s, i) => (
                 <div key={s.label} className={`p-3 sm:p-5 ${i > 0 ? "border-l border-filet" : ""}`}>
                   <dt className="text-xs sm:text-sm text-muted-foreground leading-tight">{s.label}</dt>
@@ -350,29 +388,35 @@ const MonEspace = () => {
             <div className={cardCls}>
               <h2 id="adhesion-title" className={sectionTitle}>Adhésion</h2>
               {adhesion?.date_adhesion ? (
-                <dl className="mt-5 grid sm:grid-cols-3 gap-4 text-[15px]">
+                <dl className="mt-5 grid sm:grid-cols-4 gap-4 text-[15px]">
                   <div>
                     <dt className="text-sm text-muted-foreground">Dernier paiement</dt>
                     <dd className="font-mono mt-1">{formatLongDate(adhesion.date_adhesion)}</dd>
                   </div>
                   <div>
                     <dt className="text-sm text-muted-foreground">Formule</dt>
-                    <dd className="mt-1 font-semibold">{adhesion.type_adhesion || "Adhésion"}{adhesion.montant ? <span className="font-mono font-normal"> · {adhesion.montant} €</span> : null}</dd>
+                    <dd className="mt-1 font-semibold">{adhesion.formule === "studio" ? "Studio ou agence" : "Personne"}</dd>
                   </div>
                   <div>
-                    <dt className="text-sm text-muted-foreground">{aJour ? "Valable jusqu'au" : "Statut"}</dt>
-                    <dd className="mt-1 font-semibold">{aJour ? <span className="font-mono">{formatLongDate(statut.echeance)}</span> : "À renouveler"}</dd>
+                    <dt className="text-sm text-muted-foreground">Montant payé</dt>
+                    <dd className="mt-1 font-mono">{adhesion.montant != null ? `${Number(adhesion.montant)} €` : "—"}</dd>
+                  </div>
+                  <div>
+                    <dt className="text-sm text-muted-foreground">Échéance</dt>
+                    <dd className="mt-1 font-mono">{adhesion.date_echeance ? formatLongDate(adhesion.date_echeance) : etat === "verification" ? "après vérification" : "—"}</dd>
                   </div>
                 </dl>
               ) : (
                 <p className="mt-4 text-[15px]">Aucune adhésion n'est enregistrée avec l'adresse <strong className="break-all">{email}</strong>.</p>
               )}
               <p className="mt-5 text-sm text-muted-foreground max-w-[62ch]">
-                L'adhésion est valable un an à partir du paiement. Vous avez payé avec une autre adresse e-mail ou un autre nom ? Écrivez-nous depuis la page Contact pour que l'équipe relie votre paiement à votre profil.
+                L'adhésion est valable un an à partir de la confirmation du paiement. À l'échéance, votre fiche est masquée du site, sans être supprimée. Vous avez payé avec une autre adresse e-mail ou un autre nom ? Écrivez-nous depuis la page Contact pour que l'équipe relie votre paiement à votre profil.
               </p>
-              <Link to={ADHERER} className={`${btnPrimary} mt-5`}>{aJour ? "Renouveler mon adhésion" : "Adhérer"}</Link>
+              <Link to={ADHERER} className={`${btnPrimary} mt-5`}>{adhesion ? "Renouveler mon adhésion" : "Adhérer"}</Link>
             </div>
           </section>
+
+          <SupprimerDonnees />
         </main>
       </div>
     </div>

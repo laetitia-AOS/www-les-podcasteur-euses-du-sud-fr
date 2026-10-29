@@ -1,4 +1,5 @@
 import { Link } from "react-router-dom";
+import { compterStat } from "@/lib/stats";
 import { ExternalLink, Pause, Play } from "lucide-react";
 import { container, cleanCity, formatDuration, formatShortDate, fullName, linkUnderline } from "@/lib/pds";
 import { usePlayer } from "@/contexts/PlayerContext";
@@ -72,6 +73,7 @@ const HomeEpisodes = ({ episodes, fallback, loading }: Props) => {
               <li key={p.id} className="grid grid-cols-[44px_56px_1fr] sm:grid-cols-[56px_72px_1fr_180px] items-center gap-x-4 sm:gap-x-5 py-4">
                 <a
                   href={p.lien_ecoute || "#"}
+                  onClick={() => compterStat(p.id, "ecoute")}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="w-11 h-11 sm:w-14 sm:h-14 rounded-full inline-flex items-center justify-center border-2 border-primary text-primary hover:bg-primary hover:text-primary-foreground"

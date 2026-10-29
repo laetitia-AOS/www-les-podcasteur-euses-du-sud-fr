@@ -1,4 +1,5 @@
 import { useMemo, useState, useEffect } from "react";
+import { compterStat } from "@/lib/stats";
 import { Link } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { ExternalLink, Pause, Play } from "lucide-react";
@@ -226,6 +227,7 @@ const Podcasts = () => {
                       ) : (
                         <a
                           href={p.lien_ecoute}
+                          onClick={() => compterStat(p.id, "ecoute")}
                           target="_blank"
                           rel="noopener noreferrer"
                           className="shrink-0 w-11 h-11 rounded-full border-2 border-primary text-primary inline-flex items-center justify-center hover:bg-primary hover:text-primary-foreground"

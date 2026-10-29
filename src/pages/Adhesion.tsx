@@ -6,7 +6,7 @@ import SEOHead from "@/components/SEOHead";
 import ProfilStep, { type ProfilResult } from "@/components/adherer/ProfilStep";
 import PodcastsStep from "@/components/adherer/PodcastsStep";
 import { btnPrimary, btnSecondary, container, linkUnderline } from "@/lib/pds";
-import { HELLOASSO_WIDGET, TARIFS, TYPES_PROFIL, profilColumns, type TypeProfil } from "@/lib/inscription";
+import { FORMULES_HELLOASSO, HELLOASSO_WIDGET, TARIFS, TYPES_PROFIL, formulePourType, profilColumns, type TypeProfil } from "@/lib/inscription";
 
 type StepKey = "profil" | "podcasts" | "adhesion" | "paiement";
 
@@ -79,7 +79,18 @@ const Adhesion = () => {
     return () => clearTimeout(t);
   }, [hash, params]);
 
-  const isStructure = type === "studio" || type === "structure_eco";
+  // Renouvellement depuis l'espace membre : la formule déjà payée est transmise dans le lien
+  const formule = params.get("formule") === "studio" || params.get("formule") === "personne"
+    ? (params.get("formule") as "studio" | "personne")
+    : formulePourType(result?.type ?? type);
+  const isStructure = formule === "studio";
+  const consigne = FORMULES_HELLOASSO[formule];
+  const Consigne = () => (
+    <div className="border-l-[6px] border-accent bg-background p-4 sm:p-5">
+      <p className="font-bold text-[17px]">Dans le formulaire HelloAsso, choisissez « {consigne.nom} »</p>
+      <p className="mt-1 text-[15px]">{consigne.consigne}. N'ajoutez pas l'autre formule à votre panier.</p>
+    </div>
+  );
 
   const jsonLd = {
     "@context": "https://schema.org",
@@ -208,8 +219,8 @@ const Adhesion = () => {
                     <p className="mt-2 text-[15px]">Pour les studios, agences et structures.</p>
                   </div>
                 </div>
+                <div className="mt-6"><Consigne /></div>
                 <p className="mt-6 text-[17px] max-w-[62ch]">
-                  À l'étape suivante, choisissez le tarif qui vous correspond.{" "}
                   <strong>Utilisez la même adresse e-mail que pour votre profil{result?.email ? ` (${result.email})` : ""}</strong> : c'est elle qui active votre visibilité.
                 </p>
                 <div className="mt-8 flex flex-col-reverse sm:flex-row sm:justify-between gap-4">
@@ -227,8 +238,9 @@ const Adhesion = () => {
 
             {step === "paiement" && (
               <div className="mt-6">
+                <div className="mb-4"><Consigne /></div>
                 <p className="mb-4 text-[15px]">
-                  Paiement sécurisé sur HelloAsso. Une fois le paiement validé, vous arrivez sur une page de bienvenue.
+                  Paiement sécurisé sur HelloAsso. Une fois le paiement validé, vous arrivez sur une page de bienvenue. Votre adhésion court sur un an à partir de la confirmation du paiement.
                 </p>
                 <iframe
                   id="haWidget"

@@ -129,6 +129,15 @@ export const TYPES_PROFIL: { value: TypeProfil; label: string; hint: string }[] 
 /** Tarifs annuels de l'adhésion (personne / studio ou agence) et prix minimum pour une personne. */
 export const TARIFS = { personne: 20, studio: 100, minimumPersonne: 1 };
 
+/** Nom des formules dans le formulaire HelloAsso (unique) : le site indique laquelle choisir selon le type. */
+export const FORMULES_HELLOASSO = {
+  personne: { nom: "Adhésion individuelle", consigne: `20 € par an conseillés, montant libre à partir de 1 €` },
+  studio: { nom: "Adhésion personne morale", consigne: `100 € par an, montant fixe` },
+} as const;
+
+export const formulePourType = (type: TypeProfil | null | undefined): "personne" | "studio" =>
+  type === "studio" || type === "structure_eco" ? "studio" : "personne";
+
 export const HELLOASSO_WIDGET =
   "https://www.helloasso.com/associations/les-podcasteur-euses-du-sud/adhesions/adherer-a-l-association/widget?redirectUrl=https://www.les-podcasteur-euses-du-sud.fr/bienvenue";
 
