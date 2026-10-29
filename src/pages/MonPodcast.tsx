@@ -129,7 +129,9 @@ const MonEspace = () => {
   // Le renouvellement s'ouvre le 1er décembre : avant, un membre à jour n'a rien à payer
   const peutRenouveler = !(etat === "a_jour" && !periodeRenouvellement());
   // Fiche publique seulement si elle est validée et l'adhésion à jour (même règle que le serveur)
-  const publicPath = profil && profil.valide && aJour ? publicProfilePath(profil.type_profil, profil.slug) : null;
+  // Sursis accordé par l'équipe : la fiche reste visible le temps de la relance d'adhésion
+  const sursis = !aJour && fiches.some((f) => f.valide && f.visible_sans_adhesion);
+  const publicPath = profil && profil.valide && (aJour || profil.visible_sans_adhesion) ? publicProfilePath(profil.type_profil, profil.slug) : null;
   const nomFiche = (id: string) => fiches.find((f) => f.id === id);
 
   if (loading) {
@@ -249,14 +251,16 @@ const MonEspace = () => {
                     ? `Votre adhésion ${annee} se termine le 31 décembre`
                     : etat === "tolerance"
                       ? `Votre adhésion ${annee} est terminée : votre fiche reste visible jusqu'au 31 janvier`
-                      : "Votre fiche n'est plus visible sur le site"}
+                      : sursis ? "Votre fiche reste visible pour l'instant" : "Votre fiche n'est plus visible sur le site"}
                 </p>
                 <p className="mt-2 text-[15px] max-w-[62ch]">
                   {renouvelerBientot
                     ? `Vous pouvez renouveler dès maintenant pour ${anneeRenouv}. Votre paiement couvrira toute l'année ${anneeRenouv}, jusqu'au 31 décembre.`
                     : etat === "tolerance"
                       ? `Renouvelez pour ${anneeRenouv} avant le 1er février : sans paiement, votre fiche et vos podcasts seront masqués du site à cette date. Rien n'est supprimé.`
-                      : "Votre adhésion n'est plus à jour. Rien n'est supprimé : votre fiche réapparaît dès votre paiement."}
+                      : sursis
+                        ? "Votre adhésion n'est pas à jour. L'équipe garde pour l'instant votre fiche visible : réglez votre adhésion pour la conserver."
+                        : "Votre adhésion n'est plus à jour. Rien n'est supprimé : votre fiche réapparaît dès votre paiement."}
                 </p>
                 <Link to={ADHERER} className={`${btnPrimary} mt-4`}>Renouveler pour {anneeRenouv}</Link>
               </div>
@@ -269,9 +273,9 @@ const MonEspace = () => {
             )}
             {etat === "aucune" && (
               <div className="mt-6 border-2 border-primary bg-primary/5 p-5 sm:p-6">
-                <p className="font-bold text-[17px]">Adhérez pour activer votre visibilité</p>
+                <p className="font-bold text-[17px]">{sursis ? "Adhérez pour garder votre visibilité" : "Adhérez pour activer votre visibilité"}</p>
                 <p className="mt-2 text-[15px] max-w-[62ch]">
-                  Votre profil est enregistré, mais il n'apparaît pas publiquement. Avec l'adhésion, votre fiche et vos podcasts sont visibles dans l'annuaire et dans « Écouter », et les autres membres peuvent vous écrire.
+                  {sursis ? "Votre fiche est visible pour l'instant, en attente de votre adhésion." : "Votre profil est enregistré, mais il n'apparaît pas publiquement."} Avec l'adhésion, votre fiche et vos podcasts sont visibles dans l'annuaire et dans « Écouter », et les autres membres peuvent vous écrire.
                 </p>
                 <Link to={ADHERER} className={`${btnPrimary} mt-4`}>Adhérer maintenant</Link>
               </div>

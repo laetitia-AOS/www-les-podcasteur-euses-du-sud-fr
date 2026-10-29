@@ -688,6 +688,7 @@ export type Database = {
           valide: boolean
           vignette_url: string | null
           ville: string | null
+          visible_sans_adhesion: boolean
         }
         Insert: {
           apporte_choix?: string[]
@@ -741,6 +742,7 @@ export type Database = {
           valide?: boolean
           vignette_url?: string | null
           ville?: string | null
+          visible_sans_adhesion?: boolean
         }
         Update: {
           apporte_choix?: string[]
@@ -794,6 +796,7 @@ export type Database = {
           valide?: boolean
           vignette_url?: string | null
           ville?: string | null
+          visible_sans_adhesion?: boolean
         }
         Relationships: []
       }
@@ -985,6 +988,7 @@ export type Database = {
           montant: number
           nb_fiches: number
           nom: string
+          sursis: boolean
           type_profil: string
         }[]
       }
@@ -1155,6 +1159,10 @@ export type Database = {
       }
       peut_proposer_evenement: { Args: never; Returns: boolean }
       podcast_visible: { Args: { _id: string }; Returns: boolean }
+      sursis_adhesion: {
+        Args: { _actif: boolean; _email: string }
+        Returns: number
+      }
       unaccent: { Args: { "": string }; Returns: string }
     }
     Enums: {
