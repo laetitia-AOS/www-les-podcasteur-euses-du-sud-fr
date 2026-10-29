@@ -5,6 +5,7 @@ import { supabase } from "@/integrations/supabase/client";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import SEOHead from "@/components/SEOHead";
+import { PAGES, SITE_URL, breadcrumbLd, descriptionSeo, faqLd, titreSeo } from "@/lib/seo";
 import JeViens from "@/components/agenda/JeViens";
 import PartageEvenement from "@/components/agenda/PartageEvenement";
 import PodcastsInvitesDisplay from "@/components/PodcastsInvitesDisplay";
@@ -15,7 +16,7 @@ import { btnPrimary, btnSecondary, container, linkUnderline } from "@/lib/pds";
 import { cleanAddress, downloadIcs, googleCalendarUrl, prixDepuisTarif, publicDescription, readableTitle } from "@/lib/events";
 import bande from "@/assets/photos/bande-accueil-mur-rouge.jpg.asset.json";
 
-const SITE = "https://www.les-podcasteur-euses-du-sud.fr";
+const SITE = SITE_URL;
 
 // Libellé du type d'événement pour le titre principal « [Type] à [Ville] : [Titre] »
 const H1_TYPE: Record<string, string> = {
@@ -138,7 +139,7 @@ const EvenementDetail = () => {
   if (!evt || !view) {
     return (
       <div className="min-h-screen bg-background">
-        <SEOHead title="Événement introuvable — Les Podcasteur·euses du Sud" description="Cet événement n'existe pas ou n'est plus publié." path={`/agenda/${slug}`} />
+        <SEOHead title={titreSeo("Événement introuvable")} description="Cet événement n'existe pas ou n'est plus publié." path={`/agenda/${slug}`} noindex />
         <Navbar />
         <main className={`${container} pt-32 pb-24`}>
           <h1 className="title-page text-[52px]">Événement introuvable</h1>
@@ -185,11 +186,11 @@ const EvenementDetail = () => {
   return (
     <div className="min-h-screen bg-background">
       <SEOHead
-        title={`${view.h1} — ${view.start.toLocaleDateString("fr-FR", { day: "numeric", month: "long", year: "numeric" })}`}
-        description={view.intro.slice(0, 158)}
+        title={titreSeo(view.h1)}
+        description={descriptionSeo([view.intro, view.description])}
         path={eventHref(evt)}
         image={evt.image_url || undefined}
-        jsonLd={jsonLd}
+        jsonLd={[jsonLd, faqLd(faq), breadcrumbLd([{ name: "Accueil", path: "/" }, { name: "Agenda", path: PAGES.agenda }, { name: view.titre, path: eventHref(evt) }])]}
       />
       <Navbar />
       <main className="pt-16 md:pt-[76px]">
@@ -222,7 +223,7 @@ const EvenementDetail = () => {
         {evt.image_url ? (
           // Visuel complet (souvent une affiche avec du texte) : jamais recadré
           <div className={container}>
-            <img src={evt.image_url} alt={`Visuel de l'événement ${view.titre}`} className="w-full h-auto border border-filet" />
+            <img src={evt.image_url} alt={`Affiche de ${view.titre}`} className="w-full h-auto border border-filet" />
           </div>
         ) : (
           <img src={bande.url} alt="Un apéro écoute des Podcasteur·euses du Sud dans une salle aux murs rouges." className="w-full aspect-[16/9] sm:aspect-[1800/650] object-cover" />

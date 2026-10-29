@@ -185,7 +185,7 @@ const Evenements = () => {
                   <li key={e.id}>
                     <Link to={eventHref(e)} className="group block">
                       <span className="block aspect-[4/3] bg-muted overflow-hidden">
-                        <img src={e.image_url || fb.url} alt={e.image_url ? `Visuel de l'événement ${e.titre}` : fb.alt} className="w-full h-full object-cover" loading="lazy" />
+                        <img src={e.image_url || fb.url} alt={e.image_url ? `Affiche de ${e.titre}` : fb.alt} className="w-full h-full object-cover" loading="lazy" />
                       </span>
                       <span className="block mt-3 font-mono text-xs text-muted-foreground">{formatShortDate(e.date_debut)}{e.lieu ? ` · ${e.lieu}` : ""}</span>
                       <span className="block mt-1 font-bold text-[18px] leading-tight group-hover:underline underline-offset-4">{e.titre}</span>
