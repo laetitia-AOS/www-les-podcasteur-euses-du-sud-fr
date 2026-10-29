@@ -4,7 +4,7 @@ export type InfoPartage = {
   titre: string;
   type: string; // libellé lisible : « Apéro écoute », « Atelier »…
   dateLong: string; // « Lundi 9 novembre 2026 »
-  horaires: string; // « de 17h30 à 20h30 »
+  horaires: string; // « de 18h30 à 21h30 »
   lieu?: string | null;
   adresse?: string | null; // déjà nettoyée (sans code postal)
   ville?: string;
