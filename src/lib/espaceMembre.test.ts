@@ -22,3 +22,16 @@ describe("statut d'adhésion dans l'espace membre", () => {
     expect(statutAdhesion(null, now).etat).toBe("aucune");
   });
 });
+
+import { joursRestants, lienRenouveler } from "./espaceMembre";
+describe("échéance de l'adhésion", () => {
+  it("compte les jours restants avant l'échéance", () => {
+    expect(joursRestants("2026-11-27T12:00:00Z", now)).toBe(30);
+    expect(joursRestants("2026-11-04T12:00:00Z", now)).toBe(7);
+    expect(joursRestants("2026-10-20T12:00:00Z", now)).toBeLessThan(0);
+  });
+  it("le lien Renouveler garde la formule payée", () => {
+    expect(lienRenouveler("studio")).toBe("/rejoindre-association?etape=adhesion&formule=studio");
+    expect(lienRenouveler(null)).toBe("/rejoindre-association?etape=adhesion");
+  });
+});
