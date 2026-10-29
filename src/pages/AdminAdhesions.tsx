@@ -193,7 +193,7 @@ const AdminAdhesions = () => {
         <Button variant="ghost" size="icon" onClick={() => setLinking(a)} title="Rattacher à un compte membre" aria-label="Rattacher à un compte membre">
           <Link2 className="w-4 h-4" />
         </Button>
-        <Button variant="ghost" size="icon" onClick={() => startEdit(a)} title="Modifier">
+        <Button variant="ghost" size="icon" onClick={() => startEdit(a)} title="Modifier" aria-label="Modifier ce paiement">
           <Pencil className="w-4 h-4" />
         </Button>
         <Button
@@ -205,6 +205,7 @@ const AdminAdhesions = () => {
             }
           }}
           title="Supprimer"
+          aria-label="Supprimer ce paiement"
         >
           <Trash2 className="w-4 h-4" />
         </Button>
