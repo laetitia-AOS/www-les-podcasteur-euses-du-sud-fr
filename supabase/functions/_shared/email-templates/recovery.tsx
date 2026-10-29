@@ -9,6 +9,7 @@ import {
   Head,
   Heading,
   Html,
+  Img,
   Preview,
   Text,
 } from 'npm:@react-email/components@0.0.22'
@@ -19,27 +20,27 @@ interface RecoveryEmailProps {
 }
 
 export const RecoveryEmail = ({
-  siteName,
   confirmationUrl,
 }: RecoveryEmailProps) => (
-  <Html lang="en" dir="ltr">
+  <Html lang="fr" dir="ltr">
     <Head>
       <style>{darkModeCss}</style>
     </Head>
-    <Preview>Reset your password for {siteName}</Preview>
+    <Preview>Choisissez un nouveau mot de passe</Preview>
     <Body style={main}>
       <Container style={container}>
-        <Heading style={h1}>Reset your password</Heading>
+        <Img src={LOGO} alt="Les Podcasteur·euses du Sud" width="64" height="64" style={logo} />
+        <Heading style={h1}>Nouveau mot de passe</Heading>
         <Text style={text}>
-          We received a request to reset your password for {siteName}. Click
-          the button below to choose a new password.
+          Vous avez demandé à changer le mot de passe de votre espace membre.
+          Cliquez sur le bouton ci-dessous pour en choisir un nouveau.
         </Text>
         <Button className="dm-btn" style={button} href={confirmationUrl}>
-          Reset Password
+          Choisir un nouveau mot de passe
         </Button>
         <Text style={footer}>
-          If you didn't request a password reset, you can safely ignore this
-          email. Your password will not be changed.
+          Vous n'avez rien demandé ? Ignorez cet e-mail : votre mot de passe ne change pas.
+          <br />L'équipe des Podcasteur·euses du Sud
         </Text>
       </Container>
     </Body>
@@ -48,35 +49,47 @@ export const RecoveryEmail = ({
 
 export default RecoveryEmail
 
-const main = { backgroundColor: '#ffffff', fontFamily: 'Arial, sans-serif' }
-const container = { padding: '20px 25px' }
+const LOGO = 'https://www.les-podcasteur-euses-du-sud.fr/favicon.png'
+const main = { backgroundColor: '#ffffff', fontFamily: 'Archivo, Helvetica, Arial, sans-serif' }
+const container = { padding: '28px 25px', maxWidth: '560px' }
+const logo = { width: '64px', height: '64px', margin: '0 0 24px' }
 const h1 = {
-  fontSize: '22px',
-  fontWeight: 'bold' as const,
-  color: '#000000',
-  margin: '0 0 20px',
+  fontSize: '26px',
+  fontWeight: 800 as const,
+  color: '#0F0F12',
+  lineHeight: '1.15',
+  margin: '0 0 18px',
 }
 const text = {
-  fontSize: '14px',
-  color: '#55575d',
-  lineHeight: '1.5',
-  margin: '0 0 25px',
+  fontSize: '15px',
+  color: '#3A3A42',
+  lineHeight: '1.55',
+  margin: '0 0 24px',
 }
 const button = {
-  backgroundColor: '#000000',
+  backgroundColor: '#1530B8',
   color: '#ffffff',
-  fontSize: '14px',
-  border: '1px solid #000000',
-  borderRadius: '8px',
-  padding: '12px 20px',
+  fontSize: '15px',
+  fontWeight: 700 as const,
+  border: '2px solid #1530B8',
+  borderRadius: '0px',
+  padding: '14px 22px',
   textDecoration: 'none',
 }
-const footer = { fontSize: '12px', color: '#999999', margin: '30px 0 0' }
+const code = {
+  fontFamily: "'IBM Plex Mono', Courier, monospace",
+  fontSize: '28px',
+  fontWeight: 600 as const,
+  color: '#1530B8',
+  letterSpacing: '4px',
+  margin: '0 0 24px',
+}
+const footer = { fontSize: '12px', color: '#77777F', margin: '32px 0 0', lineHeight: '1.5' }
 // Rendered as a text child, which React may HTML-escape: keep this CSS free of >, &, and quotes.
 const darkModeCss = `
   @media (prefers-color-scheme: dark) {
-    .dm-btn { background-color: #ffffff !important; color: #000000 !important; }
+    .dm-btn { background-color: #ffffff !important; color: #1530B8 !important; }
   }
-  [data-ogsc] .dm-btn { background-color: #ffffff !important; color: #000000 !important; }
-  [data-ogsb] .dm-btn { background-color: #ffffff !important; color: #000000 !important; }
+  [data-ogsc] .dm-btn { background-color: #ffffff !important; color: #1530B8 !important; }
+  [data-ogsb] .dm-btn { background-color: #ffffff !important; color: #1530B8 !important; }
 `

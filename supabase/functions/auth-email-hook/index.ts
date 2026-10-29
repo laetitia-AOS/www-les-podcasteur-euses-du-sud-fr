@@ -15,7 +15,7 @@ const corsHeaders = {
 }
 
 // Configuration
-const SITE_NAME = "les podcasteur-euses du sud"
+const SITE_NAME = "Les Podcasteur·euses du Sud"
 const SENDER_DOMAIN = "notify.les-podcasteur-euses-du-sud.fr"
 const ROOT_DOMAIN = "les-podcasteur-euses-du-sud.fr"
 const FROM_DOMAIN = "les-podcasteur-euses-du-sud.fr"
