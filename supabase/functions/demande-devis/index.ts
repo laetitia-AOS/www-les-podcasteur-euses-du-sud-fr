@@ -2,6 +2,7 @@
 // Les destinataires la lisent dans leur boîte « Demandes reçues » ; l'adresse des studios n'est jamais renvoyée.
 // La base vérifie et nettoie chaque champ et limite à 3 demandes par jour et par adresse.
 import { createClient } from "npm:@supabase/supabase-js@2";
+import { envoyer, extrait, premierPrenom } from "../_shared/notifications.ts";
 import { corsHeaders } from "npm:@supabase/supabase-js@2/cors";
 
 const SERVICES = ["location", "enregistrement_audio", "video_podcast", "montage", "realisation", "direct", "studio_mobile"];
@@ -89,15 +90,26 @@ Deno.serve(async (req) => {
       description,
     ].filter((x) => x !== false && x !== null && x !== undefined && x !== 0).join("\n");
 
-    const { error: cErr } = await admin.from("contact_requests").insert(
+    const { data: inseres, error: cErr } = await admin.from("contact_requests").insert(
       recipients.map((id) => ({ recipient_id: id, sender_name: nom, sender_email: email, message: lignes.slice(0, 5000), type: "devis", devis_id: demande.id })),
-    );
+    ).select("id, recipient_id");
     if (cErr) {
       await admin.from("demandes_devis").delete().eq("id", demande.id);
       return json({ error: "La demande n'a pas pu être transmise." }, 500);
     }
-    // E-mails aux studios et confirmation au demandeur : branchés dès que le domaine d'envoi est configuré.
-    return json({ ok: true, count: recipients.length, emailed: false });
+    // Chaque studio est prévenu par e-mail (un e-mail par studio)
+    let emailed = 0;
+    for (const row of inseres || []) {
+      const st = studios.find((x) => x.id === row.recipient_id);
+      if (!st) continue;
+      const { data: f } = await admin.from("podcasts").select("nom_podcast").eq("id", st.id).maybeSingle();
+      const ok = await envoyer("devis-recu", st.email, {
+        studio: f?.nom_podcast, expediteur: nom, besoins: besoins.map((x) => LABELS[x]).join(", "),
+        format: format || undefined, periode: periode || undefined, departement: departement || undefined, extrait: extrait(description, 300),
+      }, `devis-recu-${row.id}`);
+      if (ok) emailed++;
+    }
+    return json({ ok: true, count: recipients.length, emailed: emailed > 0 });
   } catch (e) {
     console.error("demande-devis:", e instanceof Error ? e.message : "unknown");
     return json({ error: "Une erreur est survenue. Réessayez dans un instant." }, 500);

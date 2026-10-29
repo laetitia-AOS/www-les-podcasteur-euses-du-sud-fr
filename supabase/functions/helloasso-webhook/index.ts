@@ -1,5 +1,6 @@
 import { createClient } from "npm:@supabase/supabase-js@2";
 import { checkOrder, ORG_SLUG } from "../_shared/helloasso.ts";
+import { envoyer, premierPrenom } from "../_shared/notifications.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -76,7 +77,7 @@ Deno.serve(async (req) => {
     const parsedDate = new Date(String(order.date || ""));
     const dateAdhesion = Number.isNaN(parsedDate.getTime()) ? new Date().toISOString() : parsedDate.toISOString();
 
-    const { error } = await supabase.from("adhesions").insert({
+    const { data: cree, error } = await supabase.from("adhesions").insert({
       email,
       prenom: clean(payer.firstName, 100),
       nom: clean(payer.lastName, 100),
@@ -89,11 +90,17 @@ Deno.serve(async (req) => {
       date_adhesion: dateAdhesion,
       helloasso_order_id: orderId,
       raw_payload: verified ? order : { non_verifie: true, ...payload },
-    });
+    }).select("id, annee, formule, montant, prenom, email").single();
 
     if (error) {
       console.error("Insert error:", error.message);
       return json({ error: "Insert failed" }, 500);
+    }
+    // Paiement confirmé par HelloAsso : e-mail de bienvenue (« Valable jusqu'au 31 décembre »)
+    if (verified && cree) {
+      await envoyer("adhesion-confirmee", cree.email, {
+        prenom: premierPrenom(cree.prenom), annee: cree.annee, formule: cree.formule, montant: cree.montant,
+      }, `adhesion-confirmee-${cree.id}`);
     }
     return json({ success: true, verified });
   } catch (err) {
