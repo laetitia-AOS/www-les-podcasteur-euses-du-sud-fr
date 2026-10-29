@@ -33,10 +33,15 @@ const EspaceMembre = () => {
     e.preventDefault();
     if (!email) return;
     setLoading(true);
+    // Le lien de connexion mène à l'espace membre, qui renvoie ensuite vers la page demandée
+    try {
+      if (retour !== "/mon-espace") localStorage.setItem("pds_retour", JSON.stringify({ to: retour, at: Date.now() }));
+      else localStorage.removeItem("pds_retour");
+    } catch { /* navigation privée */ }
     const { error } = await supabase.auth.signInWithOtp({
       email,
       options: {
-        emailRedirectTo: `${window.location.origin}${retour}`,
+        emailRedirectTo: `${window.location.origin}/mon-espace`,
       },
     });
     setLoading(false);
