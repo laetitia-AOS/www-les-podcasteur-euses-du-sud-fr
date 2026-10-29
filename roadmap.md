@@ -22,3 +22,4 @@
 - [x] E-mails du site branchés (adhésion confirmée, message, collab, devis, « Je viens », proposition publiée / refusée) sur le domaine de l'association.
 - [x] Relance collective : bouton dans Admin > Adhésions (envoi depuis la boîte mail de l'équipe).
 - [x] Admin Annuaire : relance individuelle « Fiches à compléter » (photo, pochette, RSS, Je cherche / J'apporte).
+- [x] Administration réorganisée : menu latéral, accueil « À traiter », rubriques Membres / Annuaire / Agenda / Messages en onglets.

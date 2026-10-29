@@ -22,4 +22,4 @@ Certains dossiers ont leur propre `AGENTS.md` (par exemple `supabase/functions/`
   - Côté site, l'enregistrement d'une proposition ne doit pas demander la ligne en retour.
   - Les « Je viens » vont dans `evenement_inscriptions`. Le public ne voit que le nombre (`nb_venues`) ; l'organisateur·ice voit la liste (`mes_venues`).
 - **Chiffres des membres :** côté site, appelez `compterStat` (`src/lib/stats.ts`).
-- **Administration :** la liste des membres passe par `admin_membres()`, qui ne renvoie rien à qui n'est pas admin.
+- **Administration :** chaque page admin s'affiche dans `AdminLayout` (vérification admin + menu), une rubrique par domaine (`/admin`, `/admin/membres`, `/admin/annuaire`, `/admin/agenda`, `/admin/messages`), découpée en onglets lus dans l'adresse (`?onglet=`, `AdminOnglets`), pour que les liens et le retour arrière mènent au bon endroit. Les compteurs « À traiter » viennent de `admin_a_traiter()` ; la liste des membres de `admin_membres()`. Ces deux fonctions ne renvoient rien à qui n'est pas admin.
