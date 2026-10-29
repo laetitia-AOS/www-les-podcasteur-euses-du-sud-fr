@@ -1017,6 +1017,10 @@ export type Database = {
       lieu_visible: { Args: { _id: string }; Returns: boolean }
       marquer_demande_lue: { Args: { _id: string }; Returns: boolean }
       membre_a_jour: { Args: { _email: string }; Returns: boolean }
+      membre_a_jour_le: {
+        Args: { _email: string; _quand: string }
+        Returns: boolean
+      }
       mes_demandes: {
         Args: never
         Returns: {

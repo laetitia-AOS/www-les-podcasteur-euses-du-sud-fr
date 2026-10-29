@@ -148,6 +148,13 @@
       "when": 1793276262696,
       "tag": "0020_adhesion_annee_civile",
       "breakpoints": true
+    },
+    {
+      "idx": 21,
+      "version": "7",
+      "when": 1793276517515,
+      "tag": "0021_membre_a_jour_date_testable",
+      "breakpoints": true
     }
   ]
 }
