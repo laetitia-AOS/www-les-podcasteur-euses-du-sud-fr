@@ -198,7 +198,7 @@ const AgencesStudios = () => {
               const services = (f?.services || []).map(serviceLabel);
               const photo = f?.photos?.[0] || sd.galerie_urls?.[0] || p.vignette_url;
               const href = ficheHref(p);
-              const accroche = accrocheLieu(f, sd as Record<string, unknown>);
+              const accroche = accrocheLieu(f, sd);
               const meta = [
                 { k: "Tarif", v: tarifAffiche(f) },
                 { k: "Capacité", v: formatCapacite(f?.capacite_voix) },

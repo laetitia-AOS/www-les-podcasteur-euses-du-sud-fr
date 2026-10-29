@@ -104,8 +104,8 @@ export const tarifAffiche = (f: Pick<FicheLieu, "tarif_heure" | "tarif_unite" | 
   formatTarif(f?.tarif_heure, f?.tarif_unite, f?.tarif_taxe) || "Sur devis";
 
 /** Accroche d'un lieu : celle de la fiche détaillée, sinon celle saisie à l'inscription. */
-export const accrocheLieu = (f: Pick<FicheLieu, "accroche"> | null | undefined, sd: Record<string, unknown>) =>
-  (f?.accroche || (sd.accroche as string) || (sd.phrase_accroche as string) || "").trim();
+export const accrocheLieu = (f: Pick<FicheLieu, "accroche"> | null | undefined, sd: { accroche?: unknown; phrase_accroche?: unknown }) =>
+  (f?.accroche || (typeof sd.accroche === "string" ? sd.accroche : "") || (typeof sd.phrase_accroche === "string" ? sd.phrase_accroche : "") || "").trim();
 
 /** « 4 voix » */
 export const formatCapacite = (n: number | null | undefined) => (n == null ? null : `${n} voix`);
