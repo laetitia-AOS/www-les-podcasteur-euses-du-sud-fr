@@ -477,7 +477,7 @@ const AdminEvenements = () => {
                       )}
                     </>
                   )}
-                  <Button variant="ghost" size="icon" aria-label="Modifier" onClick={() => { startEdit(evt); window.scrollTo({ top: 0, behavior: "smooth" }); }}><Pencil className="w-4 h-4" /></Button>
+                  <Button variant="ghost" size="icon" aria-label="Modifier" onClick={() => { startEdit(evt); window.scrollTo({ top: 0, behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth" }); }}><Pencil className="w-4 h-4" /></Button>
                   <Button variant="ghost" size="icon" aria-label="Supprimer" onClick={() => { if (confirm("Supprimer cet événement ?")) deleteMutation.mutate(evt.id); }}>
                     <Trash2 className="w-4 h-4 text-destructive" />
                   </Button>
