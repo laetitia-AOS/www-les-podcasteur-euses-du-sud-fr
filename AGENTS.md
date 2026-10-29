@@ -4,7 +4,7 @@ Certains dossiers ont leur propre `AGENTS.md` (par exemple `supabase/functions/`
 
 - **Couleurs et polices :** uniquement via les variables de `src/index.css` (préfixe `--pds-`) et `tailwind.config.ts`. Les anciennes variables (tc, bleu, ink…) sont des alias, à garder tant que des pages non refondues les utilisent.
 - **Styles partagés :** boutons, conteneur et mises en forme (noms, villes, durées, dates) sont dans `src/lib/pds.ts`. Réutilisez-les plutôt que de les recopier.
-- **Épisodes :** le site les lit via `src/lib/episodes.ts`.
+- **Épisodes :** le site les lit via `src/lib/episodes.ts`. Ils ne sont publics que si le flux est confirmé (`episodes_visibles`). Les messages sur l'état d'un flux viennent de `messageFlux` (`src/lib/flux.ts`).
 - **Lecteur audio :** contexte global (`PlayerProvider` dans App), avec la barre `PlayerBar` hors des routes, pour que l'écoute continue pendant la navigation.
 - **Accueil :** les sections sont dans `src/components/home/`, chacune autonome et alimentée par `useHomeData.ts`.
 - **Inscription :** sur la page Adhérer. Étapes dans `src/components/adherer/` ; listes, tarifs, consignes HelloAsso et envoi d'images dans `src/lib/inscription.ts`. Une personne = une ligne `podcasts` par podcast, avec le même profil et le même e-mail.

@@ -51,7 +51,8 @@ Deno.serve(async (req) => {
     const parts = url.pathname.split("/").filter(Boolean);
     const slug = parts[parts.length - 1];
 
-    if (!slug || slug === "og-evenement") {
+    // Adresse d'événement : lettres, chiffres et tirets uniquement (rien d'autre n'est recopié dans la page)
+    if (!slug || slug === "og-evenement" || !/^[a-z0-9-]{1,200}$/.test(slug)) {
       return new Response("Missing slug", { status: 400, headers: corsHeaders });
     }
 
@@ -68,7 +69,9 @@ Deno.serve(async (req) => {
       .maybeSingle();
 
     const publicFunctionBase = `${Deno.env.get("SUPABASE_URL")!}/functions/v1/og-evenement`;
-    const requestUrl = `${publicFunctionBase}/${encodeURIComponent(slug)}${url.search}`;
+    // Seul le paramètre anti-cache « v » (chiffres) est conservé
+    const v = url.searchParams.get("v");
+    const requestUrl = `${publicFunctionBase}/${slug}${v && /^\d{1,20}$/.test(v) ? `?v=${v}` : ""}`;
     const targetUrl = `${SITE_URL}/agenda/${slug}`;
 
     // Crawlers : serve a minimal HTML with OG tags
@@ -80,8 +83,10 @@ Deno.serve(async (req) => {
       ? (evt.sous_titre || evt.description?.split("\n---")[0].slice(0, 200) || `Rejoignez-nous le ${new Date(evt.date_debut).toLocaleDateString("fr-FR", { day: "numeric", month: "long", year: "numeric" })}${evt.lieu ? ` à ${evt.lieu}` : ""}.`)
       : "Événement podcast en Région Sud.";
 
-    const rawImage = evt?.image_url || DEFAULT_OG;
-    const image = optimizeOgImage(rawImage);
+    // Image : uniquement une adresse https valide, sinon l'image par défaut
+    const imageOk = (() => { try { return new URL(String(evt?.image_url || "")).protocol === "https:"; } catch { return false; } })();
+    const image = optimizeOgImage(imageOk ? new URL(String(evt!.image_url)).toString() : DEFAULT_OG);
+    const attr = escapeHtml;
 
     const html = `<!DOCTYPE html>
 <html lang="fr">
@@ -89,14 +94,14 @@ Deno.serve(async (req) => {
 <meta charset="utf-8" />
 <title>${escapeHtml(title)}</title>
 <meta name="description" content="${escapeHtml(description)}" />
-<link rel="canonical" href="${requestUrl}" />
+<link rel="canonical" href="${attr(requestUrl)}" />
 <meta name="robots" content="noindex, nofollow" />
 
 <meta property="og:type" content="event" />
-<meta property="og:url" content="${requestUrl}" />
+<meta property="og:url" content="${attr(requestUrl)}" />
 <meta property="og:title" content="${escapeHtml(title)}" />
 <meta property="og:description" content="${escapeHtml(description)}" />
-<meta property="og:image" content="${image}" />
+<meta property="og:image" content="${attr(image)}" />
 <meta property="og:image:width" content="1200" />
 <meta property="og:image:height" content="630" />
 <meta property="og:site_name" content="Les Podcasteur·euses du Sud" />
@@ -105,11 +110,11 @@ Deno.serve(async (req) => {
 <meta name="twitter:card" content="summary_large_image" />
 <meta name="twitter:title" content="${escapeHtml(title)}" />
 <meta name="twitter:description" content="${escapeHtml(description)}" />
-<meta name="twitter:image" content="${image}" />
-<script>window.location.replace(${JSON.stringify(targetUrl)});</script>
+<meta name="twitter:image" content="${attr(image)}" />
+<script>window.location.replace(${JSON.stringify(targetUrl).replace(/</g, "\\u003c")});</script>
 </head>
 <body>
-<p>Redirection… <a href="${targetUrl}">${escapeHtml(title)}</a></p>
+<p>Redirection… <a href="${attr(targetUrl)}">${escapeHtml(title)}</a></p>
 </body>
 </html>`;
 

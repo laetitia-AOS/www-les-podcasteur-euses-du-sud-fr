@@ -542,7 +542,13 @@ export type Database = {
       }
       flux_etat: {
         Row: {
+          confirmation: string
+          confirme_le: string | null
+          confirme_par: string | null
           derniere_lecture: string
+          flux_auteur: string | null
+          flux_titre: string | null
+          flux_url: string | null
           message: string | null
           nb_episodes: number
           podcast_id: string
@@ -550,7 +556,13 @@ export type Database = {
           statut: string
         }
         Insert: {
+          confirmation?: string
+          confirme_le?: string | null
+          confirme_par?: string | null
           derniere_lecture?: string
+          flux_auteur?: string | null
+          flux_titre?: string | null
+          flux_url?: string | null
           message?: string | null
           nb_episodes?: number
           podcast_id: string
@@ -558,7 +570,13 @@ export type Database = {
           statut: string
         }
         Update: {
+          confirmation?: string
+          confirme_le?: string | null
+          confirme_par?: string | null
           derniere_lecture?: string
+          flux_auteur?: string | null
+          flux_titre?: string | null
+          flux_url?: string | null
           message?: string | null
           nb_episodes?: number
           podcast_id?: string
@@ -931,6 +949,25 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      admin_flux: {
+        Args: never
+        Returns: {
+          confirmation: string
+          confirme_le: string
+          derniere_lecture: string
+          flux_auteur: string
+          flux_titre: string
+          flux_url: string
+          lien_ecoute: string
+          message: string
+          nb_episodes: number
+          nom_podcast: string
+          podcast_id: string
+          porteur: string
+          source: string
+          statut: string
+        }[]
+      }
       admin_membres: {
         Args: never
         Returns: {
@@ -958,6 +995,10 @@ export type Database = {
           _podcast_id: string
           _type: string
         }
+        Returns: boolean
+      }
+      confirmer_flux: {
+        Args: { _decision: string; _podcast_id: string }
         Returns: boolean
       }
       demarrer_sync_episodes: { Args: never; Returns: number }
@@ -1007,10 +1048,12 @@ export type Database = {
       mes_flux: {
         Args: never
         Returns: {
+          confirmation: string
           derniere_lecture: string
           message: string
           nb_episodes: number
           podcast_id: string
+          source: string
           statut: string
         }[]
       }

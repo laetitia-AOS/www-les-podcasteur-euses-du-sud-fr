@@ -46,23 +46,46 @@ Deno.serve(async (req) => {
       await admin.from("episodes").delete().not("id", "is", null);
     }
 
+    // Décisions déjà prises sur les flux trouvés automatiquement (gardées tant que l'adresse ne change pas)
+    const { data: anciens } = await admin.from("flux_etat").select("podcast_id, flux_url, confirmation");
+    const avant = new Map((anciens || []).map((x) => [x.podcast_id, x]));
+
     let totalEpisodes = 0;
     const queue = [...eligibles];
     const worker = async () => {
       while (queue.length) {
         const p = queue.shift()!;
         const now = new Date().toISOString();
+        let fluxUrl: string | null = null;
+        let confirmation = "a_confirmer";
+        let infos: { titre: string | null; auteur: string | null } = { titre: null, auteur: null };
         const etat = async (statut: string, message: string | null, source: string | null, nb: number) => {
-          await admin.from("flux_etat").upsert({ podcast_id: p.id, statut, message, source, nb_episodes: nb, derniere_lecture: now });
+          await admin.from("flux_etat").upsert({
+            podcast_id: p.id, statut, message, source, nb_episodes: nb, derniere_lecture: now,
+            flux_url: fluxUrl, flux_titre: infos.titre, flux_auteur: infos.auteur, confirmation,
+          });
         };
         try {
           const feed = await resolveFeed(p);
           if (!feed) { await etat("introuvable", "Aucun flux RSS trouvé : ajoutez le lien du flux dans Mes podcasts.", null, 0); continue; }
+          fluxUrl = feed.url;
+          // Flux saisi par le membre : confirmé d'office. Flux deviné : « à confirmer » par un·e admin,
+          // sauf si la même adresse a déjà été confirmée ou refusée.
+          const prec = avant.get(p.id);
+          confirmation = feed.source === "flux saisi" ? "confirme"
+            : prec && prec.flux_url === feed.url && prec.confirmation !== "a_confirmer" ? prec.confirmation : "a_confirmer";
           const r = await safeFetchText(feed.url);
           if (!r.ok) { await etat("erreur", raisonLisible(r.reason), feed.source, 0); continue; }
           const parsed = parseFeed(r.text, MAX_EPISODES);
           if (!parsed) { await etat("erreur", "Le lien ne mène pas à un flux RSS.", feed.source, 0); continue; }
+          infos = { titre: parsed.titre, auteur: parsed.auteur };
           if (!parsed.episodes.length) { await etat("erreur", "Le flux ne contient aucun épisode audio.", feed.source, 0); continue; }
+          // Flux refusé par l'équipe : aucun épisode gardé
+          if (confirmation === "refuse") {
+            await admin.from("episodes").delete().eq("podcast_id", p.id);
+            await etat("ok", null, feed.source, 0);
+            continue;
+          }
 
           const { error } = await admin.from("episodes").upsert(
             parsed.episodes.map((e) => ({ ...e, podcast_id: p.id, mis_a_jour: now })),

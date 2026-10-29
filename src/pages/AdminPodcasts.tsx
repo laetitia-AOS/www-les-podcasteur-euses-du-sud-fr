@@ -16,6 +16,7 @@ import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { BookOpen, ArrowLeft, LogOut, Loader2, Download, Eye, ExternalLink, Trash2, Pencil, Save, X, Building2 } from "lucide-react";
 import { useNavigate, Navigate } from "react-router-dom";
 import { useAdminAuth } from "@/hooks/useAdminAuth";
+import AdminFlux from "@/components/admin/AdminFlux";
 import { toast } from "sonner";
 import {
   Dialog,
@@ -342,6 +343,7 @@ const AdminPodcasts = () => {
         </div>
 
         <AdminImagesEnAttente />
+        <AdminFlux />
 
         <Tabs value={filterType} onValueChange={setFilterType} className="mb-6">
           <TabsList>
