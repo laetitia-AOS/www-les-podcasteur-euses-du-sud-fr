@@ -126,6 +126,8 @@ const MonEspace = () => {
   // En décembre, un membre de l'année renouvelle tout de suite pour l'année suivante
   const renouvelerBientot = etat === "a_jour" && annee === y && periodeRenouvellement();
   const ADHERER = lienRenouveler(adhesion?.formule, anneeRenouv);
+  // Le renouvellement s'ouvre le 1er décembre : avant, un membre à jour n'a rien à payer
+  const peutRenouveler = !(etat === "a_jour" && !periodeRenouvellement());
   // Fiche publique seulement si elle est validée et l'adhésion à jour (même règle que le serveur)
   const publicPath = profil && profil.valide && aJour ? publicProfilePath(profil.type_profil, profil.slug) : null;
   const nomFiche = (id: string) => fiches.find((f) => f.id === id);
@@ -236,7 +238,7 @@ const MonEspace = () => {
               </div>
               <div className="flex flex-wrap gap-3">
                 {publicPath && <Link to={publicPath} className={btnSecondary}>Voir mon profil public</Link>}
-                <Link to={ADHERER} className="inline-flex items-center justify-center gap-2 min-h-[44px] px-5 font-bold text-[15px] leading-none bg-encre text-surface border-2 border-encre hover:bg-surface hover:text-foreground transition-colors">{adhesion ? `Renouveler pour ${anneeRenouv}` : "Adhérer"}</Link>
+{peutRenouveler &&                 <Link to={ADHERER} className="inline-flex items-center justify-center gap-2 min-h-[44px] px-5 font-bold text-[15px] leading-none bg-encre text-surface border-2 border-encre hover:bg-surface hover:text-foreground transition-colors">{adhesion ? `Renouveler pour ${anneeRenouv}` : "Adhérer"}</Link>}
               </div>
             </div>
 
@@ -423,7 +425,7 @@ const MonEspace = () => {
               <p className="mt-5 text-sm text-muted-foreground max-w-[62ch]">
                 L'adhésion suit l'année civile : elle est valable jusqu'au 31 décembre de l'année payée, quelle que soit la date de paiement. Le renouvellement ouvre le 1er décembre. Sans renouvellement, votre fiche reste visible en janvier, puis elle est masquée le 1er février, sans être supprimée. Vous avez payé avec une autre adresse e-mail ou un autre nom ? Écrivez-nous depuis la page Contact pour que l'équipe relie votre paiement à votre profil.
               </p>
-              <Link to={ADHERER} className={`${btnPrimary} mt-5`}>{adhesion ? `Renouveler pour ${anneeRenouv}` : "Adhérer"}</Link>
+              {peutRenouveler && <Link to={ADHERER} className={`${btnPrimary} mt-5`}>{adhesion ? `Renouveler pour ${anneeRenouv}` : "Adhérer"}</Link>}
             </div>
           </section>
 
