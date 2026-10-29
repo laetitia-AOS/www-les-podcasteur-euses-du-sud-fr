@@ -57,10 +57,10 @@
 - [x] Scan sécurité + vérif annuaire et 3 fiches ordinateur/téléphone
 
 ## Corrections après revue — lot 3 (studios et structures)
-- [x] 1. Tarif structuré (montant, unité, TTC/HT) — plan à valider
-- [ ] 2. Accroche + description longue — plan à valider
+- [x] 1. Tarif structuré (montant, unité, TTC/HT)
+- [x] 2. Accroche + description longue
 - [x] 3. Accroche de Parla sans « jusqu'à 4 voix. »
-- [x] 4. « Micros » → « Matériel » — plan à valider
+- [x] 4. « Micros » → « Matériel »
 - [x] 5. Liens sans doublon
 - [x] 6. Formulaire unique devis / question
 - [x] 7. Logos entiers sur fond blanc
