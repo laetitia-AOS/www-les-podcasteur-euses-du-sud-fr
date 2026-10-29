@@ -145,7 +145,10 @@ const ProfilCard = ({ profil, fiches, onSaved }: Props) => {
       <div>
         <label htmlFor="em-bio" className={labelCls}>Présentation</label>
         <textarea id="em-bio" value={bio} onChange={(e) => setBio(e.target.value.slice(0, 750))} rows={5} className={`${field} py-2`} />
-        <p className={`${hintCls} text-right font-mono`}>{bio.length}/750</p>
+        <div className="flex flex-wrap justify-between gap-x-4">
+          {profil.type_profil === "structure_eco" ? <p className={hintCls}>Pas de dates ici : vos événements viennent de l'agenda.</p> : <span />}
+          <p className={`${hintCls} font-mono`}>{bio.length}/750</p>
+        </div>
       </div>
 
       <div className="grid sm:grid-cols-2 gap-4">

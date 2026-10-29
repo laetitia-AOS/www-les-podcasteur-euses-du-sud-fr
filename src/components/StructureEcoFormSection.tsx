@@ -145,30 +145,14 @@ const StructureEcoFormSection = ({ onBack, onSubmitted }: Props) => {
     if (name === "departementCode") { setSelectedCity(null); setCityError(""); }
   };
 
-  const cropToSquare = (file: File): Promise<File> => {
-    return new Promise((resolve) => {
-      const img = new window.Image();
-      img.onload = () => {
-        URL.revokeObjectURL(img.src);
-        const size = Math.min(img.width, img.height);
-        const ox = (img.width - size) / 2, oy = (img.height - size) / 2;
-        const canvas = document.createElement("canvas");
-        canvas.width = size; canvas.height = size;
-        canvas.getContext("2d")!.drawImage(img, ox, oy, size, size, 0, 0, size, size);
-        canvas.toBlob((blob) => resolve(blob ? new File([blob], file.name, { type: file.type }) : file), file.type, 0.92);
-      };
-      img.src = URL.createObjectURL(file);
-    });
-  };
-
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
     if (!file.type.startsWith("image/")) { toast.error("Veuillez sélectionner une image."); return; }
     if (file.size > 5 * 1024 * 1024) { toast.error("L'image ne doit pas dépasser 5 Mo."); return; }
-    const cropped = await cropToSquare(file);
-    setVignette(cropped);
-    setVignettePreview(URL.createObjectURL(cropped));
+    // Un logo est gardé entier (jamais recadré) : il s'affiche dans un carré blanc
+    setVignette(file);
+    setVignettePreview(URL.createObjectURL(file));
   };
 
   const removeVignette = () => {
@@ -388,7 +372,7 @@ const StructureEcoFormSection = ({ onBack, onSubmitted }: Props) => {
           <p className="text-xs text-muted-foreground mb-1">JPG, PNG ou WebP. Max 5 Mo.</p>
           {vignettePreview ? (
             <div className="relative inline-block">
-              <img src={vignettePreview} alt="Aperçu" className="w-32 h-32 object-cover rounded-xl border-2 border-border/40 shadow-md" />
+              <img src={vignettePreview} alt="Aperçu du logo" className="w-32 h-32 object-contain bg-surface p-2 border-2 border-encre" />
               <button type="button" onClick={removeVignette} className="absolute -top-2 -right-2 w-6 h-6 bg-destructive text-destructive-foreground rounded-full flex items-center justify-center shadow-md">
                 <X className="w-3.5 h-3.5" />
               </button>
