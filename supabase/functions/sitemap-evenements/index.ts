@@ -22,7 +22,6 @@ Deno.serve(async (req) => {
   if (error) return new Response("Plan indisponible", { status: 503 });
 
   const now = Date.now();
-  const today = new Date().toISOString().slice(0, 10);
   const PAGES: [string, string, string][] = [
     ["/", "daily", "1.0"],
     ["/ecouter", "daily", "0.9"],
@@ -39,7 +38,6 @@ Deno.serve(async (req) => {
   ];
   const urls = PAGES.map(([path, freq, prio]) => `  <url>
     <loc>${esc(`${SITE_URL}${path}`)}</loc>
-    <lastmod>${today}</lastmod>
     <changefreq>${freq}</changefreq>
     <priority>${prio}</priority>
   </url>`);
