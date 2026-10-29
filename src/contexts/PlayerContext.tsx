@@ -1,5 +1,6 @@
 import { createContext, useCallback, useContext, useEffect, useRef, useState, type ReactNode } from "react";
 import type { Episode } from "@/lib/episodes";
+import { compterStat } from "@/lib/stats";
 
 type PlayerState = {
   episode: Episode | null;
@@ -24,6 +25,9 @@ export const PlayerProvider = ({ children }: { children: ReactNode }) => {
   const [playing, setPlaying] = useState(false);
   const [current, setCurrent] = useState(0);
   const [duration, setDuration] = useState(0);
+  // Écoute comptée au premier lancement d'un épisode (chiffres du membre)
+  const episodeRef = useRef<Episode | null>(null);
+  useEffect(() => { episodeRef.current = episode; }, [episode]);
 
   useEffect(() => {
     const a = new Audio();
@@ -31,7 +35,7 @@ export const PlayerProvider = ({ children }: { children: ReactNode }) => {
     audioRef.current = a;
     const onTime = () => setCurrent(a.currentTime);
     const onMeta = () => setDuration(isFinite(a.duration) ? a.duration : 0);
-    const onPlay = () => setPlaying(true);
+    const onPlay = () => { setPlaying(true); compterStat(episodeRef.current?.podcastId, "ecoute"); };
     const onPause = () => setPlaying(false);
     a.addEventListener("timeupdate", onTime);
     a.addEventListener("loadedmetadata", onMeta);
