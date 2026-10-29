@@ -42,16 +42,16 @@
 - [ ] Tests des fiches fusionnées avec compte fictif (après points 5 et 6)
 
 ## Corrections après revue — lot 2 (annuaire et fiches)
-- [ ] 1. Sans photo : pochette du premier podcast, initiales en dernier recours (annuaire, accueil, événement, recherche)
-- [ ] 2. Annuaire public : retirer « Déjà dans l'annuaire ? Ajouter mon podcast »
-- [ ] 3. Accueil « Qui cherche quoi » : 3 profils au hasard parmi membres à jour avec cherche + apporte
-- [ ] 4. « Être invité·e » → « Intervenir comme invité·e » côté J'apporte seulement
-- [ ] 5. Fiches : « Écouter sur » / « Suivre » séparés
-- [ ] 6. Fiches : retirer « Proposer une collab » du haut ; bouton orange vers le formulaire
-- [ ] 7. Espace membre : retirer « Disponibilité »
-- [ ] 8. Espace membre : « Cinq maximum : choisissez les plus importants »
-- [ ] 9. Espace membre : « Précisez » bloqué à 120 caractères, compteur rouge si dépassement existant
-- [ ] 10. Compteur d'écoutes : clics externes + lectures du lecteur
-- [ ] 11. Admin Annuaire : nom de la personne si pas de titre
-- [ ] 12. Noms mis en forme partout
-- [ ] Scan sécurité + vérif annuaire et 3 fiches ordinateur/téléphone
+- [x] 1. Sans photo : pochette du premier podcast, initiales en dernier recours (annuaire, accueil, événement, recherche)
+- [x] 2. Annuaire public : retirer « Déjà dans l'annuaire ? Ajouter mon podcast »
+- [x] 3. Accueil « Qui cherche quoi » : 3 profils au hasard parmi membres à jour avec cherche + apporte
+- [x] 4. « Être invité·e » → « Intervenir comme invité·e » côté J'apporte seulement
+- [x] 5. Fiches : « Écouter sur » / « Suivre » séparés
+- [x] 6. Fiches : retirer « Proposer une collab » du haut ; bouton orange vers le formulaire
+- [x] 7. Espace membre : retirer « Disponibilité »
+- [x] 8. Espace membre : « Cinq maximum : choisissez les plus importants »
+- [x] 9. Espace membre : « Précisez » bloqué à 120 caractères, compteur rouge si dépassement existant
+- [x] 10. Compteur d'écoutes : clics externes + lectures du lecteur
+- [x] 11. Admin Annuaire : nom de la personne si pas de titre
+- [x] 12. Noms mis en forme partout
+- [x] Scan sécurité + vérif annuaire et 3 fiches ordinateur/téléphone
