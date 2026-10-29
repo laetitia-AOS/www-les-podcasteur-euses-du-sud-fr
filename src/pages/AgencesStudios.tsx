@@ -207,7 +207,7 @@ const AgencesStudios = () => {
               return (
                 <li key={p.id} className="bg-surface border border-filet flex flex-col">
                   <Link to={href} tabIndex={-1} aria-hidden className="block aspect-[16/9] bg-muted overflow-hidden">
-                    {photo && <img src={photo} alt={`${p.nom_podcast}, photo du studio`} className="w-full h-full object-cover" loading="lazy" />}
+                    {photo && <img src={photo} alt={`Photo du studio ${p.nom_podcast}`} className="w-full h-full object-cover" loading="lazy" />}
                   </Link>
                   <div className="p-5 sm:p-6 flex flex-col flex-1">
                     {sd.type_lieu && <p className="text-sm font-bold text-primary">{sd.type_lieu}</p>}

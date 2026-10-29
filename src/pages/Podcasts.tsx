@@ -217,7 +217,7 @@ const Podcasts = () => {
                   <li key={p.id} className="flex flex-col">
                     <Link to={href} className="block aspect-square bg-muted overflow-hidden" tabIndex={-1} aria-hidden>
                       {p.vignette_url ? (
-                        <img src={p.vignette_url} alt="" className="w-full h-full object-cover" loading="lazy" />
+                        <img src={p.vignette_url} alt={`Pochette du podcast ${p.nom_podcast}`} className="w-full h-full object-cover" loading="lazy" />
                       ) : (
                         <span className="flex w-full h-full items-center justify-center bg-primary text-primary-foreground title-section text-2xl p-4 text-center">{p.nom_podcast}</span>
                       )}
