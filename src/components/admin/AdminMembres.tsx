@@ -9,7 +9,7 @@ import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { anneeEnCours, periodeRenouvellement } from "@/lib/espaceMembre";
-import RelanceCollective from "@/components/admin/RelanceCollective";
+import { Link } from "react-router-dom";
 import { Mail } from "lucide-react";
 
 export type MembreAdmin = {
@@ -32,7 +32,6 @@ const AdminMembres = () => {
   const [q, setQ] = useState("");
   const [etat, setEtat] = useState("tous");
   const [formule, setFormule] = useState("toutes");
-  const [relance, setRelance] = useState(false);
 
   const qc = useQueryClient();
   const changerSursis = async (m: MembreAdmin, actif: boolean) => {
@@ -87,14 +86,13 @@ const AdminMembres = () => {
 
   return (
     <section aria-labelledby="membres-title" className="mb-12">
-      <h2 id="membres-title" className="font-display font-bold text-2xl mb-1">Membres</h2>
+      <h2 id="membres-title" className="sr-only">Liste des membres</h2>
       <p className="text-sm text-muted-foreground mb-4">
         {membres.filter((m) => m.etat === "a_jour").length} membres {y} ·{" "}
         <button type="button" className="underline underline-offset-4" onClick={() => setEtat("masquees")}>{masquees} fiche{masquees > 1 ? "s" : ""} masquée{masquees > 1 ? "s" : ""} faute d'adhésion à jour</button>
         {" "}·{" "}<button type="button" className="underline underline-offset-4" onClick={() => setEtat("sursis")}>{membres.filter((m) => m.sursis).length} visibles en attente d'adhésion</button>
         {" "}· adhésion à l'année civile, tolérance en janvier, masquage le 1er février
       </p>
-      {relance && <RelanceCollective membres={membres} onClose={() => setRelance(false)} />}
       <div className="space-y-3">
           <div className="flex flex-wrap gap-2 items-center">
             <Input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Nom ou e-mail" className="max-w-xs" aria-label="Rechercher un membre" />
@@ -110,7 +108,7 @@ const AdminMembres = () => {
               <option value="personne">Personne</option>
               <option value="studio">Studio / agence</option>
             </select>
-            <Button size="sm" onClick={() => setRelance((v) => !v)} aria-expanded={relance}><Mail className="w-4 h-4 mr-2" aria-hidden /> Relance collective</Button>
+            <Button size="sm" asChild><Link to="/admin/membres?onglet=relances"><Mail className="w-4 h-4 mr-2" aria-hidden /> Relance collective</Link></Button>
             <Button variant="outline" size="sm" onClick={exporter} disabled={!liste.length}><Download className="w-4 h-4 mr-2" /> Export CSV ({liste.length})</Button>
           </div>
           <div className="border border-border overflow-x-auto">

@@ -4,8 +4,10 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
-import { Mail, ArrowLeft, LogOut, Loader2, Download, Trash2, Eye } from "lucide-react";
-import { useNavigate, Navigate } from "react-router-dom";
+import { Mail, Download, Trash2, Eye } from "lucide-react";
+import AdminLayout from "@/components/admin/AdminLayout";
+import { AdminOnglets, Panneau, useOnglet } from "@/components/admin/AdminOnglets";
+import { useATraiter } from "@/components/admin/useATraiter";
 import { useAdminAuth } from "@/hooks/useAdminAuth";
 import { toast } from "sonner";
 import { useState } from "react";
@@ -20,8 +22,8 @@ import {
 const statusOptions = ["Nouveau", "En cours", "Traité", "Archivé"];
 
 const AdminContacts = () => {
-  const navigate = useNavigate();
-  const { user, isAdmin, loading: authLoading, signOut } = useAdminAuth();
+  const { isAdmin } = useAdminAuth();
+  const { data: compteurs } = useATraiter(isAdmin);
   const queryClient = useQueryClient();
   const [selectedContact, setSelectedContact] = useState<any>(null);
 
@@ -45,6 +47,7 @@ const AdminContacts = () => {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["contacts"] });
+      queryClient.invalidateQueries({ queryKey: ["admin-a-traiter"] });
       toast.success("Statut mis à jour");
     },
     onError: (err: any) => toast.error("Erreur : " + (err.message || "Erreur inconnue")),
@@ -82,47 +85,27 @@ const AdminContacts = () => {
 
   const newCount = contacts?.filter(c => c.statut === "Nouveau").length ?? 0;
 
-  if (authLoading) {
-    return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
-        <Loader2 className="w-6 h-6 animate-spin text-primary" />
-      </div>
-    );
-  }
-
-  if (!user || !isAdmin) {
-    return <Navigate to="/admin/login" replace />;
-  }
+  const onglets = [
+    { id: "site", label: "Formulaire de contact", compte: newCount },
+    { id: "membres", label: "Messages aux membres", compte: compteurs?.messages_membres ?? 0 },
+  ];
+  const [onglet, setOnglet] = useOnglet(onglets);
 
   return (
-    <div className="min-h-screen bg-background">
-      <div className="container mx-auto px-6 py-10 max-w-6xl">
-        <div className="flex items-center justify-between mb-8">
-          <div className="flex items-center gap-3">
-            <Button variant="ghost" size="icon" onClick={() => navigate("/admin")}>
-              <ArrowLeft className="w-5 h-5" />
-            </Button>
-            <div>
-              <h1 className="font-display font-bold text-3xl text-foreground flex items-center gap-2">
-                <Mail className="w-7 h-7 text-primary" />
-                Messages de contact
-              </h1>
-              <p className="text-muted-foreground">
-                {contacts?.length ?? 0} message{(contacts?.length ?? 0) > 1 ? "s" : ""}
-                {newCount > 0 && <span className="text-primary font-medium"> · {newCount} nouveau{newCount > 1 ? "x" : ""}</span>}
-              </p>
-            </div>
-          </div>
-          <div className="flex items-center gap-2">
-            <Button variant="outline" size="sm" onClick={exportCSV} disabled={!contacts?.length}>
-              <Download className="w-4 h-4 mr-2" /> Export CSV
-            </Button>
-            <Button variant="outline" size="sm" onClick={signOut}>
-              <LogOut className="w-4 h-4 mr-2" /> Déconnexion
-            </Button>
-          </div>
+    <AdminLayout titre="Messages" description="Ce qui arrive par le formulaire de contact du site, et les messages, collabs et devis envoyés aux membres.">
+      <AdminOnglets label="Types de messages" onglets={onglets} courant={onglet} onChange={setOnglet} />
+      {onglet === "membres" && <Panneau id="membres"><AdminMembreMessages /></Panneau>}
+      {onglet === "site" && (
+      <Panneau id="site">
+        <div className="flex flex-wrap items-center gap-2 mb-4">
+          <p className="text-sm text-muted-foreground mr-auto">
+            {contacts?.length ?? 0} message{(contacts?.length ?? 0) > 1 ? "s" : ""}
+            {newCount > 0 && <span className="text-primary font-medium"> · {newCount} nouveau{newCount > 1 ? "x" : ""}</span>}
+          </p>
+          <Button variant="outline" size="sm" onClick={exportCSV} disabled={!contacts?.length}>
+            <Download className="w-4 h-4 mr-2" /> Export CSV
+          </Button>
         </div>
-
         {isLoading ? (
           <p className="text-muted-foreground">Chargement…</p>
         ) : !contacts?.length ? (
@@ -131,7 +114,7 @@ const AdminContacts = () => {
             <p className="text-muted-foreground">Aucun message pour le moment.</p>
           </div>
         ) : (
-          <div className="border rounded-xl overflow-hidden">
+          <div className="border border-border overflow-x-auto bg-card">
             <Table>
               <TableHeader>
                 <TableRow>
@@ -192,9 +175,8 @@ const AdminContacts = () => {
             </Table>
           </div>
         )}
-
-        <AdminMembreMessages />
-      </div>
+      </Panneau>
+      )}
 
       {/* Detail Dialog */}
       <Dialog open={!!selectedContact} onOpenChange={() => setSelectedContact(null)}>
@@ -266,7 +248,7 @@ const AdminContacts = () => {
           )}
         </DialogContent>
       </Dialog>
-    </div>
+    </AdminLayout>
   );
 };
 

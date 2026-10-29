@@ -60,7 +60,7 @@ const AdminMembreMessages = () => {
   const pending = messages?.filter((m) => m.status === "pending").length ?? 0;
 
   return (
-    <section className="mt-14" aria-labelledby="membre-messages-title">
+    <section aria-labelledby="membre-messages-title">
       <h2 id="membre-messages-title" className="font-display font-bold text-2xl text-foreground">
         Messages pour les membres
       </h2>
