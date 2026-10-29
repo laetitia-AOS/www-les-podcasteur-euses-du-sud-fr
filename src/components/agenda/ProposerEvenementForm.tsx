@@ -6,6 +6,12 @@ import { supabase } from "@/integrations/supabase/client";
 import { checkImage, messageServeur, uploadImage } from "@/lib/inscription";
 import { btnPrimary, btnSecondary, linkUnderline } from "@/lib/pds";
 import { EVENT_TYPES } from "@/components/home/useHomeData";
+import { sansEmojis } from "@/lib/events";
+
+// Types proposés aux membres, dans cet ordre
+const TYPES_PROPOSITION = ["apero_ecoute", "atelier", "live", "ecoute", "rencontre", "autre"]
+  .map((v) => EVENT_TYPES.find((t) => t.value === v)!)
+  .filter(Boolean);
 
 const field = "w-full min-h-[48px] px-3 bg-surface border-2 border-encre text-[16px] focus:outline-none focus-visible:outline-[3px] focus-visible:outline-accent";
 const label = "block text-sm font-bold mb-1.5";
@@ -107,10 +113,11 @@ const ProposerEvenementForm = ({ initial, onDone }: Props) => {
       try { imageUrl = await uploadImage(imageFile, "", "event-images"); }
       catch (err) { setSending(false); toast.error(messageServeur(err as { code?: string; message?: string }, "L'image n'a pas pu être envoyée.")); return; }
     }
+    // Émojis retirés à l'enregistrement (titre, sous-titre, description)
     const payload = {
-      titre: form.titre.trim(),
-      sous_titre: form.sous_titre || null,
-      description: form.description || null,
+      titre: sansEmojis(form.titre),
+      sous_titre: sansEmojis(form.sous_titre) || null,
+      description: sansEmojis(form.description) || null,
       date_debut: new Date(form.date_debut).toISOString(),
       date_fin: form.date_fin ? new Date(form.date_fin).toISOString() : null,
       type: form.type,
@@ -143,7 +150,7 @@ const ProposerEvenementForm = ({ initial, onDone }: Props) => {
             : "Votre adhésion n'est pas à jour. Renouvelez-la pour proposer un rendez-vous dans l'agenda."}
         </p>
         <div className="mt-5 flex flex-wrap gap-3">
-          {acces === "visiteur" && <Link to="/espace-membre" className={btnPrimary}>Me connecter</Link>}
+          {acces === "visiteur" && <Link to="/espace-membre?retour=/proposer-evenement-podcast" className={btnPrimary}>Me connecter</Link>}
           <Link to="/adherer?etape=adhesion" className={btnSecondary}>Adhérer</Link>
         </div>
       </div>
@@ -174,7 +181,7 @@ const ProposerEvenementForm = ({ initial, onDone }: Props) => {
       <div>
         <label htmlFor={`${p}-type`} className={label}>Type <span aria-hidden>*</span></label>
         <select id={`${p}-type`} name="type" value={form.type} onChange={handleChange} className={field}>
-          {EVENT_TYPES.map((t) => <option key={t.value} value={t.value}>{t.label}</option>)}
+          {TYPES_PROPOSITION.map((t) => <option key={t.value} value={t.value}>{t.label}</option>)}
         </select>
       </div>
       <fieldset>
@@ -226,7 +233,8 @@ const ProposerEvenementForm = ({ initial, onDone }: Props) => {
       </div>
       <div className="sm:col-span-2">
         <label htmlFor={`${p}-description`} className={label}>Description</label>
-        <textarea id={`${p}-description`} name="description" rows={4} maxLength={6000} value={form.description} onChange={handleChange} className={`${field} py-2 resize-y`} placeholder="À qui s'adresse le rendez-vous, ce qu'on y fait, ce qu'on en retire." />
+        <textarea id={`${p}-description`} name="description" rows={4} maxLength={6000} value={form.description} onChange={handleChange} className={`${field} py-2 resize-y`} placeholder="À qui s'adresse le rendez-vous, ce qu'on y fait, ce qu'on en retire." aria-describedby={`${p}-description-aide`} />
+        <p id={`${p}-description-aide`} className="mt-1.5 text-sm text-muted-foreground">Pas la date, l'heure ni le lieu ici : ils s'affichent automatiquement au-dessus. Pas d'émojis.</p>
       </div>
       <div className="sm:col-span-2">
         <p className={label}>Visuel (facultatif, format paysage)</p>

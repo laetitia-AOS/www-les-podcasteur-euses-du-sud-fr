@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { toast } from "sonner";
 import SEOHead from "@/components/SEOHead";
 import { field, hintCls, labelCls } from "@/components/adherer/fields";
@@ -12,18 +12,22 @@ const EspaceMembre = () => {
   const [loading, setLoading] = useState(false);
   const [sent, setSent] = useState(false);
   const navigate = useNavigate();
+  // Retour après connexion (« Proposer un événement »…) : seulement une page de ce site
+  const [params] = useSearchParams();
+  const brut = params.get("retour") || "";
+  const retour = /^\/(?!\/)[\w\-/]*$/.test(brut) ? brut : "/mon-espace";
 
   useEffect(() => {
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
       if (session && event !== "PASSWORD_RECOVERY") {
-        navigate("/mon-espace");
+        navigate(retour);
       }
     });
     supabase.auth.getSession().then(({ data: { session } }) => {
-      if (session) navigate("/mon-espace");
+      if (session) navigate(retour);
     });
     return () => subscription.unsubscribe();
-  }, [navigate]);
+  }, [navigate, retour]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -32,7 +36,7 @@ const EspaceMembre = () => {
     const { error } = await supabase.auth.signInWithOtp({
       email,
       options: {
-        emailRedirectTo: `${window.location.origin}/mon-espace`,
+        emailRedirectTo: `${window.location.origin}${retour}`,
       },
     });
     setLoading(false);
