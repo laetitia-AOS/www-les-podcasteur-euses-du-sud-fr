@@ -395,7 +395,7 @@ const MonEspace = () => {
           <section id="evenements" aria-labelledby="evenements-title" className="scroll-mt-6">
             <div className="flex flex-wrap items-center justify-between gap-3 pb-3 border-b-2 border-encre">
               <h2 id="evenements-title" className={sectionTitle}>Mes événements</h2>
-              <Link to="/agenda#proposer" className={btnSecondary}>Proposer un événement</Link>
+              <Link to="/proposer-evenement-podcast" className={btnSecondary}>Proposer un événement</Link>
             </div>
             <MesEvenements evenements={evenements} onChange={rechargerEvenements} />
           </section>

@@ -1,15 +1,19 @@
 import { Link } from "react-router-dom";
 import { Globe } from "lucide-react";
 import { btnPrimary, btnSecondary } from "@/lib/pds";
-import { dateParis, horairesParis, readableTitle } from "@/lib/events";
+import { dateParis, horairesParis, jourCourt, readableTitle } from "@/lib/events";
 import { EVENT_TYPE_LABELS, cityFromAddress, isOnline, organisateurLabel, type HomeEvent } from "@/components/home/useHomeData";
 
 export const eventHref = (e: Pick<HomeEvent, "slug" | "id">) => `/agenda/${e.slug || e.id}`;
 
 /** Ligne d'événement partagée par l'accueil et l'agenda. */
 const EventRow = ({ e, primary, cta }: { e: HomeEvent; primary?: boolean; cta?: string }) => {
-  const dayMonth = dateParis(e.date_debut, { day: "2-digit", month: "2-digit" }).replace("/", ".");
-  const dayHour = `${dateParis(e.date_debut, { weekday: "short" })} ${horairesParis(e.date_debut, e.date_fin)}`;
+  // Plusieurs jours : « 19–20.06 » ; un seul jour : « 09.11 » et les horaires
+  const dayMonth = jourCourt(e.date_debut, e.date_fin);
+  const plusieursJours = dayMonth.includes("–");
+  const dayHour = plusieursJours
+    ? `${dateParis(e.date_debut, { weekday: "short" })}–${dateParis(e.date_fin!, { weekday: "short" })}`
+    : `${dateParis(e.date_debut, { weekday: "short" })} ${horairesParis(e.date_debut, e.date_fin)}`;
   const online = isOnline(e);
   const city = cityFromAddress(e.adresse);
   const href = eventHref(e);
@@ -39,7 +43,7 @@ const EventRow = ({ e, primary, cta }: { e: HomeEvent; primary?: boolean; cta?: 
         )}
       </div>
       <div className="col-start-2 sm:col-start-auto">
-        <Link to={href} className={`${primary ? btnPrimary : btnSecondary} px-6`} aria-label={`${label} : ${e.titre}`}>
+        <Link to={href} className={`${primary ? btnPrimary : btnSecondary} px-6`} aria-label={`${label} : ${readableTitle(e.titre)}`}>
           {label}
         </Link>
       </div>
