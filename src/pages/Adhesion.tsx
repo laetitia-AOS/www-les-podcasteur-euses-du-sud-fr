@@ -86,6 +86,12 @@ const Adhesion = () => {
     sectionRef.current?.scrollIntoView({ behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" });
   }, [step]);
 
+  // Profil enregistré dans ce navigateur avant le paiement : la page « Bienvenue » ne propose pas d'en créer un autre
+  useEffect(() => {
+    if (step !== "paiement" || !(result?.saved || podcastCount > 0)) return;
+    try { localStorage.setItem("pds_profil_cree", String(Date.now())); } catch { /* navigation privée */ }
+  }, [step, result, podcastCount]);
+
   useEffect(() => {
     if (hash !== "#inscription" && params.get("etape") !== "adhesion") return;
     const t = setTimeout(() => sectionRef.current?.scrollIntoView({ block: "start" }), 300);
