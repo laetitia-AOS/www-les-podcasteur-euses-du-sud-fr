@@ -2,7 +2,6 @@ import { useEffect, useMemo, useState } from "react";
 import MesEvenements, { type MonEvenement } from "@/components/espace-membre/MesEvenements";
 import LieuEditor from "@/components/studios/LieuEditor";
 import { Link, useNavigate } from "react-router-dom";
-import { Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { ConnexionEnCours } from "@/components/ConnexionShell";
