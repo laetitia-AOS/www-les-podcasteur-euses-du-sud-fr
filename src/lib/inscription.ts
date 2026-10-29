@@ -68,9 +68,14 @@ export const PRECISION_MAX = 120;
 
 export const collabLabel = (code: string) => COLLAB_CHOIX.find((c) => c.value === code)?.label ?? code;
 
-/** Liste lisible : « montage », « montage ou mixage », « voix off, montage ou mixage ». */
+/** Côté « J'apporte » seulement, « Être invité·e » se lit « Intervenir comme invité·e ». Les codes restent les mêmes. */
+const LIBELLES_APPORTE: Record<string, string> = { etre_invite: "Intervenir comme invité·e" };
+export const COLLAB_CHOIX_APPORTE = COLLAB_CHOIX.map((c) => ({ value: c.value, label: LIBELLES_APPORTE[c.value] ?? c.label }));
+export const apporteLabel = (code: string) => LIBELLES_APPORTE[code] ?? collabLabel(code);
+
+/** Liste lisible (côté « J'apporte ») : « montage », « montage ou mixage », « voix off, montage ou mixage ». */
 export const listeChoix = (codes: string[]) => {
-  const labels = codes.map((c) => collabLabel(c).toLowerCase());
+  const labels = codes.map((c) => apporteLabel(c).toLowerCase());
   if (labels.length <= 1) return labels[0] ?? "";
   return `${labels.slice(0, -1).join(", ")} ou ${labels[labels.length - 1]}`;
 };

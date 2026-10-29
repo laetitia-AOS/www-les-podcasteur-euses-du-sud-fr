@@ -22,17 +22,20 @@ export const ChoiceList = ({
   selected,
   onChange,
   max,
+  hint,
 }: {
   legend: string;
   options: readonly Opt[];
   selected: string[];
   onChange: (v: string[]) => void;
   max?: number;
+  hint?: string;
 }) => (
   <fieldset>
     <legend className={labelCls}>
       {legend} {max ? <span className="font-normal text-muted-foreground">({selected.length}/{max})</span> : null}
     </legend>
+    {hint && <p className={`${hintCls} mt-0 mb-2`}>{hint}</p>}
     <div className="grid sm:grid-cols-2 gap-2">
       {options.map((o) => {
         const opt = optValue(o);
@@ -80,8 +83,9 @@ export const CollabField = ({
   onPrecision: (v: string) => void;
   max?: number;
 }) => {
-  // Un texte repris de l'ancienne version peut dépasser 120 caractères : on peut seulement le raccourcir.
+  // Un texte repris de l'ancienne version peut dépasser 120 caractères : il reste tel quel, on peut seulement le raccourcir.
   const limit = Math.max(max, precision.length);
+  const trop = precision.length > max;
   return (
     <div className="space-y-3">
       <ChoiceList legend={legend} options={options} selected={selected} onChange={onChange} />
@@ -95,7 +99,9 @@ export const CollabField = ({
           className={field}
           aria-describedby={`${id}-count`}
         />
-        <p id={`${id}-count`} className={`${hintCls} font-mono`}>{precision.length}/{max} caractères</p>
+        <p id={`${id}-count`} className={`${hintCls} font-mono ${trop ? "!text-destructive font-bold" : ""}`}>
+          {precision.length}/{max} caractères{trop ? " : trop long, raccourcissez ce texte pour le modifier" : ""}
+        </p>
       </div>
     </div>
   );
