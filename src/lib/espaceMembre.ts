@@ -1,27 +1,30 @@
 // Petites règles de l'espace membre (statut d'adhésion, dates relatives, lien vers la fiche publique).
 import { TYPES_PROFIL } from "@/lib/inscription";
 
-/** Les adhésions antérieures à cette date sont considérées comme expirées (règle de transition 2026). */
-export const DEBUT_VALIDITE = new Date("2026-01-01T00:00:00Z");
-
-export type EtatAdhesion = "a_jour" | "expiree" | "aucune";
-
 /**
- * Adhésion valable un an à partir de la date de paiement (année glissante),
- * à condition d'avoir été réglée à partir du 1er janvier 2026.
+ * Adhésion à l'année civile : valable jusqu'au 31 décembre de l'année couverte, quelle que soit la date de paiement.
+ * Profil encore visible en janvier (tolérance), masqué le 1er février. La règle fait foi en base ; ces fonctions servent à l'affichage.
  */
-export const statutAdhesion = (
-  dateAdhesion: string | null | undefined,
-  now: Date = new Date(),
-): { etat: EtatAdhesion; echeance: Date | null } => {
-  if (!dateAdhesion) return { etat: "aucune", echeance: null };
-  const d = new Date(dateAdhesion);
-  if (isNaN(d.getTime())) return { etat: "aucune", echeance: null };
-  const echeance = new Date(d);
-  echeance.setFullYear(echeance.getFullYear() + 1);
-  if (d < DEBUT_VALIDITE) return { etat: "expiree", echeance };
-  return { etat: now < echeance ? "a_jour" : "expiree", echeance };
+const parisYM = (now: Date) => {
+  const parts = new Intl.DateTimeFormat("fr-FR", { timeZone: "Europe/Paris", year: "numeric", month: "numeric" }).formatToParts(now);
+  const get = (t: string) => Number(parts.find((p) => p.type === t)?.value);
+  return { annee: get("year"), mois: get("month") };
 };
+
+/** Année en cours (heure de Paris). */
+export const anneeEnCours = (now: Date = new Date()) => parisYM(now).annee;
+
+/** Année que couvre un paiement fait aujourd'hui : l'année en cours, ou la suivante si elle est déjà payée. */
+export const anneePourPaiement = (anneeCouverte: number | null | undefined, now: Date = new Date()) => {
+  const y = anneeEnCours(now);
+  return anneeCouverte != null && anneeCouverte >= y ? anneeCouverte + 1 : y;
+};
+
+/** Le renouvellement pour l'année suivante est proposé à partir du 1er décembre. */
+export const periodeRenouvellement = (now: Date = new Date()) => parisYM(now).mois === 12;
+
+/** « Valable jusqu'au 31 décembre 2026 ». */
+export const libelleValidite = (annee: number) => `Valable jusqu'au 31 décembre ${annee}`;
 
 export const formatLongDate = (d: Date | string | null | undefined): string => {
   if (!d) return "";
@@ -54,17 +57,13 @@ export const publicProfilePath = (type: string, slug: string | null): string | n
   return `/podcasteur/${slug}`;
 };
 
-/** État d'adhésion renvoyé par le serveur (échéance = 1 an après confirmation du paiement). */
-export type EtatServeur = "a_jour" | "bientot" | "terminee" | "verification" | "aucune";
+/** État d'adhésion renvoyé par le serveur (année civile, tolérance en janvier). */
+export type EtatServeur = "a_jour" | "tolerance" | "terminee" | "verification" | "aucune";
 
-/** Nombre de jours avant l'échéance (négatif si elle est passée). */
-export const joursRestants = (echeance: string | Date | null | undefined, now: Date = new Date()): number | null => {
-  if (!echeance) return null;
-  const d = typeof echeance === "string" ? new Date(echeance) : echeance;
-  if (isNaN(d.getTime())) return null;
-  return Math.ceil((d.getTime() - now.getTime()) / 86400000);
+/** Lien « Renouveler » : la page Adhérer s'ouvre sur l'étape paiement, avec la formule et l'année couverte. */
+export const lienRenouveler = (formule: string | null | undefined, annee?: number | null) => {
+  const q = new URLSearchParams({ etape: "adhesion" });
+  if (formule === "studio" || formule === "personne") q.set("formule", formule);
+  if (annee) q.set("pour", String(annee));
+  return `/rejoindre-association?${q.toString()}`;
 };
-
-/** Lien « Renouveler » : la page Adhérer s'ouvre sur l'étape paiement avec la bonne formule. */
-export const lienRenouveler = (formule: string | null | undefined) =>
-  `/rejoindre-association?etape=adhesion${formule === "studio" || formule === "personne" ? `&formule=${formule}` : ""}`;

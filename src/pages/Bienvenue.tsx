@@ -1,4 +1,5 @@
 import { Link } from "react-router-dom";
+import { anneeEnCours, libelleValidite, periodeRenouvellement } from "@/lib/espaceMembre";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import SEOHead from "@/components/SEOHead";
@@ -14,6 +15,10 @@ const Bienvenue = () => (
         <div className={`${container} py-14 md:py-20`}>
           <h1 className="title-page text-[56px] sm:text-[96px] text-primary-foreground max-w-[12ch]">Bienvenue dans le réseau</h1>
           <p className="mt-5 text-lg max-w-[52ch]">Merci pour votre adhésion aux Podcasteur·euses du Sud. Votre paiement est bien enregistré.</p>
+          <p className="mt-3 text-lg font-bold" data-validite>
+            {libelleValidite(anneeEnCours())}.
+            {periodeRenouvellement() && <span className="block font-normal text-[17px]">Vous étiez déjà membre {anneeEnCours()} ? Ce paiement couvre toute l'année {anneeEnCours() + 1}.</span>}
+          </p>
         </div>
       </section>
       <div className={`${container} py-12 md:py-16 grid md:grid-cols-2 gap-6`}>
