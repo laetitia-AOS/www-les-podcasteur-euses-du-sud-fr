@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { membresDeLaVue, type MembreAdmin } from "./AdminMembres";
+import { aRelancerPourFiche, membresDeLaVue, type MembreAdmin } from "./AdminMembres";
 
 const m = (email: string, etat: string, nb_fiches: number) =>
   ({ email, nom: email, type_profil: "podcasteur", formule: "personne", etat, annee: null, montant: 20, date_paiement: null, adhesion_id: null, nb_fiches, fiche_validee: true, fiche_visible: true, sursis: false }) as MembreAdmin;
@@ -11,8 +11,13 @@ const tous = [
 const emails = (v: Parameters<typeof membresDeLaVue>[1]) => membresDeLaVue(tous, v).map((x) => x.email);
 
 describe("onglets de la rubrique Membres", () => {
-  it("membres de l'année : seulement ceux qui ont une fiche", () => {
-    expect(emails("annee")).toEqual(["ajour@x.fr", "verif@x.fr"]);
+  it("membres de l'année : avec fiche, et adhérent·es sans fiche à relancer", () => {
+    expect(emails("annee")).toEqual(["ajour@x.fr", "ajour-sans-fiche@x.fr", "verif@x.fr"]);
+    expect(membresDeLaVue(tous, "annee").filter(aRelancerPourFiche).map((x) => x.email)).toEqual(["ajour-sans-fiche@x.fr"]);
+  });
+  it("un paiement relié à la fiche d'une autre personne n'est pas à relancer", () => {
+    const paye = { ...m("rodrigo@x.fr", "a_jour", 0), adhesion_id: "p1" };
+    expect(membresDeLaVue([paye], "annee", new Set(["p1"]))).toEqual([]);
   });
   it("anciens membres : adhésion terminée, avec ou sans fiche", () => {
     expect(emails("anciens")).toEqual(["ancien@x.fr", "ancien-sans-fiche@x.fr"]);
