@@ -106,7 +106,7 @@ const AdminMembres = ({ vue = "annee" }: { vue?: VueMembres }) => {
       <h2 id="membres-title" className="sr-only">Liste des membres</h2>
       {vue === "anciens" && (
         <p className="text-sm text-muted-foreground mb-4">
-          {membres.length} ancien·nes membres : leur dernière adhésion date d'une année précédente et n'a pas été renouvelée. {membres.filter((m) => m.nb_fiches > 0).length} ont une fiche, masquée tant qu'elles et ils n'ont pas réadhéré (sauf sursis).
+          {membres.length} ancien·nes membres : leur dernière adhésion date d'une année précédente et n'a pas été renouvelée. {membres.filter((m) => m.nb_fiches > 0).length} ont encore une fiche dans l'annuaire (colonne « Fiche »).
         </p>
       )}
       {vue === "sans" && (
