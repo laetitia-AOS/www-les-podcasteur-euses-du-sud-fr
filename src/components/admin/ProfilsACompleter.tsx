@@ -80,7 +80,7 @@ const ProfilsACompleter = () => {
 
       {ouvert && (
         <div className="border-t-2 border-foreground p-4 space-y-4">
-          <p className="text-sm text-muted-foreground max-w-2xl">
+          <p className="text-base md:text-sm text-muted-foreground max-w-2xl">
             Les manques sont cochés d'office. Décochez ce que vous ne voulez pas mentionner, puis « Relancer » : la personne reçoit
             un e-mail aux couleurs du site qui liste uniquement les éléments cochés, avec un lien vers son espace membre.
             Une seule relance par personne et par 24 heures.
