@@ -17,9 +17,13 @@ export type InfoPartage = {
 };
 
 /** Texte complet, prêt à coller dans un post LinkedIn, Facebook, WhatsApp ou un e-mail. */
+/** « Atelier : Atelier-écoute » devient « Atelier-écoute » : pas de répétition du type. */
+export const titrePartage = (e: InfoPartage) =>
+  e.titre.toLocaleLowerCase("fr-FR").includes(e.type.toLocaleLowerCase("fr-FR")) ? e.titre : `${e.type} : ${e.titre}`;
+
 export const textePartage = (e: InfoPartage) => {
   const lignes = [
-    `${e.type} : ${e.titre}`,
+    titrePartage(e),
     e.sousTitre ? e.sousTitre.replace(/\.$/, "") + "." : "",
     "",
     `Quand : ${e.dateLong}, ${e.horaires}`,
@@ -35,7 +39,7 @@ export const textePartage = (e: InfoPartage) => {
 
 /** Lien d'e-mail avec l'objet et le texte complet. */
 export const mailtoPartage = (e: InfoPartage) =>
-  `mailto:?subject=${encodeURIComponent(`${e.type} : ${e.titre} — ${e.dateLong}`)}&body=${encodeURIComponent(textePartage(e))}`;
+  `mailto:?subject=${encodeURIComponent(`${titrePartage(e)} — ${e.dateLong}`)}&body=${encodeURIComponent(textePartage(e))}`;
 
 // ---------- Vignettes ----------
 
@@ -104,21 +108,23 @@ export async function dessinerVignette(e: InfoPartage, format: FormatVignette): 
   ctx.fillStyle = bleu; ctx.fillRect(0, 0, W, H);
 
   // Zone image : à droite (paysage) ou en haut (carré)
-  const zone = format === "paysage" ? { x: 720, y: 0, w: W - 720, h: H } : { x: 0, y: 0, w: W, h: 470 };
+  const coupe = 600;
+  const zone = format === "paysage" ? { x: coupe, y: 0, w: W - coupe, h: H } : { x: 0, y: 0, w: W, h: 470 };
   ctx.fillStyle = encre; ctx.fillRect(zone.x, zone.y, zone.w, zone.h);
   if (visuel) {
-    // Affiche (portrait) : entière ; photo (paysage) : recadrée
-    if (visuel.height > visuel.width * 0.9) contenir(ctx, visuel, zone.x + 24, zone.y + 24, zone.w - 48, zone.h - 48);
-    else couvrir(ctx, visuel, zone.x, zone.y, zone.w, zone.h);
+    // Proportions proches de la zone : on remplit ; sinon on montre l'image entière (une affiche contient du texte)
+    const ecart = (visuel.width / visuel.height) / (zone.w / zone.h);
+    if (ecart > 0.8 && ecart < 1.25) couvrir(ctx, visuel, zone.x, zone.y, zone.w, zone.h);
+    else contenir(ctx, visuel, zone.x, zone.y, zone.w, zone.h);
   } else if (logo) {
     contenir(ctx, logo, zone.x + zone.w / 2 - 110, zone.y + zone.h / 2 - 110, 220, 220);
   }
   // Trait orange de séparation
   ctx.fillStyle = orange;
-  if (format === "paysage") ctx.fillRect(712, 0, 8, H); else ctx.fillRect(0, zone.h, W, 10);
+  if (format === "paysage") ctx.fillRect(coupe - 8, 0, 8, H); else ctx.fillRect(0, zone.h, W, 10);
 
-  const pad = format === "paysage" ? 56 : 64;
-  const largeur = format === "paysage" ? 720 - pad * 2 : W - pad * 2;
+  const pad = format === "paysage" ? 52 : 64;
+  const largeur = format === "paysage" ? coupe - 8 - pad * 2 : W - pad * 2;
   let y = format === "paysage" ? 64 : zone.h + 10 + 64;
 
   // Petite ligne en capitales
@@ -131,7 +137,7 @@ export async function dessinerVignette(e: InfoPartage, format: FormatVignette): 
 
   // Titre
   ctx.fillStyle = "#ffffff";
-  const tailleTitre = format === "paysage" ? 60 : 72;
+  const tailleTitre = format === "paysage" ? 58 : 72;
   ctx.font = `900 ${tailleTitre}px "Archivo", sans-serif`;
   for (const l of lignes(ctx, e.titre, largeur, format === "paysage" ? 3 : 2)) { ctx.fillText(l, pad, y); y += tailleTitre * 1.04; }
   y += 18;
@@ -143,7 +149,7 @@ export async function dessinerVignette(e: InfoPartage, format: FormatVignette): 
     e.enLigne ? "En ligne" : [e.lieu, e.adresse && e.adresse !== e.lieu ? e.adresse : ""].filter(Boolean).join(", "),
     e.tarif ? `Entrée : ${e.tarif}` : "Entrée libre",
   ].filter(Boolean);
-  const tailleInfo = format === "paysage" ? 28 : 32;
+  const tailleInfo = format === "paysage" ? 26 : 32;
   for (const [i, t] of infos.entries()) {
     ctx.font = `${i === 0 ? 800 : 500} ${tailleInfo}px "Archivo", sans-serif`;
     ctx.fillStyle = i === 0 ? "#ffffff" : fond;
@@ -158,7 +164,7 @@ export async function dessinerVignette(e: InfoPartage, format: FormatVignette): 
   ctx.fillText("Les Podcasteur·euses du Sud", pad + 64, piedY + 2);
   ctx.fillStyle = orange;
   ctx.font = '500 18px "IBM Plex Mono", monospace';
-  ctx.fillText(e.jeViens ? "Infos et « Je viens » : les-podcasteur-euses-du-sud.fr/agenda" : "les-podcasteur-euses-du-sud.fr/agenda", pad + 64, piedY + 32);
+  ctx.fillText(format === "carre" && e.jeViens ? "Infos et « Je viens » : les-podcasteur-euses-du-sud.fr/agenda" : "les-podcasteur-euses-du-sud.fr/agenda", pad + 64, piedY + 32);
 
   return new Promise((resolve, reject) => c.toBlob((b) => (b ? resolve(b) : reject(new Error("vignette"))), "image/png"));
 }

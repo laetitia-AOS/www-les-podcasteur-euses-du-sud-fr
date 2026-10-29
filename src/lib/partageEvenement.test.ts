@@ -22,3 +22,10 @@ describe("texte de partage d'un événement", () => {
     expect(textePartage({ ...e, tarif: "5 €" })).toContain("Entrée : 5 €");
   });
 });
+
+describe("titre de partage", () => {
+  it("ne répète pas le type quand le titre le contient déjà", () => {
+    expect(textePartage(e).split("\n")[0]).toBe("Atelier-écoute");
+    expect(textePartage({ ...e, titre: "Soirée Fiction" }).split("\n")[0]).toBe("Atelier : Soirée Fiction");
+  });
+});
