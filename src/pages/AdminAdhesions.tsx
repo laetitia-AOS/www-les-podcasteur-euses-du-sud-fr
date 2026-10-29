@@ -11,6 +11,7 @@ import { Users, ArrowLeft, LogOut, Loader2, Download, RefreshCw, Trash2, Pencil,
 import { useNavigate, Navigate } from "react-router-dom";
 import { useAdminAuth } from "@/hooks/useAdminAuth";
 import AddAdhesionDialog from "@/components/AddAdhesionDialog";
+import AdminMembres from "@/components/admin/AdminMembres";
 import RattacherAdhesionDialog, { useRattachements } from "@/components/RattacherAdhesionDialog";
 import { toast } from "sonner";
 import {
@@ -280,6 +281,9 @@ const AdminAdhesions = () => {
             <p className="text-muted-foreground">Aucune adhésion pour le moment.</p>
           </div>
         ) : (
+          <>
+          <AdminMembres />
+          <h2 className="font-display font-bold text-2xl mb-4">Paiements HelloAsso</h2>
           <Tabs defaultValue="active" className="space-y-4">
             <TabsList>
               <TabsTrigger value="active">Actives ({activeAdhesions.length})</TabsTrigger>
@@ -294,6 +298,7 @@ const AdminAdhesions = () => {
               <TabsContent key={year} value={year}><AdhesionTable items={expiredByYear[year]} /></TabsContent>
             ))}
           </Tabs>
+          </>
         )}
       </div>
 
