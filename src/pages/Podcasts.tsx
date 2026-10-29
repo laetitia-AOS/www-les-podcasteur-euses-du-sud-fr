@@ -155,7 +155,7 @@ const Podcasts = () => {
           </p>
 
           {/* Thèmes : une bande qui défile sur téléphone, sur plusieurs lignes au-delà */}
-          <div role="group" aria-label="Filtrer par thème" className="mt-5 md:mt-6 -mx-5 px-5 md:mx-0 md:px-0 flex flex-nowrap md:flex-wrap gap-2 overflow-x-auto md:overflow-visible pb-2 md:pb-0 [scrollbar-width:thin]">
+          <div role="group" aria-label="Filtrer par thème" className="mt-5 md:mt-6 -mx-5 px-5 sm:-mx-8 sm:px-8 md:mx-0 md:px-0 flex flex-nowrap md:flex-wrap gap-2 overflow-x-auto md:overflow-visible pb-2 md:pb-0 [scrollbar-width:thin]">
             {["", ...themes].map((t) => (
               <button
                 key={t || "tous"}
