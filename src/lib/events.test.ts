@@ -52,6 +52,8 @@ describe("lot 4 : titres et dates sur plusieurs jours", () => {
     const { jourCourt, dateLongue } = await import("./events");
     expect(jourCourt("2026-06-19T07:00:00Z", "2026-06-20T19:00:00Z")).toBe("19–20.06");
     expect(jourCourt("2026-11-09T17:30:00Z", "2026-11-09T20:30:00Z")).toBe("09.11");
+    // Soirée qui finit à minuit : un seul jour
+    expect(jourCourt("2026-06-19T07:00:00Z", "2026-06-19T22:00:00Z")).toBe("19.06");
     expect(dateLongue("2026-06-19T07:00:00Z", "2026-06-20T19:00:00Z")).toBe("Du 19 au 20 juin 2026");
   });
 });

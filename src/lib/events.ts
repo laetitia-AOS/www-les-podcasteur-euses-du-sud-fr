@@ -25,10 +25,21 @@ export const readableTitle = (t: string): string => {
   return s.replace(/ap[ée]ro\s*[-/]?\s*[ée]coute/giu, (m) => (/^A/.test(m) ? "Apéro écoute" : "apéro écoute"));
 };
 
+/** Dernier jour réel : une fin avant 6 h du matin compte pour la veille (soirée qui finit à minuit). */
+const dernierJour = (fin: string): string => new Date(new Date(fin).getTime() - 6 * 3600_000).toISOString();
+
+/** Vrai si l'événement s'étale sur plusieurs jours (heure de Paris), pas pour une soirée qui finit après minuit. */
+export const surPlusieursJours = (debut: string, fin?: string | null): boolean => {
+  if (!fin) return false;
+  const jour = (d: string) => dateParis(d, { year: "numeric", month: "2-digit", day: "2-digit" });
+  return new Date(fin).getTime() - new Date(debut).getTime() > 18 * 3600_000 && jour(dernierJour(fin)) !== jour(debut);
+};
+
 /** « 19–20.06 » pour un événement sur plusieurs jours, sinon « 09.11 » (heure de Paris). */
 export const jourCourt = (debut: string, fin?: string | null): string => {
   const j = (d: string) => dateParis(d, { day: "2-digit", month: "2-digit" }).replace("/", ".");
-  if (!fin || j(fin) === j(debut)) return j(debut);
+  if (!fin || !surPlusieursJours(debut, fin)) return j(debut);
+  fin = dernierJour(fin);
   const [jd, md] = j(debut).split(".");
   const [jf, mf] = j(fin).split(".");
   return md === mf ? `${jd}–${jf}.${mf}` : `${j(debut)}–${j(fin)}`;
@@ -37,8 +48,8 @@ export const jourCourt = (debut: string, fin?: string | null): string => {
 /** « Du 19 au 20 juin 2026 » sur plusieurs jours, sinon « Lundi 9 novembre 2026 » (heure de Paris). */
 export const dateLongue = (debut: string, fin?: string | null): string => {
   const cap = (s: string) => s.charAt(0).toLocaleUpperCase("fr-FR") + s.slice(1);
-  const jour = (d: string) => dateParis(d, { year: "numeric", month: "2-digit", day: "2-digit" });
-  if (!fin || jour(fin) === jour(debut)) return cap(dateParis(debut, { weekday: "long", day: "numeric", month: "long", year: "numeric" }));
+  if (!fin || !surPlusieursJours(debut, fin)) return cap(dateParis(debut, { weekday: "long", day: "numeric", month: "long", year: "numeric" }));
+  fin = dernierJour(fin);
   const memeMois = dateParis(debut, { month: "numeric", year: "numeric" }) === dateParis(fin, { month: "numeric", year: "numeric" });
   const memeAnnee = dateParis(debut, { year: "numeric" }) === dateParis(fin, { year: "numeric" });
   const de = memeMois ? dateParis(debut, { day: "numeric" }) : dateParis(debut, memeAnnee ? { day: "numeric", month: "long" } : { day: "numeric", month: "long", year: "numeric" });

@@ -14,7 +14,7 @@ import { eventHref } from "@/components/agenda/EventRow";
 import { EVENT_TYPE_LABELS, aVenirFilter, cityFromAddress, isOnline, isOrganizedByPds, type HomeEvent } from "@/components/home/useHomeData";
 import { withUtm } from "@/lib/utm";
 import { btnPrimary, btnSecondary, container, formatName, linkUnderline } from "@/lib/pds";
-import { cleanAddress, dateLongue, dateParis, downloadIcs, googleCalendarUrl, heureParis, horairesParis, isoParis, prixDepuisTarif, publicDescription, readableTitle } from "@/lib/events";
+import { cleanAddress, dateLongue, surPlusieursJours, dateParis, downloadIcs, googleCalendarUrl, heureParis, horairesParis, isoParis, prixDepuisTarif, publicDescription, readableTitle } from "@/lib/events";
 import bande from "@/assets/photos/bande-accueil-mur-rouge.jpg.asset.json";
 
 const SITE = SITE_URL;
@@ -88,7 +88,7 @@ const EvenementDetail = () => {
     const titre = readableTitle(evt.titre);
     const h1 = `${H1_TYPE[evt.type] || "Événement podcast"} ${online ? "en ligne" : city ? `à ${city}` : "en Région Sud"} : ${titre}`;
     // Sur plusieurs jours : « Du 19 au 20 juin 2026 »
-    const plusieursJours = !!end && dateParis(start, { year: "numeric", month: "2-digit", day: "2-digit" }) !== dateParis(end, { year: "numeric", month: "2-digit", day: "2-digit" });
+    const plusieursJours = surPlusieursJours(evt.date_debut, evt.date_fin);
     const dateLong = plusieursJours ? dateLongue(evt.date_debut, evt.date_fin) : capitalize(start.toLocaleDateString("fr-FR", { weekday: "long", day: "numeric", month: "long", year: "numeric", timeZone: "Europe/Paris" }));
     const horaires = plusieursJours ? `de ${hour(start)} (premier jour) à ${hour(end!)} (dernier jour)` : end ? `de ${hour(start)} à ${hour(end)}` : `à partir de ${hour(start)}`;
     const lieuPhrase = online ? "en ligne" : evt.lieu ? `chez ${evt.lieu}${city ? ` (${city})` : ""}` : city ? `à ${city}` : "";
