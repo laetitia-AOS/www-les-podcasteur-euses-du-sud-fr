@@ -324,47 +324,34 @@ const ProfilMembre = () => {
           </section>
         )}
 
-        {/* Épisodes */}
-        {isPodcast && (
+        {/* Épisodes : seulement quand le flux du podcast est confirmé (la base ne renvoie rien sinon) */}
+        {isPodcast && episodes.length > 0 && (
           <section className={`${container} pt-14`} aria-labelledby="episodes-title">
             <h2 id="episodes-title" className="title-section text-[44px] sm:text-[56px] pb-4 border-b-2 border-encre">Épisodes</h2>
-            {epLoading ? (
-              <p className="py-6 font-mono text-sm text-muted-foreground">Chargement des épisodes…</p>
-            ) : episodes.length === 0 ? (
-              <p className="py-6 text-[17px] border-b border-filet">
-                Les épisodes ne sont pas encore affichés ici.
-                {!isPlaceholderLink(profile.lien_ecoute) && (
-                  <> <a href={withUtm(profile.lien_ecoute!, "fiche-membre")} onClick={() => compterStat(profile.id, "ecoute")} target="_blank" rel="noopener noreferrer" className="font-bold underline underline-offset-4">Écouter sur {platformLabel(profile.lien_ecoute!)}</a>.</>
-                )}
-              </p>
-            ) : (
-              <>
-                <ul className="divide-y divide-filet border-b border-filet">
-                  {episodes.map((ep, i) => {
-                    const active = isCurrent(ep) && playing;
-                    return (
-                      <li key={ep.audioUrl} className="grid grid-cols-[44px_1fr] sm:grid-cols-[44px_1fr_auto] gap-x-4 gap-y-1 py-4 items-center">
-                        <button
-                          onClick={() => play(ep)}
-                          className={`w-11 h-11 rounded-full border-2 border-primary inline-flex items-center justify-center ${i === 0 || active ? "bg-primary text-primary-foreground" : "text-primary hover:bg-primary hover:text-primary-foreground"}`}
-                          aria-label={`${active ? "Mettre en pause" : "Écouter"} : ${ep.title}`}
-                        >
-                          {active ? <Pause className="w-4 h-4" fill="currentColor" /> : <Play className="w-4 h-4 ml-0.5" fill="currentColor" />}
-                        </button>
-                        <div className="min-w-0">
-                          <p className="font-bold text-[17px] leading-tight">{ep.title}</p>
-                          {ep.summary && <p className="text-sm text-muted-foreground mt-1">{ep.summary}</p>}
-                        </div>
-                        <p className="col-start-2 sm:col-start-auto font-mono text-xs sm:text-sm text-muted-foreground whitespace-nowrap">
-                          {[formatShortDate(ep.date), formatDuration(ep.duration)].filter(Boolean).join(" · ")}
-                        </p>
-                      </li>
-                    );
-                  })}
-                </ul>
-                <p className="mt-3 text-sm text-muted-foreground">Les 10 derniers épisodes, mis à jour toutes les 6 heures depuis le flux RSS.</p>
-              </>
-            )}
+            <ul className="divide-y divide-filet border-b border-filet">
+              {episodes.map((ep, i) => {
+                const active = isCurrent(ep) && playing;
+                return (
+                  <li key={ep.audioUrl} className="grid grid-cols-[44px_1fr] sm:grid-cols-[44px_1fr_auto] gap-x-4 gap-y-1 py-4 items-center">
+                    <button
+                      onClick={() => play(ep)}
+                      className={`w-11 h-11 rounded-full border-2 border-primary inline-flex items-center justify-center ${i === 0 || active ? "bg-primary text-primary-foreground" : "text-primary hover:bg-primary hover:text-primary-foreground"}`}
+                      aria-label={`${active ? "Mettre en pause" : "Écouter"} : ${ep.title}`}
+                    >
+                      {active ? <Pause className="w-4 h-4" fill="currentColor" /> : <Play className="w-4 h-4 ml-0.5" fill="currentColor" />}
+                    </button>
+                    <div className="min-w-0">
+                      <p className="font-bold text-[17px] leading-tight">{ep.title}</p>
+                      {ep.summary && <p className="text-sm text-muted-foreground mt-1">{ep.summary}</p>}
+                    </div>
+                    <p className="col-start-2 sm:col-start-auto font-mono text-xs sm:text-sm text-muted-foreground whitespace-nowrap">
+                      {[formatShortDate(ep.date), formatDuration(ep.duration)].filter(Boolean).join(" · ")}
+                    </p>
+                  </li>
+                );
+              })}
+            </ul>
+            <p className="mt-3 text-sm text-muted-foreground">Les 10 derniers épisodes, mis à jour toutes les 6 heures depuis le flux RSS.</p>
           </section>
         )}
 
