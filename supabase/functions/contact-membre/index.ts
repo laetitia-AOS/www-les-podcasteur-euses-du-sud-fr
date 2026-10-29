@@ -47,7 +47,13 @@ Deno.serve(async (req) => {
       .from("podcasts")
       .select("id, valide, consent_contact")
       .in("id", uniqueIds);
-    const recipients = (found || []).filter((r) => r.valide && r.consent_contact);
+    // Seules les fiches visibles sur le site (validées + adhésion à jour) reçoivent des messages
+    const visibles = await Promise.all((found || []).map(async (r) => {
+      if (!r.valide || !r.consent_contact) return null;
+      const { data: ok } = await admin.rpc("podcast_visible", { _id: r.id });
+      return ok ? r : null;
+    }));
+    const recipients = visibles.filter((r): r is NonNullable<typeof r> => !!r);
     if (!recipients.length) {
       return json({ error: "Ce membre ne peut pas recevoir de message pour le moment." }, 400);
     }
