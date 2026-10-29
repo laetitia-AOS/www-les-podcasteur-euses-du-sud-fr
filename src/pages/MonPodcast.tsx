@@ -189,9 +189,28 @@ const MonEspace = () => {
       {header}
 
       <div className="mx-auto max-w-[1240px] px-5 sm:px-8 lg:grid lg:grid-cols-[230px_1fr] lg:gap-12 pb-24">
-        {/* Menu : colonne à gauche sur ordinateur, bande défilante sur téléphone */}
-        <nav aria-label="Sections de l'espace membre" className="lg:pt-10">
-          <ul className="flex lg:flex-col gap-1 lg:gap-0 overflow-x-auto -mx-5 px-5 lg:mx-0 lg:px-0 py-3 lg:py-0 border-b border-filet lg:border-b-0 lg:border-t-2 lg:border-encre lg:sticky lg:top-6">
+        {/* Menu : colonne à gauche sur ordinateur, liste déroulante en haut de page sur téléphone et tablette */}
+        <div className="lg:hidden pt-4 pb-3 border-b border-filet">
+          <label htmlFor="em-section" className="block text-sm font-bold mb-1.5">Aller à</label>
+          <select
+            id="em-section"
+            value={active}
+            onChange={(e) => {
+              const id = e.target.value;
+              setActive(id);
+              document.getElementById(id)?.scrollIntoView({ behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" });
+            }}
+            className="w-full min-h-[48px] px-3 bg-surface border-2 border-encre text-[16px] font-semibold focus:outline-none focus-visible:outline-[3px] focus-visible:outline-accent"
+          >
+            {SECTIONS.map((s) => (
+              <option key={s.id} value={s.id}>
+                {s.label}{s.id === "demandes" && nonLues > 0 ? ` (${nonLues} non lue${nonLues > 1 ? "s" : ""})` : ""}
+              </option>
+            ))}
+          </select>
+        </div>
+        <nav aria-label="Sections de l'espace membre" className="hidden lg:block lg:pt-10">
+          <ul className="flex lg:flex-col gap-1 lg:gap-0 lg:border-t-2 lg:border-encre lg:sticky lg:top-6">
             {SECTIONS.map((s) => (
               <li key={s.id} className="lg:border-b lg:border-filet shrink-0">
                 <a
