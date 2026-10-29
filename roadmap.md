@@ -83,16 +83,16 @@
 - [x] Scan + test parcours proposer (3 cas, compte fictif) + vérif 9 nov et La Claque
 
 ## Corrections après revue — lot 5 (textes et téléphone)
-- [ ] 1. Phrase « D'abord un profil, gratuit… » accueil + Adhérer
-- [ ] 2. « On parle de nous » : plus récent en premier
-- [ ] 3. Pied de page : « Nous écrire » à la place de « Contact »
-- [ ] 4. « Pro de l'audio » sur les pages publiques
-- [ ] 5. Cookies : renumérotation
-- [ ] 6. Téléphone Annuaire : bouton « Filtrer (n) », encart studio sous la liste
-- [ ] 7. Téléphone Écouter : thèmes défilants, « Filtrer »
-- [ ] 8. Téléphone Adhérer : accordéons Je cherche / J'apporte
-- [ ] 9. Téléphone Espace membre : liste déroulante
-- [ ] 10. Menu déplié : « Espace membre » en dernier
-- [ ] 11. Admin Paiements : cartes sur téléphone
-- [ ] 12. Admin Fiches à compléter : cartes sur téléphone
-- [ ] Vérification à 390 px
+- [x] 1. Phrase « D'abord un profil, gratuit… » accueil + Adhérer
+- [x] 2. « On parle de nous » : plus récent en premier
+- [x] 3. Pied de page : « Nous écrire » à la place de « Contact »
+- [x] 4. « Pro de l'audio » sur les pages publiques
+- [x] 5. Cookies : renumérotation
+- [x] 6. Téléphone Annuaire : bouton « Filtrer (n) », encart studio sous la liste
+- [x] 7. Téléphone Écouter : thèmes défilants, « Filtrer »
+- [x] 8. Téléphone Adhérer : accordéons Je cherche / J'apporte
+- [x] 9. Téléphone Espace membre : liste déroulante
+- [x] 10. Menu déplié : « Espace membre » en dernier
+- [x] 11. Admin Paiements : cartes sur téléphone
+- [x] 12. Admin Fiches à compléter : cartes sur téléphone
+- [x] Vérification à 390 px
