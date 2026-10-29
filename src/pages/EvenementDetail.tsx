@@ -14,7 +14,7 @@ import { eventHref } from "@/components/agenda/EventRow";
 import { EVENT_TYPE_LABELS, aVenirFilter, cityFromAddress, isOnline, isOrganizedByPds, type HomeEvent } from "@/components/home/useHomeData";
 import { withUtm } from "@/lib/utm";
 import { btnPrimary, btnSecondary, container, formatName, linkUnderline } from "@/lib/pds";
-import { cleanAddress, dateParis, downloadIcs, googleCalendarUrl, heureParis, horairesParis, isoParis, prixDepuisTarif, publicDescription, readableTitle } from "@/lib/events";
+import { cleanAddress, dateLongue, dateParis, downloadIcs, googleCalendarUrl, heureParis, horairesParis, isoParis, prixDepuisTarif, publicDescription, readableTitle } from "@/lib/events";
 import bande from "@/assets/photos/bande-accueil-mur-rouge.jpg.asset.json";
 
 const SITE = SITE_URL;
@@ -236,7 +236,7 @@ const EvenementDetail = () => {
             <h2 id="infos-title" className="title-section text-[28px]">Infos pratiques</h2>
             <dl className="mt-4 space-y-3 text-[16px]">
               <div><dt className="text-sm font-bold">Date</dt><dd>{view.dateLong}</dd></div>
-              <div><dt className="text-sm font-bold">Horaires</dt><dd className="font-mono">{horairesParis(evt.date_debut, evt.date_fin)}</dd></div>
+              <div><dt className="text-sm font-bold">Horaires</dt><dd className="font-mono">{view.plusieursJours ? view.horaires : horairesParis(evt.date_debut, evt.date_fin)}</dd></div>
               <div>
                 <dt className="text-sm font-bold">Lieu</dt>
                 <dd>
