@@ -11,6 +11,7 @@ import EventRow, { eventHref } from "@/components/agenda/EventRow";
 import ProposerEvenementForm from "@/components/agenda/ProposerEvenementForm";
 import { aVenirFilter, isOnline, isOrganizedByPds, passeFilter, type HomeEvent } from "@/components/home/useHomeData";
 import { btnListen, container, h1Ligne, formatShortDate } from "@/lib/pds";
+import { cleanAddress, dateParis, isoParis, readableTitle } from "@/lib/events";
 import photo1 from "@/assets/photos/09-rencontre-inseec-cercle.jpg.asset.json";
 import photo2 from "@/assets/photos/16-rencontre-mur-rouge-trio.jpg.asset.json";
 import photo3 from "@/assets/photos/03-studio-installation-lumieres.jpg.asset.json";
@@ -131,7 +132,7 @@ const Evenements = () => {
           <div className={`${container} py-7 flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-8`}>
             <p className="title-section text-primary-foreground text-[48px] sm:text-[56px] shrink-0">Le 9</p>
             <p className="text-[17px] sm:text-lg">
-              <span className="sr-only">Le 9 </span>de chaque mois, l'atelier-écoute des Podcasteur·euses du Sud. Ouvert à toutes et tous, entrée libre.
+              de chaque mois, l'atelier-écoute des Podcasteur·euses du Sud. Ouvert à toutes et tous, entrée libre.
             </p>
           </div>
         </section>
@@ -154,7 +155,7 @@ const Evenements = () => {
             <p className="py-10 font-mono text-sm text-muted-foreground">Chargement…</p>
           ) : groups.length === 0 ? (
             <p className="py-10 text-lg border-b border-filet">
-              Aucun événement à venir dans cette catégorie pour l'instant. Le prochain apéro écoute a lieu le 9 du mois.
+              Aucun événement à venir dans cette catégorie pour l'instant. Le prochain atelier-écoute a lieu le 9 du mois.
             </p>
           ) : (
             groups.map(([month, events]) => (
