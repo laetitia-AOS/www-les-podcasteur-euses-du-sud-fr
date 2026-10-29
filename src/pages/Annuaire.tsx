@@ -32,7 +32,7 @@ const DEPARTEMENTS = [
 ];
 
 const PAGE = 10;
-const fieldClass = "w-full min-h-[48px] px-3 bg-surface border-2 border-encre text-[16px] focus:outline-none focus-visible:outline-[3px] focus-visible:outline-accent";
+const fieldClass = "w-full min-h-[40px] px-3 bg-surface border-2 border-encre text-[16px] focus:outline-none focus-visible:outline-[3px] focus-visible:outline-accent";
 const norm = (s: string) => s.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
 
 interface Profile {
@@ -128,9 +128,9 @@ const Annuaire = () => {
             Déjà dans l'annuaire ? Ajouter mon podcast depuis l'espace membre
           </Link>
 
-          <div className="mt-8 grid lg:grid-cols-[300px_1fr] gap-10 lg:gap-12 items-start">
+          <div className="mt-8 grid lg:grid-cols-[240px_1fr] gap-8 lg:gap-10 items-start">
             {/* Filtres */}
-            <aside aria-label="Filtres" className="border-t-2 border-encre pt-5 space-y-7">
+            <aside aria-label="Filtres" className="border-t-2 border-encre pt-4 space-y-5">
               <div>
                 <label htmlFor="annuaire-search" className="block text-sm font-bold mb-1.5">Rechercher</label>
                 <input id="annuaire-search" type="search" value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Un nom, une compétence" className={fieldClass} />
@@ -143,8 +143,8 @@ const Annuaire = () => {
                     const id = `besoin-${b.value}`;
                     return (
                       <li key={b.value}>
-                        <label htmlFor={id} className="flex items-center gap-3 min-h-[40px] cursor-pointer text-[16px]">
-                          <input id={id} type="checkbox" checked={besoins.includes(b.value)} onChange={() => toggle(b.value)} className="w-5 h-5 accent-primary shrink-0" />
+                        <label htmlFor={id} className="flex items-center gap-2.5 min-h-[32px] cursor-pointer text-[15px]">
+                          <input id={id} type="checkbox" checked={besoins.includes(b.value)} onChange={() => toggle(b.value)} className="w-4 h-4 accent-primary shrink-0" />
                           {b.label}
                         </label>
                       </li>
@@ -168,7 +168,7 @@ const Annuaire = () => {
                 </select>
               </div>
 
-              <Link to="/studios-podcast" className="block border-2 border-encre bg-surface p-5 hover:border-primary">
+              <Link to="/studios-podcast" className="block border-2 border-encre bg-surface p-4 hover:border-primary">
                 <span className="block font-bold text-[17px]">Vous cherchez un studio ?</span>
                 <span className="block mt-1 text-[15px]">Studios et agences ont leur propre rubrique <span aria-hidden>→</span></span>
               </Link>
