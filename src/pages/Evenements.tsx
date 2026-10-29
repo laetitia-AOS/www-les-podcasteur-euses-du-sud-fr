@@ -34,7 +34,7 @@ const FILTERS = [
   { key: "place", label: "Sur place", test: (e: AgendaEvent) => !isOnline(e) },
   { key: "pds", label: "Organisés par PDS", test: (e: AgendaEvent) => isOrganizedByPds(e) },
   { key: "membres", label: "Proposés par les membres", test: (e: AgendaEvent) => !isOrganizedByPds(e) },
-  { key: "ateliers", label: "Ateliers-écoute", test: (e: AgendaEvent) => e.type === "atelier" },
+  { key: "ateliers", label: "Ateliers-écoute", test: (e: AgendaEvent) => e.type === "apero_ecoute" },
 ] as const;
 
 const SITE = "https://www.les-podcasteur-euses-du-sud.fr";

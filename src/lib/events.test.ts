@@ -16,7 +16,8 @@ describe("horaires des événements, à l'heure de Paris", () => {
     expect(isoParis("2026-07-09T16:30:00Z")).toBe("2026-07-09T18:30:00+02:00");
   });
   it("affiche le type « Atelier-écoute »", () => {
-    expect(EVENT_TYPE_LABELS.atelier).toBe("Atelier-écoute");
+    expect(EVENT_TYPE_LABELS.apero_ecoute).toBe("Atelier-écoute");
+    expect(EVENT_TYPE_LABELS.atelier).toBe("Atelier");
   });
 });
 

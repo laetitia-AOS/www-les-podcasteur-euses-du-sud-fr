@@ -119,9 +119,10 @@ export const isOnline = (e: Pick<HomeEvent, "lieu" | "adresse" | "format">) =>
 /** Organisé par l'association, ou proposé par un membre (champ « origine »). */
 export const isOrganizedByPds = (e: Pick<HomeEvent, "origine">) => (e.origine ?? "pds") === "pds";
 
+// « apero_ecoute » est le code du rendez-vous mensuel, désormais appelé « Atelier-écoute »
 export const EVENT_TYPES = [
-  { value: "apero_ecoute", label: "Apéro écoute" },
-  { value: "atelier", label: "Atelier-écoute" },
+  { value: "apero_ecoute", label: "Atelier-écoute" },
+  { value: "atelier", label: "Atelier" },
   { value: "live", label: "Live" },
   { value: "ecoute", label: "Écoute" },
   { value: "rencontre", label: "Rencontre" },

@@ -20,8 +20,8 @@ const SITE = SITE_URL;
 
 // Libellé du type d'événement pour le titre principal « [Type] à [Ville] : [Titre] »
 const H1_TYPE: Record<string, string> = {
-  apero_ecoute: "Apéro écoute podcast",
-  atelier: "Atelier-écoute podcast",
+  apero_ecoute: "Atelier-écoute podcast",
+  atelier: "Atelier podcast",
   live: "Podcast en live",
   ecoute: "Écoute de podcast",
   rencontre: "Rencontre podcast",
