@@ -6,6 +6,7 @@ import SEOHead from "@/components/SEOHead";
 import ProfilStep, { type ProfilResult } from "@/components/adherer/ProfilStep";
 import PodcastsStep from "@/components/adherer/PodcastsStep";
 import { btnPrimary, btnSecondary, container, linkUnderline } from "@/lib/pds";
+import { anneeEnCours, libelleValidite, periodeRenouvellement } from "@/lib/espaceMembre";
 import { FORMULES_HELLOASSO, HELLOASSO_WIDGET, TARIFS, TYPES_PROFIL, formulePourType, profilColumns, type TypeProfil } from "@/lib/inscription";
 
 type StepKey = "profil" | "podcasts" | "adhesion" | "paiement";
@@ -24,7 +25,17 @@ const COMPARATIF: { label: string; profil: string; membre: string }[] = [
   { label: "« Cherche / Apporte » visibles et messages des autres membres", profil: "Non", membre: "Oui" },
 ];
 
+const ANNEE = anneeEnCours();
+
 const FAQ = [
+  {
+    q: "Jusqu'à quand mon adhésion est-elle valable ?",
+    a: `L'adhésion suit l'année civile : elle est valable jusqu'au 31 décembre de l'année payée, quelle que soit la date de paiement (une adhésion réglée en ${ANNEE} est valable jusqu'au 31 décembre ${ANNEE}). Il n'y a pas de prorata. Sans renouvellement, votre profil reste visible en janvier, puis il est masqué le 1er février, sans être supprimé.`,
+  },
+  {
+    q: "Comment renouveler mon adhésion ?",
+    a: "Le renouvellement ouvre le 1er décembre pour l'année suivante. Connectez-vous à votre espace membre et cliquez sur « Renouveler » : vous arrivez sur le paiement HelloAsso. Utilisez la même adresse e-mail que pour votre profil. Si votre adhésion de l'année est déjà payée, le paiement couvre l'année suivante.",
+  },
   {
     q: "Puis-je créer un profil sans adhérer ?",
     a: "Oui. Votre profil est enregistré et relu par l'équipe, mais il n'apparaît publiquement qu'une fois l'adhésion réglée.",
@@ -39,7 +50,7 @@ const FAQ = [
   },
   {
     q: "Que se passe-t-il si je ne renouvelle pas ?",
-    a: "Votre profil reste enregistré, mais la mise en avant sur le site est réservée aux membres à jour de leur cotisation.",
+    a: "Votre profil reste enregistré. Il reste visible pendant le mois de janvier, puis il est masqué du site le 1er février. Il réapparaît dès votre paiement.",
   },
   {
     q: "J'ai déjà un profil, je veux ajouter un podcast.",
@@ -84,10 +95,22 @@ const Adhesion = () => {
     ? (params.get("formule") as "studio" | "personne")
     : formulePourType(result?.type ?? type);
   const isStructure = formule === "studio";
+  // Année couverte : celle transmise par l'espace membre (renouvellement anticipé), sinon l'année en cours
+  const pour = Number(params.get("pour"));
+  const anneeCouverte = Number.isInteger(pour) && pour >= ANNEE && pour <= ANNEE + 1 ? pour : ANNEE;
+  const Validite = () => (
+    <p className="font-bold text-[17px]" data-validite>
+      {libelleValidite(anneeCouverte)}
+      {anneeCouverte === ANNEE && periodeRenouvellement() && (
+        <span className="block font-normal text-[15px] mt-1">Déjà membre {ANNEE} ? Votre paiement couvrira toute l'année {ANNEE + 1}.</span>
+      )}
+    </p>
+  );
   const consigne = FORMULES_HELLOASSO[formule];
   const Consigne = () => (
     <div className="border-l-[6px] border-accent bg-background p-4 sm:p-5">
       <p className="font-bold text-[17px]">Dans le formulaire HelloAsso, choisissez « {consigne.nom} »</p>
+      <p className="mt-1 text-[15px] font-semibold">{libelleValidite(anneeCouverte)}, quelle que soit la date de paiement.</p>
       <p className="mt-1 text-[15px]">{consigne.consigne}. N'ajoutez pas l'autre formule à votre panier.</p>
     </div>
   );
@@ -113,6 +136,7 @@ const Adhesion = () => {
           <p className="mt-5 text-lg max-w-[56ch]">
             D'abord un profil, gratuit mais sans visibilité publique. Ensuite l'adhésion, pour être vu·e, entendu·e et mis·e en relation.
           </p>
+          <p className="mt-3 font-bold text-[17px]">Adhésion {ANNEE} : {libelleValidite(ANNEE).toLowerCase()}, quelle que soit la date de paiement.</p>
 
           <div className="mt-10">
             <table className="w-full border-2 border-encre bg-surface text-[14px] sm:text-[15px]">
@@ -219,7 +243,12 @@ const Adhesion = () => {
                     <p className="mt-2 text-[15px]">Pour les studios, agences et structures.</p>
                   </div>
                 </div>
-                <div className="mt-6"><Consigne /></div>
+                <div className="mt-6 border-2 border-encre bg-surface p-4 sm:p-5">
+                  <p className="font-mono text-xs text-muted-foreground">Récapitulatif avant paiement</p>
+                  <p className="mt-1 text-[17px]">{isStructure ? `Studio ou agence · ${TARIFS.studio} €` : `Personne · ${TARIFS.personne} € conseillés, dès ${TARIFS.minimumPersonne} €`}</p>
+                  <div className="mt-1"><Validite /></div>
+                </div>
+                <div className="mt-4"><Consigne /></div>
                 <p className="mt-6 text-[17px] max-w-[62ch]">
                   <strong>Utilisez la même adresse e-mail que pour votre profil{result?.email ? ` (${result.email})` : ""}</strong> : c'est elle qui active votre visibilité.
                 </p>
@@ -240,7 +269,7 @@ const Adhesion = () => {
               <div className="mt-6">
                 <div className="mb-4"><Consigne /></div>
                 <p className="mb-4 text-[15px]">
-                  Paiement sécurisé sur HelloAsso. Une fois le paiement validé, vous arrivez sur une page de bienvenue. Votre adhésion court sur un an à partir de la confirmation du paiement.
+                  Paiement sécurisé sur HelloAsso. Une fois le paiement validé, vous arrivez sur une page de bienvenue. L'adhésion suit l'année civile : pas de prorata, elle se termine le 31 décembre.
                 </p>
                 <iframe
                   id="haWidget"
