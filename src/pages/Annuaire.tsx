@@ -7,7 +7,7 @@ import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import SEOHead from "@/components/SEOHead";
 import { PAGES, PAGES_SEO } from "@/lib/seo";
-import { btnSecondary, cleanCity, container, fullName } from "@/lib/pds";
+import { btnSecondary, cleanCity, container, h1Ligne, fullName } from "@/lib/pds";
 import MemberAvatar, { profilePhotoFor } from "@/components/MemberAvatar";
 import { COLLAB_CHOIX, collabLabel, phraseApportent } from "@/lib/inscription";
 

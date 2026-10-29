@@ -10,7 +10,7 @@ import SEOHead from "@/components/SEOHead";
 import { PAGES_SEO } from "@/lib/seo";
 import { usePlayer } from "@/contexts/PlayerContext";
 import { useLatestEpisodes, type Episode } from "@/lib/episodes";
-import { btnPrimary, btnSecondary, cleanCity, container, formatShortDate, fullName } from "@/lib/pds";
+import { btnPrimary, btnSecondary, cleanCity, container, h1Ligne, formatShortDate, fullName } from "@/lib/pds";
 
 interface Podcast {
   id: string;

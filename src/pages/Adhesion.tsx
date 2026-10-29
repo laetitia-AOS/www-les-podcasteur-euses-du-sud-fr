@@ -6,7 +6,7 @@ import SEOHead from "@/components/SEOHead";
 import { PAGES, PAGES_SEO } from "@/lib/seo";
 import ProfilStep, { type ProfilResult } from "@/components/adherer/ProfilStep";
 import PodcastsStep from "@/components/adherer/PodcastsStep";
-import { btnPrimary, btnSecondary, container, linkUnderline } from "@/lib/pds";
+import { btnPrimary, btnSecondary, container, h1Ligne, linkUnderline } from "@/lib/pds";
 import { anneeEnCours, libelleValidite, periodeRenouvellement } from "@/lib/espaceMembre";
 import { FORMULES_HELLOASSO, HELLOASSO_WIDGET, TARIFS, TYPES_PROFIL, formulePourType, profilColumns, type TypeProfil } from "@/lib/inscription";
 

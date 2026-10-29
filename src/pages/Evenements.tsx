@@ -10,7 +10,7 @@ import { PAGES, PAGES_SEO } from "@/lib/seo";
 import EventRow, { eventHref } from "@/components/agenda/EventRow";
 import ProposerEvenementForm from "@/components/agenda/ProposerEvenementForm";
 import { aVenirFilter, isOnline, isOrganizedByPds, passeFilter, type HomeEvent } from "@/components/home/useHomeData";
-import { btnListen, container, formatShortDate } from "@/lib/pds";
+import { btnListen, container, h1Ligne, formatShortDate } from "@/lib/pds";
 import photo1 from "@/assets/photos/09-rencontre-inseec-cercle.jpg.asset.json";
 import photo2 from "@/assets/photos/16-rencontre-mur-rouge-trio.jpg.asset.json";
 import photo3 from "@/assets/photos/03-studio-installation-lumieres.jpg.asset.json";
