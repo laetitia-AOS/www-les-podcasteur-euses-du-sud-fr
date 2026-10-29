@@ -19,3 +19,12 @@ project_id = "pnxbuhtqiruayzykaagw"
     verify_jwt = false
   [functions.valider-images]
     verify_jwt = false
+
+[functions.preview-transactional-email]
+verify_jwt = false
+
+[functions.notifier-membre]
+verify_jwt = false
+
+[functions.confirmer-venue]
+verify_jwt = false

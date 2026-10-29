@@ -1,7 +1,8 @@
 // Edge Function : transmet un message d'un·e visiteur·ice à un membre, sans jamais révéler l'e-mail du membre.
-// Le message est enregistré dans contact_requests ; l'équipe le transmet ensuite au membre depuis l'admin.
+// Le message est enregistré dans contact_requests, puis le membre est prévenu par e-mail (e-mails intégrés Lovable).
 
 import { createClient } from "npm:@supabase/supabase-js@2.45.0";
+import { envoyer, extrait, premierPrenom } from "../_shared/notifications.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -60,17 +61,27 @@ Deno.serve(async (req) => {
 
     // Un seul enregistrement groupé : un devis envoyé à plusieurs studios compte pour un envoi.
     // La base vérifie et nettoie chaque champ, et limite à 5 envois par heure et par adresse.
-    // Aucun service d'envoi externe : l'équipe transmet le message au membre depuis l'admin.
-    const { error: insertError } = await admin.from("contact_requests").insert(
+    const { data: inseres, error: insertError } = await admin.from("contact_requests").insert(
       recipients.map((r) => ({ recipient_id: r.id, sender_name: name, sender_email: email, message: msg, type })),
-    );
+    ).select("id, recipient_id");
     if (insertError) {
       if (insertError.code === "P0001") {
         return json({ error: insertError.message }, insertError.hint === "rate_limit" ? 429 : 400);
       }
       return json({ error: "Le message n'a pas pu être enregistré." }, 500);
     }
-    return json({ ok: true, emailed: false, count: recipients.length });
+    // Le membre est prévenu par e-mail ; son adresse n'est jamais montrée à l'expéditeur·ice
+    const { data: fiches } = await admin.from("podcasts").select("id, email, prenom, nom_podcast").in("id", recipients.map((r) => r.id));
+    let emailed = 0;
+    for (const row of inseres || []) {
+      const f = (fiches || []).find((x) => x.id === row.recipient_id);
+      if (!f) continue;
+      const ok = await envoyer(type === "collab" ? "collab-recue" : "message-recu", f.email, {
+        prenom: premierPrenom(f.prenom), expediteur: name, extrait: extrait(msg), fiche: f.nom_podcast,
+      }, `${type}-recu-${row.id}`);
+      if (ok) emailed++;
+    }
+    return json({ ok: true, emailed: emailed > 0, count: recipients.length });
   } catch (_e) {
     return json({ error: "Une erreur est survenue. Réessayez dans un instant." }, 500);
   }

@@ -143,6 +143,10 @@ const AdminEvenements = () => {
       if (error) throw error;
       // Publier l'événement valide aussi son visuel envoyé sans connexion
       if (statut === "publie") await traiterImages({ evenement_id: id, action: "valider" }).catch(() => null);
+      // Proposition d'un membre publiée ou refusée : il est prévenu par e-mail
+      if (statut === "publie" || statut === "refuse") {
+        await supabase.functions.invoke("notifier-membre", { body: { type: "proposition", id } }).catch(() => null);
+      }
     },
     onSuccess: (_, { statut }) => {
       queryClient.invalidateQueries({ queryKey: ["admin-evenements"] });

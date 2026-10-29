@@ -62,7 +62,9 @@ const JeViens = ({ evenementId, places }: { evenementId: string; places: number 
       return;
     }
     setDeja(true);
-    setMsg("C'est noté, à bientôt.");
+    setMsg("C'est noté, à bientôt. Une confirmation arrive par e-mail.");
+    // E-mail de confirmation (n'empêche jamais l'inscription)
+    supabase.functions.invoke("confirmer-venue", { body: { evenement_id: evenementId, email: email.trim().toLowerCase() } }).catch(() => {});
     setState("ok");
     qc.invalidateQueries({ queryKey: ["nb-venues", evenementId] });
   };
