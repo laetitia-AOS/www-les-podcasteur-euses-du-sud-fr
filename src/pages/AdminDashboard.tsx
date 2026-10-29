@@ -1,84 +1,88 @@
-import { useNavigate, Navigate } from "react-router-dom";
-import { useAdminAuth } from "@/hooks/useAdminAuth";
-import { Button } from "@/components/ui/button";
-import { Card, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { Users, Mail, CalendarDays, BookOpen, ArrowLeft, LogOut, Loader2 } from "lucide-react";
+import { Link } from "react-router-dom";
+import { ArrowRight, CalendarPlus, Download, Mail } from "lucide-react";
+import AdminLayout from "@/components/admin/AdminLayout";
+import { useATraiter, type ATraiter } from "@/components/admin/useATraiter";
 
-const links = [
-  {
-    title: "Annuaire",
-    description: "Gérer les fiches membres : podcasteurs, pros et soutiens. Modifier, activer/désactiver, supprimer.",
-    icon: BookOpen,
-    to: "/admin/podcasts",
-  },
-  {
-    title: "Adhésions",
-    description: "Gérer les adhésions : consulter, modifier, supprimer, importer et exporter.",
-    icon: Users,
-    to: "/admin/adhesions",
-  },
-  {
-    title: "Messages de contact",
-    description: "Consulter, changer le statut et supprimer les demandes reçues.",
-    icon: Mail,
-    to: "/admin/contacts",
-  },
-  {
-    title: "Événements",
-    description: "Créer, modifier, supprimer et publier les événements.",
-    icon: CalendarDays,
-    to: "/admin/evenements",
-  },
+type Tache = { cle: keyof ATraiter; un: string; plusieurs: string; aide: string; to: string };
+
+const TACHES: Tache[] = [
+  { cle: "fiches", un: "fiche à valider", plusieurs: "fiches à valider", aide: "Pas encore visibles dans l'annuaire.", to: "/admin/annuaire?onglet=a-valider" },
+  { cle: "images", un: "image à valider", plusieurs: "images à valider", aide: "Envoyées sans connexion, invisibles en attendant.", to: "/admin/annuaire?onglet=a-valider" },
+  { cle: "propositions", un: "proposition d'événement", plusieurs: "propositions d'événements", aide: "Envoyées par des membres, en relecture.", to: "/admin/agenda?onglet=relecture" },
+  { cle: "paiements", un: "paiement à vérifier", plusieurs: "paiements à vérifier", aide: "À contrôler sur HelloAsso avant validation.", to: "/admin/membres?onglet=paiements" },
+  { cle: "contacts", un: "message du formulaire de contact", plusieurs: "messages du formulaire de contact", aide: "Statut « Nouveau ».", to: "/admin/messages?onglet=site" },
+  { cle: "messages_membres", un: "message pour un·e membre", plusieurs: "messages pour des membres", aide: "Messages, collabs et devis à suivre.", to: "/admin/messages?onglet=membres" },
+  { cle: "flux", un: "flux d'épisodes à confirmer", plusieurs: "flux d'épisodes à confirmer", aide: "Trouvés automatiquement, à vérifier.", to: "/admin/annuaire?onglet=flux" },
+];
+
+const RACCOURCIS = [
+  { label: "Nouvel événement", to: "/admin/agenda?onglet=a-venir&nouveau=1", icon: CalendarPlus },
+  { label: "Relance collective", to: "/admin/membres?onglet=relances", icon: Mail },
+  { label: "Fiches à compléter", to: "/admin/annuaire?onglet=a-completer", icon: ArrowRight },
+  { label: "Export des membres", to: "/admin/membres?onglet=membres", icon: Download },
 ];
 
 const AdminDashboard = () => {
-  const navigate = useNavigate();
-  const { user, isAdmin, loading, signOut } = useAdminAuth();
-
-  if (loading) {
-    return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
-        <Loader2 className="w-6 h-6 animate-spin text-primary" />
-      </div>
-    );
-  }
-
-  if (!user || !isAdmin) {
-    return <Navigate to="/admin/login" replace />;
-  }
+  const { data, isLoading } = useATraiter();
+  const enAttente = TACHES.filter((t) => (data?.[t.cle] ?? 0) > 0);
+  const calmes = TACHES.filter((t) => (data?.[t.cle] ?? 0) === 0);
 
   return (
-    <div className="min-h-screen bg-background">
-      <div className="container mx-auto px-6 py-10 max-w-4xl">
-        <div className="flex items-center justify-between mb-10">
-          <div className="flex items-center gap-3">
-            <Button variant="ghost" size="icon" onClick={() => navigate("/")}>
-              <ArrowLeft className="w-5 h-5" />
-            </Button>
-            <h1 className="font-display font-bold text-3xl text-foreground">Administration</h1>
-          </div>
-          <Button variant="outline" size="sm" onClick={signOut}>
-            <LogOut className="w-4 h-4 mr-2" /> Déconnexion
-          </Button>
-        </div>
+    <AdminLayout titre="À traiter" description="Tout ce qui attend une action de l'équipe. Un clic ouvre le bon onglet.">
+      {isLoading ? (
+        <p className="text-muted-foreground">Chargement…</p>
+      ) : (
+        <>
+          {enAttente.length === 0 ? (
+            <p className="border-2 border-foreground bg-card p-6 font-display font-bold text-xl mb-10">Rien en attente : tout est à jour.</p>
+          ) : (
+            <ul className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3 mb-10">
+              {enAttente.map((t) => {
+                const n = data![t.cle];
+                return (
+                  <li key={t.cle}>
+                    <Link
+                      to={t.to}
+                      className="group flex h-full flex-col border-2 border-foreground bg-card p-5 transition-colors motion-reduce:transition-none hover:bg-foreground hover:text-background focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
+                    >
+                      <span className="font-display font-black text-5xl leading-none text-primary group-hover:text-accent">{n}</span>
+                      <span className="mt-2 font-display font-bold text-lg leading-snug">{n > 1 ? t.plusieurs : t.un}</span>
+                      <span className="mt-1 text-sm text-muted-foreground group-hover:text-background/80">{t.aide}</span>
+                      <span className="mt-auto pt-4 inline-flex items-center gap-1 font-mono text-xs uppercase tracking-widest">
+                        Ouvrir <ArrowRight className="w-3.5 h-3.5" aria-hidden />
+                      </span>
+                    </Link>
+                  </li>
+                );
+              })}
+            </ul>
+          )}
 
-        <div className="grid gap-4 sm:grid-cols-2">
-          {links.map((link) => (
-            <Card
-              key={link.to}
-              className="cursor-pointer transition-shadow hover:shadow-lg border-border hover:border-primary/40"
-              onClick={() => navigate(link.to)}
-            >
-              <CardHeader>
-                <link.icon className="w-8 h-8 text-primary mb-2" />
-                <CardTitle className="text-lg">{link.title}</CardTitle>
-                <CardDescription>{link.description}</CardDescription>
-              </CardHeader>
-            </Card>
-          ))}
-        </div>
-      </div>
-    </div>
+          <div className="grid gap-8 lg:grid-cols-2">
+            <section aria-labelledby="raccourcis-titre">
+              <h2 id="raccourcis-titre" className="font-mono text-xs uppercase tracking-widest text-muted-foreground mb-3">Raccourcis</h2>
+              <ul className="flex flex-wrap gap-2">
+                {RACCOURCIS.map((r) => (
+                  <li key={r.label}>
+                    <Link to={r.to} className="inline-flex items-center gap-2 border-2 border-primary bg-primary px-4 py-2.5 text-sm font-bold text-primary-foreground hover:bg-primary-hover focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary">
+                      <r.icon className="w-4 h-4" aria-hidden /> {r.label}
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            </section>
+            {calmes.length > 0 && (
+              <section aria-labelledby="ajour-titre">
+                <h2 id="ajour-titre" className="font-mono text-xs uppercase tracking-widest text-muted-foreground mb-3">À jour</h2>
+                <ul className="text-sm text-muted-foreground space-y-1">
+                  {calmes.map((t) => <li key={t.cle}>Aucun·e {t.un}</li>)}
+                </ul>
+              </section>
+            )}
+          </div>
+        </>
+      )}
+    </AdminLayout>
   );
 };
 
