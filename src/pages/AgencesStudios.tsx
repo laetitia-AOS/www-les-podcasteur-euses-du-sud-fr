@@ -6,7 +6,7 @@ import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import SEOHead from "@/components/SEOHead";
 import { PAGES, PAGES_SEO, SITE_URL, ficheHref } from "@/lib/seo";
-import { btnListen, btnPrimary, btnSecondary, cleanCity, container } from "@/lib/pds";
+import { btnListen, btnPrimary, btnSecondary, cleanCity, container, h1Ligne } from "@/lib/pds";
 import DevisForm from "@/components/studios/DevisForm";
 import { SERVICES_STUDIO, formatCapacite, formatTarif, serviceLabel, useFichesLieux } from "@/lib/lieux";
 
