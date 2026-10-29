@@ -48,7 +48,7 @@ const HomeHero = ({ profiles, latest }: Props) => {
             <span className="block">
               Le Sud
               <br />
-              au casque<span className="text-accent">.</span>
+              a des voix<span className="text-accent">.</span>
             </span>
             <span className={`${h1Ligne} text-primary-foreground mt-6`}>Les podcasts de Marseille et de Région Sud, et celles et ceux qui les font.</span>
           </h1>
