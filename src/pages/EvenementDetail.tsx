@@ -5,6 +5,7 @@ import { supabase } from "@/integrations/supabase/client";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import SEOHead from "@/components/SEOHead";
+import { faqPourEvenement } from "@/lib/faqEvenement";
 import { PAGES, SITE_URL, breadcrumbLd, descriptionSeo, faqLd, titreSeo } from "@/lib/seo";
 import JeViens from "@/components/agenda/JeViens";
 import PartageEvenement from "@/components/agenda/PartageEvenement";
@@ -35,6 +36,7 @@ type Evt = HomeEvent & {
   places: number | null;
   podcasts_invites: unknown;
   lien_connexion: string | null;
+  faq: unknown;
 };
 
 // Heure et date toujours à l'heure de Paris (événements en Région Sud), quel que soit l'appareil
@@ -50,7 +52,7 @@ const EvenementDetail = () => {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("evenements")
-        .select("id, titre, sous_titre, description, date_debut, date_fin, lieu, adresse, type, slug, lien_externe, inscription_activee, image_url, places, podcasts_invites, origine, format, propose_par_nom, tarif, lien_connexion")
+        .select("id, titre, sous_titre, description, date_debut, date_fin, lieu, adresse, type, slug, lien_externe, inscription_activee, image_url, places, podcasts_invites, origine, format, propose_par_nom, tarif, lien_connexion, faq")
         .eq("slug", slug!)
         .eq("statut", "publie")
         .maybeSingle();
@@ -85,15 +87,17 @@ const EvenementDetail = () => {
     const city = online ? "" : cityFromAddress(evt.adresse) || (evt.lieu && /marseille/i.test(evt.lieu) ? "Marseille" : "");
     const titre = readableTitle(evt.titre);
     const h1 = `${H1_TYPE[evt.type] || "Événement podcast"} ${online ? "en ligne" : city ? `à ${city}` : "en Région Sud"} : ${titre}`;
-    const dateLong = capitalize(start.toLocaleDateString("fr-FR", { weekday: "long", day: "numeric", month: "long", year: "numeric", timeZone: "Europe/Paris" }));
-    const horaires = end ? `de ${hour(start)} à ${hour(end)}` : `à partir de ${hour(start)}`;
+    // Sur plusieurs jours : « Du 19 au 20 juin 2026 »
+    const plusieursJours = !!end && dateParis(start, { year: "numeric", month: "2-digit", day: "2-digit" }) !== dateParis(end, { year: "numeric", month: "2-digit", day: "2-digit" });
+    const dateLong = plusieursJours ? dateLongue(evt.date_debut, evt.date_fin) : capitalize(start.toLocaleDateString("fr-FR", { weekday: "long", day: "numeric", month: "long", year: "numeric", timeZone: "Europe/Paris" }));
+    const horaires = plusieursJours ? `de ${hour(start)} (premier jour) à ${hour(end!)} (dernier jour)` : end ? `de ${hour(start)} à ${hour(end)}` : `à partir de ${hour(start)}`;
     const lieuPhrase = online ? "en ligne" : evt.lieu ? `chez ${evt.lieu}${city ? ` (${city})` : ""}` : city ? `à ${city}` : "";
     const tarif = evt.tarif || "";
     const organisateur = pds ? "Les Podcasteur·euses du Sud" : formatName(evt.propose_par_nom) || "Un membre du réseau";
     const intro = `${dateLong}, ${horaires}${lieuPhrase ? `, ${lieuPhrase}` : ""}.${evt.sous_titre ? ` ${evt.sous_titre.replace(/\.$/, "")}.` : ""}${tarif ? ` ${tarif}.` : ""}`;
     const isPast = (end || start) < new Date();
     const url = `${SITE}${eventHref(evt)}`;
-    return { start, end, online, pds, city, titre, h1, dateLong, horaires, tarif, organisateur, intro, isPast, url, description: publicDescription(evt.description) };
+    return { start, end, plusieursJours, online, pds, city, titre, h1, dateLong, horaires, tarif, organisateur, intro, isPast, url, description: publicDescription(evt.description) };
   }, [evt]);
 
   const jsonLd = useMemo(() => {
@@ -172,17 +176,13 @@ const EvenementDetail = () => {
   const invites = Array.isArray(evt.podcasts_invites) ? (evt.podcasts_invites as never[]) : [];
   const agendaInfo = { titre: view.h1, date_debut: evt.date_debut, date_fin: evt.date_fin, lieu: evt.lieu, adresse: evt.adresse ? cleanAddress(evt.adresse) : null, url: view.url, description: view.intro };
   const day = dateParis(view.start, { weekday: "long" });
-  const dayNum = dateParis(view.start, { day: "numeric" });
+  const dayNum = view.plusieursJours && view.end && dateParis(view.end, { month: "numeric" }) === dateParis(view.start, { month: "numeric" })
+    ? `${dateParis(view.start, { day: "numeric" })}–${dateParis(view.end, { day: "numeric" })}`
+    : dateParis(view.start, { day: "numeric" });
   const monthYear = dateParis(view.start, { month: "short", year: "numeric" }).replace(".", "");
 
-  const faq = view.pds
-    ? [
-        { q: "Faut-il payer pour venir ?", a: evt.tarif ? `Tarif : ${evt.tarif}.` : "Non, l'entrée est libre. Les consommations sont à votre charge." },
-        { q: "Faut-il faire un podcast pour venir ?", a: "Non. Créateur·ices, auditeur·ices, curieux·ses : la soirée est ouverte à toutes et tous." },
-        { q: "Faut-il réserver ?", a: "Cliquez sur « Je viens » : cela nous aide à prévoir la place." },
-        { q: "Comment faire écouter mon podcast lors d'une soirée ?", a: "Écrivez à l'équipe depuis la page « Nous écrire » en présentant votre podcast : elle choisit les écoutes de chaque soirée." },
-      ]
-    : [];
+  // Questions écrites par l'équipe pour cet événement, sinon réponses par défaut
+  const faq = faqPourEvenement(evt, view.pds).map((f) => ({ q: f.q, a: f.r }));
 
   return (
     <div className="min-h-screen bg-background">
@@ -207,8 +207,8 @@ const EvenementDetail = () => {
 
         <header className={`${container} pt-6 pb-10 grid sm:grid-cols-[150px_1fr] gap-6 sm:gap-10 items-start`}>
           <div className="border-2 border-encre bg-surface w-[130px] sm:w-[150px] text-center py-3" aria-hidden>
-            <p className="text-sm font-bold uppercase">{day}</p>
-            <p className="title-section text-[72px] leading-none my-1">{dayNum}</p>
+            <p className="text-sm font-bold uppercase">{view.plusieursJours && view.end ? `${dateParis(view.start, { weekday: "short" })}–${dateParis(view.end, { weekday: "short" })}` : day}</p>
+            <p className={`title-section ${dayNum.includes("–") ? "text-[44px] sm:text-[52px]" : "text-[72px]"} leading-none my-1`}>{dayNum}</p>
             <p className="text-sm font-bold uppercase">{monthYear}</p>
           </div>
           <div className="min-w-0">
@@ -222,9 +222,9 @@ const EvenementDetail = () => {
         </header>
 
         {evt.image_url ? (
-          // Visuel complet (souvent une affiche avec du texte) : jamais recadré
+          // Affiche entière, à sa taille naturelle, jamais recadrée ni étirée ; sur ordinateur, pas plus large que la colonne de texte
           <div className={container}>
-            <img src={evt.image_url} alt={`Affiche de ${view.titre}`} className="w-full h-auto border border-filet" />
+            <img src={evt.image_url} alt={`Affiche de ${view.titre}`} className="block w-auto max-w-full lg:max-w-[720px] h-auto max-h-none object-contain border border-filet" />
           </div>
         ) : (
           <img src={bande.url} alt="Un apéro écoute des Podcasteur·euses du Sud dans une salle aux murs rouges." className="w-full aspect-[16/9] sm:aspect-[1800/650] object-cover" />
