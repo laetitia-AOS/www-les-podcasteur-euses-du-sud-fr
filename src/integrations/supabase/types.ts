@@ -979,6 +979,18 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      admin_a_traiter: {
+        Args: never
+        Returns: {
+          contacts: number
+          fiches: number
+          flux: number
+          images: number
+          messages_membres: number
+          paiements: number
+          propositions: number
+        }[]
+      }
       admin_flux: {
         Args: never
         Returns: {

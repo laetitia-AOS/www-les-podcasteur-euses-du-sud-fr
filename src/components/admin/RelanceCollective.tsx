@@ -54,7 +54,7 @@ const RELANCES: { id: Relance; label: string; quand: string }[] = [
  * Relance collective : prépare le message et la liste des adresses, envoyés depuis la boîte mail de l'équipe
  * (copie cachée). Les e-mails du site sont réservés aux messages individuels.
  */
-const RelanceCollective = ({ membres, onClose }: { membres: MembreAdmin[]; onClose: () => void }) => {
+const RelanceCollective = ({ membres, onClose }: { membres: MembreAdmin[]; onClose?: () => void }) => {
   const y = anneeEnCours();
   const [r, setR] = useState<Relance>(new Date().getMonth() === 0 ? "15jan" : "1dec");
   const msg = messageRelance(r, y);
@@ -83,7 +83,7 @@ const RelanceCollective = ({ membres, onClose }: { membres: MembreAdmin[]; onClo
             Le message part de votre boîte mail. « Écrire » ouvre un e-mail personnalisé pour un membre ; « Ouvrir dans ma messagerie » prépare un envoi à tous, en copie cachée (Cci).
           </p>
         </div>
-        <Button variant="ghost" size="icon" onClick={onClose} aria-label="Fermer la relance"><X className="w-4 h-4" /></Button>
+        {onClose && <Button variant="ghost" size="icon" onClick={onClose} aria-label="Fermer la relance"><X className="w-4 h-4" /></Button>}
       </div>
 
       <fieldset className="mt-4">

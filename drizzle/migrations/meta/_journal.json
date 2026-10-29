@@ -169,6 +169,13 @@
       "when": 1793279809616,
       "tag": "0023_migration",
       "breakpoints": true
+    },
+    {
+      "idx": 24,
+      "version": "7",
+      "when": 1793280417952,
+      "tag": "0024_admin_a_traiter",
+      "breakpoints": true
     }
   ]
 }

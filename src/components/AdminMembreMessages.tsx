@@ -32,7 +32,10 @@ const AdminMembreMessages = () => {
       const { error } = await supabase.from("contact_requests").update({ status }).eq("id", id);
       if (error) throw error;
     },
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["contact-requests"] }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["contact-requests"] });
+      queryClient.invalidateQueries({ queryKey: ["admin-a-traiter"] });
+    },
     onError: (err: any) => toast.error("Erreur : " + (err.message || "inconnue")),
   });
 
@@ -60,12 +63,13 @@ const AdminMembreMessages = () => {
   const pending = messages?.filter((m) => m.status === "pending").length ?? 0;
 
   return (
-    <section className="mt-14" aria-labelledby="membre-messages-title">
+    <section aria-labelledby="membre-messages-title">
       <h2 id="membre-messages-title" className="font-display font-bold text-2xl text-foreground">
-        Messages pour les membres
+        Messages aux membres
       </h2>
       <p className="text-muted-foreground mt-1 mb-5">
-        Envoyés depuis « Écrire à… » sur les fiches. {pending > 0 ? `${pending} à transmettre.` : "Tout est transmis."} Cliquez sur « Transmettre » pour ouvrir un e-mail prêt à envoyer au membre.
+        Messages, collabs et devis envoyés depuis les fiches. Le membre les reçoit par e-mail et dans son espace membre.
+        {pending > 0 ? ` ${pending} encore marqué${pending > 1 ? "s" : ""} « À transmettre ».` : ""} « Transmettre » ouvre un e-mail prêt à renvoyer à la main si besoin.
       </p>
       {isLoading ? (
         <p className="text-muted-foreground">Chargement…</p>

@@ -1,4 +1,4 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { toCsv } from "@/lib/csv";
 import AdminImagesEnAttente, { traiterImages } from "@/components/AdminImagesEnAttente";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
@@ -7,8 +7,10 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
-import { CalendarDays, ArrowLeft, Plus, Pencil, Trash2, X, LogOut, Loader2, Download, Image, Users, Eye, EyeOff } from "lucide-react";
-import { useNavigate, Navigate } from "react-router-dom";
+import { CalendarDays, Plus, Pencil, Trash2, X, Loader2, Download, Image, Users, Eye, EyeOff } from "lucide-react";
+import { useSearchParams } from "react-router-dom";
+import AdminLayout from "@/components/admin/AdminLayout";
+import { AdminOnglets, Panneau, useOnglet } from "@/components/admin/AdminOnglets";
 import { toast } from "sonner";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useAdminAuth } from "@/hooks/useAdminAuth";
@@ -55,9 +57,9 @@ const AdminEvenements = () => {
   const [uploading, setUploading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [inscriptionsOpen, setInscriptionsOpen] = useState<{ id: string; titre: string } | null>(null);
-  const navigate = useNavigate();
   const queryClient = useQueryClient();
-  const { user, isAdmin, loading: authLoading, signOut } = useAdminAuth();
+  const { isAdmin } = useAdminAuth();
+  const [params, setParams] = useSearchParams();
 
   const { data: evenements, isLoading } = useQuery({
     queryKey: ["admin-evenements"],
@@ -150,6 +152,7 @@ const AdminEvenements = () => {
     },
     onSuccess: (_, { statut }) => {
       queryClient.invalidateQueries({ queryKey: ["admin-evenements"] });
+      queryClient.invalidateQueries({ queryKey: ["admin-a-traiter"] });
       toast.success(statut === "publie" ? "Événement publié" : statut === "refuse" ? "Proposition refusée" : "Événement remis en relecture");
     },
     onError: () => toast.error("Erreur lors de la mise à jour"),
@@ -172,6 +175,25 @@ const AdminEvenements = () => {
   });
 
   const enRelecture = (evenements || []).filter((e: any) => e.statut === "en_relecture");
+  const maintenant = Date.now();
+  const passe = (e: any) => new Date(e.date_fin || e.date_debut).getTime() < maintenant;
+  const aVenir = (evenements || []).filter((e: any) => e.statut !== "en_relecture" && !passe(e)).reverse();
+  const archives = (evenements || []).filter((e: any) => e.statut !== "en_relecture" && passe(e));
+  const avecInscrits = (evenements || []).filter((e: any) => e.inscription_activee || (inscriptionsCounts?.[e.id] ?? 0) > 0);
+  const onglets = [
+    { id: "relecture", label: "En relecture", compte: enRelecture.length },
+    { id: "a-venir", label: `À venir (${aVenir.length})` },
+    { id: "archives", label: `Archives (${archives.length})` },
+    { id: "inscriptions", label: "Inscriptions" },
+  ];
+  const [onglet, setOnglet] = useOnglet(onglets);
+  const listes: Record<string, any[]> = { relecture: enRelecture, "a-venir": aVenir, archives, inscriptions: avecInscrits };
+  const vides: Record<string, string> = {
+    relecture: "Aucune proposition en attente de relecture.",
+    "a-venir": "Aucun événement à venir.",
+    archives: "Aucun événement passé.",
+    inscriptions: "Aucun événement avec inscriptions.",
+  };
 
   const resetForm = () => { setForm(emptyForm); setEditingId(null); setShowForm(false); };
 
@@ -243,56 +265,29 @@ const AdminEvenements = () => {
     URL.revokeObjectURL(url);
   };
 
-  if (authLoading) {
-    return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
-        <Loader2 className="w-6 h-6 animate-spin text-primary" />
-      </div>
-    );
-  }
-
-  if (!user || !isAdmin) {
-    return <Navigate to="/admin/login" replace />;
-  }
+  // Raccourci « Nouvel événement » depuis l'accueil de l'admin
+  useEffect(() => {
+    if (params.get("nouveau") === "1") {
+      setForm(emptyForm); setEditingId(null); setShowForm(true);
+      const p = new URLSearchParams(params); p.delete("nouveau"); setParams(p, { replace: true });
+    }
+  }, [params, setParams]);
 
   return (
-    <div className="min-h-screen bg-background">
-      <div className="container mx-auto px-6 py-10 max-w-4xl">
-        <div className="flex items-center justify-between mb-8">
-          <div className="flex items-center gap-3">
-            <Button variant="ghost" size="icon" onClick={() => navigate("/admin")}>
-              <ArrowLeft className="w-5 h-5" />
-            </Button>
-            <div>
-              <h1 className="font-display font-bold text-3xl text-foreground flex items-center gap-2">
-                <CalendarDays className="w-7 h-7 text-primary" />
-                Événements
-              </h1>
-              <p className="text-muted-foreground">
-                {evenements?.length ?? 0} événement{(evenements?.length ?? 0) > 1 ? "s" : ""}
-                {enRelecture.length > 0 && (
-                  <span className="ml-2 inline-flex items-center gap-1 text-xs font-semibold px-2 py-0.5 border border-accent text-foreground">
-                    {enRelecture.length} en relecture
-                  </span>
-                )}
-              </p>
-            </div>
-          </div>
-          <div className="flex gap-2">
-            <Button variant="outline" size="sm" onClick={exportCSV} disabled={!evenements?.length}>
-              <Download className="w-4 h-4 mr-2" /> Export CSV
-            </Button>
-            <Button onClick={() => { resetForm(); setShowForm(true); }}>
-              <Plus className="w-4 h-4 mr-2" /> Ajouter
-            </Button>
-            <Button variant="outline" size="sm" onClick={signOut}>
-              <LogOut className="w-4 h-4 mr-2" /> Déconnexion
-            </Button>
-          </div>
-        </div>
-
+    <AdminLayout
+      titre="Agenda"
+      description={`${evenements?.length ?? 0} événement${(evenements?.length ?? 0) > 1 ? "s" : ""} · propositions des membres, publication, inscriptions`}
+      actions={<>
+        <Button variant="outline" size="sm" onClick={exportCSV} disabled={!evenements?.length}>
+          <Download className="w-4 h-4 mr-2" /> Export CSV
+        </Button>
+        <Button size="sm" onClick={() => { resetForm(); setShowForm(true); }}>
+          <Plus className="w-4 h-4 mr-2" /> Nouvel événement
+        </Button>
+      </>}
+    >
         {showForm && (
-          <form onSubmit={handleSubmit} className="bg-card border border-border rounded-2xl p-6 mb-8 space-y-4">
+          <form onSubmit={handleSubmit} className="bg-card border-2 border-foreground p-6 mb-8 space-y-4">
             <div className="flex items-center justify-between mb-2">
               <h2 className="font-display font-bold text-xl text-foreground">{editingId ? "Modifier" : "Nouvel événement"}</h2>
               <Button type="button" variant="ghost" size="icon" onClick={resetForm}><X className="w-4 h-4" /></Button>
@@ -422,21 +417,24 @@ const AdminEvenements = () => {
           </form>
         )}
 
+        <AdminOnglets label="Événements" onglets={onglets} courant={onglet} onChange={setOnglet} />
+        <Panneau id={onglet}>
+        {onglet === "inscriptions" && <p className="text-sm text-muted-foreground mb-4">Les « Je viens » de chaque événement : cliquez sur le nombre pour voir la liste et l'exporter.</p>}
         {isLoading ? (
           <p className="text-muted-foreground">Chargement…</p>
-        ) : !evenements?.length ? (
-          <div className="text-center py-20">
-            <CalendarDays className="w-12 h-12 text-muted-foreground/40 mx-auto mb-4" />
-            <p className="text-muted-foreground">Aucun événement.</p>
+        ) : !listes[onglet].length ? (
+          <div className="text-center py-16 border-2 border-dashed border-border">
+            <CalendarDays className="w-10 h-10 text-muted-foreground/40 mx-auto mb-3" aria-hidden />
+            <p className="text-muted-foreground">{vides[onglet]}</p>
           </div>
         ) : (
           <div className="space-y-3">
-            {[...enRelecture, ...evenements.filter((e: any) => e.statut !== "en_relecture")].map((evt: any) => (
-              <div key={evt.id} className="flex items-center gap-4 bg-card border border-border rounded-xl p-4">
+            {listes[onglet].map((evt: any) => (
+              <div key={evt.id} className="flex flex-wrap sm:flex-nowrap items-center gap-4 bg-card border border-border p-4">
                 {evt.image_url ? (
-                  <img src={evt.image_url} alt="" className="shrink-0 w-16 h-16 rounded-xl object-cover" />
+                  <img src={evt.image_url} alt="" className="shrink-0 w-16 h-16 object-cover" />
                 ) : (
-                  <div className="shrink-0 w-16 h-16 bg-primary/10 rounded-xl flex flex-col items-center justify-center">
+                  <div className="shrink-0 w-16 h-16 bg-primary/10 flex flex-col items-center justify-center">
                     <span className="text-lg font-bold text-primary leading-none">{new Date(evt.date_debut).getDate()}</span>
                     <span className="text-[10px] uppercase text-primary/70">{new Date(evt.date_debut).toLocaleDateString("fr-FR", { month: "short" })}</span>
                   </div>
@@ -453,8 +451,8 @@ const AdminEvenements = () => {
                     {evt.places && ` · ${evt.places} places`}
                   </p>
                 </div>
-                <div className="flex gap-1 shrink-0 items-center">
-                  {(inscriptionsCounts?.[evt.id] ?? 0) > 0 && (
+                <div className="flex flex-wrap gap-1 shrink-0 items-center">
+                  {((inscriptionsCounts?.[evt.id] ?? 0) > 0 || onglet === "inscriptions") && (
                     <Button
                       variant="outline"
                       size="sm"
@@ -479,8 +477,8 @@ const AdminEvenements = () => {
                       )}
                     </>
                   )}
-                  <Button variant="ghost" size="icon" onClick={() => startEdit(evt)}><Pencil className="w-4 h-4" /></Button>
-                  <Button variant="ghost" size="icon" onClick={() => { if (confirm("Supprimer cet événement ?")) deleteMutation.mutate(evt.id); }}>
+                  <Button variant="ghost" size="icon" aria-label="Modifier" onClick={() => { startEdit(evt); window.scrollTo({ top: 0, behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth" }); }}><Pencil className="w-4 h-4" /></Button>
+                  <Button variant="ghost" size="icon" aria-label="Supprimer" onClick={() => { if (confirm("Supprimer cet événement ?")) deleteMutation.mutate(evt.id); }}>
                     <Trash2 className="w-4 h-4 text-destructive" />
                   </Button>
                 </div>
@@ -488,7 +486,7 @@ const AdminEvenements = () => {
             ))}
           </div>
         )}
-      </div>
+        </Panneau>
 
       <EvenementInscriptionsDialog
         evenementId={inscriptionsOpen?.id ?? null}
@@ -496,7 +494,7 @@ const AdminEvenements = () => {
         open={!!inscriptionsOpen}
         onClose={() => setInscriptionsOpen(null)}
       />
-    </div>
+    </AdminLayout>
   );
 };
 

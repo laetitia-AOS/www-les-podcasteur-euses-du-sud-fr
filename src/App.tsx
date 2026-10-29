@@ -3,7 +3,13 @@ import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route, Navigate, useParams } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate, useParams, useLocation } from "react-router-dom";
+
+/** Redirige une ancienne adresse de l'admin en gardant l'onglet demandé. */
+const AdminRedirect = ({ to }: { to: string }) => {
+  const { search } = useLocation();
+  return <Navigate to={`${to}${search}`} replace />;
+};
 import ScrollToTop from "./components/ScrollToTop";
 import { PlayerProvider } from "./contexts/PlayerContext";
 import PlayerBar from "./components/PlayerBar";
@@ -93,10 +99,15 @@ const App = () => (
             <Route path="/agences-studios" element={<Navigate to="/studios-podcast" replace />} />
             <Route path="/admin" element={<AdminDashboard />} />
             <Route path="/admin/login" element={<AdminLogin />} />
-            <Route path="/admin/adhesions" element={<AdminAdhesions />} />
-            <Route path="/admin/evenements" element={<AdminEvenements />} />
-            <Route path="/admin/contacts" element={<AdminContacts />} />
-            <Route path="/admin/podcasts" element={<AdminPodcasts />} />
+            <Route path="/admin/membres" element={<AdminAdhesions />} />
+            <Route path="/admin/annuaire" element={<AdminPodcasts />} />
+            <Route path="/admin/agenda" element={<AdminEvenements />} />
+            <Route path="/admin/messages" element={<AdminContacts />} />
+            {/* Anciennes adresses de l'admin */}
+            <Route path="/admin/adhesions" element={<AdminRedirect to="/admin/membres" />} />
+            <Route path="/admin/evenements" element={<AdminRedirect to="/admin/agenda" />} />
+            <Route path="/admin/contacts" element={<AdminRedirect to="/admin/messages" />} />
+            <Route path="/admin/podcasts" element={<AdminRedirect to="/admin/annuaire" />} />
             <Route path="/reset-password" element={<ResetPassword />} />
             <Route path="/espace-membre" element={<PodcasteurLogin />} />
             <Route path="/espace-podcasteur" element={<PodcasteurLogin />} />
