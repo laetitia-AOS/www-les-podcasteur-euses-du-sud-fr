@@ -60,6 +60,13 @@ const RelanceCollective = ({ membres, onClose }: { membres: MembreAdmin[]; onClo
   const msg = messageRelance(r, y);
   const dest = useMemo(() => destinatairesRelance(r, membres, y), [r, membres, y]);
   const adresses = dest.map((m) => m.email).join(", ");
+  // Message personnalisé pour un seul membre (« Bonjour Alix, »)
+  const mailtoMembre = (mb: MembreAdmin) => {
+    const prenom = mb.nom && !mb.nom.includes("@") ? mb.nom.split(/\s+/)[0] : "";
+    const corps = prenom ? msg.corps.replace(/^Bonjour,/, `Bonjour ${prenom},`) : msg.corps;
+    return `mailto:${encodeURIComponent(mb.email)}?subject=${encodeURIComponent(msg.sujet)}&body=${encodeURIComponent(corps)}`;
+  };
+  const [faits, setFaits] = useState<Set<string>>(new Set());
   const mailto = `mailto:?bcc=${encodeURIComponent(dest.map((m) => m.email).join(","))}&subject=${encodeURIComponent(msg.sujet)}&body=${encodeURIComponent(msg.corps)}`;
 
   const copier = async (texte: string, quoi: string) => {
@@ -73,7 +80,7 @@ const RelanceCollective = ({ membres, onClose }: { membres: MembreAdmin[]; onClo
         <div>
           <h3 id="relance-title" className="font-display font-bold text-xl">Relance collective</h3>
           <p className="text-sm text-muted-foreground max-w-prose mt-1">
-            Le message part de votre boîte mail, avec les adresses en copie cachée (Cci) : personne ne voit les autres destinataires.
+            Le message part de votre boîte mail. « Écrire » ouvre un e-mail personnalisé pour un membre ; « Ouvrir dans ma messagerie » prépare un envoi à tous, en copie cachée (Cci).
           </p>
         </div>
         <Button variant="ghost" size="icon" onClick={onClose} aria-label="Fermer la relance"><X className="w-4 h-4" /></Button>
@@ -95,7 +102,21 @@ const RelanceCollective = ({ membres, onClose }: { membres: MembreAdmin[]; onClo
       <div className="mt-5 grid gap-4 md:grid-cols-2">
         <div>
           <p className="text-sm font-bold">{dest.length} destinataire{dest.length > 1 ? "s" : ""}</p>
-          <textarea readOnly value={adresses} rows={6} className="mt-1 w-full border border-input bg-surface p-2 text-xs font-mono" aria-label="Adresses des destinataires" />
+          <ul className="mt-1 max-h-72 overflow-y-auto border border-input bg-surface divide-y divide-border" aria-label="Destinataires">
+            {dest.map((mb) => (
+              <li key={mb.email} className="flex items-center justify-between gap-2 px-2 py-1.5">
+                <span className="min-w-0">
+                  <span className="block text-sm font-medium truncate">{mb.nom}</span>
+                  <span className="block text-xs text-muted-foreground break-all">{mb.email}</span>
+                </span>
+                <Button asChild size="sm" variant={faits.has(mb.email) ? "secondary" : "outline"} className="shrink-0">
+                  <a href={mailtoMembre(mb)} onClick={() => setFaits((f) => new Set(f).add(mb.email))} aria-label={`Écrire à ${mb.nom}`}>
+                    {faits.has(mb.email) ? "Ouvert" : "Écrire"}
+                  </a>
+                </Button>
+              </li>
+            ))}
+          </ul>
           <Button size="sm" variant="outline" className="mt-2" onClick={() => copier(adresses, "Les adresses")} disabled={!dest.length}>
             <Copy className="w-4 h-4 mr-1" aria-hidden /> Copier les adresses
           </Button>
