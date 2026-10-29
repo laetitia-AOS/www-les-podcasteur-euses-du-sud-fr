@@ -18,7 +18,7 @@ const HomeReseau = () => (
             <li>Validé à la main par l'équipe</li>
             <li>Pas visible sur le site</li>
           </ul>
-          <Link to="/rejoindre-association#inscription" className={`${btnSecondary} mt-6 self-start`}>Créer mon profil</Link>
+          <Link to="/adherer#inscription" className={`${btnSecondary} mt-6 self-start`}>Créer mon profil</Link>
         </article>
 
         <article className="border-[3px] border-primary bg-surface p-6 flex flex-col">
@@ -32,7 +32,7 @@ const HomeReseau = () => (
           <p className="mt-4 text-sm text-muted-foreground">
             Le prix est un frein ? Adhérez à partir de 1 €. Studios et agences : 100 € par an.
           </p>
-          <Link to="/rejoindre-association" className={`${btnPrimary} mt-5 self-start px-7`}>Adhérer</Link>
+          <Link to="/adherer" className={`${btnPrimary} mt-5 self-start px-7`}>Adhérer</Link>
         </article>
       </div>
     </div>

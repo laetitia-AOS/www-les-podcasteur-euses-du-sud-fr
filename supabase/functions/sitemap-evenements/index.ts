@@ -40,7 +40,7 @@ Deno.serve(async (req) => {
     .not("slug", "is", null)
     .limit(5000);
   const chemin = (t: string | null) =>
-    t === "studio" ? "/annuaire-podcasts/studios/" : t === "structure_eco" ? "/annuaire-podcasts/structures/" : "/podcasteur/";
+    t === "studio" ? "/studios/" : t === "structure_eco" ? "/structures/" : "/podcasteur/";
   for (const f of fiches || []) {
     urls.push(`  <url>
     <loc>${esc(`${SITE_URL}${chemin(f.type_profil)}${f.slug}`)}</loc>

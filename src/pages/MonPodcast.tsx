@@ -170,7 +170,7 @@ const MonEspace = () => {
           </p>
           <p className="mt-3 text-muted-foreground">Vous vous êtes inscrit·e avec une autre adresse ? Déconnectez-vous et reconnectez-vous avec celle-ci.</p>
           <div className="mt-8 flex flex-wrap gap-3">
-            <Link to="/rejoindre-association#inscription" className={btnPrimary}>Créer mon profil</Link>
+            <Link to="/adherer#inscription" className={btnPrimary}>Créer mon profil</Link>
             <button type="button" onClick={logout} className={btnSecondary}>Se déconnecter</button>
           </div>
         </main>

@@ -24,9 +24,9 @@ const HomeQuiCherche = ({ profiles }: { profiles: HomeProfile[] }) => {
         <div>
           <h2 id="qcq-title" className="title-section text-[48px] sm:text-[64px]">Qui cherche quoi</h2>
           <p className="mt-5 text-lg max-w-[38ch]">Chaque membre dit ce qu'il cherche et ce qu'il apporte. Vous croisez, vous écrivez.</p>
-          <Link to="/annuaire-podcasts" className={`${linkUnderline} mt-4 inline-flex min-h-[44px] items-center`}>Voir tout l'annuaire</Link>
+          <Link to="/annuaire" className={`${linkUnderline} mt-4 inline-flex min-h-[44px] items-center`}>Voir tout l'annuaire</Link>
 
-          <Link to="/studios-podcast" className="mt-8 block border-2 border-encre bg-surface p-6 hover:border-primary group">
+          <Link to="/studios" className="mt-8 block border-2 border-encre bg-surface p-6 hover:border-primary group">
             <span className="title-section block text-[26px]">Besoin d'un studio ?</span>
             <span className="block mt-2 text-[17px]">
               Studios, plateaux vidéo et agences de la région. Décrivez votre projet, ils vous répondent <span aria-hidden>→</span>

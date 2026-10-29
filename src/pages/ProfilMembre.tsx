@@ -168,14 +168,14 @@ const ProfilMembre = () => {
         <main className={`${container} pt-32 pb-24`}>
           <h1 className="title-page text-[56px]">Fiche introuvable</h1>
           <p className="mt-4 text-lg">Cette fiche n'existe pas, ou elle n'est pas encore visible sur le site.</p>
-          <Link to="/annuaire-podcasts" className={`${btnSecondary} mt-8`}>Voir l'annuaire</Link>
+          <Link to="/annuaire" className={`${btnSecondary} mt-8`}>Voir l'annuaire</Link>
         </main>
         <Footer />
       </div>
     );
   }
 
-  const back = isPodcast ? { to: "/ecouter", label: "Tous les podcasts" } : { to: "/annuaire-podcasts", label: "Tout l'annuaire" };
+  const back = isPodcast ? { to: "/ecouter", label: "Tous les podcasts" } : { to: "/annuaire", label: "Tout l'annuaire" };
   const cherche = (profile.cherche_choix || []).map(collabLabel);
   const apporte = (profile.apporte_choix || []).map(collabLabel);
   const latest = episodes[0];

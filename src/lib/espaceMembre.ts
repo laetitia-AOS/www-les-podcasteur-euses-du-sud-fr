@@ -51,8 +51,8 @@ export const roleLabel = (type: string | null | undefined): string =>
 /** Adresse de la fiche publique selon le type de profil. */
 export const publicProfilePath = (type: string, slug: string | null): string | null => {
   if (!slug) return null;
-  if (type === "studio") return `/annuaire-podcasts/studios/${slug}`;
-  if (type === "structure_eco") return `/annuaire-podcasts/structures/${slug}`;
+  if (type === "studio") return `/studios/${slug}`;
+  if (type === "structure_eco") return `/structures/${slug}`;
   if (type === "soutien") return null;
   return `/podcasteur/${slug}`;
 };
@@ -65,5 +65,5 @@ export const lienRenouveler = (formule: string | null | undefined, annee?: numbe
   const q = new URLSearchParams({ etape: "adhesion" });
   if (formule === "studio" || formule === "personne") q.set("formule", formule);
   if (annee) q.set("pour", String(annee));
-  return `/rejoindre-association?${q.toString()}`;
+  return `/adherer?${q.toString()}`;
 };

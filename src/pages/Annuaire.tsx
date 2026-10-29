@@ -115,7 +115,7 @@ const Annuaire = () => {
       <SEOHead
         title="Annuaire des podcasteur·euses et pros du podcast en Région Sud — Les Podcasteur·euses du Sud"
         description="Podcasteur·euses, monteur·euses, voix off, sound designers, consultant·es de Marseille et de la Région Sud. Dites ce que vous cherchez, l'annuaire vous montre qui l'apporte."
-        path="/annuaire-podcasts"
+        path="/annuaire"
       />
       <Navbar />
       <main className="pt-16 md:pt-[76px]">
@@ -168,7 +168,7 @@ const Annuaire = () => {
                 </select>
               </div>
 
-              <Link to="/studios-podcast" className="block border-2 border-encre bg-surface p-4 hover:border-primary">
+              <Link to="/studios" className="block border-2 border-encre bg-surface p-4 hover:border-primary">
                 <span className="block font-bold text-[17px]">Vous cherchez un studio ?</span>
                 <span className="block mt-1 text-[15px]">Studios et agences ont leur propre rubrique <span aria-hidden>→</span></span>
               </Link>

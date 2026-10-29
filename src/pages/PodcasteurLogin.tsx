@@ -97,7 +97,7 @@ const EspaceMembre = () => {
         )}
 
         <p className="mt-10 text-[15px]">
-          Pas encore de profil ? <Link to="/rejoindre-association#inscription" className={linkUnderline}>Créer mon profil</Link>
+          Pas encore de profil ? <Link to="/adherer#inscription" className={linkUnderline}>Créer mon profil</Link>
         </p>
       </main>
     </div>

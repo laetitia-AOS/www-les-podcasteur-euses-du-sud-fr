@@ -56,7 +56,7 @@ const StudioProfile = () => {
       "@context": "https://schema.org",
       "@type": "LocalBusiness",
       name: studio.nom_podcast,
-      url: `${SITE}/annuaire-podcasts/studios/${studio.slug || studio.id}`,
+      url: `${SITE}/studios/${studio.slug || studio.id}`,
       ...(description && { description }),
       ...(photos[0] && { image: photos }),
       address: {
@@ -93,7 +93,7 @@ const StudioProfile = () => {
       <div className="min-h-screen bg-background"><Navbar />
         <main className={`${container} pt-28 pb-20`}>
           <h1 className="title-page text-[44px]">Studio introuvable</h1>
-          <Link to="/studios-podcast" className={`${linkUnderline} mt-6 inline-flex min-h-[44px] items-center`}>Voir tous les studios</Link>
+          <Link to="/studios" className={`${linkUnderline} mt-6 inline-flex min-h-[44px] items-center`}>Voir tous les studios</Link>
         </main>
         <Footer />
       </div>
@@ -106,14 +106,14 @@ const StudioProfile = () => {
 
   return (
     <div className="min-h-screen bg-background">
-      <SEOHead title={`${seoTitle} — Les Podcasteur·euses du Sud`} description={seoDesc} path={`/annuaire-podcasts/studios/${studio.slug || studio.id}`} image={photos[0] || studio.vignette_url || undefined} type="business.business" jsonLd={jsonLd} />
+      <SEOHead title={`${seoTitle} — Les Podcasteur·euses du Sud`} description={seoDesc} path={`/studios/${studio.slug || studio.id}`} image={photos[0] || studio.vignette_url || undefined} type="business.business" jsonLd={jsonLd} />
       <Navbar />
       <main className="pt-16 md:pt-[76px]">
         <div className={`${container} pt-6`}>
           <nav aria-label="Fil d'Ariane" className="text-sm">
             <ol className="flex flex-wrap gap-x-2 gap-y-1 text-muted-foreground">
               <li><Link to="/" className="hover:underline underline-offset-4">Accueil</Link> <span aria-hidden>/</span></li>
-              <li><Link to="/studios-podcast" className="hover:underline underline-offset-4">Studios</Link> <span aria-hidden>/</span></li>
+              <li><Link to="/studios" className="hover:underline underline-offset-4">Studios</Link> <span aria-hidden>/</span></li>
               <li aria-current="page" className="text-foreground font-semibold">{studio.nom_podcast}</li>
             </ol>
           </nav>
@@ -261,7 +261,7 @@ const StudioProfile = () => {
             <ul className="divide-y divide-filet border-b border-filet">
               {voisins.map((v) => (
                 <li key={v.id}>
-                  <Link to={`/annuaire-podcasts/studios/${v.slug || v.id}`} className="flex flex-wrap items-baseline justify-between gap-x-6 py-4 group">
+                  <Link to={`/studios/${v.slug || v.id}`} className="flex flex-wrap items-baseline justify-between gap-x-6 py-4 group">
                     <span className="font-bold text-[18px] group-hover:underline underline-offset-4">{v.nom_podcast}</span>
                     <span className="font-mono text-sm text-muted-foreground">{sdOf(v).type_lieu || "Studio"}</span>
                   </Link>

@@ -58,7 +58,7 @@ const HomeHero = ({ profiles, latest }: Props) => {
               <Play className="w-4 h-4" fill="currentColor" aria-hidden />
               Écouter maintenant
             </button>
-            <Link to="/annuaire-podcasts" className="inline-flex min-h-[44px] items-center text-[17px] font-bold underline underline-offset-4 decoration-2 hover:decoration-accent">
+            <Link to="/annuaire" className="inline-flex min-h-[44px] items-center text-[17px] font-bold underline underline-offset-4 decoration-2 hover:decoration-accent">
               Trouver un·e créateur·ice
             </Link>
           </div>

@@ -18,7 +18,7 @@ const Renouvellement = ({ relance = '1dec', base, cible, prenom, email }: Props)
   const y = new Date().getFullYear()
   const b = base || y
   const c = cible || y + 1
-  const lien = `${SITE}/rejoindre-association?etape=adhesion&pour=${c}`
+  const lien = `${SITE}/adherer?etape=adhesion&pour=${c}`
   const titres: Record<Relance, string> = {
     '1dec': `${prenom ? `${prenom}, on` : 'On'} repart pour ${c} ensemble ?`,
     '20dec': `${prenom ? `${prenom}, plus` : 'Plus'} que quelques jours pour ${c} !`,

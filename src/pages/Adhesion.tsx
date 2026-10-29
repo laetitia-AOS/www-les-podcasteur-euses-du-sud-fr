@@ -126,7 +126,7 @@ const Adhesion = () => {
       <SEOHead
         title="Adhérer aux Podcasteur·euses du Sud : profil, adhésion et visibilité"
         description={`Créez votre profil dans l'annuaire podcast de la Région Sud, puis adhérez pour être visible : ${TARIFS.personne} € par an pour une personne, ${TARIFS.studio} € pour un studio ou une agence.`}
-        path="/rejoindre-association"
+        path="/adherer"
         jsonLd={jsonLd}
       />
       <Navbar />

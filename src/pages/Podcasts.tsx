@@ -260,7 +260,7 @@ const Podcasts = () => {
             <p className="font-bold text-lg sm:text-xl max-w-[52ch]">
               Votre podcast est fait dans la région ? Adhérez pour qu'il apparaisse ici et tourne dans le lecteur.
             </p>
-            <Link to="/rejoindre-association" className={`${btnPrimary} px-7 shrink-0 self-start sm:self-auto`}>Adhérer</Link>
+            <Link to="/adherer" className={`${btnPrimary} px-7 shrink-0 self-start sm:self-auto`}>Adhérer</Link>
           </div>
         </section>
       </main>

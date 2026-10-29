@@ -48,7 +48,7 @@ const StructureEcoProfile = () => {
       "@context": "https://schema.org",
       "@type": "Organization",
       name: s.nom_podcast,
-      url: `${SITE}/annuaire-podcasts/structures/${s.slug || s.id}`,
+      url: `${SITE}/structures/${s.slug || s.id}`,
       ...(description && { description }),
       ...(s.vignette_url && { logo: s.vignette_url }),
       ...(city && { address: { "@type": "PostalAddress", addressLocality: city, addressRegion: "Provence-Alpes-Côte d'Azur", addressCountry: "FR" } }),
@@ -71,7 +71,7 @@ const StructureEcoProfile = () => {
       <div className="min-h-screen bg-background"><Navbar />
         <main className={`${container} pt-28 pb-20`}>
           <h1 className="title-page text-[44px]">Structure introuvable</h1>
-          <Link to="/studios-podcast" className={`${linkUnderline} mt-6 inline-flex min-h-[44px] items-center`}>Voir les structures</Link>
+          <Link to="/studios" className={`${linkUnderline} mt-6 inline-flex min-h-[44px] items-center`}>Voir les structures</Link>
         </main>
         <Footer />
       </div>
@@ -83,14 +83,14 @@ const StructureEcoProfile = () => {
 
   return (
     <div className="min-h-screen bg-background">
-      <SEOHead title={seoTitle} description={seoDesc} path={`/annuaire-podcasts/structures/${s.slug || s.id}`} image={s.vignette_url || undefined} type="profile" jsonLd={jsonLd} />
+      <SEOHead title={seoTitle} description={seoDesc} path={`/structures/${s.slug || s.id}`} image={s.vignette_url || undefined} type="profile" jsonLd={jsonLd} />
       <Navbar />
       <main className="pt-16 md:pt-[76px]">
         <div className={`${container} pt-6`}>
           <nav aria-label="Fil d'Ariane" className="text-sm">
             <ol className="flex flex-wrap gap-x-2 gap-y-1 text-muted-foreground">
               <li><Link to="/" className="hover:underline underline-offset-4">Accueil</Link> <span aria-hidden>/</span></li>
-              <li><Link to="/studios-podcast" className="hover:underline underline-offset-4">Studios et structures</Link> <span aria-hidden>/</span></li>
+              <li><Link to="/studios" className="hover:underline underline-offset-4">Studios et structures</Link> <span aria-hidden>/</span></li>
               <li aria-current="page" className="text-foreground font-semibold">{s.nom_podcast}</li>
             </ol>
           </nav>

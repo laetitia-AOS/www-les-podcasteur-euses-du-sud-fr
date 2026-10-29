@@ -24,7 +24,7 @@ describe("adhésion à l'année civile", () => {
     expect(libelleValidite(2026)).toBe("Valable jusqu'au 31 décembre 2026");
   });
   it("le lien Renouveler garde la formule et l'année couverte", () => {
-    expect(lienRenouveler("studio", 2027)).toBe("/rejoindre-association?etape=adhesion&formule=studio&pour=2027");
-    expect(lienRenouveler(null)).toBe("/rejoindre-association?etape=adhesion");
+    expect(lienRenouveler("studio", 2027)).toBe("/adherer?etape=adhesion&formule=studio&pour=2027");
+    expect(lienRenouveler(null)).toBe("/adherer?etape=adhesion");
   });
 });

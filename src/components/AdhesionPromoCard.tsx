@@ -31,7 +31,7 @@ const AdhesionPromoCard = ({ variant = "default", className = "" }: AdhesionProm
           </div>
         </div>
         <Link
-          to="/rejoindre-association"
+          to="/adherer"
           className="shrink-0 inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-secondary text-secondary-foreground text-sm font-semibold hover:brightness-110 transition-all shadow-sm"
         >
           Adhérer à l'association
@@ -60,7 +60,7 @@ const AdhesionPromoCard = ({ variant = "default", className = "" }: AdhesionProm
             Sans adhésion, votre profil reste bien enregistré dans notre base de données mais n'est pas publié publiquement.
           </p>
           <Link
-            to="/rejoindre-association"
+            to="/adherer"
             className="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-secondary text-secondary-foreground text-sm font-semibold hover:brightness-110 transition-all shadow-md"
           >
             Adhérer à l'association

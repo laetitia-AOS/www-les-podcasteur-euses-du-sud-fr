@@ -32,7 +32,7 @@ const Bienvenue = () => (
         <div className="border-2 border-filet bg-surface p-6">
           <h2 className="title-section text-[30px]">Pas encore de profil ?</h2>
           <p className="mt-3 text-[17px]">Créez votre fiche annuaire avec votre photo, puis ajoutez vos podcasts si vous en avez.</p>
-          <Link to="/rejoindre-association#inscription" className={`${btnSecondary} mt-6`}>Créer mon profil</Link>
+          <Link to="/adherer#inscription" className={`${btnSecondary} mt-6`}>Créer mon profil</Link>
         </div>
       </div>
     </main>

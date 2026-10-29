@@ -171,7 +171,7 @@ const DynamiqueSection = () => {
             </div>
             <h3 className="font-display font-bold text-xl mb-2 text-foreground">Les premiers podcasts arrivent bientôt</h3>
             <p className="text-muted-foreground text-sm max-w-md mx-auto leading-relaxed">Le flux se construit en temps réel grâce aux créateurs qui référencent leurs podcasts.</p>
-            <a href="/rejoindre-association#inscription" className="inline-flex items-center gap-2 mt-6 text-sm font-medium text-primary hover:text-primary-hover transition-colors">
+            <a href="/adherer#inscription" className="inline-flex items-center gap-2 mt-6 text-sm font-medium text-primary hover:text-primary-hover transition-colors">
               Référencer mon podcast <ArrowUpRight className="w-3.5 h-3.5" />
             </a>
           </motion.div>

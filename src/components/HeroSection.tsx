@@ -105,7 +105,7 @@ const HeroSection = () => {
               className="flex flex-wrap items-center gap-4"
             >
               <button
-                onClick={() => navigate("/annuaire-podcasts")}
+                onClick={() => navigate("/annuaire")}
                 className="inline-flex items-center gap-2 px-7 py-3 rounded-pill bg-primary text-primary-foreground font-semibold hover:bg-primary-hover transition-all"
                 style={{ boxShadow: "0 4px 14px rgba(184,92,56,0.2)" }}
               >
@@ -237,11 +237,11 @@ export const HeroSearchBar = () => {
             placeholder="Chercher un monteur son à Marseille…"
             className="flex-1 bg-transparent text-sm text-foreground placeholder:text-muted-foreground/50 focus:outline-none"
             onKeyDown={(e) => {
-              if (e.key === "Enter") navigate("/annuaire-podcasts");
+              if (e.key === "Enter") navigate("/annuaire");
             }}
           />
           <button
-            onClick={() => navigate("/annuaire-podcasts")}
+            onClick={() => navigate("/annuaire")}
             className="px-5 py-2.5 rounded-pill bg-primary text-primary-foreground text-sm font-semibold hover:bg-primary-hover transition-all"
           >
             Rechercher
@@ -251,7 +251,7 @@ export const HeroSearchBar = () => {
           {["Monteur·euse", "Studio Marseille", "Voix off", "Coach podcast", "Sound design"].map((tag) => (
             <button
               key={tag}
-              onClick={() => navigate("/annuaire-podcasts")}
+              onClick={() => navigate("/annuaire")}
               className="px-3.5 py-1.5 rounded-pill text-xs font-medium transition-all hover:bg-primary hover:text-primary-foreground"
               style={{ border: "1px solid rgba(184,92,56,0.2)", color: "hsl(16 53% 47%)" }}
             >
