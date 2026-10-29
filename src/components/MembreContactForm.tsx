@@ -10,21 +10,32 @@ const schema = z.object({
   message: z.string().trim().min(10, "Votre message doit faire au moins 10 caractères.").max(MAX, "1 000 caractères maximum."),
 });
 
-type Props = { recipientId: string; recipientFirstName: string; type?: "collab" | "message"; idPrefix?: string };
+type Props = {
+  recipientId: string;
+  recipientFirstName: string;
+  type?: "collab" | "message";
+  idPrefix?: string;
+  /** Nom et e-mail déjà saisis (formulaire unique de la fiche studio) et suivi de leur saisie. */
+  identite?: { nom: string; email: string };
+  onIdentite?: (v: { nom: string; email: string }) => void;
+};
 
 const fieldClass = "w-full min-h-[48px] px-3 bg-surface border-2 border-encre text-[16px] focus:outline-none focus-visible:outline-[3px] focus-visible:outline-accent";
 
 /** Formulaire « Proposer une collab » : la demande est enregistrée côté serveur, sans jamais afficher l'adresse du membre. */
-const MembreContactForm = ({ recipientId, recipientFirstName, type = "collab", idPrefix = "cf" }: Props) => {
+const MembreContactForm = ({ recipientId, recipientFirstName, type = "collab", idPrefix = "cf", identite, onIdentite }: Props) => {
   const isCollab = type === "collab";
-  const [values, setValues] = useState({ sender_name: "", sender_email: "", message: "", website: "" });
+  const [values, setValues] = useState({ sender_name: identite?.nom || "", sender_email: identite?.email || "", message: "", website: "" });
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [status, setStatus] = useState<"idle" | "sending" | "sent" | "error">("idle");
   const [relayed, setRelayed] = useState(false);
   const [serverError, setServerError] = useState("");
 
-  const onChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) =>
-    setValues((v) => ({ ...v, [e.target.name]: e.target.value }));
+  const onChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const next = { ...values, [e.target.name]: e.target.value };
+    setValues(next);
+    if (onIdentite && (e.target.name === "sender_name" || e.target.name === "sender_email")) onIdentite({ nom: next.sender_name, email: next.sender_email });
+  };
 
   const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

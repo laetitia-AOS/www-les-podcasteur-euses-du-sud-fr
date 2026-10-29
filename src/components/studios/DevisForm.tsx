@@ -19,11 +19,14 @@ type Props = {
   defaultBesoins?: string[];
   dark?: boolean;
   idPrefix?: string;
+  /** Nom et e-mail déjà saisis (formulaire unique de la fiche studio) et suivi de leur saisie. */
+  identite?: { nom: string; email: string };
+  onIdentite?: (v: { nom: string; email: string }) => void;
 };
 
 /** Formulaire de demande de devis, groupée ou pour un seul studio. */
-const DevisForm = ({ studioId, studioName, defaultDepartement = "", defaultBesoins = [], dark = false, idPrefix = "devis" }: Props) => {
-  const [v, setV] = useState({ nom: "", email: "", format: FORMATS[0], periode: "", departement: defaultDepartement, description: "", website: "" });
+const DevisForm = ({ studioId, studioName, defaultDepartement = "", defaultBesoins = [], dark = false, idPrefix = "devis", identite, onIdentite }: Props) => {
+  const [v, setV] = useState({ nom: identite?.nom || "", email: identite?.email || "", format: FORMATS[0], periode: "", departement: defaultDepartement, description: "", website: "" });
   const [besoins, setBesoins] = useState<string[]>(defaultBesoins);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [state, setState] = useState<"idle" | "sending" | "sent" | "none" | "error">("idle");
@@ -33,8 +36,11 @@ const DevisForm = ({ studioId, studioName, defaultDepartement = "", defaultBesoi
     ? "w-full min-h-[48px] px-3 bg-encre text-surface border-2 border-surface/70 text-[16px] placeholder:text-surface/55 focus:outline-none focus-visible:outline-[3px] focus-visible:outline-accent"
     : "w-full min-h-[48px] px-3 bg-surface border-2 border-encre text-[16px] focus:outline-none focus-visible:outline-[3px] focus-visible:outline-accent";
   const errCls = dark ? "mt-1 text-sm text-accent" : "mt-1 text-sm text-destructive";
-  const onChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) =>
-    setV((x) => ({ ...x, [e.target.name]: e.target.value }));
+  const onChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
+    const next = { ...v, [e.target.name]: e.target.value };
+    setV(next);
+    if (onIdentite && (e.target.name === "nom" || e.target.name === "email")) onIdentite({ nom: next.nom, email: next.email });
+  };
   const id = (k: string) => `${idPrefix}-${k}`;
 
   const submit = async (e: React.FormEvent) => {

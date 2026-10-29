@@ -8,6 +8,7 @@ import SEOHead from "@/components/SEOHead";
 import { PAGES, PAGES_SEO, SITE_URL, ficheHref } from "@/lib/seo";
 import { btnListen, btnPrimary, btnSecondary, cleanCity, container, h1Ligne } from "@/lib/pds";
 import DevisForm from "@/components/studios/DevisForm";
+import { LogoLieu } from "@/components/studios/LieuParts";
 import { SERVICES_STUDIO, formatCapacite, formatTarif, serviceLabel, useFichesLieux } from "@/lib/lieux";
 
 const DEPARTEMENTS = [
@@ -61,6 +62,13 @@ const sdOf = (p: Profile): StudioData => {
   if (!p.studio_data) return {};
   if (typeof p.studio_data === "string") { try { return JSON.parse(p.studio_data); } catch { return {}; } }
   return p.studio_data;
+};
+
+/** Type affiché d'une structure (« Festival », « Radio »…), et « Partenaire » quand elle n'est pas membre. */
+const typeStructure = (p: Profile) => {
+  const sd = sdOf(p) as Record<string, unknown>;
+  const t = (sd.type_structure as string) || p.metier_principal || "Structure";
+  return sd.partenaire === true ? `${t}, partenaire` : t;
 };
 
 const fieldLight = "w-full min-h-[48px] px-3 bg-surface border-2 border-encre text-[16px] focus:outline-none focus-visible:outline-[3px] focus-visible:outline-accent";
@@ -266,16 +274,20 @@ const AgencesStudios = () => {
 
         {/* Structures */}
         <section className={`${container} py-16 md:py-20`} aria-labelledby="structures-title">
-          <h2 id="structures-title" className="title-section text-[40px] sm:text-[52px] pb-4 border-b-2 border-encre">Radios, festivals, incubateurs</h2>
+          <h2 id="structures-title" className="title-section text-[40px] sm:text-[52px] pb-4 border-b-2 border-encre">Festivals, réseaux et partenaires</h2>
           {structures.length === 0 && !isLoading ? (
             <p className="py-6 text-[17px] border-b border-filet">Les premières structures arrivent bientôt.</p>
           ) : (
             <ul className="divide-y divide-filet border-b border-filet">
               {structures.map((s) => (
                 <li key={s.id}>
-                  <Link to={ficheHref(s)} className="flex flex-wrap items-baseline justify-between gap-x-6 gap-y-1 py-4 group">
-                    <span className="font-bold text-[18px] group-hover:underline underline-offset-4">{s.nom_podcast}</span>
-                    <span className="font-mono text-sm text-muted-foreground">{[s.metier_principal, cleanCity(s.city_name)].filter(Boolean).join(" · ")}</span>
+                  <Link to={ficheHref(s)} className="grid grid-cols-[56px_1fr] sm:grid-cols-[64px_1fr_auto] items-center gap-x-4 sm:gap-x-6 gap-y-1 py-4 group">
+                    <LogoLieu src={s.vignette_url} nom={s.nom_podcast} className="w-14 h-14 sm:w-16 sm:h-16" />
+                    <span className="min-w-0">
+                      <span className="block font-bold text-[18px] group-hover:underline underline-offset-4">{s.nom_podcast}</span>
+                      <span className="block sm:hidden font-mono text-sm text-muted-foreground">{[typeStructure(s), cleanCity(s.city_name)].filter(Boolean).join(" · ")}</span>
+                    </span>
+                    <span className="hidden sm:block font-mono text-sm text-muted-foreground text-right">{[typeStructure(s), cleanCity(s.city_name)].filter(Boolean).join(" · ")}</span>
                   </Link>
                 </li>
               ))}

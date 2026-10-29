@@ -3,8 +3,9 @@ import { ficheHref } from "@/lib/seo";
 import { Link } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { fullName } from "@/lib/pds";
-import { formatDateCourte, type Faq, type PodcastLie } from "@/lib/lieux";
+import { fullName, formatShortDate } from "@/lib/pds";
+import { formatDateCourte, useEvenementsLieu, type EvenementLieu, type Faq, type PodcastLie } from "@/lib/lieux";
+import { readableTitle } from "@/lib/events";
 
 export const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
@@ -116,3 +117,45 @@ export const faqJsonLd = (faq: Faq[]) =>
 
 /** Lien « Voir le plan » : ouvre l'adresse dans l'application de cartes du visiteur. */
 export const planUrl = (adresse: string) => `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(adresse)}`;
+
+/** Logo d'une structure : toujours entier (jamais recadré), dans un carré blanc. */
+export const LogoLieu = ({ src, nom, className = "w-32 h-32 md:w-40 md:h-40" }: { src?: string | null; nom: string; className?: string }) =>
+  src ? (
+    <span className={`${className} shrink-0 inline-flex items-center justify-center bg-surface border border-filet p-[8%]`}>
+      <img src={src} alt={`Logo de ${nom}`} className="max-w-full max-h-full object-contain" loading="lazy" />
+    </span>
+  ) : (
+    <span className={`${className} shrink-0 bg-surface border border-filet`} aria-hidden />
+  );
+
+const LigneEvenement = ({ e, passe }: { e: EvenementLieu; passe?: boolean }) => (
+  <li>
+    <Link to={`/agenda/${e.slug || e.id}`} className={`grid grid-cols-[100px_1fr] sm:grid-cols-[120px_1fr] gap-4 py-4 group ${passe ? "text-muted-foreground" : ""}`}>
+      <span className="font-mono text-sm">{formatShortDate(e.date_debut)}</span>
+      <span className="font-bold group-hover:underline underline-offset-4">{readableTitle(e.titre)}</span>
+    </Link>
+  </li>
+);
+
+/** « À l'agenda » : événements du lieu pris dans l'agenda du site, à venir d'abord puis passés. */
+export const AgendaLieu = ({ id, nom }: { id: string; nom: string }) => {
+  const { data } = useEvenementsLieu(id, nom);
+  if (!data || (!data.aVenir.length && !data.passes.length)) return null;
+  return (
+    <section aria-labelledby="agenda-lieu-title">
+      <h2 id="agenda-lieu-title" className="title-section text-[30px] sm:text-[38px] pb-3 border-b-2 border-encre">À l'agenda</h2>
+      {data.aVenir.length > 0 && (
+        <>
+          <h3 className="mt-4 text-sm font-bold text-primary">À venir</h3>
+          <ul className="divide-y divide-filet border-b border-filet">{data.aVenir.map((e) => <LigneEvenement key={e.id} e={e} />)}</ul>
+        </>
+      )}
+      {data.passes.length > 0 && (
+        <>
+          <h3 className="mt-6 text-sm font-bold text-muted-foreground">Déjà passés</h3>
+          <ul className="divide-y divide-filet border-b border-filet">{data.passes.slice(0, 6).map((e) => <LigneEvenement key={e.id} e={e} passe />)}</ul>
+        </>
+      )}
+    </section>
+  );
+};

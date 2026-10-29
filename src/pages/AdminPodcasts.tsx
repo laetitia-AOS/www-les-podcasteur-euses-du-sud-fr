@@ -403,7 +403,7 @@ const AdminPodcasts = () => {
                       <TableCell>
                         <div className="flex items-center gap-2">
                           {p.vignette_url && (
-                            <img src={p.vignette_url} alt="" className="w-8 h-8 rounded object-cover" />
+                            <img src={p.vignette_url} alt="" className={`w-8 h-8 ${p.type_profil === "structure_eco" ? "object-contain bg-surface border border-filet" : "rounded object-cover"}`} />
                           )}
                           <div>
                             <p className="font-medium text-sm">{titreFiche(p)}</p>
@@ -471,7 +471,7 @@ const AdminPodcasts = () => {
               <SheetHeader>
                 <SheetTitle className="flex items-center gap-3">
                   {selectedPodcast.vignette_url && (
-                    <img src={selectedPodcast.vignette_url} alt="" className="w-12 h-12 rounded-lg object-cover" />
+                    <img src={selectedPodcast.vignette_url} alt="" className={`w-12 h-12 ${selectedPodcast.type_profil === "structure_eco" ? "object-contain bg-surface border border-filet" : "rounded-lg object-cover"}`} />
                   )}
                   <div>
                     {titreFiche(selectedPodcast)}
