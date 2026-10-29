@@ -8,6 +8,7 @@ import SEOHead from "@/components/SEOHead";
 import { PAGES, PAGES_SEO, SITE_URL, ficheHref } from "@/lib/seo";
 import { btnListen, btnPrimary, btnSecondary, cleanCity, container, h1Ligne } from "@/lib/pds";
 import DevisForm from "@/components/studios/DevisForm";
+import { LogoLieu } from "@/components/studios/LieuParts";
 import { SERVICES_STUDIO, formatCapacite, formatTarif, serviceLabel, useFichesLieux } from "@/lib/lieux";
 
 const DEPARTEMENTS = [
