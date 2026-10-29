@@ -1,8 +1,8 @@
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
-import { Lock } from "lucide-react";
+import { ConnexionEnCours, ConnexionShell } from "@/components/ConnexionShell";
+import { field, hintCls, labelCls } from "@/components/adherer/fields";
+import { btnPrimary } from "@/lib/pds";
 import { useNavigate } from "react-router-dom";
 import SEOHead from "@/components/SEOHead";
 import { toast } from "sonner";
@@ -67,49 +67,34 @@ const ResetPassword = () => {
 
   if (!ready) {
     return (
-      <div className="min-h-screen bg-background flex items-center justify-center px-4">
-      <SEOHead title="Nouveau mot de passe — Les Podcasteur·euses du Sud" description="Choisir un nouveau mot de passe." path="/reset-password" noindex />
-        <div className="text-center space-y-4">
-          <Lock className="w-8 h-8 text-muted-foreground mx-auto" />
-          <p className="text-muted-foreground">Vérification du lien de réinitialisation…</p>
-        </div>
-      </div>
+      <>
+        <SEOHead title="Nouveau mot de passe — Les Podcasteur·euses du Sud" description="Choisir un nouveau mot de passe." path="/reset-password" noindex />
+        <ConnexionEnCours />
+      </>
     );
   }
 
   return (
-    <div className="min-h-screen bg-background flex items-center justify-center px-4">
+    <ConnexionShell espace="Mot de passe">
       <SEOHead title="Nouveau mot de passe — Les Podcasteur·euses du Sud" description="Choisir un nouveau mot de passe." path="/reset-password" noindex />
-      <form onSubmit={handleSubmit} className="w-full max-w-sm space-y-6">
-        <div className="text-center">
-          <div className="mx-auto w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center mb-4">
-            <Lock className="w-6 h-6 text-primary" />
-          </div>
-          <h1 className="font-display font-bold text-2xl text-foreground">Nouveau mot de passe</h1>
-          <p className="text-muted-foreground mt-1">Choisissez votre nouveau mot de passe</p>
+      <h1 className="title-page text-[44px] sm:text-[64px]">Nouveau mot de passe</h1>
+      <p className="mt-4 text-lg">Choisissez votre nouveau mot de passe.</p>
+      <form onSubmit={handleSubmit} className="mt-10 space-y-5">
+        <div>
+          <label htmlFor="reset-password" className={labelCls}>Nouveau mot de passe</label>
+          <input id="reset-password" type="password" value={password} onChange={(e) => setPassword(e.target.value)} autoComplete="new-password" className={field} required />
+          <p className={hintCls}>Au moins 6 caractères.</p>
         </div>
-        <div className="space-y-3">
-          <Input
-            type="password"
-            placeholder="Nouveau mot de passe"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            required
-          />
-          <Input
-            type="password"
-            placeholder="Confirmer le mot de passe"
-            value={confirm}
-            onChange={(e) => setConfirm(e.target.value)}
-            required
-          />
-          {error && <p className="text-sm text-destructive">{error}</p>}
-          <Button type="submit" className="w-full" disabled={loading}>
-            {loading ? "Mise à jour…" : "Mettre à jour"}
-          </Button>
+        <div>
+          <label htmlFor="reset-confirm" className={labelCls}>Confirmer le mot de passe</label>
+          <input id="reset-confirm" type="password" value={confirm} onChange={(e) => setConfirm(e.target.value)} autoComplete="new-password" className={field} required />
         </div>
+        {error && <p className="text-sm font-bold text-destructive" role="alert">{error}</p>}
+        <button type="submit" className={`${btnPrimary} w-full`} disabled={loading}>
+          {loading ? "Mise à jour…" : "Enregistrer le mot de passe"}
+        </button>
       </form>
-    </div>
+    </ConnexionShell>
   );
 };
 

@@ -5,6 +5,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
+import { ConnexionEnCours } from "@/components/ConnexionShell";
 import SEOHead from "@/components/SEOHead";
 import ProfilCard from "@/components/espace-membre/ProfilCard";
 import PodcastCard from "@/components/espace-membre/PodcastCard";
@@ -136,10 +137,7 @@ const MonEspace = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-background flex items-center justify-center" role="status" aria-live="polite">
-        <Loader2 className="w-6 h-6 animate-spin text-primary" aria-hidden />
-        <span className="sr-only">Chargement de votre espace</span>
-      </div>
+      <ConnexionEnCours />
     );
   }
 
