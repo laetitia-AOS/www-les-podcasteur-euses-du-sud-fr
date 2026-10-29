@@ -23,3 +23,10 @@ describe("relances collectives", () => {
     expect(destinatairesRelance("sursis", membres, 2026).map((x) => x.email)).toEqual(["d@x.fr"]);
   });
 });
+
+describe("relance et paiements reliés", () => {
+  it("n'écrit pas à la personne qui a payé pour la fiche d'une autre", () => {
+    const payeur = { ...m("payeur@x.fr", "a_jour", 2026), nb_fiches: 0, adhesion_id: "p1" } as MembreAdmin;
+    expect(destinatairesRelance("1dec", [payeur, m("a@x.fr", "a_jour", 2026)], 2026, new Set(["p1"])).map((x) => x.email)).toEqual(["a@x.fr"]);
+  });
+});

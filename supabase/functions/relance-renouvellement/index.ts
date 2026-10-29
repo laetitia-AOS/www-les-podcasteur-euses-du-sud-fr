@@ -44,6 +44,10 @@ Deno.serve(async (req) => {
   const y = Number(new Intl.DateTimeFormat("fr-FR", { year: "numeric", timeZone: "Europe/Paris" }).format(new Date()));
   // deno-lint-ignore no-explicit-any
   const m = (membres || []).find((x: any) => (x.email || "").toLowerCase() === email);
+  if (m && m.nb_fiches === 0 && m.adhesion_id) {
+    const { count: relie } = await admin.from("adhesion_rattachements").select("id", { count: "exact", head: true }).eq("adhesion_id", m.adhesion_id);
+    if ((relie || 0) > 0) return json({ error: "Ce paiement est relié à la fiche d'une autre personne : relancez plutôt cette fiche." }, 409);
+  }
   if (!m || !concerne(relance, m, y)) return json({ error: "Cette personne n'est pas concernée par cette relance." }, 409);
 
   const base = relance === "15jan" ? y - 1 : y;
