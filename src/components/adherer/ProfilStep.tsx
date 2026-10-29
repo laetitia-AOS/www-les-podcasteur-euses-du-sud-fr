@@ -249,11 +249,11 @@ const ProfilStep = ({
           </div>
 
           <div className="sm:col-span-2 border-t border-filet pt-5">
-            <CollabField id="pf-cherche-precision" legend="Je cherche" options={COLLAB_CHOIX} selected={p.cherche} onChange={(v) => set("cherche", v)}
+            <CollabField replieMobile id="pf-cherche-precision" legend="Je cherche" options={COLLAB_CHOIX} selected={p.cherche} onChange={(v) => set("cherche", v)}
               precision={p.cherchePrecision} onPrecision={(v) => set("cherchePrecision", v)} />
           </div>
           <div className="sm:col-span-2">
-            <CollabField id="pf-apporte-precision" legend="J'apporte" options={COLLAB_CHOIX_APPORTE} selected={p.apporte} onChange={(v) => set("apporte", v)}
+            <CollabField replieMobile id="pf-apporte-precision" legend="J'apporte" options={COLLAB_CHOIX_APPORTE} selected={p.apporte} onChange={(v) => set("apporte", v)}
               precision={p.apportePrecision} onPrecision={(v) => set("apportePrecision", v)} />
           </div>
 
