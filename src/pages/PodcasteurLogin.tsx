@@ -49,6 +49,7 @@ const EspaceMembre = () => {
         title="Connexion à l'espace membre — Les Podcasteur·euses du Sud"
         description="Connectez-vous pour modifier votre profil, vos podcasts et suivre votre adhésion."
         path="/espace-membre"
+        noindex
       />
       <header className="border-b border-encre">
         <div className="mx-auto max-w-[1240px] px-5 sm:px-8 min-h-[64px] flex items-center justify-between gap-4">
@@ -97,7 +98,7 @@ const EspaceMembre = () => {
         )}
 
         <p className="mt-10 text-[15px]">
-          Pas encore de profil ? <Link to="/rejoindre-association#inscription" className={linkUnderline}>Créer mon profil</Link>
+          Pas encore de profil ? <Link to="/adherer#inscription" className={linkUnderline}>Créer mon profil</Link>
         </p>
       </main>
     </div>

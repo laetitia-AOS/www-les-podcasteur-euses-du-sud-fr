@@ -7,13 +7,14 @@ import { supabase } from "@/integrations/supabase/client";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import SEOHead from "@/components/SEOHead";
+import { PAGES, SITE_URL, breadcrumbLd, descriptionSeo, ficheHref, titreSeo } from "@/lib/seo";
 import MembreContactForm from "@/components/MembreContactForm";
 import DevisForm from "@/components/studios/DevisForm";
 import { FaqList, LIEU_COLUMNS, PodcastsLiesList, faqJsonLd, planUrl, sdOf, useLieu, type LieuRow } from "@/components/studios/LieuParts";
 import { btnListen, btnSecondary, cleanCity, container, linkUnderline } from "@/lib/pds";
 import { SERVICES_STUDIO, ficheVide, formatCapacite, formatTarif, useAnneeAdhesion, useFichesLieux } from "@/lib/lieux";
 
-const SITE = "https://www.les-podcasteur-euses-du-sud.fr";
+const SITE = SITE_URL;
 
 /** Fiche publique d'un studio : tout ce qu'il faut pour choisir, puis demander un devis. */
 const StudioProfile = () => {
@@ -56,7 +57,7 @@ const StudioProfile = () => {
       "@context": "https://schema.org",
       "@type": "LocalBusiness",
       name: studio.nom_podcast,
-      url: `${SITE}/annuaire-podcasts/studios/${studio.slug || studio.id}`,
+      url: `${SITE}${ficheHref(studio)}`,
       ...(description && { description }),
       ...(photos[0] && { image: photos }),
       address: {
@@ -77,8 +78,8 @@ const StudioProfile = () => {
       ...(liens.length && { sameAs: liens.map((l) => l.url) }),
       memberOf: { "@type": "Organization", name: "Les Podcasteur·euses du Sud", url: SITE },
     };
-    const faq = faqJsonLd(f.faq);
-    return faq ? [business, faq] : business;
+    const ariane = breadcrumbLd([{ name: "Accueil", path: "/" }, { name: "Studios", path: PAGES.studios }, { name: studio.nom_podcast, path: ficheHref(studio) }]);
+    return [business, faqJsonLd(f.faq), ariane];
   }, [studio, description, photos, sd.adresse_complete, city, f, proposes, liens]);
 
   if (isLoading) {
@@ -93,27 +94,28 @@ const StudioProfile = () => {
       <div className="min-h-screen bg-background"><Navbar />
         <main className={`${container} pt-28 pb-20`}>
           <h1 className="title-page text-[44px]">Studio introuvable</h1>
-          <Link to="/studios-podcast" className={`${linkUnderline} mt-6 inline-flex min-h-[44px] items-center`}>Voir tous les studios</Link>
+          <Link to="/studios" className={`${linkUnderline} mt-6 inline-flex min-h-[44px] items-center`}>Voir tous les studios</Link>
         </main>
         <Footer />
       </div>
     );
   }
 
-  const seoTitle = `Studio podcast à ${city || "Marseille"} : ${studio.nom_podcast}`;
-  const seoDesc = [accroche || description, chiffres].filter(Boolean).join(" — ").slice(0, 155);
+  const lieuSeo = city ? `à ${city}` : "en Région Sud";
+  const seoTitle = titreSeo(`${studio.nom_podcast}, studio podcast ${lieuSeo}`);
+  const seoDesc = descriptionSeo([`${studio.nom_podcast}, studio podcast ${lieuSeo}${chiffres ? ` (${chiffres})` : ""}`, accroche || description]);
   const typeLieu = sd.type_lieu || "Studio podcast";
 
   return (
     <div className="min-h-screen bg-background">
-      <SEOHead title={`${seoTitle} — Les Podcasteur·euses du Sud`} description={seoDesc} path={`/annuaire-podcasts/studios/${studio.slug || studio.id}`} image={photos[0] || studio.vignette_url || undefined} type="business.business" jsonLd={jsonLd} />
+      <SEOHead title={seoTitle} description={seoDesc} path={ficheHref(studio)} image={photos[0] || studio.vignette_url || undefined} type="business.business" jsonLd={jsonLd} />
       <Navbar />
       <main className="pt-16 md:pt-[76px]">
         <div className={`${container} pt-6`}>
           <nav aria-label="Fil d'Ariane" className="text-sm">
             <ol className="flex flex-wrap gap-x-2 gap-y-1 text-muted-foreground">
               <li><Link to="/" className="hover:underline underline-offset-4">Accueil</Link> <span aria-hidden>/</span></li>
-              <li><Link to="/studios-podcast" className="hover:underline underline-offset-4">Studios</Link> <span aria-hidden>/</span></li>
+              <li><Link to="/studios" className="hover:underline underline-offset-4">Studios</Link> <span aria-hidden>/</span></li>
               <li aria-current="page" className="text-foreground font-semibold">{studio.nom_podcast}</li>
             </ol>
           </nav>
@@ -130,7 +132,7 @@ const StudioProfile = () => {
         {photos.length > 0 && (
           <div className={`${container} mt-8 grid gap-3 grid-cols-2 md:grid-cols-[2fr_1fr] md:grid-rows-2 md:h-[480px]`}>
             {photos.slice(0, 3).map((src, i) => (
-              <img key={src} src={src} alt={`${studio.nom_podcast}, photo ${i + 1}`} loading={i ? "lazy" : "eager"}
+              <img key={src} src={src} alt={`${studio.nom_podcast}, photo du studio ${i + 1}`} loading={i ? "lazy" : "eager"}
                 className={`w-full h-full min-h-0 object-cover bg-muted ${i === 0 ? `col-span-2 md:col-span-1 ${photos.length > 1 ? "md:row-span-2" : "md:col-span-2 md:row-span-2"} aspect-[4/3] md:aspect-auto` : "aspect-[4/3] md:aspect-auto"}`} />
             ))}
           </div>
@@ -261,7 +263,7 @@ const StudioProfile = () => {
             <ul className="divide-y divide-filet border-b border-filet">
               {voisins.map((v) => (
                 <li key={v.id}>
-                  <Link to={`/annuaire-podcasts/studios/${v.slug || v.id}`} className="flex flex-wrap items-baseline justify-between gap-x-6 py-4 group">
+                  <Link to={ficheHref(v)} className="flex flex-wrap items-baseline justify-between gap-x-6 py-4 group">
                     <span className="font-bold text-[18px] group-hover:underline underline-offset-4">{v.nom_podcast}</span>
                     <span className="font-mono text-sm text-muted-foreground">{sdOf(v).type_lieu || "Studio"}</span>
                   </Link>

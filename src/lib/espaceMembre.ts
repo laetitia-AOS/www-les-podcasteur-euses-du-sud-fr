@@ -1,3 +1,4 @@
+import { ficheHref } from "./seo";
 // Petites règles de l'espace membre (statut d'adhésion, dates relatives, lien vers la fiche publique).
 import { TYPES_PROFIL } from "@/lib/inscription";
 
@@ -49,12 +50,10 @@ export const roleLabel = (type: string | null | undefined): string =>
   TYPES_PROFIL.find((t) => t.value === type)?.label || "Membre";
 
 /** Adresse de la fiche publique selon le type de profil. */
-export const publicProfilePath = (type: string, slug: string | null): string | null => {
+export const publicProfilePath = (type: string, slug: string | null, nomPodcast?: string | null): string | null => {
   if (!slug) return null;
-  if (type === "studio") return `/annuaire-podcasts/studios/${slug}`;
-  if (type === "structure_eco") return `/annuaire-podcasts/structures/${slug}`;
   if (type === "soutien") return null;
-  return `/podcasteur/${slug}`;
+  return ficheHref({ id: slug, slug, type_profil: type, nom_podcast: type === "podcasteur" ? nomPodcast ?? "podcast" : null });
 };
 
 /** État d'adhésion renvoyé par le serveur (année civile, tolérance en janvier). */
@@ -65,5 +64,5 @@ export const lienRenouveler = (formule: string | null | undefined, annee?: numbe
   const q = new URLSearchParams({ etape: "adhesion" });
   if (formule === "studio" || formule === "personne") q.set("formule", formule);
   if (annee) q.set("pour", String(annee));
-  return `/rejoindre-association?${q.toString()}`;
+  return `/adherer?${q.toString()}`;
 };

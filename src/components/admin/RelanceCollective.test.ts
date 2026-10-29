@@ -17,7 +17,7 @@ describe("relances collectives", () => {
     expect(messageRelance("15jan", 2027).corps).toContain("pour=2027");
   });
   it("le lien mène au paiement de l'année suivante en décembre", () => {
-    expect(messageRelance("20dec", 2026).corps).toContain("/rejoindre-association?etape=adhesion&pour=2027");
+    expect(messageRelance("20dec", 2026).corps).toContain("/adherer?etape=adhesion&pour=2027");
   });
   it("fiches en attente d'adhésion", () => {
     expect(destinatairesRelance("sursis", membres, 2026).map((x) => x.email)).toEqual(["d@x.fr"]);

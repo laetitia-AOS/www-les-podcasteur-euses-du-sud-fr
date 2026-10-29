@@ -25,7 +25,7 @@ const ContactCTA = () => {
           </p>
           <div className="flex flex-wrap items-center justify-center gap-4 pt-2">
             <Link
-              to="/rejoindre-association#inscription"
+              to="/adherer#inscription"
               className="group inline-flex items-center gap-3 bg-primary text-primary-foreground px-8 py-4 rounded-pill text-base font-semibold hover:bg-primary-hover transition-all duration-300"
               style={{ boxShadow: "0 4px 14px rgba(184,92,56,0.2)" }}
             >

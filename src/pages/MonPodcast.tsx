@@ -131,7 +131,7 @@ const MonEspace = () => {
   // Fiche publique seulement si elle est validée et l'adhésion à jour (même règle que le serveur)
   // Sursis accordé par l'équipe : la fiche reste visible le temps de la relance d'adhésion
   const sursis = !aJour && fiches.some((f) => f.valide && f.visible_sans_adhesion);
-  const publicPath = profil && profil.valide && (aJour || profil.visible_sans_adhesion) ? publicProfilePath(profil.type_profil, profil.slug) : null;
+  const publicPath = profil && profil.valide && (aJour || profil.visible_sans_adhesion) ? publicProfilePath(profil.type_profil, profil.slug, profil.nom_podcast) : null;
   const nomFiche = (id: string) => fiches.find((f) => f.id === id);
 
   if (loading) {
@@ -161,7 +161,7 @@ const MonEspace = () => {
   if (!profil) {
     return (
       <div className="min-h-screen bg-background">
-        <SEOHead title="Espace membre — Les Podcasteur·euses du Sud" description="Gérez votre profil, vos podcasts et votre adhésion." path="/mon-espace" />
+        <SEOHead title="Espace membre — Les Podcasteur·euses du Sud" description="Gérez votre profil, vos podcasts et votre adhésion." path="/mon-espace" noindex />
         {header}
         <main className="mx-auto max-w-[640px] px-5 sm:px-8 py-16">
           <h1 className="title-page text-[48px] sm:text-[64px]">Aucun profil trouvé</h1>
@@ -170,7 +170,7 @@ const MonEspace = () => {
           </p>
           <p className="mt-3 text-muted-foreground">Vous vous êtes inscrit·e avec une autre adresse ? Déconnectez-vous et reconnectez-vous avec celle-ci.</p>
           <div className="mt-8 flex flex-wrap gap-3">
-            <Link to="/rejoindre-association#inscription" className={btnPrimary}>Créer mon profil</Link>
+            <Link to="/adherer#inscription" className={btnPrimary}>Créer mon profil</Link>
             <button type="button" onClick={logout} className={btnSecondary}>Se déconnecter</button>
           </div>
         </main>
@@ -182,7 +182,7 @@ const MonEspace = () => {
 
   return (
     <div className="min-h-screen bg-background">
-      <SEOHead title="Espace membre — Les Podcasteur·euses du Sud" description="Gérez votre profil, vos podcasts et votre adhésion." path="/mon-espace" />
+      <SEOHead title="Espace membre — Les Podcasteur·euses du Sud" description="Gérez votre profil, vos podcasts et votre adhésion." path="/mon-espace" noindex />
       {header}
 
       <div className="mx-auto max-w-[1240px] px-5 sm:px-8 lg:grid lg:grid-cols-[230px_1fr] lg:gap-12 pb-24">

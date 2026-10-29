@@ -1,7 +1,8 @@
 import { useEffect, useMemo } from "react";
 import { compterStat } from "@/lib/stats";
 import { collabLabel } from "@/lib/inscription";
-import { useParams, Link } from "react-router-dom";
+import { useParams, Link, Navigate, useLocation } from "react-router-dom";
+import { PAGES, SITE_NAME, SITE_URL, breadcrumbLd, descriptionSeo, ficheHref, titreSeo } from "@/lib/seo";
 import { useQuery } from "@tanstack/react-query";
 import { Pause, Play } from "lucide-react";
 import { withUtm } from "@/lib/utm";
@@ -26,7 +27,7 @@ import {
 
 // L'e-mail et le téléphone ne sont volontairement jamais demandés ici.
 const PUBLIC_FIELDS =
-  "id, slug, prenom, nom, type_profil, city_name, department_label, bio_750, lien_principal, lien_linkedin, nom_podcast, lien_ecoute, flux_rss, description, vignette_url, thematique, type_podcast, metier_principal, services_3, structure, cherche_choix, apporte_choix, cherche_precision, apporte_precision, format_collaboration, consent_contact";
+  "id, slug, prenom, nom, type_profil, city_name, department_label, bio_750, lien_principal, lien_linkedin, nom_podcast, lien_ecoute, flux_rss, description, vignette_url, photo_profil_url, thematique, type_podcast, metier_principal, services_3, structure, cherche_choix, apporte_choix, cherche_precision, apporte_precision, format_collaboration, consent_contact";
 
 interface ProfileData {
   id: string;
@@ -44,6 +45,7 @@ interface ProfileData {
   flux_rss: string | null;
   description: string;
   vignette_url: string | null;
+  photo_profil_url: string | null;
   thematique: string | null;
   type_podcast: string | null;
   metier_principal: string | null;
@@ -65,7 +67,7 @@ const ROLE_LABELS: Record<string, string> = {
   studio: "Studio",
 };
 
-const SITE = "https://www.les-podcasteur-euses-du-sud.fr";
+const SITE = SITE_URL;
 const isPlaceholderLink = (url?: string | null) => !url || /les-podcasteur-euses-du-sud\.fr\/?$/.test(url);
 
 const platformLabel = (url: string): string => {
@@ -82,6 +84,7 @@ const platformLabel = (url: string): string => {
 
 const ProfilMembre = () => {
   const { slug } = useParams<{ slug: string }>();
+  const { pathname } = useLocation();
   const { play, isCurrent, playing } = usePlayer();
 
   const { data: profile, isLoading } = useQuery({
@@ -107,7 +110,11 @@ const ProfilMembre = () => {
   const title = profile ? (isPodcast ? profile.nom_podcast! : name || profile.structure || "Profil") : "";
   const intro = profile ? (isPodcast ? profile.description : profile.bio_750 || profile.description) : "";
   useEffect(() => { if (profile?.id) compterStat(profile.id, "vue"); }, [profile?.id]);
-  const canonicalPath = profile ? `/podcasteur/${profile.slug || profile.id}` : `/podcasteur/${slug}`;
+  // Une seule adresse par fiche : /ecouter/… pour un podcast, /annuaire/… pour un·e pro (les anciennes adresses y mènent)
+  const canonicalPath = profile ? ficheHref(profile) : pathname;
+  const lieu = city ? `à ${city}` : "en Région Sud";
+  const rubrique = isPodcast ? { name: "Écouter", path: PAGES.ecouter } : { name: "Annuaire", path: PAGES.annuaire };
+  const photoPro = profile && !isPodcast ? profile.photo_profil_url || profile.vignette_url : null;
 
   const jsonLd = useMemo(() => {
     if (!profile) return undefined;
@@ -147,9 +154,10 @@ const ProfilMembre = () => {
       ...(intro && { description: intro }),
       ...(profile.metier_principal && { jobTitle: profile.metier_principal }),
       ...(city && { address: { "@type": "PostalAddress", addressLocality: city, addressRegion: "Provence-Alpes-Côte d'Azur", addressCountry: "FR" } }),
-      memberOf: { "@type": "Organization", name: "Les Podcasteur·euses du Sud", url: SITE },
+      ...(photoPro && { image: photoPro }),
+      memberOf: { "@type": "Organization", name: SITE_NAME, url: SITE },
     };
-  }, [profile, isPodcast, name, city, intro, canonicalPath, episodes]);
+  }, [profile, isPodcast, name, city, intro, canonicalPath, episodes, photoPro]);
 
   if (isLoading) {
     return (
@@ -163,19 +171,20 @@ const ProfilMembre = () => {
   if (!profile) {
     return (
       <div className="min-h-screen bg-background">
-        <SEOHead title="Fiche introuvable — Les Podcasteur·euses du Sud" description="Cette fiche n'existe pas ou n'est pas encore visible." path={canonicalPath} />
+        <SEOHead title={titreSeo("Fiche introuvable")} description="Cette fiche n'existe pas ou n'est pas encore visible." path={pathname} noindex />
         <Navbar />
         <main className={`${container} pt-32 pb-24`}>
           <h1 className="title-page text-[56px]">Fiche introuvable</h1>
           <p className="mt-4 text-lg">Cette fiche n'existe pas, ou elle n'est pas encore visible sur le site.</p>
-          <Link to="/annuaire-podcasts" className={`${btnSecondary} mt-8`}>Voir l'annuaire</Link>
+          <Link to="/annuaire" className={`${btnSecondary} mt-8`}>Voir l'annuaire</Link>
         </main>
         <Footer />
       </div>
     );
   }
 
-  const back = isPodcast ? { to: "/ecouter", label: "Tous les podcasts" } : { to: "/annuaire-podcasts", label: "Tout l'annuaire" };
+  if (pathname !== canonicalPath) return <Navigate to={{ pathname: canonicalPath, hash: window.location.hash }} replace />;
+
   const cherche = (profile.cherche_choix || []).map(collabLabel);
   const apporte = (profile.apporte_choix || []).map(collabLabel);
   const latest = episodes[0];
@@ -187,27 +196,37 @@ const ProfilMembre = () => {
   if (profile.lien_linkedin) alsoOn.push({ label: "LinkedIn", href: withUtm(profile.lien_linkedin, "fiche-membre") });
   if (profile.flux_rss) alsoOn.push({ label: "Flux RSS", href: profile.flux_rss });
 
-  const seoTitle = isPodcast
-    ? `${(profile.nom_podcast || "").trim()}, podcast de ${name}${city ? ` (${city})` : ""} — Les Podcasteur·euses du Sud`
-    : `${name}${profile.metier_principal ? `, ${profile.metier_principal}` : ""}${city ? ` à ${city}` : ""} — Les Podcasteur·euses du Sud`;
-  const seoDesc = (intro || `${title}, membre des Podcasteur·euses du Sud.`).slice(0, 155);
+  const metier = (profile.metier_principal || "").trim() || "pro de l'audio";
+  const seoTitle = titreSeo(
+    isPodcast ? `${(profile.nom_podcast || "").trim()}, podcast de ${name} ${lieu}` : `${name}, ${metier} ${lieu}`,
+  );
+  const seoDesc = descriptionSeo([
+    isPodcast ? `${(profile.nom_podcast || "").trim()}, podcast de ${name} ${lieu}` : `${name}, ${metier} ${lieu}, en Région Sud`,
+    intro,
+  ]);
+  const seoImage = isPodcast ? profile.vignette_url : photoPro;
+  const ld = [jsonLd, breadcrumbLd([{ name: "Accueil", path: "/" }, rubrique, { name: title, path: canonicalPath }])];
 
   return (
     <div className="min-h-screen bg-background">
-      <SEOHead title={seoTitle} description={seoDesc} path={canonicalPath} image={profile.vignette_url || undefined} type={isPodcast ? "website" : "profile"} jsonLd={jsonLd} />
+      <SEOHead title={seoTitle} description={seoDesc} path={canonicalPath} image={seoImage || undefined} type={isPodcast ? "website" : "profile"} jsonLd={ld} />
       <Navbar />
       <main className="pt-16 md:pt-[76px]">
         <div className={`${container} pt-6`}>
-          <Link to={back.to} className="inline-flex min-h-[44px] items-center font-bold underline underline-offset-4">
-            <span aria-hidden>←&nbsp;</span>{back.label}
-          </Link>
+          <nav aria-label="Fil d'Ariane" className="text-sm">
+            <ol className="flex flex-wrap gap-x-2 gap-y-1 text-muted-foreground">
+              <li><Link to="/" className="inline-flex min-h-[32px] items-center hover:underline underline-offset-4">Accueil</Link> <span aria-hidden>/</span></li>
+              <li><Link to={rubrique.path} className="inline-flex min-h-[32px] items-center hover:underline underline-offset-4">{rubrique.name}</Link> <span aria-hidden>/</span></li>
+              <li aria-current="page" className="inline-flex min-h-[32px] items-center text-foreground font-semibold">{title}</li>
+            </ol>
+          </nav>
         </div>
 
         {/* En-tête */}
         <section className={`${container} pt-4 pb-12 grid md:grid-cols-[minmax(0,5fr)_minmax(0,9fr)] gap-8 md:gap-12 items-start`}>
           <div className="aspect-square bg-muted overflow-hidden max-w-[420px] w-full">
-            {profile.vignette_url ? (
-              <img src={profile.vignette_url} alt={isPodcast ? `Pochette du podcast ${profile.nom_podcast}` : `Portrait de ${name}`} className="w-full h-full object-cover" />
+            {(isPodcast ? profile.vignette_url : photoPro) ? (
+              <img src={(isPodcast ? profile.vignette_url : photoPro)!} alt={isPodcast ? `Pochette du podcast ${profile.nom_podcast}` : `Photo de ${name}`} className="w-full h-full object-cover" />
             ) : (
               <span className="flex w-full h-full items-center justify-center bg-primary text-primary-foreground title-section text-3xl p-6 text-center">{title}</span>
             )}

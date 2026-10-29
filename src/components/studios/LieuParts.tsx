@@ -1,4 +1,5 @@
 // Éléments partagés des fiches studio et structure.
+import { ficheHref } from "@/lib/seo";
 import { Link } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -76,9 +77,9 @@ export const PodcastsLiesList = ({ lies }: { lies: PodcastLie[] }) => {
         const img = p.type_profil === "podcasteur" ? p.vignette_url : p.photo_profil_url || p.vignette_url;
         return (
           <li key={p.id} className="flex items-center gap-3 border border-filet bg-surface p-3">
-            {img ? <img src={img} alt="" className="w-14 h-14 object-cover shrink-0" loading="lazy" /> : <span className="w-14 h-14 bg-muted shrink-0" />}
+            {img ? <img src={img} alt={p.type_profil === "podcasteur" ? `Pochette du podcast ${name}` : `Photo de ${name}`} className="w-14 h-14 object-cover shrink-0" loading="lazy" /> : <span className="w-14 h-14 bg-muted shrink-0" />}
             <div className="min-w-0">
-              <Link to={`/podcasteur/${p.slug || p.id}`} className="font-bold leading-tight hover:underline underline-offset-4 line-clamp-2">{name}</Link>
+              <Link to={ficheHref(p)} className="font-bold leading-tight hover:underline underline-offset-4 line-clamp-2">{name}</Link>
               <p className="text-sm text-muted-foreground">
                 {[formatDateCourte(date), p.type_profil === "podcasteur" ? fullName(p.prenom, p.nom) : null].filter(Boolean).join(" · ")}
               </p>

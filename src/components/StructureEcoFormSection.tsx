@@ -304,7 +304,7 @@ const StructureEcoFormSection = ({ onBack, onSubmitted }: Props) => {
           </a>
         </div>
 
-        <a href="/annuaire-podcasts" className="inline-flex items-center gap-2 text-primary font-medium hover:underline">Voir l'annuaire →</a>
+        <a href="/annuaire" className="inline-flex items-center gap-2 text-primary font-medium hover:underline">Voir l'annuaire →</a>
       </motion.div>
     );
   }

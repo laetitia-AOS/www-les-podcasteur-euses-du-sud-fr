@@ -1,6 +1,7 @@
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import SEOHead from "@/components/SEOHead";
+import { PAGES_SEO } from "@/lib/seo";
 import HomeHero from "@/components/home/HomeHero";
 import HomeEpisodes from "@/components/home/HomeEpisodes";
 import HomePhotos from "@/components/home/HomePhotos";
@@ -23,8 +24,8 @@ const Index = () => {
   return (
     <>
       <SEOHead
-        title="Podcasts à Marseille et en Région Sud — Les Podcasteur·euses du Sud"
-        description="Écoutez les podcasts, fictions sonores, livres audio et vodcasts fabriqués à Marseille et en Région Sud. Trouvez un·e créateur·ice, un studio, et venez aux apéros écoute."
+        title={PAGES_SEO.accueil.title}
+        description={PAGES_SEO.accueil.description}
         path="/"
       />
       <Navbar />

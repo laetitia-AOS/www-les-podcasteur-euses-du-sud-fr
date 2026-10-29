@@ -6,8 +6,8 @@ import { btnPrimary, container } from "@/lib/pds";
 
 const links = [
   { label: "Écouter", href: "/ecouter", match: ["/ecouter", "/podcasts", "/podcasteur"] },
-  { label: "Annuaire", href: "/annuaire-podcasts", match: ["/annuaire-podcasts"] },
-  { label: "Studios", href: "/studios-podcast", match: ["/studios-podcast", "/annuaire-podcasts/studios", "/annuaire-podcasts/structures"] },
+  { label: "Annuaire", href: "/annuaire", match: ["/annuaire"] },
+  { label: "Studios", href: "/studios", match: ["/studios", "/annuaire/studios", "/annuaire/structures"] },
   { label: "Agenda", href: "/agenda", match: ["/evenements-podcast", "/evenement-podcast", "/proposer-evenement-podcast", "/agenda"] },
 ];
 
@@ -19,8 +19,8 @@ const Navbar = () => {
 
   const isActive = (match: string[]) => {
     const p = location.pathname;
-    // Les fiches studio sont sous /annuaire-podcasts/studios : elles appartiennent à « Studios »
-    if (match.includes("/annuaire-podcasts") && /^\/annuaire-podcasts\/(studios|structures)/.test(p)) return false;
+    // Les fiches studio sont sous /annuaire/studios : elles appartiennent à « Studios »
+    if (match.includes("/annuaire") && /^\/annuaire\/(studios|structures)/.test(p)) return false;
     return match.some((m) => p === m || p.startsWith(`${m}/`));
   };
 
@@ -50,7 +50,7 @@ const Navbar = () => {
               </NavLink>
             );
           })}
-          <Link to="/rejoindre-association" className={`${btnPrimary} ml-4 px-6`}>
+          <Link to="/adherer" className={`${btnPrimary} ml-4 px-6`}>
             Adhérer
           </Link>
           <Link
@@ -64,7 +64,7 @@ const Navbar = () => {
         </nav>
 
         <div className="flex lg:hidden items-center gap-1">
-          <Link to="/rejoindre-association" className={`${btnPrimary} px-4 text-sm`}>
+          <Link to="/adherer" className={`${btnPrimary} px-4 text-sm`}>
             Adhérer
           </Link>
           <button

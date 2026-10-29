@@ -21,7 +21,7 @@ const PlayerBar = () => {
 
   if (!episode || isAdmin) return null;
 
-  const podcastHref = episode.podcastSlug ? `/podcasteur/${episode.podcastSlug}` : `/podcasteur/${episode.podcastId}`;
+  const podcastHref = episode.podcastSlug ? `/ecouter/${episode.podcastSlug}` : `/ecouter/${episode.podcastId}`;
 
   return (
     <>

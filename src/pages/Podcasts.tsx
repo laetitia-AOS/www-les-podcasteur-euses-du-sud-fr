@@ -7,9 +7,10 @@ import { supabase } from "@/integrations/supabase/client";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import SEOHead from "@/components/SEOHead";
+import { PAGES_SEO } from "@/lib/seo";
 import { usePlayer } from "@/contexts/PlayerContext";
 import { useLatestEpisodes, type Episode } from "@/lib/episodes";
-import { btnPrimary, btnSecondary, cleanCity, container, formatShortDate, fullName } from "@/lib/pds";
+import { btnPrimary, btnSecondary, cleanCity, container, h1Ligne, formatShortDate, fullName } from "@/lib/pds";
 
 interface Podcast {
   id: string;
@@ -131,17 +132,20 @@ const Podcasts = () => {
   return (
     <div className="min-h-screen bg-background">
       <SEOHead
-        title="Écouter les podcasts de Marseille et de la Région Sud — Les Podcasteur·euses du Sud"
-        description={`${podcasts.length || "Les"} podcasts, fictions sonores et livres audio fabriqués à Marseille et en Région Sud. Lancez un épisode, il continue pendant que vous naviguez.`}
+        title={PAGES_SEO.ecouter.title}
+        description={PAGES_SEO.ecouter.description}
         path="/ecouter"
         jsonLd={jsonLd}
       />
       <Navbar />
       <main className="pt-16 md:pt-[76px]">
         <div className={`${container} pt-10 md:pt-14`}>
-          <h1 className="title-page text-[64px] sm:text-[96px]">Écouter</h1>
+          <h1 className="title-page text-[64px] sm:text-[96px]">
+            <span className="block">Écouter</span>
+            <span className={h1Ligne}>les podcasts de Marseille et de Région Sud</span>
+          </h1>
           <p className="mt-4 text-lg max-w-[52ch]">
-            {podcasts.length > 0 ? `${podcasts.length} podcasts` : "Les podcasts"} fabriqués à Marseille et en Région Sud. Lancez un épisode, il continue pendant que vous naviguez.
+            {podcasts.length > 0 ? `${podcasts.length} podcasts à lancer ici.` : "Lancez un épisode ici."} Il continue pendant que vous naviguez d'une page à l'autre.
           </p>
 
           <div className="mt-8 grid gap-4 md:grid-cols-[2fr_1fr_1fr] pb-6 border-b-2 border-encre">
@@ -199,7 +203,7 @@ const Podcasts = () => {
                 const active = ep ? isCurrent(ep) && playing : false;
                 const author = fullName(p.prenom, p.nom);
                 const city = cleanCity(p.city_name || p.ville);
-                const href = `/podcasteur/${p.slug || p.id}`;
+                const href = `/ecouter/${p.slug || p.id}`;
                 return (
                   <li key={p.id} className="flex flex-col">
                     <Link to={href} className="block aspect-square bg-muted overflow-hidden" tabIndex={-1} aria-hidden>
@@ -260,7 +264,7 @@ const Podcasts = () => {
             <p className="font-bold text-lg sm:text-xl max-w-[52ch]">
               Votre podcast est fait dans la région ? Adhérez pour qu'il apparaisse ici et tourne dans le lecteur.
             </p>
-            <Link to="/rejoindre-association" className={`${btnPrimary} px-7 shrink-0 self-start sm:self-auto`}>Adhérer</Link>
+            <Link to="/adherer" className={`${btnPrimary} px-7 shrink-0 self-start sm:self-auto`}>Adhérer</Link>
           </div>
         </section>
       </main>

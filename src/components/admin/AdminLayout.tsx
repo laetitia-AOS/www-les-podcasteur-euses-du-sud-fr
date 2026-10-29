@@ -2,6 +2,7 @@ import { useState, type ReactNode } from "react";
 import { Link, Navigate, NavLink, useLocation } from "react-router-dom";
 import { BookOpen, CalendarDays, ExternalLink, Inbox, Loader2, LogOut, Mail, Menu, Users, X } from "lucide-react";
 import { useAdminAuth } from "@/hooks/useAdminAuth";
+import SEOHead from "@/components/SEOHead";
 import { useATraiter, totalRubrique } from "@/components/admin/useATraiter";
 
 export const RUBRIQUES = [
@@ -71,6 +72,7 @@ const AdminLayout = ({ titre, description, actions, children }: Props) => {
 
   return (
     <div className="min-h-screen bg-background md:flex">
+      <SEOHead title="Administration — Les Podcasteur·euses du Sud" description="Espace réservé à l'équipe de l'association." path={pathname} noindex />
       {/* Menu : colonne fixe sur ordinateur, déroulant sur téléphone */}
       <aside className="bg-primary text-primary-foreground md:w-60 md:shrink-0 md:sticky md:top-0 md:h-screen md:overflow-y-auto">
         <div className="flex items-center justify-between px-4 py-4 md:py-6">

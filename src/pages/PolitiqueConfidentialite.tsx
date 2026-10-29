@@ -1,11 +1,12 @@
-import { useEffect } from "react";
 import Navbar from "@/components/Navbar";
+import SEOHead from "@/components/SEOHead";
+import { PAGES_SEO } from "@/lib/seo";
 import Footer from "@/components/Footer";
 
 const PolitiqueConfidentialite = () => {
-  useEffect(() => { document.title = "Politique de confidentialité — Les Podcasteur·euses du Sud"; }, []);
   return (
     <>
+      <SEOHead title={PAGES_SEO.confidentialite.title} description={PAGES_SEO.confidentialite.description} path="/politique-de-confidentialite" />
       <Navbar />
       <main className="min-h-screen py-20 md:py-32 bg-background">
         <div className="container mx-auto px-6 max-w-3xl">
@@ -47,9 +48,26 @@ const PolitiqueConfidentialite = () => {
                 <li>Prénom, nom, adresse de courriel, profil, structure (facultatif), objet et message</li>
               </ul>
 
+              <h3 className="font-semibold text-foreground mt-4 mb-2">Via les messages, collaborations et devis :</h3>
+              <ul className="list-disc pl-5 space-y-1">
+                <li><strong>Messages et propositions de collaboration envoyés depuis une fiche :</strong> nom, adresse de courriel et message de la personne qui écrit, transmis directement au membre destinataire et visibles par l'équipe de l'association</li>
+                <li><strong>Demandes de devis :</strong> nom, adresse de courriel, besoins, département et message, transmis aux studios concernés</li>
+              </ul>
+
+              <h3 className="font-semibold text-foreground mt-4 mb-2">Via l'espace membre :</h3>
+              <ul className="list-disc pl-5 space-y-1">
+                <li><strong>Connexion par lien envoyé par e-mail :</strong> adresse de courriel, utilisée pour envoyer un lien de connexion personnel</li>
+              </ul>
+
+              <h3 className="font-semibold text-foreground mt-4 mb-2">Via les flux des podcasts :</h3>
+              <ul className="list-disc pl-5 space-y-1">
+                <li><strong>Lecture des flux RSS publics des podcasts déclarés :</strong> titres, dates, durées, résumés et fichiers audio des derniers épisodes, tels que publiés par le podcast</li>
+              </ul>
+
               <h3 className="font-semibold text-foreground mt-4 mb-2">Via la navigation sur le site :</h3>
               <ul className="list-disc pl-5 space-y-1">
                 <li>Données techniques strictement nécessaires au fonctionnement (cookies de session). Aucun traceur publicitaire n'est utilisé.</li>
+                <li><strong>Mesure anonyme des vues de fiche et des écoutes lancées :</strong> une empreinte brouillée, sans cookie, effacée sous 48 heures ; seuls les totaux sont conservés, visibles par le membre concerné</li>
               </ul>
             </section>
 
@@ -61,6 +79,11 @@ const PolitiqueConfidentialite = () => {
                 <li>Animation de la communauté et communication associative</li>
                 <li>Mise en relation entre créateurs audio et acteurs de l'écosystème (sous réserve du consentement explicite de la personne concernée)</li>
                 <li>Réponse aux demandes formulées via le formulaire de contact</li>
+                <li>Transmission des messages et propositions de collaboration au membre destinataire, avec un accès de l'équipe pour la modération</li>
+                <li>Transmission des demandes de devis aux studios concernés</li>
+                <li>Connexion à l'espace membre par un lien envoyé par e-mail</li>
+                <li>Affichage des derniers épisodes des podcasts, à partir de leurs flux RSS publics</li>
+                <li>Mesure anonyme des vues de fiche et des écoutes lancées, pour montrer à chaque membre l'audience de sa fiche</li>
                 <li>Gestion interne de la vie associative et pilotage de la dynamique du réseau</li>
                 <li>Évaluation interne automatisée (scoring) à des fins de pilotage associatif, non communiquée aux utilisateurs</li>
               </ul>
@@ -87,6 +110,9 @@ const PolitiqueConfidentialite = () => {
               <ul className="list-disc pl-5 space-y-1">
                 <li><strong>Données de référencement podcast :</strong> pendant toute la durée du référencement et au maximum 3 ans après le dernier contact avec la personne concernée</li>
                 <li><strong>Données du formulaire de contact :</strong> 1 an après le traitement de la demande</li>
+                <li><strong>Messages, propositions de collaboration et demandes de devis :</strong> 2 ans après le dernier échange</li>
+                <li><strong>Totaux de vues et d'écoutes :</strong> tant que la fiche existe (l'empreinte brouillée qui sert au comptage est effacée sous 48 heures)</li>
+                <li><strong>Liens de connexion :</strong> valables une heure, à usage unique</li>
                 <li><strong>Données d'adhésion :</strong> pendant la durée de l'adhésion et 3 ans après son expiration à des fins de gestion associative</li>
               </ul>
               <p className="mt-2">
@@ -179,7 +205,7 @@ const PolitiqueConfidentialite = () => {
             </section>
 
             <p className="text-xs text-muted-foreground/60 pt-4">
-              Dernière mise à jour : février 2026
+              Dernière mise à jour : octobre 2026
             </p>
           </div>
         </div>

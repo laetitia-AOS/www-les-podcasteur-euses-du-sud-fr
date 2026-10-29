@@ -2,14 +2,15 @@ import { Link } from "react-router-dom";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import SEOHead from "@/components/SEOHead";
+import { PAGES_SEO } from "@/lib/seo";
 import ProposerEvenementForm from "@/components/agenda/ProposerEvenementForm";
 import { container } from "@/lib/pds";
 
 const ProposerEvenement = () => (
   <div className="min-h-screen bg-background">
     <SEOHead
-      title="Proposer un événement podcast en Région Sud — Les Podcasteur·euses du Sud"
-      description="Un atelier, un live, une écoute, une rencontre : proposez votre événement podcast ou création sonore pour l'agenda des Podcasteur·euses du Sud."
+      title={PAGES_SEO.proposer.title}
+      description={PAGES_SEO.proposer.description}
       path="/proposer-evenement-podcast"
     />
     <Navbar />

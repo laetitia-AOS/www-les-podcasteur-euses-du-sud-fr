@@ -1,4 +1,4 @@
-import { formatName } from "@/lib/pds";
+import { formatName, fullName } from "@/lib/pds";
 
 type Props = {
   prenom?: string | null;
@@ -14,7 +14,7 @@ type Props = {
  */
 const MemberAvatar = ({ prenom, nom, photoUrl, className = "w-14 h-14 sm:w-16 sm:h-16" }: Props) => {
   if (photoUrl) {
-    return <img src={photoUrl} alt="" className={`${className} rounded-full object-cover shrink-0`} loading="lazy" />;
+    return <img src={photoUrl} alt={fullName(prenom, nom) ? `Photo de ${fullName(prenom, nom)}` : "Photo de profil"} className={`${className} rounded-full object-cover shrink-0`} loading="lazy" />;
   }
   const initials = `${formatName(prenom).charAt(0)}${formatName(nom).charAt(0)}`.toUpperCase() || "·";
   return (

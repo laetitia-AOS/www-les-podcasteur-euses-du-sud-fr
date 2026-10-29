@@ -1,7 +1,7 @@
 import { Link, useNavigate } from "react-router-dom";
 import { Play } from "lucide-react";
 import { useMemo } from "react";
-import { btnListen, container } from "@/lib/pds";
+import { btnListen, container, h1Ligne } from "@/lib/pds";
 import { usePlayer } from "@/contexts/PlayerContext";
 import type { Episode } from "@/lib/episodes";
 import type { HomeProfile } from "./useHomeData";
@@ -45,20 +45,22 @@ const HomeHero = ({ profiles, latest }: Props) => {
       <div className={`${container} py-12 md:py-20 grid lg:grid-cols-[1.05fr_1fr] gap-12 lg:gap-16 items-center`}>
         <div>
           <h1 id="home-title" className="title-page text-primary-foreground text-[64px] min-[420px]:text-[84px] sm:text-[112px] lg:text-[128px]">
-            Le sud
-            <br />
-            au casque<span className="text-accent">.</span>
-            <span className="sr-only"> Podcasts, fictions sonores, livres audio et vodcasts de Marseille et de la Région Sud</span>
+            <span className="block">
+              Le Sud
+              <br />
+              au casque<span className="text-accent">.</span>
+            </span>
+            <span className={`${h1Ligne} text-primary-foreground mt-6`}>Les podcasts de Marseille et de Région Sud, et celles et ceux qui les font.</span>
           </h1>
-          <p className="mt-8 text-lg sm:text-[21px] leading-snug max-w-[34ch]">
-            Podcasts, fictions sonores, livres audio, vodcasts. Les voix qui se fabriquent à Marseille et en Région Sud, et les gens qui les font.
+          <p className="mt-6 text-lg sm:text-[21px] leading-snug max-w-[34ch]">
+            Podcasts, fictions sonores, livres audio, vodcasts : écoutez-les ici, trouvez qui les fabrique, venez les écouter avec nous.
           </p>
           <div className="mt-8 flex flex-wrap items-center gap-x-6 gap-y-4">
             <button onClick={listenNow} className={`${btnListen} px-7 min-h-[56px] text-[17px]`}>
               <Play className="w-4 h-4" fill="currentColor" aria-hidden />
               Écouter maintenant
             </button>
-            <Link to="/annuaire-podcasts" className="inline-flex min-h-[44px] items-center text-[17px] font-bold underline underline-offset-4 decoration-2 hover:decoration-accent">
+            <Link to="/annuaire" className="inline-flex min-h-[44px] items-center text-[17px] font-bold underline underline-offset-4 decoration-2 hover:decoration-accent">
               Trouver un·e créateur·ice
             </Link>
           </div>
@@ -72,7 +74,7 @@ const HomeHero = ({ profiles, latest }: Props) => {
         <ul className="grid grid-cols-2 sm:grid-cols-3 gap-4 sm:gap-5" aria-label="Quelques podcasts de la région">
           {wall.map((p) => (
             <li key={p.id}>
-              <Link to={`/podcasteur/${p.slug || p.id}`} className="group block">
+              <Link to={`/ecouter/${p.slug || p.id}`} className="group block">
                 <span className="block aspect-square border-[6px] border-surface bg-surface overflow-hidden">
                   <img
                     src={p.vignette_url!}

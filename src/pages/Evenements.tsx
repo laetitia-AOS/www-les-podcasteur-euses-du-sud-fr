@@ -6,10 +6,11 @@ import { supabase } from "@/integrations/supabase/client";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import SEOHead from "@/components/SEOHead";
+import { PAGES, PAGES_SEO } from "@/lib/seo";
 import EventRow, { eventHref } from "@/components/agenda/EventRow";
 import ProposerEvenementForm from "@/components/agenda/ProposerEvenementForm";
 import { aVenirFilter, isOnline, isOrganizedByPds, passeFilter, type HomeEvent } from "@/components/home/useHomeData";
-import { btnListen, container, formatShortDate } from "@/lib/pds";
+import { btnListen, container, h1Ligne, formatShortDate } from "@/lib/pds";
 import photo1 from "@/assets/photos/09-rencontre-inseec-cercle.jpg.asset.json";
 import photo2 from "@/assets/photos/16-rencontre-mur-rouge-trio.jpg.asset.json";
 import photo3 from "@/assets/photos/03-studio-installation-lumieres.jpg.asset.json";
@@ -102,9 +103,9 @@ const Evenements = () => {
   return (
     <div className="min-h-screen bg-background">
       <SEOHead
-        title="Agenda podcast à Marseille et en Région Sud : apéros écoute, ateliers, rencontres"
-        description="Apéros écoute le 9 de chaque mois, ateliers, lives et rencontres podcast à Marseille, en Région Sud et en ligne. Chaque membre peut proposer un événement."
-        path="/agenda"
+        title={PAGES_SEO.agenda.title}
+        description={PAGES_SEO.agenda.description}
+        path={PAGES.agenda}
         jsonLd={jsonLd.length ? jsonLd : undefined}
       />
       <Navbar />
@@ -112,9 +113,12 @@ const Evenements = () => {
         <div className={`${container} pt-10 md:pt-14`}>
           <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-6">
             <div>
-              <h1 className="title-page text-[64px] sm:text-[96px]">Agenda</h1>
+              <h1 className="title-page text-[64px] sm:text-[96px]">
+                <span className="block">Agenda</span>
+                <span className={h1Ligne}>des rendez-vous podcast en Région Sud</span>
+              </h1>
               <p className="mt-4 text-lg max-w-[54ch]">
-                Apéros écoute, ateliers, lives et rencontres podcast en Région Sud et en ligne. Chaque membre peut proposer un événement.
+                Apéros écoute, ateliers, lives et rencontres, sur place ou en ligne. Chaque membre peut proposer un événement.
               </p>
             </div>
             <a href="#proposer" className={`${btnListen} px-6 self-start md:self-auto`}>
@@ -185,7 +189,7 @@ const Evenements = () => {
                   <li key={e.id}>
                     <Link to={eventHref(e)} className="group block">
                       <span className="block aspect-[4/3] bg-muted overflow-hidden">
-                        <img src={e.image_url || fb.url} alt={e.image_url ? `Visuel de l'événement ${e.titre}` : fb.alt} className="w-full h-full object-cover" loading="lazy" />
+                        <img src={e.image_url || fb.url} alt={e.image_url ? `Affiche de ${e.titre}` : fb.alt} className="w-full h-full object-cover" loading="lazy" />
                       </span>
                       <span className="block mt-3 font-mono text-xs text-muted-foreground">{formatShortDate(e.date_debut)}{e.lieu ? ` · ${e.lieu}` : ""}</span>
                       <span className="block mt-1 font-bold text-[18px] leading-tight group-hover:underline underline-offset-4">{e.titre}</span>

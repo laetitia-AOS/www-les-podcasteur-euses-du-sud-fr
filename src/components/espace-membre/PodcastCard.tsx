@@ -128,7 +128,7 @@ const PodcastCard = ({ fiche, onSaved, onDeleted }: Props) => {
           <div className="mt-1.5 flex flex-wrap items-center gap-3">
             <Badge visible={fiche.valide} />
             {fiche.valide && fiche.slug && (
-              <Link to={`/podcasteur/${fiche.slug}`} className={`${linkUnderline} text-sm`}>Voir la fiche</Link>
+              <Link to={`/ecouter/${fiche.slug}`} className={`${linkUnderline} text-sm`}>Voir la fiche</Link>
             )}
           </div>
         </div>

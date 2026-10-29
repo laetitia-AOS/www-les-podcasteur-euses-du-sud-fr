@@ -144,7 +144,7 @@ const ProposerEvenementForm = ({ initial, onDone }: Props) => {
         </p>
         <div className="mt-5 flex flex-wrap gap-3">
           {acces === "visiteur" && <Link to="/espace-membre" className={btnPrimary}>Me connecter</Link>}
-          <Link to="/rejoindre-association?etape=adhesion" className={btnSecondary}>Adhérer</Link>
+          <Link to="/adherer?etape=adhesion" className={btnSecondary}>Adhérer</Link>
         </div>
       </div>
     );

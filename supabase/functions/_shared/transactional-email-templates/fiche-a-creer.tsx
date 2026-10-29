@@ -28,7 +28,7 @@ const FicheACreer = ({ prenom, annee, email }: Props) => {
         Utilisez bien la même adresse e-mail que pour votre paiement : c'est elle qui relie votre adhésion à votre fiche.
         Comptez dix minutes, pas plus.
       </Text>
-      <Bouton href={`${SITE}/rejoindre-association`}>Créer ma fiche</Bouton>
+      <Bouton href={`${SITE}/adherer`}>Créer ma fiche</Bouton>
     </Layout>
   )
 }
