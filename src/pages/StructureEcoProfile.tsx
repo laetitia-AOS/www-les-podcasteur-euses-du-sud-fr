@@ -1,16 +1,14 @@
 import { useEffect, useMemo } from "react";
 import { compterStat } from "@/lib/stats";
 import { Link, useParams } from "react-router-dom";
-import { useQuery } from "@tanstack/react-query";
-import { supabase } from "@/integrations/supabase/client";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import SEOHead from "@/components/SEOHead";
 import { PAGES, SITE_URL, breadcrumbLd, descriptionSeo, ficheHref, titreSeo } from "@/lib/seo";
 import MembreContactForm from "@/components/MembreContactForm";
-import { FaqList, PodcastsLiesList, faqJsonLd, sdOf, useLieu } from "@/components/studios/LieuParts";
-import { btnPrimary, btnSecondary, cleanCity, container, formatShortDate, linkUnderline } from "@/lib/pds";
-import { ficheVide, formatDateCourte, useAnneeAdhesion, useFichesLieux } from "@/lib/lieux";
+import { AgendaLieu, FaqList, LogoLieu, PodcastsLiesList, faqJsonLd, sdOf, useLieu } from "@/components/studios/LieuParts";
+import { btnPrimary, btnSecondary, cleanCity, container, linkUnderline } from "@/lib/pds";
+import { ficheVide, formatDateCourte, liensLieu, useAnneeAdhesion, useFichesLieux } from "@/lib/lieux";
 
 const SITE = SITE_URL;
 
@@ -26,21 +24,14 @@ const StructureEcoProfile = () => {
   const city = cleanCity(s?.city_name);
   const type = s?.metier_principal || sd.type_structure || "Structure";
 
-  // « À venir » : événements de l'agenda reliés à la structure par l'équipe
-  const { data: aVenir = [] } = useQuery({
-    queryKey: ["structure-evenements", s?.id],
-    queryFn: async () => {
-      const { data } = await supabase.from("evenements").select("id, titre, slug, date_debut, lieu")
-        .eq("structure_id", s!.id).eq("publie", true).gte("date_debut", new Date().toISOString()).order("date_debut").limit(6);
-      return data || [];
-    },
-    enabled: !!s?.id,
-  });
+  // Partenaire (sans adhésion) : marqué « Partenaire » et non « Membre »
+  const partenaire = sd.partenaire === true;
 
   const accroche = sd.phrase_accroche || sd.accroche || "";
   const description = s?.bio_750 || s?.description || "";
   const site = s?.lien_principal || f.liens[0]?.url || null;
-  const liens = [...(s?.lien_principal ? [{ label: "Site", url: s.lien_principal }] : []), ...f.liens.filter((l) => l.url !== s?.lien_principal)];
+  // Le site principal a son bouton en tête : la liste du bas montre les autres liens, chacun une seule fois
+  const liens = liensLieu(site, f.liens, [s?.lien_linkedin]).filter((l) => l.url !== site);
   const titreMembres = f.intitule_membres === "antenne" ? "Membres passés à l'antenne" : "Membres accompagnés";
 
   const jsonLd = useMemo(() => {
@@ -53,12 +44,12 @@ const StructureEcoProfile = () => {
       ...(description && { description }),
       ...(s.vignette_url && { logo: s.vignette_url }),
       ...(city && { address: { "@type": "PostalAddress", addressLocality: city, addressRegion: "Provence-Alpes-Côte d'Azur", addressCountry: "FR" } }),
-      ...(liens.length && { sameAs: liens.map((l) => l.url) }),
-      memberOf: { "@type": "Organization", name: "Les Podcasteur·euses du Sud", url: SITE },
+      ...((site || liens.length) && { sameAs: [site, ...liens.map((l) => l.url)].filter(Boolean) }),
+      ...(!partenaire && { memberOf: { "@type": "Organization", name: "Les Podcasteur·euses du Sud", url: SITE } }),
     };
-    const ariane = breadcrumbLd([{ name: "Accueil", path: "/" }, { name: "Studios et structures", path: PAGES.studios }, { name: s.nom_podcast, path: ficheHref(s) }]);
+    const ariane = breadcrumbLd([{ name: "Accueil", path: "/" }, { name: "Studios", path: PAGES.studios }, { name: s.nom_podcast, path: ficheHref(s) }]);
     return [org, faqJsonLd(f.faq), ariane];
-  }, [s, description, city, liens, f.faq]);
+  }, [s, description, city, liens, site, partenaire, f.faq]);
 
   if (isLoading) {
     return (
@@ -91,17 +82,15 @@ const StructureEcoProfile = () => {
           <nav aria-label="Fil d'Ariane" className="text-sm">
             <ol className="flex flex-wrap gap-x-2 gap-y-1 text-muted-foreground">
               <li><Link to="/" className="hover:underline underline-offset-4">Accueil</Link> <span aria-hidden>/</span></li>
-              <li><Link to="/studios" className="hover:underline underline-offset-4">Studios et structures</Link> <span aria-hidden>/</span></li>
+              <li><Link to="/studios" className="hover:underline underline-offset-4">Studios</Link> <span aria-hidden>/</span></li>
               <li aria-current="page" className="text-foreground font-semibold">{s.nom_podcast}</li>
             </ol>
           </nav>
 
           <div className="mt-8 grid md:grid-cols-[160px_1fr] gap-6 md:gap-10 items-start">
-            {s.vignette_url ? (
-              <img src={s.vignette_url} alt={`Logo de ${s.nom_podcast}`} className="w-32 h-32 md:w-40 md:h-40 object-contain bg-surface border border-filet p-2" />
-            ) : <span className="w-32 h-32 bg-muted" aria-hidden />}
+            <LogoLieu src={s.vignette_url} nom={s.nom_podcast} />
             <div>
-              <p className="text-sm font-bold text-primary">{[type, city].filter(Boolean).join(" · ")}</p>
+              <p className="text-sm font-bold text-primary">{[type, partenaire ? "Partenaire" : null, city].filter(Boolean).join(" · ")}</p>
               <h1 className="title-page text-[44px] sm:text-[72px] mt-2 break-words">{s.nom_podcast}</h1>
               {accroche && <p className="mt-4 text-[20px] sm:text-[22px] max-w-[52ch] leading-snug">{accroche}</p>}
               <div className="mt-6 flex flex-wrap gap-3">
@@ -143,21 +132,7 @@ const StructureEcoProfile = () => {
               </section>
             )}
 
-            {aVenir.length > 0 && (
-              <section aria-labelledby="avenir-title">
-                <h2 id="avenir-title" className="title-section text-[30px] sm:text-[38px] pb-3 border-b-2 border-encre">À venir</h2>
-                <ul className="divide-y divide-filet border-b border-filet">
-                  {aVenir.map((e) => (
-                    <li key={e.id}>
-                      <Link to={`/agenda/${e.slug || e.id}`} className="grid grid-cols-[110px_1fr] gap-4 py-4 group">
-                        <span className="font-mono text-sm">{formatShortDate(e.date_debut)}</span>
-                        <span className="font-bold group-hover:underline underline-offset-4">{e.titre}</span>
-                      </Link>
-                    </li>
-                  ))}
-                </ul>
-              </section>
-            )}
+            <AgendaLieu id={s.id} nom={s.nom_podcast} />
 
             {f.presse.length > 0 && (
               <section aria-labelledby="presse-title">
@@ -199,7 +174,9 @@ const StructureEcoProfile = () => {
                 ))}
               </ul>
             )}
-            {annee && <p className="mt-4 font-mono text-sm">Membre de l'association depuis {annee}</p>}
+            {partenaire
+              ? <p className="mt-4 font-mono text-sm">Partenaire de l'association</p>
+              : annee && <p className="mt-4 font-mono text-sm">Membre de l'association depuis {annee}</p>}
             {s.consent_contact ? (
               <div className="mt-6 pt-6 border-t border-filet [&_form]:grid-cols-1 [&_.sm\:col-span-2]:col-span-1">
                 <p className="text-sm text-muted-foreground mb-4">Son e-mail n'est jamais affiché : votre message arrive dans son espace.</p>
