@@ -27,7 +27,7 @@ const ProfilACompleter = ({ prenom, manques = [], podcastsSansPochette, podcasts
     <Layout
       preview="Quelques détails et votre fiche sera au complet dans l'annuaire."
       kicker="Votre fiche annuaire"
-      titre={`${prenom ? `${prenom}, il` : 'Il'} manque presque rien à votre fiche !`}
+      titre={`${prenom ? `${prenom}, il` : 'Il'} ne manque presque rien à votre fiche !`}
     >
       <Text style={s.text}>
         On adore voir l'annuaire se remplir, et votre fiche y a toute sa place. Il lui manque juste
