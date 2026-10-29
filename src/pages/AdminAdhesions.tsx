@@ -179,7 +179,7 @@ const AdminAdhesions = () => {
   });
   const yy = anneeEnCours();
   const onglets = [
-    { id: "membres", label: `Membres ${yy} (${membresDeLaVue(tousMembres, "annee").length})` },
+    { id: "membres", label: `Membres ${yy} (${membresDeLaVue(tousMembres, "annee", new Set(rattachements.map((r) => r.adhesion_id))).length})` },
     { id: "anciens", label: `Anciens membres (${membresDeLaVue(tousMembres, "anciens").length})` },
     { id: "sans-adhesion", label: `Fiches sans adhésion (${membresDeLaVue(tousMembres, "sans").length})` },
     { id: "paiements", label: "Paiements HelloAsso", compte: aVerifier },

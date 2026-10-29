@@ -10,6 +10,7 @@ import { Input } from "@/components/ui/input";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { anneeEnCours, periodeRenouvellement } from "@/lib/espaceMembre";
 import { Link } from "react-router-dom";
+import { useRattachements } from "@/components/RattacherAdhesionDialog";
 import { Mail } from "lucide-react";
 
 export type MembreAdmin = {
@@ -35,11 +36,25 @@ export type VueMembres = "annee" | "anciens" | "sans";
  * - « anciens » : adhésion terminée les années précédentes, avec ou sans fiche ;
  * - « sans » : fiche dans l'annuaire, mais aucune adhésion trouvée.
  */
-export const membresDeLaVue = (tous: MembreAdmin[], vue: VueMembres) =>
+export const membresDeLaVue = (tous: MembreAdmin[], vue: VueMembres, rattachees: Set<string> = new Set()) =>
   tous.filter((m) =>
-    vue === "annee" ? m.nb_fiches > 0 && ["a_jour", "tolerance", "verification"].includes(m.etat)
+    vue === "annee" ? ["a_jour", "tolerance", "verification"].includes(m.etat) && (m.nb_fiches > 0 || !sansFicheRattache(m, rattachees))
     : vue === "anciens" ? m.etat === "terminee"
     : m.nb_fiches > 0 && m.etat === "sans_adhesion");
+
+/** Payé sans fiche, mais paiement relié à la fiche d'une autre personne (association, proche) : déjà compté. */
+const sansFicheRattache = (m: MembreAdmin, rattachees: Set<string>) => m.nb_fiches === 0 && !!m.adhesion_id && rattachees.has(m.adhesion_id);
+
+/** Adhérent·e de l'année sans fiche dans l'annuaire : à relancer pour qu'elle ou il crée sa fiche. */
+export const aRelancerPourFiche = (m: MembreAdmin) => m.nb_fiches === 0 && ["a_jour", "tolerance", "verification"].includes(m.etat);
+
+const SITE = "https://www.les-podcasteur-euses-du-sud.fr";
+const mailtoFiche = (m: MembreAdmin, y: number) => {
+  const prenom = m.nom && !m.nom.includes("@") ? m.nom.split(/\s+/)[0] : "";
+  const sujet = "Votre adhésion est bien là : il ne manque que votre fiche !";
+  const corps = `Bonjour${prenom ? ` ${prenom}` : ""},\n\nMerci pour votre adhésion ${y} aux Podcasteur·euses du Sud ! Il vous reste une étape pour apparaître dans l'annuaire : créer votre fiche (photo, présentation, podcast si vous en avez un, ce que vous cherchez et ce que vous apportez).\n\nCréer ma fiche : ${SITE}/rejoindre-association\nUtilisez la même adresse e-mail que pour votre paiement (${m.email}) : c'est elle qui relie votre adhésion à votre fiche.\n\nÀ très vite,\nL'équipe des Podcasteur·euses du Sud`;
+  return `mailto:${encodeURIComponent(m.email)}?subject=${encodeURIComponent(sujet)}&body=${encodeURIComponent(corps)}`;
+};
 
 /** Liste des membres (réservée aux admins : le serveur ne renvoie rien aux autres comptes). */
 const AdminMembres = ({ vue = "annee" }: { vue?: VueMembres }) => {
@@ -62,8 +77,10 @@ const AdminMembres = ({ vue = "annee" }: { vue?: VueMembres }) => {
       return (data || []) as MembreAdmin[];
     },
   });
-  const membres = useMemo(() => membresDeLaVue(tous, vue), [tous, vue]);
-  const paiementsSansFiche = tous.filter((m) => m.nb_fiches === 0 && m.etat === "a_jour").length;
+  const { data: rattachements = [] } = useRattachements(true);
+  const rattachees = useMemo(() => new Set(rattachements.map((r) => r.adhesion_id)), [rattachements]);
+  const membres = useMemo(() => membresDeLaVue(tous, vue, rattachees), [tous, vue, rattachees]);
+  const aRelancer = membres.filter(aRelancerPourFiche).length;
   const anneePaiement = (m: MembreAdmin) => m.annee ?? (m.date_paiement ? new Date(m.date_paiement).getFullYear() : null);
 
   const y = anneeEnCours();
@@ -77,6 +94,7 @@ const AdminMembres = ({ vue = "annee" }: { vue?: VueMembres }) => {
       (etat === "tous" || (etat === "masquees" ? m.fiche_validee && !m.fiche_visible
         : etat === "a_renouveler" ? aRenouveler(m)
         : etat === "sursis" ? m.sursis
+        : etat === "a_relancer_fiche" ? aRelancerPourFiche(m)
         : m.etat === etat)) &&
       (formule === "toutes" || m.formule === formule) &&
       (!s || m.nom.toLowerCase().includes(s) || m.email.includes(s)));
@@ -118,7 +136,7 @@ const AdminMembres = ({ vue = "annee" }: { vue?: VueMembres }) => {
         {membres.length} membres {y} avec une fiche
         {membres.filter((m) => m.etat === "verification").length > 0 && <> · {membres.filter((m) => m.etat === "verification").length} paiement(s) à vérifier</>}
         {membres.filter((m) => m.etat === "tolerance").length > 0 && <> · {membres.filter((m) => m.etat === "tolerance").length} de l'an passé, visibles jusqu'au 31 janvier</>}
-        {paiementsSansFiche > 0 && <> · {paiementsSansFiche} adhérent·e{paiementsSansFiche > 1 ? "s" : ""} {y} sans fiche (non listé·e{paiementsSansFiche > 1 ? "s" : ""})</>}
+        {aRelancer > 0 && <> · <button type="button" className="underline underline-offset-4" onClick={() => setEtat("a_relancer_fiche")}><span className="font-semibold text-accent-text">{aRelancer} à relancer</span> : adhésion payée, fiche pas encore créée</button></>}
         {" "}· adhésion à l'année civile, tolérance en janvier, masquage le 1er février
       </p>}
       <div className="space-y-3">
@@ -127,6 +145,7 @@ const AdminMembres = ({ vue = "annee" }: { vue?: VueMembres }) => {
             <select value={etat} onChange={(e) => setEtat(e.target.value)} className="h-10 border border-input bg-background px-3 text-sm" aria-label="Filtrer par statut">
               <option value="tous">Tous les statuts</option>
               {Object.entries(ETAT).map(([v, l]) => <option key={v} value={v}>{l}</option>)}
+              {vue === "annee" && <option value="a_relancer_fiche">À relancer : fiche à créer</option>}
               {vue !== "annee" && <option value="masquees">Fiches masquées</option>}
               {vue !== "annee" && <option value="sursis">Visibles en attente d'adhésion</option>}
               <option value="a_renouveler">À renouveler pour {anneeCible}</option>
@@ -149,14 +168,24 @@ const AdminMembres = ({ vue = "annee" }: { vue?: VueMembres }) => {
               </TableHeader>
               <TableBody>
                 {liste.map((m) => (
-                  <TableRow key={m.email}>
+                  <TableRow key={m.email} className={aRelancerPourFiche(m) ? "bg-accent/10 border-l-4 border-l-accent" : ""}>
                     <TableCell><p className="font-medium">{m.nom}</p><p className="text-xs text-muted-foreground break-all">{m.email}</p></TableCell>
                     <TableCell className="text-sm">{m.formule === "studio" ? "Studio / agence" : "Personne"}{m.type_profil && <span className="block text-xs text-muted-foreground">{TYPE[m.type_profil] || m.type_profil}</span>}</TableCell>
-                    <TableCell><Badge variant={m.etat === "a_jour" ? "default" : m.etat === "verification" ? "destructive" : "secondary"}>{ETAT[m.etat] || m.etat}</Badge></TableCell>
+                    <TableCell>
+                      <Badge variant={m.etat === "a_jour" ? "default" : m.etat === "verification" ? "destructive" : "secondary"}>{ETAT[m.etat] || m.etat}</Badge>
+                      {aRelancerPourFiche(m) && <span className="mt-1 block w-fit bg-accent px-2 py-0.5 text-xs font-bold text-accent-foreground">À relancer</span>}
+                    </TableCell>
                     <TableCell className="font-mono text-sm">{m.annee ? `Membre ${m.annee}` : anneePaiement(m) ? `Dernière : ${anneePaiement(m)}` : "—"}</TableCell>
                     <TableCell className="font-mono text-sm">{m.montant != null ? `${Number(m.montant)} €` : "—"}<span className="block text-xs text-muted-foreground">{m.date_paiement ? `le ${date(m.date_paiement)}` : ""}</span></TableCell>
                     <TableCell className="text-sm">
-                      {m.nb_fiches === 0 ? "Aucune" : m.sursis ? "Visible en attente d'adhésion" : m.fiche_visible ? "Visible" : m.fiche_validee ? "Masquée" : "En attente"}
+                      {aRelancerPourFiche(m) ? (
+                        <>
+                          <span className="font-semibold">Fiche à créer</span>
+                          <a href={mailtoFiche(m, y)} className="mt-1 flex w-fit items-center gap-1 text-xs underline underline-offset-4 focus-visible:outline focus-visible:outline-2 focus-visible:outline-primary">
+                            <Mail className="w-3 h-3" aria-hidden /> Relancer par e-mail
+                          </a>
+                        </>
+                      ) : m.nb_fiches === 0 ? "Aucune" : m.sursis ? "Visible en attente d'adhésion" : m.fiche_visible ? "Visible" : m.fiche_validee ? "Masquée" : "En attente"}
                       {m.fiche_validee && m.etat !== "a_jour" && m.etat !== "tolerance" && (
                         <button type="button" onClick={() => changerSursis(m, !m.sursis)} className="block mt-1 text-xs underline underline-offset-4">
                           {m.sursis ? "Masquer jusqu'à l'adhésion" : "Garder visible"}
