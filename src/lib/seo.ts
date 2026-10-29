@@ -123,7 +123,7 @@ export const PAGES_SEO = {
       "Créez votre fiche dans l'annuaire podcast de Région Sud, puis adhérez pour être visible : 20 € par an pour une personne, 100 € pour un studio ou une agence.",
   },
   contact: {
-    title: titreSeo("Contact"),
+    title: titreSeo("Nous écrire"),
     description:
       "Écrire à l'association Les Podcasteur·euses du Sud, à Marseille : une question sur l'adhésion, un partenariat, la presse ou un projet podcast en Région Sud.",
   },

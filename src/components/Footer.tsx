@@ -19,7 +19,7 @@ const Footer = () => {
               </a>
             </li>
             <li>
-              <Link to="/contact" className="inline-flex min-h-[44px] items-center underline underline-offset-4">Contact</Link>
+              <Link to="/contact" className="inline-flex min-h-[44px] items-center underline underline-offset-4">Nous écrire</Link>
             </li>
           </ul>
         </div>
