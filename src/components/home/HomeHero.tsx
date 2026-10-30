@@ -4,11 +4,7 @@ import { useMemo } from "react";
 import { btnListen, container, h1Ligne } from "@/lib/pds";
 import { usePlayer } from "@/contexts/PlayerContext";
 import type { Episode } from "@/lib/episodes";
-import { DEPARTEMENTS_PDS, chiffresAccueil, type HomeProfile } from "./useHomeData";
-
-// Pochettes mises en avant en premier sur le mur, dans cet ordre, si elles existent.
-const WALL_PRIORITY = ["vitamine sud", "marseille creative", "chaos debout", "symbioses", "un pas dehors"];
-const norm = (s: string) => s.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().trim();
+import { DEPARTEMENTS_PDS, chiffresAccueil, piocherMur, type HomeProfile } from "./useHomeData";
 
 type Props = { profiles: HomeProfile[]; latest: Episode[] };
 
@@ -19,19 +15,8 @@ const HomeHero = ({ profiles, latest }: Props) => {
   const podcasts = profiles.filter((p) => p.type_profil === "podcasteur");
   const chiffres = chiffresAccueil(profiles);
 
-  const wall = useMemo(() => {
-    const withCover = podcasts.filter((p) => p.vignette_url);
-    const picked: HomeProfile[] = [];
-    for (const key of WALL_PRIORITY) {
-      const found = withCover.find((p) => norm(p.nom_podcast).startsWith(key));
-      if (found) picked.push(found);
-    }
-    for (const p of withCover) {
-      if (picked.length >= 5) break;
-      if (!picked.includes(p)) picked.push(p);
-    }
-    return picked.slice(0, 5);
-  }, [podcasts]);
+  // Cinq pochettes tirées au hasard à chaque visite
+  const wall = useMemo(() => piocherMur(profiles), [profiles]);
 
   const others = Math.max(podcasts.length - wall.length, 0);
 
