@@ -1,6 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { aUnPodcast, formatName } from "@/lib/pds";
+import { formatName } from "@/lib/pds";
 
 export type HomeProfile = {
   id: string;
@@ -44,7 +44,7 @@ export const DEPARTEMENTS_PDS = 6;
  */
 export const chiffresAccueil = (profiles: Pick<HomeProfile, "type_profil">[]) => ({
   personnes: profiles.filter((p) => ["podcasteur", "pro_podcast", "soutien"].includes(p.type_profil)).length,
-  podcasts: profiles.filter((p) => aUnPodcast(p as Pick<HomeProfile, "type_profil" | "nom_podcast">)).length,
+  podcasts: profiles.filter((p) => p.type_profil === "podcasteur" && (p as { nom_podcast?: string }).nom_podcast !== "—").length,
   studios: profiles.filter((p) => p.type_profil === "studio").length,
 });
 
