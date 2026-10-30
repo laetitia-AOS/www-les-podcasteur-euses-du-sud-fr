@@ -7,7 +7,7 @@ import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import SEOHead from "@/components/SEOHead";
 import { PAGES, PAGES_SEO } from "@/lib/seo";
-import { btnSecondary, cleanCity, container, h1Ligne, fullName } from "@/lib/pds";
+import { aUnPodcast, btnSecondary, cleanCity, container, h1Ligne, fullName } from "@/lib/pds";
 import MemberAvatar, { avatarFor } from "@/components/MemberAvatar";
 import FiltresRepliables from "@/components/FiltresRepliables";
 import { COLLAB_CHOIX_APPORTE, apporteLabel, collabLabel, phraseApportent } from "@/lib/inscription";
@@ -234,7 +234,7 @@ const Annuaire = () => {
                             )}
                           </div>
                         )}
-                        {p.type_profil === "podcasteur" && p.nom_podcast && (
+                        {aUnPodcast(p) && (
                           <p className="mt-2 text-sm text-muted-foreground">Podcast : {p.nom_podcast}</p>
                         )}
                       </div>
