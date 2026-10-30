@@ -74,19 +74,16 @@ const ProfilStep = ({
     }
     const profil = { ...p, photoUrl };
 
-    // Les podcasteur·euses enregistrent leur fiche avec leur(s) podcast(s) à l'étape suivante
-    if (isPodcasteur) {
-      setSending(false);
-      onDone({ type, email: profil.email.trim(), saved: false, profil });
-      return;
-    }
-
+    // Le profil est enregistré tout de suite, pour tout le monde : une personne qui s'arrête
+    // avant l'étape « Mes podcasts » ne perd rien. Ses podcasts, ajoutés ensuite, remplacent
+    // cette fiche provisoire (déclencheur `remplacer_profil_provisoire`).
     const { error } = await supabase.from("podcasts").insert({
       ...profilColumns(profil),
       nom_podcast: "—",
       lien_ecoute: LIEN_SANS_PODCAST,
       description: profil.bio750.trim(),
-      vignette_url: photoUrl,
+      // La photo de profil n'est pas une pochette : pas de vignette pour un·e podcasteur·euse sans podcast
+      vignette_url: isPodcasteur ? null : photoUrl,
       metier_principal: type === "pro_podcast" ? profil.metierPrincipal : null,
       services_3: type === "pro_podcast" ? profil.services : null,
       disponibilite: type === "pro_podcast" ? profil.disponibilite || null : null,

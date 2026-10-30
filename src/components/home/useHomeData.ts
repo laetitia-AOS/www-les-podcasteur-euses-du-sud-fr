@@ -44,7 +44,7 @@ export const DEPARTEMENTS_PDS = 6;
  */
 export const chiffresAccueil = (profiles: Pick<HomeProfile, "type_profil">[]) => ({
   personnes: profiles.filter((p) => ["podcasteur", "pro_podcast", "soutien"].includes(p.type_profil)).length,
-  podcasts: profiles.filter((p) => p.type_profil === "podcasteur").length,
+  podcasts: profiles.filter((p) => p.type_profil === "podcasteur" && (p as { nom_podcast?: string }).nom_podcast !== "—").length,
   studios: profiles.filter((p) => p.type_profil === "studio").length,
 });
 
@@ -52,10 +52,10 @@ export const chiffresAccueil = (profiles: Pick<HomeProfile, "type_profil">[]) =>
  * Mur de pochettes de l'accueil : n podcasts ayant une pochette, tirés au hasard à chaque visite,
  * pour que tous les membres y passent à tour de rôle (aucun podcast fixé en tête).
  */
-export const piocherMur = <T extends Pick<HomeProfile, "type_profil" | "vignette_url">>(
+export const piocherMur = <T extends Pick<HomeProfile, "type_profil" | "vignette_url"> & { nom_podcast?: string | null }>(
   profiles: T[], n = 5, rand = Math.random,
 ): T[] => {
-  const melange = profiles.filter((p) => p.type_profil === "podcasteur" && !!p.vignette_url);
+  const melange = profiles.filter((p) => p.type_profil === "podcasteur" && p.nom_podcast !== "—" && !!p.vignette_url);
   for (let i = melange.length - 1; i > 0; i--) {
     const j = Math.floor(rand() * (i + 1));
     [melange[i], melange[j]] = [melange[j], melange[i]];

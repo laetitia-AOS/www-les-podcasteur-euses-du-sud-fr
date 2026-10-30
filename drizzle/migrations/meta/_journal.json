@@ -204,6 +204,20 @@
       "when": 1793293253265,
       "tag": "0028_fiches_lieux_accroche_tarif_materiel",
       "breakpoints": true
+    },
+    {
+      "idx": 29,
+      "version": "7",
+      "when": 1793389117289,
+      "tag": "0029_migration",
+      "breakpoints": true
+    },
+    {
+      "idx": 30,
+      "version": "7",
+      "when": 1793389223070,
+      "tag": "0030_migration",
+      "breakpoints": true
     }
   ]
 }

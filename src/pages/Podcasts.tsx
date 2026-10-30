@@ -11,7 +11,7 @@ import SEOHead from "@/components/SEOHead";
 import { PAGES_SEO } from "@/lib/seo";
 import { usePlayer } from "@/contexts/PlayerContext";
 import { useLatestEpisodes, type Episode } from "@/lib/episodes";
-import { btnPrimary, btnSecondary, cleanCity, container, h1Ligne, formatShortDate, fullName } from "@/lib/pds";
+import { aUnPodcast, btnPrimary, btnSecondary, cleanCity, container, h1Ligne, formatShortDate, fullName } from "@/lib/pds";
 
 interface Podcast {
   id: string;
@@ -72,7 +72,8 @@ const Podcasts = () => {
         .eq("type_profil", "podcasteur")
         .order("created_at", { ascending: false });
       if (error) throw error;
-      return (data || []) as Podcast[];
+      // Profils enregistrés sans podcast (« — ») : pas dans la liste des podcasts
+      return ((data || []) as Podcast[]).filter((p) => aUnPodcast({ type_profil: "podcasteur", nom_podcast: p.nom_podcast }));
     },
     staleTime: 5 * 60 * 1000,
   });

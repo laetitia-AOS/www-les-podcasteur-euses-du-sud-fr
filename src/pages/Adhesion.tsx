@@ -212,12 +212,16 @@ const Adhesion = () => {
 
             {step === "podcasts" && result?.profil && (
               <div className="mt-6">
+                <div role="status" className="border-2 border-encre bg-background p-5 mb-6">
+                  <p className="font-bold text-[17px]">Votre profil est enregistré.</p>
+                  <p className="mt-1 text-[15px]">Vous pouvez vous arrêter ici sans rien perdre, et ajouter vos podcasts plus tard depuis votre espace membre.</p>
+                </div>
                 <p className="mb-6 text-[17px] max-w-[60ch]">
                   Ajoutez un ou plusieurs podcasts. Chacun aura sa page et ses épisodes sur le site, reliés à votre profil.
                 </p>
                 <PodcastsStep
                   base={profilColumns(result.profil)}
-                  onBack={() => setStep("profil")}
+                  onSkip={() => setStep("adhesion")}
                   onDone={(n) => { setPodcastCount(n); setStep("adhesion"); }}
                 />
               </div>

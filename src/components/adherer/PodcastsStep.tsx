@@ -37,11 +37,14 @@ const PodcastsStep = ({
   base,
   onDone,
   onBack,
+  onSkip,
   submitLabel = "Enregistrer et continuer vers l'adhésion",
 }: {
   base: Record<string, unknown>;
   onDone: (count: number) => void;
   onBack?: () => void;
+  /** Profil déjà enregistré : la personne peut passer cette étape et ajouter ses podcasts plus tard. */
+  onSkip?: () => void;
   submitLabel?: string;
 }) => {
   const [entries, setEntries] = useState<Entry[]>(() => [emptyEntry()]);
@@ -216,7 +219,11 @@ const PodcastsStep = ({
       </div>
 
       <div className="mt-8 flex flex-col-reverse sm:flex-row sm:items-center sm:justify-between gap-4">
-        {onBack ? <button type="button" onClick={onBack} className={btnSecondary}>Revenir au profil</button> : <span />}
+        {onSkip ? (
+          <button type="button" onClick={onSkip} className={btnSecondary}>Ajouter mes podcasts plus tard</button>
+        ) : onBack ? (
+          <button type="button" onClick={onBack} className={btnSecondary}>Revenir au profil</button>
+        ) : <span />}
         <button type="submit" disabled={sending} className={`${btnPrimary} px-8`}>
           {sending ? "Envoi en cours…" : submitLabel}
         </button>

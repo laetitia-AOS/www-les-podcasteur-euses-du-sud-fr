@@ -15,6 +15,7 @@ import MembreContactForm from "@/components/MembreContactForm";
 import { usePlayer } from "@/contexts/PlayerContext";
 import { usePodcastEpisodes } from "@/lib/episodes";
 import {
+  aUnPodcast,
   btnListen,
   btnPrimary,
   btnSecondary,
@@ -90,7 +91,7 @@ const ProfilMembre = () => {
     },
   });
 
-  const isPodcast = profile?.type_profil === "podcasteur" && !!profile?.nom_podcast;
+  const isPodcast = !!profile && aUnPodcast(profile);
   const { data: epData, isLoading: epLoading } = usePodcastEpisodes(isPodcast ? profile?.id : undefined);
   const episodes = epData?.episodes || [];
 
