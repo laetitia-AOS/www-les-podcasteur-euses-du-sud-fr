@@ -38,6 +38,14 @@ export const titreFiche = (p: { nom_podcast?: string | null; prenom?: string | n
   return fullName(p.prenom, p.nom) || (p.structure || "").trim() || "Sans titre";
 };
 
+/**
+ * Vrai si la fiche porte un vrai podcast. Une fiche de podcasteur·euse sans podcast
+ * (« — », profil enregistré avant l'étape « Mes podcasts ») n'apparaît pas comme podcast.
+ */
+export const aUnPodcast = (p: { type_profil?: string | null; nom_podcast?: string | null }): boolean =>
+  p.type_profil === "podcasteur" && !/^[—–\-.\s]*$/.test(p.nom_podcast || "");
+
+
 /** Ville sans code postal ni arrondissement (« Marseille 6e Arrondissement » → « Marseille »). */
 export const cleanCity = (city?: string | null): string => {
   if (!city) return "";
