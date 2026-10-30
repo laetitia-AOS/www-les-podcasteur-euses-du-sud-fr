@@ -49,6 +49,21 @@ export const chiffresAccueil = (profiles: Pick<HomeProfile, "type_profil">[]) =>
 });
 
 /**
+ * Mur de pochettes de l'accueil : n podcasts ayant une pochette, tirés au hasard à chaque visite,
+ * pour que tous les membres y passent à tour de rôle (aucun podcast fixé en tête).
+ */
+export const piocherMur = <T extends Pick<HomeProfile, "type_profil" | "vignette_url">>(
+  profiles: T[], n = 5, rand = Math.random,
+): T[] => {
+  const melange = profiles.filter((p) => p.type_profil === "podcasteur" && !!p.vignette_url);
+  for (let i = melange.length - 1; i > 0; i--) {
+    const j = Math.floor(rand() * (i + 1));
+    [melange[i], melange[j]] = [melange[j], melange[i]];
+  }
+  return melange.slice(0, n);
+};
+
+/**
  * « Qui cherche quoi » : personnes (ni studio ni structure) qui ont rempli « Je cherche » et « J'apporte »,
  * membres à jour (une fiche visible grâce à un sursis est écartée), mélangées au hasard.
  */
