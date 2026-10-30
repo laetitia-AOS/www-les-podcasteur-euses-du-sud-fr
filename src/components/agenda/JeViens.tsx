@@ -8,6 +8,7 @@ import { messageServeur } from "@/lib/inscription";
 const schema = z.object({
   nom: z.string().trim().min(2, "Indiquez votre nom.").max(100),
   email: z.string().trim().email("Adresse e-mail invalide.").max(255),
+  telephone: z.string().trim().max(30).regex(/^[0-9+().\s-]*$/, "Numéro invalide.").optional().or(z.literal("")),
 });
 
 const field = "w-full min-h-[48px] px-3 bg-surface border-2 border-encre text-[16px] focus:outline-none focus-visible:outline-[3px] focus-visible:outline-accent";
@@ -33,7 +34,7 @@ const JeViens = ({ evenementId, places }: { evenementId: string; places: number 
   const [session, setSession] = useState<{ email: string; nom: string } | null>(null);
   const [deja, setDeja] = useState(false);
   const [open, setOpen] = useState(false);
-  const [v, setV] = useState({ nom: "", email: "", website: "" });
+  const [v, setV] = useState({ nom: "", email: "", telephone: "", website: "" });
   const [err, setErr] = useState<Record<string, string>>({});
   const [state, setState] = useState<"idle" | "sending" | "ok" | "error">("idle");
   const [msg, setMsg] = useState("");
@@ -51,10 +52,10 @@ const JeViens = ({ evenementId, places }: { evenementId: string; places: number 
     })();
   }, [evenementId]);
 
-  const enregistrer = async (nom: string, email: string) => {
+  const enregistrer = async (nom: string, email: string, telephone?: string) => {
     setState("sending");
     const [prenom, ...reste] = nom.trim().split(/\s+/);
-    const { error } = await supabase.from("evenement_inscriptions").insert({ evenement_id: evenementId, prenom, nom: reste.join(" "), email });
+    const { error } = await supabase.from("evenement_inscriptions").insert({ evenement_id: evenementId, prenom, nom: reste.join(" "), email, telephone: telephone?.trim() || null });
     if (error) {
       setMsg(error.code === "23505" ? "Vous êtes déjà noté·e pour cet événement." : messageServeur(error, "Ça n'a pas marché. Réessayez dans un instant."));
       setState(error.code === "23505" ? "ok" : "error");
@@ -80,7 +81,7 @@ const JeViens = ({ evenementId, places }: { evenementId: string; places: number 
       return;
     }
     setErr({});
-    enregistrer(p.data.nom, p.data.email);
+    enregistrer(p.data.nom, p.data.email, p.data.telephone);
   };
 
   return (
@@ -108,13 +109,18 @@ const JeViens = ({ evenementId, places }: { evenementId: string; places: number 
             <input id="jv-email" type="email" value={v.email} onChange={(e) => setV({ ...v, email: e.target.value })} autoComplete="email" className={field} aria-invalid={!!err.email} />
             {err.email && <p className="mt-1 text-sm text-destructive">{err.email}</p>}
           </div>
+          <div>
+            <label htmlFor="jv-tel" className="block text-sm font-bold mb-1">Votre téléphone <span className="font-normal">(facultatif)</span></label>
+            <input id="jv-tel" type="tel" value={v.telephone} onChange={(e) => setV({ ...v, telephone: e.target.value })} autoComplete="tel" inputMode="tel" className={field} aria-invalid={!!err.telephone} />
+            {err.telephone && <p className="mt-1 text-sm text-destructive">{err.telephone}</p>}
+          </div>
           <div className="hidden" aria-hidden>
             <label htmlFor="jv-website">Site web</label>
             <input id="jv-website" tabIndex={-1} autoComplete="off" value={v.website} onChange={(e) => setV({ ...v, website: e.target.value })} />
           </div>
           <button type="submit" disabled={state === "sending"} className={`${btnPrimary} w-full`}>{state === "sending" ? "Un instant…" : "Je viens"}</button>
           <button type="button" onClick={() => setOpen(false)} className={`${btnSecondary} w-full`}>Annuler</button>
-          <p className="text-xs text-muted-foreground">Votre nom n'est jamais affiché sur le site : seul l'organisateur le voit.</p>
+          <p className="text-xs text-muted-foreground">Votre nom et votre numéro ne sont jamais affichés sur le site : seule l'équipe les voit.</p>
         </form>
       )}
       {state === "error" && <p role="alert" className="text-destructive font-semibold">{msg}</p>}
