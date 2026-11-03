@@ -131,7 +131,7 @@ export const PAGES_SEO = {
   partenaires: {
     title: titreSeo("Nos partenaires"),
     description:
-      "Les partenaires des Podcasteur·euses du Sud : radios, lieux et collectifs qui soutiennent le podcast à Marseille et en Région Sud, et ce que nous faisons ensemble.",
+      "Les partenaires des Podcasteur·euses du Sud : radios, lieux et collectifs qui soutiennent le podcast à Marseille et en Région Sud, et nos projets communs.",
   },
   proposer: {
     title: titreSeo("Proposer un événement podcast"),
