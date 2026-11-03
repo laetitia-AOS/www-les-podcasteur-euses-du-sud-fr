@@ -650,6 +650,45 @@ export type Database = {
         }
         Relationships: []
       }
+      partenaires: {
+        Row: {
+          accroche: string | null
+          created_at: string
+          description: string | null
+          id: string
+          logo_url: string | null
+          nom: string
+          ordre: number
+          publie: boolean
+          site_url: string | null
+          updated_at: string
+        }
+        Insert: {
+          accroche?: string | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          logo_url?: string | null
+          nom: string
+          ordre?: number
+          publie?: boolean
+          site_url?: string | null
+          updated_at?: string
+        }
+        Update: {
+          accroche?: string | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          logo_url?: string | null
+          nom?: string
+          ordre?: number
+          publie?: boolean
+          site_url?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
       podcasts: {
         Row: {
           apporte_choix: string[]

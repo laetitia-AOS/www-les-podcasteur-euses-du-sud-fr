@@ -1,6 +1,6 @@
 import { useState, type ReactNode } from "react";
 import { Link, Navigate, NavLink, useLocation } from "react-router-dom";
-import { BookOpen, CalendarDays, ExternalLink, Inbox, Loader2, LogOut, Mail, Menu, Users, X } from "lucide-react";
+import { BookOpen, CalendarDays, ExternalLink, Handshake, Inbox, Loader2, LogOut, Mail, Menu, Users, X } from "lucide-react";
 import { useAdminAuth } from "@/hooks/useAdminAuth";
 import SEOHead from "@/components/SEOHead";
 import { useATraiter, totalRubrique } from "@/components/admin/useATraiter";
@@ -11,6 +11,7 @@ export const RUBRIQUES = [
   { id: "annuaire", label: "Annuaire", to: "/admin/annuaire", icon: BookOpen },
   { id: "agenda", label: "Agenda", to: "/admin/agenda", icon: CalendarDays },
   { id: "messages", label: "Messages", to: "/admin/messages", icon: Mail },
+  { id: "partenaires", label: "Partenaires", to: "/admin/partenaires", icon: Handshake },
 ] as const;
 
 interface Props {

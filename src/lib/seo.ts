@@ -13,6 +13,7 @@ export const PAGES = {
   studios: "/studios",
   agenda: "/agenda",
   adherer: "/adherer",
+  partenaires: "/partenaires",
 } as const;
 
 type FicheLien = { id: string; slug?: string | null; type_profil?: string | null; nom_podcast?: string | null };
@@ -126,6 +127,11 @@ export const PAGES_SEO = {
     title: titreSeo("Nous écrire"),
     description:
       "Écrire à l'association Les Podcasteur·euses du Sud, à Marseille : une question sur l'adhésion, un partenariat, la presse ou un projet podcast en Région Sud.",
+  },
+  partenaires: {
+    title: titreSeo("Nos partenaires"),
+    description:
+      "Les partenaires des Podcasteur·euses du Sud : radios, lieux et collectifs qui soutiennent le podcast à Marseille et en Région Sud, et nos projets communs.",
   },
   proposer: {
     title: titreSeo("Proposer un événement podcast"),
