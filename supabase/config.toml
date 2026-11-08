@@ -35,3 +35,6 @@ verify_jwt = false
 
 [functions.relance-renouvellement]
 verify_jwt = false
+
+[functions.rapport-hebdo]
+verify_jwt = false
