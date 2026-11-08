@@ -11,6 +11,9 @@ const json = (body: unknown, status = 200) =>
   new Response(JSON.stringify(body), { status, headers: { ...corsHeaders, "Content-Type": "application/json" } });
 
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+const PAGE = /^\/[a-z0-9/-]{0,120}$/;
+const PROVENANCES = ["direct", "google", "bing", "autre-moteur", "linkedin", "facebook", "instagram", "whatsapp", "x", "autre-site"];
+const ROBOT = /bot|crawl|spider|slurp|preview|facebookexternalhit|headless|lighthouse|python|curl|wget/i;
 
 const sha256 = async (s: string) => {
   const buf = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(s));
@@ -24,9 +27,7 @@ Deno.serve(async (req) => {
     const raw = await req.text();
     if (raw.length > 500) return json({ error: "Too large" }, 413);
     const body = JSON.parse(raw || "{}");
-    const podcastId = String(body?.podcast_id || "");
     const type = String(body?.type || "");
-    if (!UUID.test(podcastId) || !["vue", "ecoute"].includes(type)) return json({ error: "Invalid input" }, 400);
 
     const sel = Deno.env.get("STATS_SEL");
     if (!sel) return json({ error: "Not configured" }, 503);
@@ -34,8 +35,25 @@ Deno.serve(async (req) => {
     if (!ip) return json({ counted: false });
     const jour = new Date().toISOString().slice(0, 10);
     const empreinte = await sha256(`${sel}|${jour}|${ip}`);
-
     const url = Deno.env.get("SUPABASE_URL")!;
+
+    // Visite d'une page publique du site (rapport de la semaine)
+    if (type === "visite") {
+      const page = String(body?.page || "");
+      const provenance = String(body?.provenance || "direct");
+      if (!PAGE.test(page) || !PROVENANCES.includes(provenance)) return json({ error: "Invalid input" }, 400);
+      if (ROBOT.test(req.headers.get("user-agent") || "")) return json({ counted: false });
+      const admin = createClient(url, Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!);
+      const { data, error } = await admin.rpc("compter_visite", { _empreinte: empreinte, _page: page, _provenance: provenance });
+      if (error) {
+        console.error("compter_visite:", error.message);
+        return json({ counted: false }, 500);
+      }
+      return json({ counted: !!data });
+    }
+
+    const podcastId = String(body?.podcast_id || "");
+    if (!UUID.test(podcastId) || !["vue", "ecoute"].includes(type)) return json({ error: "Invalid input" }, 400);
     // Membre connecté : sa propre fiche n'est pas comptée
     let emailVisiteur: string | null = null;
     const auth = req.headers.get("Authorization") || "";

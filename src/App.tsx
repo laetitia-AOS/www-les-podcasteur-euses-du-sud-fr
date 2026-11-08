@@ -13,6 +13,7 @@ const AdminRedirect = ({ to }: { to: string }) => {
 import ScrollToTop from "./components/ScrollToTop";
 import { PlayerProvider } from "./contexts/PlayerContext";
 import PlayerBar from "./components/PlayerBar";
+import SuiviVisites from "./components/SuiviVisites";
 import Index from "./pages/Index";
 
 // Lazy-loaded pages
@@ -74,6 +75,7 @@ const App = () => (
       <PlayerProvider>
       <BrowserRouter>
         <ScrollToTop />
+        <SuiviVisites />
         <Suspense fallback={<PageLoader />}>
           <Routes>
             <Route path="/" element={<Index />} />

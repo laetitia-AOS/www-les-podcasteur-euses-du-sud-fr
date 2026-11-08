@@ -9,6 +9,7 @@ import { template as t6 } from './proposition-refusee.tsx'
 import { template as t7 } from './profil-a-completer.tsx'
 import { template as t8 } from './fiche-a-creer.tsx'
 import { template as t9 } from './renouvellement.tsx'
+import { template as t10 } from './rapport-semaine.tsx'
 
 export interface TemplateEntry {
   component: ComponentType<any>
@@ -38,4 +39,5 @@ export const TEMPLATES: Record<string, TemplateEntry> = {
   'profil-a-completer': t7,
   'fiche-a-creer': t8,
   'renouvellement': t9,
+  'rapport-semaine': t10,
 }
