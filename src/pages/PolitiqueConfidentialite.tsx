@@ -68,6 +68,7 @@ const PolitiqueConfidentialite = () => {
               <ul className="list-disc pl-5 space-y-1">
                 <li>Données techniques strictement nécessaires au fonctionnement (cookies de session). Aucun traceur publicitaire n'est utilisé.</li>
                 <li><strong>Mesure anonyme des vues de fiche et des écoutes lancées :</strong> une empreinte brouillée, sans cookie, effacée sous 48 heures ; seuls les totaux sont conservés, visibles par le membre concerné</li>
+                <li><strong>Mesure anonyme de la fréquentation :</strong> pages publiques ouvertes et type de site d'origine (moteur de recherche, réseau social, lien direct), avec la même empreinte brouillée ; seuls des totaux par jour sont conservés, consultés par l'équipe</li>
               </ul>
             </section>
 
@@ -84,6 +85,7 @@ const PolitiqueConfidentialite = () => {
                 <li>Connexion à l'espace membre par un lien envoyé par e-mail</li>
                 <li>Affichage des derniers épisodes des podcasts, à partir de leurs flux RSS publics</li>
                 <li>Mesure anonyme des vues de fiche et des écoutes lancées, pour montrer à chaque membre l'audience de sa fiche</li>
+                <li>Mesure anonyme de la fréquentation du site, envoyée chaque semaine à l'équipe</li>
                 <li>Gestion interne de la vie associative et pilotage de la dynamique du réseau</li>
                 <li>Évaluation interne automatisée (scoring) à des fins de pilotage associatif, non communiquée aux utilisateurs</li>
               </ul>

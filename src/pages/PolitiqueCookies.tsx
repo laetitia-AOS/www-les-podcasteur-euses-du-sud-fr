@@ -109,6 +109,9 @@ const PolitiqueCookies = () => {
               <p>
                 Pour donner à chaque membre le nombre de vues de sa fiche et d'écoutes lancées depuis le site, nous comptons ces actions sans déposer de cookie et sans conserver votre adresse IP. Une empreinte brouillée et anonyme, recalculée chaque jour, sert seulement à ne compter qu'une fois par jour la même personne ; elle est effacée sous 48 heures. Seuls des totaux par fiche et par jour sont gardés, visibles uniquement par le membre concerné.
               </p>
+              <p className="mt-3">
+                De la même manière, sans cookie, nous comptons les pages publiques ouvertes et la grande famille du site d'où vous arrivez (moteur de recherche, réseau social, lien direct…), jamais l'adresse exacte. Seuls des totaux par jour sont gardés ; l'équipe de l'association les reçoit chaque semaine pour suivre la fréquentation du site.
+              </p>
             </section>
 
             <section>
