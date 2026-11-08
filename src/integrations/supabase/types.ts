@@ -968,6 +968,78 @@ export type Database = {
           },
         ]
       }
+      stats_pages_jour: {
+        Row: {
+          jour: string
+          page: string
+          vues: number
+        }
+        Insert: {
+          jour: string
+          page: string
+          vues?: number
+        }
+        Update: {
+          jour?: string
+          page?: string
+          vues?: number
+        }
+        Relationships: []
+      }
+      stats_provenances_jour: {
+        Row: {
+          jour: string
+          provenance: string
+          visiteurs: number
+        }
+        Insert: {
+          jour: string
+          provenance: string
+          visiteurs?: number
+        }
+        Update: {
+          jour?: string
+          provenance?: string
+          visiteurs?: number
+        }
+        Relationships: []
+      }
+      stats_site_empreintes: {
+        Row: {
+          actions: number
+          empreinte: string
+          jour: string
+        }
+        Insert: {
+          actions?: number
+          empreinte: string
+          jour: string
+        }
+        Update: {
+          actions?: number
+          empreinte?: string
+          jour?: string
+        }
+        Relationships: []
+      }
+      stats_site_jour: {
+        Row: {
+          jour: string
+          pages_vues: number
+          visiteurs: number
+        }
+        Insert: {
+          jour: string
+          pages_vues?: number
+          visiteurs?: number
+        }
+        Update: {
+          jour?: string
+          pages_vues?: number
+          visiteurs?: number
+        }
+        Relationships: []
+      }
       sync_episodes_runs: {
         Row: {
           episodes: number | null
@@ -1106,6 +1178,10 @@ export type Database = {
           _podcast_id: string
           _type: string
         }
+        Returns: boolean
+      }
+      compter_visite: {
+        Args: { _empreinte: string; _page: string; _provenance: string }
         Returns: boolean
       }
       confirmer_flux: {
@@ -1265,6 +1341,7 @@ export type Database = {
       }
       peut_proposer_evenement: { Args: never; Returns: boolean }
       podcast_visible: { Args: { _id: string }; Returns: boolean }
+      rapport_semaine: { Args: { _debut: string }; Returns: Json }
       sursis_adhesion: {
         Args: { _actif: boolean; _email: string }
         Returns: number
