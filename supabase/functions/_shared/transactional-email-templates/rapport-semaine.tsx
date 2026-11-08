@@ -108,7 +108,7 @@ const Liste = ({ titre, lignes }: { titre: string; lignes: { nom: string; n: str
       {lignes.map((l, i) => (
         <Row key={i}>
           <Column><Text style={{ fontFamily: SANS, fontSize: '15px', color: C.encre, margin: '0 0 6px' }}>{l.nom}</Text></Column>
-          <Column style={{ width: '110px', textAlign: 'right' }}>
+          <Column style={{ width: '170px', textAlign: 'right' }}>
             <Text style={{ fontFamily: MONO, fontSize: '13px', color: C.gris, margin: '0 0 6px' }}>{l.n}</Text>
           </Column>
         </Row>
@@ -142,7 +142,7 @@ const RapportSemaine = (p: Props) => {
 
       <Liste titre="D'où viennent les visiteur·ices" lignes={(p.provenances || []).map((l) => ({ nom: PROVENANCES[l.nom || ''] || 'Autre', n: `${l.n}` }))} />
       <Liste titre="Pages les plus vues" lignes={(p.pages || []).map((l) => ({ nom: nomPage(l.page), n: `${l.n} vue${(l.n || 0) > 1 ? 's' : ''}` }))} />
-      <Liste titre="Fiches les plus regardées" lignes={(p.fiches || []).map((l) => ({ nom: l.nom || 'Sans titre', n: `${l.vues} vue${(l.vues || 0) > 1 ? 's' : ''}${l.ecoutes ? ` · ${l.ecoutes} éc.` : ''}` }))} />
+      <Liste titre="Fiches les plus regardées" lignes={(p.fiches || []).map((l) => ({ nom: l.nom || 'Sans titre', n: `${l.vues} vue${(l.vues || 0) > 1 ? 's' : ''}${l.ecoutes ? ` · ${l.ecoutes} écoute${l.ecoutes > 1 ? 's' : ''}` : ''}` }))} />
 
       <Text style={{ ...s.label, color: C.bleu, margin: '30px 0 0' }}>Mises en relation</Text>
       <Chiffre label="Demandes reçues par les membres" n={demandes} avant={p.demandes_avant} />
