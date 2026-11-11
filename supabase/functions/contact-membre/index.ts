@@ -71,15 +71,18 @@ Deno.serve(async (req) => {
       return json({ error: "Le message n'a pas pu être enregistré." }, 500);
     }
     // Le membre est prévenu par e-mail ; son adresse n'est jamais montrée à l'expéditeur·ice
-    const { data: fiches } = await admin.from("podcasts").select("id, email, prenom, nom_podcast").in("id", recipients.map((r) => r.id));
+    const { data: fiches } = await admin.from("podcasts").select("id, email, prenom, nom_podcast, type_profil").in("id", recipients.map((r) => r.id));
     let emailed = 0;
     for (const row of inseres || []) {
       const f = (fiches || []).find((x) => x.id === row.recipient_id);
       if (!f || await tropDeNotifs(admin, f.id)) continue;
-      // Notification sans le texte de l'expéditeur·ice : le message se lit dans l'espace membre
-      const ok = await envoyer(type === "collab" ? "collab-recue" : "message-recu", f.email, {
-        prenom: premierPrenom(f.prenom), fiche: f.nom_podcast, date: jourDuJour(),
-      }, `${type}-recu-${row.id}`);
+      // Question à un studio : le message complet arrive dans sa boîte, « Répondre » écrit directement à la personne.
+      // Autres membres : notification sans le texte, le message se lit dans l'espace membre.
+      const ok = type === "message" && f.type_profil === "studio"
+        ? await envoyer("question-studio", f.email, { studio: f.nom_podcast, nom: name, email, message: msg, date: jourDuJour() }, `question-studio-${row.id}`, email)
+        : await envoyer(type === "collab" ? "collab-recue" : "message-recu", f.email, {
+          prenom: premierPrenom(f.prenom), fiche: f.nom_podcast, date: jourDuJour(),
+        }, `${type}-recu-${row.id}`);
       if (ok) emailed++;
     }
     return json({ ok: true, emailed: emailed > 0, count: recipients.length });
