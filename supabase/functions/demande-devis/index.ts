@@ -1,5 +1,6 @@
 // Demande de devis : groupée (le serveur choisit les studios) ou adressée à un seul studio.
-// Les destinataires la lisent dans leur boîte « Demandes reçues » ; l'adresse des studios n'est jamais renvoyée.
+// Chaque studio la reçoit en entier dans sa boîte mail (« Répondre » écrit directement à la personne)
+// et la retrouve dans « Demandes reçues » ; l'adresse des studios n'est jamais renvoyée.
 // La base vérifie et nettoie chaque champ et limite à 3 demandes par jour et par adresse.
 import { createClient } from "npm:@supabase/supabase-js@2";
 import { envoyer, jourDuJour, tropDeNotifs } from "../_shared/notifications.ts";
@@ -105,10 +106,11 @@ Deno.serve(async (req) => {
       if (!st || await tropDeNotifs(admin, st.id)) continue;
       const { data: f } = await admin.from("podcasts").select("nom_podcast").eq("id", st.id).maybeSingle();
       const ok = await envoyer("devis-recu", st.email, {
-        // Seulement des informations issues de listes fixes : le texte libre se lit dans l'espace membre
-        studio: f?.nom_podcast, besoins: besoins.map((x) => LABELS[x]).join(", "),
+        // La demande complète arrive dans la boîte du studio ; « Répondre » écrit directement à la personne
+        studio: f?.nom_podcast, nom, email, format: format || undefined, periode: periode || undefined, description,
+        besoins: besoins.map((x) => LABELS[x]).join(", ") || undefined,
         departement: departement ? (DEP_NOMS[departement] ? `${DEP_NOMS[departement]} (${departement})` : departement) : undefined, date: jourDuJour(),
-      }, `devis-recu-${row.id}`);
+      }, `devis-recu-${row.id}`, email);
       if (ok) emailed++;
     }
     return json({ ok: true, count: recipients.length, emailed: emailed > 0 });

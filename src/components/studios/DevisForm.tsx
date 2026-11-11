@@ -64,7 +64,7 @@ const DevisForm = ({ studioId, studioName, defaultDepartement = "", defaultBesoi
       <div role="status" className="self-center">
         <p className="font-bold text-2xl">{msg}</p>
         <p className={`mt-2 text-[17px] ${dark ? "text-surface/85" : "text-muted-foreground"}`}>
-          {studioName ? `${studioName} la retrouve` : "Chaque studio la retrouve"} dans son espace membre et vous répondra directement à votre adresse.
+          {studioName ? `${studioName} la reçoit` : "Chaque studio la reçoit"} directement dans sa boîte mail et vous répondra à votre adresse.
         </p>
       </div>
     );

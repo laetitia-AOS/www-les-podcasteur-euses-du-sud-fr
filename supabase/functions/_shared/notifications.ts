@@ -2,10 +2,10 @@
 // Un e-mail = un·e destinataire, pour un événement précis ; un échec d'envoi ne bloque jamais l'action.
 import { sendTemplateEmail } from './transactional-email-templates/send-email.ts'
 
-export async function envoyer(template: string, to: string | null | undefined, data: Record<string, unknown>, cle: string): Promise<boolean> {
+export async function envoyer(template: string, to: string | null | undefined, data: Record<string, unknown>, cle: string, repondreA?: string): Promise<boolean> {
   if (!to || !/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(to) || to.endsWith('@invalid')) return false
   try {
-    const r = await sendTemplateEmail(template, to, { templateData: data, idempotencyKey: cle })
+    const r = await sendTemplateEmail(template, to, { templateData: data, idempotencyKey: cle, replyTo: repondreA || undefined })
     return r.sent
   } catch (e) {
     console.error(`E-mail « ${template} » non envoyé :`, e instanceof Error ? e.message.slice(0, 200) : 'inconnu')
