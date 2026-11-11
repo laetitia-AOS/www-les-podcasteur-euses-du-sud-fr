@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Flag, Star } from "lucide-react";
-import { btnPrimary, btnSecondary, formatName, formatShortDate } from "@/lib/pds";
+import { btnPrimary, formatName, formatShortDate } from "@/lib/pds";
 import {
   AVIS_MAX,
   MOTIFS_SIGNALEMENT,
@@ -91,13 +91,11 @@ const AvisSection = ({ podcastId, podcastTitre }: { podcastId: string; podcastTi
           <>
             <strong className="font-mono text-[22px]">{moyenne.toLocaleString("fr-FR", { minimumFractionDigits: 1 })}/5</strong>
             <Etoiles note={moyenne} />
-            <span className="text-muted-foreground">
-              {nb} avis {nb > 1 ? "laissé" : "laissé"}{nb > 1 ? "s" : ""}
-            </span>
+            <span className="text-muted-foreground">{nb} avis</span>
           </>
         ) : (
           <span className="text-muted-foreground">
-            {isLoading ? "Chargement des avis…" : "Aucun avis pour l'instant. Soyez la première ou la première à donner le vôtre."}
+            {isLoading ? "Chargement des avis…" : "Aucun avis pour l'instant. Soyez la première ou le premier à donner envie de l'écouter."}
           </span>
         )}
       </p>
@@ -160,7 +158,8 @@ const AvisSection = ({ podcastId, podcastTitre }: { podcastId: string; podcastTi
         <div role="status" className="mt-6 border-2 border-encre bg-surface p-6">
           <p className="font-bold text-xl">Votre avis est en ligne.</p>
           <p className="mt-2 text-[17px]">
-            Il apparaît sous la fiche de {podcastTitre} et dans sa note moyenne. Merci !
+            Il apparaît sous la fiche de {podcastTitre} et dans sa note moyenne. Merci : votre avis donnera
+            peut-être envie à d'autres d'écouter.
           </p>
         </div>
       ) : (
@@ -217,7 +216,7 @@ const AvisSection = ({ podcastId, podcastTitre }: { podcastId: string; podcastTi
             <label htmlFor="avis-commentaire" className="block text-sm font-bold mb-1.5">Votre commentaire</label>
             <textarea
               id="avis-commentaire" name="commentaire" rows={4} maxLength={AVIS_MAX} value={saisie.commentaire}
-              onChange={onChange} placeholder="Ce que vous avez aimé, ce que vous avez moins aimé, en quelques lignes."
+              onChange={onChange} placeholder="Qu'est-ce qui vous a donné envie d'écouter ? Racontez-le en quelques lignes."
               className={`${fieldClass} py-2 resize-y`} aria-invalid={!!erreurs.commentaire}
               aria-describedby={`avis-commentaire-count${erreurs.commentaire ? " avis-commentaire-err" : ""}`}
             />
@@ -238,7 +237,7 @@ const AvisSection = ({ podcastId, podcastTitre }: { podcastId: string; podcastTi
             <button type="submit" disabled={etat === "envoi"} className={`${btnPrimary} px-7`}>
               {etat === "envoi" ? "Envoi…" : "Publier mon avis"}
             </button>
-            <span className={`${btnSecondary} pointer-events-none border-transparent`}>
+            <span className="self-center text-sm text-muted-foreground">
               Note et commentaire publiés immédiatement
             </span>
           </div>

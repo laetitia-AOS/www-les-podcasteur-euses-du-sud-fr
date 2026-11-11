@@ -22,7 +22,7 @@ interface AvisAdmin {
   motif_signalement: string | null;
   membre: boolean;
   created_at: string;
-  podcasts: { nom_podcast: string; slug: string | null; type_profil: string } | null;
+  podcasts: { id: string; nom_podcast: string; slug: string | null; type_profil: string } | null;
 }
 
 type Filtre = "tous" | "signales" | "masques";
@@ -41,7 +41,7 @@ const AdminAvis = () => {
     queryFn: async (): Promise<AvisAdmin[]> => {
       const { data, error } = await supabase
         .from("avis")
-        .select("id, nom, email, note, commentaire, statut, signale, motif_signalement, membre, created_at, podcasts(nom_podcast, slug, type_profil)")
+        .select("id, nom, email, note, commentaire, statut, signale, motif_signalement, membre, created_at, podcasts(id, nom_podcast, slug, type_profil)")
         .order("created_at", { ascending: false });
       if (error) throw error;
       return (data || []) as unknown as AvisAdmin[];
@@ -133,7 +133,7 @@ const AdminAvis = () => {
             <TableBody>
               {liste.map((a) => {
                 const masque = a.statut === "masque";
-                const href = a.podcasts ? `${SITE_URL}${ficheHref({ id: a.podcasts.slug || a.id, slug: a.podcasts.slug, type_profil: a.podcasts.type_profil, nom_podcast: a.podcasts.nom_podcast })}` : null;
+                const href = a.podcasts ? `${SITE_URL}${ficheHref({ id: a.podcasts.id, slug: a.podcasts.slug, type_profil: a.podcasts.type_profil, nom_podcast: a.podcasts.nom_podcast })}` : null;
                 return (
                   <TableRow key={a.id} className={masque ? "opacity-60" : ""}>
                     <TableCell className="font-mono text-xs whitespace-nowrap">{formatShortDate(a.created_at)}</TableCell>
