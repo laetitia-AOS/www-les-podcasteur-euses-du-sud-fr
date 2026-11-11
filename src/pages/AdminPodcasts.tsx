@@ -20,6 +20,7 @@ import { AdminOnglets, Panneau, useOnglet } from "@/components/admin/AdminOnglet
 import { useATraiter } from "@/components/admin/useATraiter";
 import { useAdminAuth } from "@/hooks/useAdminAuth";
 import AdminFlux from "@/components/admin/AdminFlux";
+import AdminAvis from "@/components/admin/AdminAvis";
 import ProfilsACompleter from "@/components/admin/ProfilsACompleter";
 import { toast } from "sonner";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
@@ -303,6 +304,7 @@ const AdminPodcasts = () => {
     { id: "a-valider", label: "À valider", compte: (compteurs?.fiches ?? nonValidees.length) + (compteurs?.images ?? 0) },
     { id: "a-completer", label: "Fiches à compléter" },
     { id: "flux", label: "Flux d'épisodes", compte: compteurs?.flux ?? 0 },
+    { id: "avis", label: "Avis", compte: compteurs?.avis ?? 0 },
   ];
   const [onglet, setOnglet] = useOnglet(onglets);
   const liste = onglet === "a-valider" ? nonValidees : filteredPodcasts;
@@ -323,6 +325,7 @@ const AdminPodcasts = () => {
     >
         <AdminOnglets label="Rubriques de l'annuaire" onglets={onglets} courant={onglet} onChange={setOnglet} />
         {onglet === "a-completer" && <Panneau id="a-completer"><ProfilsACompleter /></Panneau>}
+        {onglet === "avis" && <Panneau id="avis"><AdminAvis /></Panneau>}
         {onglet === "flux" && (
           <Panneau id="flux">
             <AdminFlux />

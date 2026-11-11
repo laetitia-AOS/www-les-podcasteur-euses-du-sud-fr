@@ -12,6 +12,8 @@ import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import SEOHead from "@/components/SEOHead";
 import MembreContactForm from "@/components/MembreContactForm";
+import AvisSection from "@/components/avis/AvisSection";
+import { resumeAvis, useAvis } from "@/lib/avis";
 import { usePlayer } from "@/contexts/PlayerContext";
 import { usePodcastEpisodes } from "@/lib/episodes";
 import {
@@ -94,6 +96,7 @@ const ProfilMembre = () => {
   const isPodcast = !!profile && aUnPodcast(profile);
   const { data: epData, isLoading: epLoading } = usePodcastEpisodes(isPodcast ? profile?.id : undefined);
   const episodes = epData?.episodes || [];
+  const { data: avis = [] } = useAvis(isPodcast ? profile?.id : undefined);
 
   const prenom = formatName(profile?.prenom);
   const name = profile ? makeFullName(profile.prenom, profile.nom) : "";
@@ -122,6 +125,15 @@ const ProfilMembre = () => {
         inLanguage: "fr",
         author: { "@type": "Person", name, ...(city && { address: { "@type": "PostalAddress", addressLocality: city, addressRegion: "Provence-Alpes-Côte d'Azur", addressCountry: "FR" } }) },
         ...(!isPlaceholderLink(profile.lien_ecoute) && { sameAs: [profile.lien_ecoute] }),
+        ...(avis.length > 0 && {
+          aggregateRating: {
+            "@type": "AggregateRating",
+            ratingValue: resumeAvis(avis).moyenne,
+            reviewCount: avis.length,
+            bestRating: 5,
+            worstRating: 1,
+          },
+        }),
         ...(episodes.length > 0 && {
           episode: episodes.map((ep) => ({
             "@type": "PodcastEpisode",
@@ -148,7 +160,7 @@ const ProfilMembre = () => {
       ...(photoPro && { image: photoPro }),
       memberOf: { "@type": "Organization", name: SITE_NAME, url: SITE },
     };
-  }, [profile, isPodcast, name, city, intro, canonicalPath, episodes, photoPro]);
+  }, [profile, isPodcast, name, city, intro, canonicalPath, episodes, photoPro, avis]);
 
   if (isLoading) {
     return (
@@ -354,6 +366,9 @@ const ProfilMembre = () => {
             <p className="mt-3 text-sm text-muted-foreground">Les 10 derniers épisodes, mis à jour toutes les 6 heures depuis le flux RSS.</p>
           </section>
         )}
+
+        {/* Avis : notes et commentaires laissés par les visiteur·euses, publiés tout de suite */}
+        {isPodcast && <AvisSection podcastId={profile.id} podcastTitre={title} />}
 
         {/* Écrire */}
         {profile.consent_contact && (

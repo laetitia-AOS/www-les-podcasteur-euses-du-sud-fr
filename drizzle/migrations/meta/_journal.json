@@ -232,6 +232,20 @@
       "when": 1794145892269,
       "tag": "0032_rapport_hebdo_visites",
       "breakpoints": true
+    },
+    {
+      "idx": 33,
+      "version": "7",
+      "when": 1794421420060,
+      "tag": "0033_create_avis_podcasts",
+      "breakpoints": true
+    },
+    {
+      "idx": 34,
+      "version": "7",
+      "when": 1794421480856,
+      "tag": "0034_admin_a_traiter_avis",
+      "breakpoints": true
     }
   ]
 }

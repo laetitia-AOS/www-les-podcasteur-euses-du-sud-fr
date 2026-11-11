@@ -3,10 +3,10 @@ import { supabase } from "@/integrations/supabase/client";
 
 export type ATraiter = {
   images: number; fiches: number; propositions: number; paiements: number;
-  contacts: number; messages_membres: number; flux: number;
+  contacts: number; messages_membres: number; flux: number; avis: number;
 };
 
-const VIDE: ATraiter = { images: 0, fiches: 0, propositions: 0, paiements: 0, contacts: 0, messages_membres: 0, flux: 0 };
+const VIDE: ATraiter = { images: 0, fiches: 0, propositions: 0, paiements: 0, contacts: 0, messages_membres: 0, flux: 0, avis: 0 };
 
 /** Compteurs de ce qui attend une action (le serveur ne renvoie rien à qui n'est pas admin). */
 export const useATraiter = (actif = true) =>
@@ -26,7 +26,7 @@ export const totalRubrique = (t: ATraiter | undefined, rubrique: string) => {
   if (!t) return 0;
   switch (rubrique) {
     case "membres": return t.paiements;
-    case "annuaire": return t.images + t.fiches + t.flux;
+    case "annuaire": return t.images + t.fiches + t.flux + t.avis;
     case "agenda": return t.propositions;
     case "messages": return t.contacts + t.messages_membres;
     default: return 0;

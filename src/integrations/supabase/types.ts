@@ -100,6 +100,56 @@ export type Database = {
         }
         Relationships: []
       }
+      avis: {
+        Row: {
+          commentaire: string
+          created_at: string
+          email: string
+          id: string
+          membre: boolean
+          motif_signalement: string | null
+          nom: string
+          note: number
+          podcast_id: string
+          signale: boolean
+          statut: string
+        }
+        Insert: {
+          commentaire: string
+          created_at?: string
+          email: string
+          id?: string
+          membre?: boolean
+          motif_signalement?: string | null
+          nom: string
+          note: number
+          podcast_id: string
+          signale?: boolean
+          statut?: string
+        }
+        Update: {
+          commentaire?: string
+          created_at?: string
+          email?: string
+          id?: string
+          membre?: boolean
+          motif_signalement?: string | null
+          nom?: string
+          note?: number
+          podcast_id?: string
+          signale?: boolean
+          statut?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "avis_podcast_id_fkey"
+            columns: ["podcast_id"]
+            isOneToOne: false
+            referencedRelation: "podcasts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       contact_requests: {
         Row: {
           created_at: string
@@ -1108,6 +1158,7 @@ export type Database = {
       admin_a_traiter: {
         Args: never
         Returns: {
+          avis: number
           contacts: number
           fiches: number
           flux: number
