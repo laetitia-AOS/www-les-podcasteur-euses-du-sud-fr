@@ -1,16 +1,17 @@
-import { useEffect, useRef, useState, type ReactNode } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import {
-  AlertTriangle, ArrowDown, ArrowUp, BarChart3, Bold, Check, Eye, Image as ImageIcon, Italic, Link2, Loader2,
-  Music, MousePointerClick, Plus, Trash2, Type, Upload, X,
+  AlertTriangle, ArrowDown, ArrowUp, BarChart3, CalendarDays, CalendarRange, Check, Eye, Image as ImageIcon, Loader2,
+  Mic, Music, MousePointerClick, Plus, Trash2, Type, Users, X,
 } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import type { Json } from "@/integrations/supabase/types";
 import AdminLayout from "@/components/admin/AdminLayout";
-import TexteRiche from "@/components/onde/TexteRiche";
-import { BadgeStatut, Compteur, btnIcone, btnOutil, dateHeure, messageOnde, useNomsEquipe } from "@/components/onde/adminOnde";
+import { BadgeStatut, btnIcone, dateHeure, messageOnde, useNomsEquipe } from "@/components/onde/adminOnde";
+import { BoutonFichier, Champ, ChampTexteRiche } from "@/components/onde/champsOnde";
+import { EditeurEvenements, EditeurNouveauxMembres, EditeurPodcast } from "@/components/onde/EditeursAuto";
 import { useAdminAuth } from "@/hooks/useAdminAuth";
 import {
   AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription,
@@ -29,73 +30,15 @@ import {
 type Etat = { t: "ok" | "modifie" | "encours" | "erreur"; msg?: string; quand?: Date };
 type Envoi = (cle: string, file: File, sorte: "image" | "audio", apres: (url: string) => void) => Promise<void>;
 
-const ICONES: Record<TypeBloc, typeof Type> = { texte: Type, images: ImageIcon, audio: Music, bouton: MousePointerClick, chiffres: BarChart3 };
-
-const Champ = ({ id, label, max, n, aide, children }: { id: string; label: string; max?: number; n?: number; aide?: ReactNode; children: ReactNode }) => (
-  <div className="space-y-1.5">
-    <div className="flex justify-between items-baseline gap-3">
-      <Label htmlFor={id}>{label}</Label>
-      {max !== undefined && n !== undefined && <Compteur n={n} max={max} />}
-    </div>
-    {children}
-    {aide && <p className="text-xs text-muted-foreground">{aide}</p>}
-  </div>
-);
-
-/** Bouton d'envoi de fichier, au style des boutons secondaires de l'admin. */
-const BoutonFichier = ({ label, accept, enCours, multiple, onFiles }: { label: string; accept: string; enCours: boolean; multiple?: boolean; onFiles: (f: File[]) => void }) => (
-  <label className={`${btnSecondary} cursor-pointer focus-within:outline focus-within:outline-2 focus-within:outline-offset-2 focus-within:outline-primary ${enCours ? "opacity-60 pointer-events-none" : ""}`}>
-    {enCours ? <Loader2 className="w-4 h-4 animate-spin motion-reduce:animate-none" aria-hidden /> : <Upload className="w-4 h-4" aria-hidden />}
-    {enCours ? "Envoi en cours…" : label}
-    <input type="file" accept={accept} multiple={multiple} className="sr-only" disabled={enCours} onChange={(e) => { onFiles(Array.from(e.target.files || [])); e.target.value = ""; }} />
-  </label>
-);
-
-/** Texte avec gras, italique et liens : on sélectionne des mots puis on clique sur un bouton. */
-const ChampTexteRiche = ({ id, value, onChange }: { id: string; value: string; onChange: (v: string) => void }) => {
-  const ref = useRef<HTMLTextAreaElement>(null);
-  const entourer = (avant: string, apres: string, defaut: string, choisirApres?: [number, number]) => {
-    const el = ref.current;
-    if (!el) return;
-    const { selectionStart: s, selectionEnd: e } = el;
-    const sel = value.slice(s, e) || defaut;
-    onChange(value.slice(0, s) + avant + sel + apres + value.slice(e));
-    requestAnimationFrame(() => {
-      el.focus();
-      if (choisirApres) {
-        const debut = s + avant.length + sel.length + choisirApres[0];
-        el.setSelectionRange(debut, debut + choisirApres[1]);
-      } else {
-        el.setSelectionRange(s + avant.length, s + avant.length + sel.length);
-      }
-    });
-  };
-  const aMiseEnForme = /\*|\[/.test(value);
-  return (
-    <div className="space-y-2">
-      <div className="flex flex-wrap gap-2" role="toolbar" aria-label="Mise en forme du texte">
-        <button type="button" className={btnOutil} onClick={() => entourer("**", "**", "texte en gras")}><Bold className="w-4 h-4" aria-hidden /> Gras</button>
-        <button type="button" className={btnOutil} onClick={() => entourer("*", "*", "texte en italique")}><Italic className="w-4 h-4" aria-hidden /> Italique</button>
-        <button type="button" className={btnOutil} onClick={() => entourer("[", "](https://)", "texte du lien", [2, 8])}><Link2 className="w-4 h-4" aria-hidden /> Lien</button>
-      </div>
-      <Textarea id={id} ref={ref} rows={8} value={value} onChange={(e) => onChange(e.target.value)} />
-      <p className="text-xs text-muted-foreground">
-        Sélectionnez des mots puis cliquez sur Gras, Italique ou Lien. Pour un lien, collez l'adresse à la place de « https:// ». Laissez une ligne vide entre deux paragraphes.
-      </p>
-      {aMiseEnForme && (
-        <div className="border border-filet bg-background p-3 text-[15px]">
-          <p className="font-mono text-[11px] uppercase tracking-wider text-muted-foreground mb-2">Rendu sur le site</p>
-          <TexteRiche texte={value} />
-        </div>
-      )}
-    </div>
-  );
+const ICONES: Record<TypeBloc, typeof Type> = {
+  texte: Type, images: ImageIcon, audio: Music, bouton: MousePointerClick, chiffres: BarChart3,
+  evenements: CalendarDays, podcast: Mic, nouveaux_membres: Users, trimestre: CalendarRange,
 };
 
 const EditeurBloc = ({
-  b, i, total, resoudre, envoi, envoyer, onChange, onMove, onDelete,
+  b, i, total, numeroId, resoudre, envoi, envoyer, onChange, onMove, onDelete,
 }: {
-  b: Bloc; i: number; total: number; resoudre: (u: string) => string; envoi: string | null; envoyer: Envoi;
+  b: Bloc; i: number; total: number; numeroId: string; resoudre: (u: string) => string; envoi: string | null; envoyer: Envoi;
   onChange: (b: Bloc) => void; onMove: (sens: -1 | 1) => void; onDelete: () => void;
 }) => {
   const Icone = ICONES[b.type];
@@ -115,7 +58,7 @@ const EditeurBloc = ({
           <Input id={`${pid}-rubrique`} value={b.rubrique || ""} placeholder="Ex. : Le prochain atelier, À l'écoute, Le trimestre du collectif" onChange={(e) => onChange({ ...b, rubrique: e.target.value })} />
         </Champ>
 
-        {b.type === "texte" && (
+        {(b.type === "texte" || b.type === "trimestre") && (
           <>
             <Champ id={`${pid}-titre`} label="Titre du bloc" max={LIMITES_ONDE.titreBloc} n={(b.titre || "").length}>
               <Input id={`${pid}-titre`} value={b.titre || ""} onChange={(e) => onChange({ ...b, titre: e.target.value })} />
@@ -213,7 +156,11 @@ const EditeurBloc = ({
           </div>
         )}
 
-        {b.type === "chiffres" && (
+        {b.type === "evenements" && <EditeurEvenements b={b} pid={pid} onChange={onChange} />}
+        {b.type === "podcast" && <EditeurPodcast b={b} pid={pid} resoudre={resoudre} envoi={envoi} envoyer={envoyer} onChange={onChange} />}
+        {b.type === "nouveaux_membres" && <EditeurNouveauxMembres b={b} pid={pid} numeroId={numeroId} onChange={onChange} />}
+
+        {(b.type === "chiffres" || b.type === "trimestre") && (
           <div className="space-y-3">
             {b.chiffres.map((c, k) => (
               <div key={k} className="grid grid-cols-[110px_1fr_auto] gap-3 items-end">
@@ -312,6 +259,8 @@ const AdminOndeNumero = () => {
     qc.invalidateQueries({ queryKey: ["onde-equipe-liste"] });
     qc.invalidateQueries({ queryKey: ["onde-publies"] });
     qc.invalidateQueries({ queryKey: ["onde-numero"] });
+    qc.invalidateQueries({ queryKey: ["onde-bilan"] });
+    qc.invalidateQueries({ queryKey: ["onde-nouveaux-membres"] });
     return true;
   };
 
@@ -348,7 +297,7 @@ const AdminOndeNumero = () => {
   const ajouterBloc = (type: TypeBloc) => {
     if (!n) return;
     if (n.blocs.length >= LIMITES_ONDE.blocsMax) { toast.error("30 blocs au maximum dans un numéro."); return; }
-    const b = nouveauBloc(type);
+    const b = nouveauBloc(type, n.mois);
     maj((x) => ({ blocs: [...x.blocs, b] }));
     requestAnimationFrame(() => {
       document.getElementById(`bloc-${b.id}`)?.scrollIntoView({ behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" });
@@ -540,6 +489,7 @@ const AdminOndeNumero = () => {
                     b={b}
                     i={i}
                     total={n.blocs.length}
+                    numeroId={n.id}
                     resoudre={resoudre}
                     envoi={envoi}
                     envoyer={envoyer}
@@ -563,7 +513,10 @@ const AdminOndeNumero = () => {
                         onClick={() => ajouterBloc(t.type)}
                         className="w-full h-full text-left border-2 border-encre bg-background px-4 py-3 hover:bg-muted focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
                       >
-                        <span className="flex items-center gap-2 font-bold"><Icone className="w-4 h-4" aria-hidden /> {t.label}</span>
+                        <span className="flex items-center gap-2 font-bold">
+                          <Icone className="w-4 h-4 shrink-0" aria-hidden /> {t.label}
+                          {t.mention && <span className="ml-auto font-mono text-[11px] font-normal uppercase tracking-wider border border-encre px-1.5 whitespace-nowrap">{t.mention}</span>}
+                        </span>
                         <span className="block text-sm text-muted-foreground mt-0.5">{t.aide}</span>
                       </button>
                     </li>

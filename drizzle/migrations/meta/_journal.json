@@ -281,6 +281,13 @@
       "when": 1794621155251,
       "tag": "0039_onde_droits_visiteurs",
       "breakpoints": true
+    },
+    {
+      "idx": 40,
+      "version": "7",
+      "when": 1794623388366,
+      "tag": "0040_onde_blocs_automatiques",
+      "breakpoints": true
     }
   ]
 }

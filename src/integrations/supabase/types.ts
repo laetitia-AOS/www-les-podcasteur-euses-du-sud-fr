@@ -1397,6 +1397,19 @@ export type Database = {
         Args: { b: Json; n: number; publier: boolean }
         Returns: Json
       }
+      onde_cartes_membres: {
+        Args: { _ids: string[] }
+        Returns: {
+          id: string
+          nom: string
+          nom_podcast: string
+          photo_url: string
+          prenom: string
+          slug: string
+          type_profil: string
+          ville: string
+        }[]
+      }
       onde_donner_editeur: { Args: { _email: string }; Returns: string }
       onde_editeurs: {
         Args: never
@@ -1414,12 +1427,40 @@ export type Database = {
         Args: { label: string; required?: boolean; v: string }
         Returns: string
       }
+      onde_membres_calcul: {
+        Args: { _mois: string; _numero_id: string }
+        Returns: {
+          complet: boolean
+          deja: boolean
+          du_mois: boolean
+          email: string
+          nom: string
+          podcast_id: string
+        }[]
+      }
       onde_noms: {
         Args: { _ids: string[] }
         Returns: {
           id: string
           nom: string
         }[]
+      }
+      onde_nouveaux_membres: {
+        Args: { _bloc_id: string; _numero_id: string }
+        Returns: {
+          id: string
+          nom: string
+          nom_podcast: string
+          photo_url: string
+          prenom: string
+          slug: string
+          type_profil: string
+          ville: string
+        }[]
+      }
+      onde_nouveaux_membres_bilan: {
+        Args: { _bloc_id: string; _mois: string; _numero_id: string }
+        Returns: Json
       }
       onde_retirer_editeur: { Args: { _user_id: string }; Returns: boolean }
       onde_texte_riche: {

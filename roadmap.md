@@ -121,3 +121,6 @@
 - [x] Référencement : titres, descriptions, Article, plan du site, noindex admin
 - [x] Vérifications (tableau), scan sécurité, revue SEO — ne pas publier
 - [ ] L'Onde du Sud — lot 2 : envoi par e-mail (à venir)
+
+## L'Onde du Sud — lot 2
+- [x] Blocs Événements de l'agenda, Podcast à l'écoute, Nouveaux membres du mois, Trimestre du collectif

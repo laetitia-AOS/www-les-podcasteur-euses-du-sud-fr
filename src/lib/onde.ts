@@ -18,7 +18,16 @@ export type BlocImages = Base & { type: "images"; images: ImageOnde[] };
 export type BlocAudio = Base & { type: "audio"; url?: string; titre?: string; podcast?: string; createur?: string; lien?: string };
 export type BlocBouton = Base & { type: "bouton"; libelle?: string; lien?: string };
 export type BlocChiffres = Base & { type: "chiffres"; chiffres: Chiffre[] };
-export type Bloc = BlocTexte | BlocImages | BlocAudio | BlocBouton | BlocChiffres;
+/** Événements cochés dans l'agenda : seuls les identifiants sont gardés, le reste est relu à chaque affichage. */
+export type BlocEvenements = Base & { type: "evenements"; evenements: string[] };
+/** Un podcast de l'annuaire (relu à chaque affichage), la présentation de l'éditeur·ice et un extrait facultatif. */
+export type BlocPodcast = Base & { type: "podcast"; podcast_id?: string; texte?: string; url?: string; titre?: string };
+/** Rempli par la base : « membres » est la liste arrêtée à la publication (jamais écrite par le navigateur). */
+export type BlocNouveauxMembres = Base & { type: "nouveaux_membres"; mois?: string; membres?: string[] };
+export type BlocTrimestre = Base & { type: "trimestre"; titre?: string; texte?: string; chiffres: Chiffre[] };
+export type Bloc =
+  | BlocTexte | BlocImages | BlocAudio | BlocBouton | BlocChiffres
+  | BlocEvenements | BlocPodcast | BlocNouveauxMembres | BlocTrimestre;
 export type TypeBloc = Bloc["type"];
 
 export type NumeroOnde = {
@@ -62,18 +71,26 @@ export const LIMITES_ONDE = {
   chiffresMin: 2,
   chiffresMax: 4,
   blocsMax: 30,
+  evenementsMax: 8,
+  presentation: 1500,
+  /** Le bloc « Événements de l'agenda » propose d'abord ceux des 60 prochains jours. */
+  joursAgenda: 60,
 } as const;
 
 export const IMAGE_MAX_OCTETS = 3 * 1024 * 1024;
 export const AUDIO_MAX_OCTETS = 20 * 1024 * 1024;
 export const IMAGE_TYPES = ["image/jpeg", "image/png", "image/webp"];
 
-export const TYPES_BLOCS: ReadonlyArray<{ type: TypeBloc; label: string; aide: string }> = [
+export const TYPES_BLOCS: ReadonlyArray<{ type: TypeBloc; label: string; aide: string; mention?: string }> = [
   { type: "texte", label: "Texte", aide: "Un titre et un texte, avec gras, italique et liens." },
   { type: "images", label: "Photo ou galerie", aide: "De 1 à 6 photos." },
   { type: "audio", label: "Extrait audio", aide: "Un MP3 qui se lance dans le lecteur du site." },
   { type: "bouton", label: "Bouton", aide: "Un libellé et un lien." },
   { type: "chiffres", label: "Chiffres clés", aide: "De 2 à 4 chiffres, chacun avec son libellé." },
+  { type: "evenements", label: "Événements de l'agenda", aide: "Cochez des événements publiés : ils restent à jour tout seuls." },
+  { type: "podcast", label: "Podcast à l'écoute", aide: "Un podcast de l'annuaire, votre présentation et un extrait si vous voulez." },
+  { type: "nouveaux_membres", label: "Les nouveaux membres du mois", aide: "Rempli tout seul, rien à écrire." },
+  { type: "trimestre", label: "Le trimestre du collectif", aide: "Un texte et de 2 à 4 chiffres clés.", mention: "chaque trimestre" },
 ];
 
 export const libelleType = (t: TypeBloc) => TYPES_BLOCS.find((b) => b.type === t)?.label ?? t;
@@ -81,7 +98,8 @@ export const libelleType = (t: TypeBloc) => TYPES_BLOCS.find((b) => b.type === t
 const nouvelId = () =>
   typeof crypto !== "undefined" && "randomUUID" in crypto ? crypto.randomUUID() : `b${Date.now()}${Math.random().toString(36).slice(2, 8)}`;
 
-export const nouveauBloc = (type: TypeBloc): Bloc => {
+/** Nouveau bloc. « moisNumero » : mois du numéro, pour proposer le mois précédent aux nouveaux membres. */
+export const nouveauBloc = (type: TypeBloc, moisNumero?: string): Bloc => {
   const id = nouvelId();
   switch (type) {
     case "texte": return { id, type, rubrique: "", titre: "", texte: "" };
@@ -89,6 +107,10 @@ export const nouveauBloc = (type: TypeBloc): Bloc => {
     case "audio": return { id, type, rubrique: "", url: "", titre: "", podcast: "", createur: "", lien: "" };
     case "bouton": return { id, type, rubrique: "", libelle: "", lien: "" };
     case "chiffres": return { id, type, rubrique: "", chiffres: [{ valeur: "", libelle: "" }, { valeur: "", libelle: "" }] };
+    case "evenements": return { id, type, rubrique: "À l'agenda", evenements: [] };
+    case "podcast": return { id, type, rubrique: "À l'écoute", podcast_id: "", texte: "", url: "", titre: "" };
+    case "nouveaux_membres": return { id, type, rubrique: "Les nouveaux membres du mois", mois: moisPrecedent(moisNumero || moisCourant()) };
+    case "trimestre": return { id, type, rubrique: "Le trimestre du collectif", titre: "", texte: "", chiffres: [{ valeur: "", libelle: "" }, { valeur: "", libelle: "" }] };
   }
 };
 
@@ -136,6 +158,15 @@ export const moisSuivant = (mois: string) => {
   if (!d) return moisCourant();
   const m = d.m === 12 ? 1 : d.m + 1;
   const a = d.m === 12 ? d.a + 1 : d.a;
+  return `${a}-${String(m).padStart(2, "0")}-01`;
+};
+
+/** Mois précédent, au format « AAAA-MM-01 » (décembre 2026 → novembre 2026, janvier → décembre de l'année d'avant). */
+export const moisPrecedent = (mois: string) => {
+  const d = lireMois(mois);
+  if (!d) return moisCourant();
+  const m = d.m === 1 ? 12 : d.m - 1;
+  const a = d.m === 1 ? d.a - 1 : d.a;
   return `${a}-${String(m).padStart(2, "0")}-01`;
 };
 
@@ -249,7 +280,16 @@ export const manquesPublication = (n: Pick<NumeroOnde, "titre" | "chapeau" | "co
       if (!(b.lien || "").trim()) m.push(`${q} : le lien du bouton.`);
       else if (!lienSur(b.lien.trim())) m.push(`${q} : le lien doit commencer par https://`);
     }
-    if (b.type === "chiffres") {
+    if (b.type === "evenements" && !b.evenements.length) m.push(`${q} : cochez au moins un événement.`);
+    if (b.type === "evenements" && b.evenements.length > LIMITES_ONDE.evenementsMax) m.push(`${q} : 8 événements au maximum.`);
+    if (b.type === "podcast") {
+      if (!b.podcast_id) m.push(`${q} : choisissez un podcast.`);
+      if (!(b.texte || "").trim()) m.push(`${q} : le texte de présentation.`);
+      if ((b.texte || "").length > LIMITES_ONDE.presentation) m.push(`${q} : la présentation est trop longue (${LIMITES_ONDE.presentation} caractères au maximum).`);
+    }
+    if (b.type === "nouveaux_membres" && !b.mois) m.push(`${q} : le mois.`);
+    if (b.type === "trimestre" && !(b.texte || "").trim()) m.push(`${q} : le texte.`);
+    if (b.type === "chiffres" || b.type === "trimestre") {
       if (b.chiffres.length < LIMITES_ONDE.chiffresMin || b.chiffres.length > LIMITES_ONDE.chiffresMax) m.push(`${q} : de 2 à 4 chiffres.`);
       if (b.chiffres.some((c) => !c.valeur.trim() || !c.libelle.trim())) m.push(`${q} : chaque chiffre avec son libellé.`);
     }
@@ -327,7 +367,7 @@ export const fichiersNumero = (n: Pick<NumeroOnde, "couverture_url" | "audio_url
   if (n.audio_url) out.push(n.audio_url);
   for (const b of n.blocs) {
     if (b.type === "images") b.images.forEach((i) => i.url && out.push(i.url));
-    if (b.type === "audio" && b.url) out.push(b.url);
+    if ((b.type === "audio" || b.type === "podcast") && b.url) out.push(b.url);
   }
   return out;
 };

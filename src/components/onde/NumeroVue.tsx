@@ -1,28 +1,28 @@
 import { Link } from "react-router-dom";
-import { ExternalLink, Pause, Play } from "lucide-react";
-import { usePlayer } from "@/contexts/PlayerContext";
+import { ExternalLink } from "lucide-react";
 import TexteRiche from "@/components/onde/TexteRiche";
+import BoutonEcoute, { type Resoudre } from "@/components/onde/BoutonEcoute";
+import { VueEvenements, VueNouveauxMembres, VuePodcast } from "@/components/onde/BlocsAuto";
 import { container, btnPrimary, linkUnderline } from "@/lib/pds";
-import {
-  NOM_ONDE, episodeOnde, etiquetteNumero, lienSur, numeroRubrique,
-  type Bloc, type BlocAudio, type NumeroOnde,
-} from "@/lib/onde";
+import { NOM_ONDE, etiquetteNumero, lienSur, numeroRubrique, type Bloc, type Chiffre, type NumeroOnde } from "@/lib/onde";
 
-type Resoudre = (url: string) => string | undefined;
 const identite: Resoudre = (u) => u;
 
-const btnRond =
-  "w-12 h-12 rounded-full bg-accent text-accent-foreground inline-flex items-center justify-center shrink-0 hover:bg-accent-hover focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary disabled:opacity-40";
-
-/** Bouton lecture relié au lecteur du site (barre en bas de page). */
-const BoutonEcoute = ({ n, extrait, resoudre, label }: { n: NumeroOnde; extrait?: BlocAudio; resoudre: Resoudre; label: string }) => {
-  const { play, isCurrent, playing } = usePlayer();
-  const ep = episodeOnde(n, extrait, resoudre);
-  const actif = !!ep && isCurrent(ep) && playing;
+const Chiffres = ({ chiffres }: { chiffres: Chiffre[] }) => {
+  const cs = chiffres.filter((c) => c.valeur || c.libelle);
+  if (!cs.length) return null;
   return (
-    <button type="button" className={btnRond} disabled={!ep} onClick={() => ep && play(ep)} aria-label={actif ? `Mettre en pause : ${label}` : `Écouter : ${label}`}>
-      {actif ? <Pause className="w-5 h-5" fill="currentColor" aria-hidden /> : <Play className="w-5 h-5 ml-0.5" fill="currentColor" aria-hidden />}
-    </button>
+    <dl className={`grid grid-cols-2 ${cs.length === 3 ? "sm:grid-cols-3" : cs.length === 4 ? "sm:grid-cols-4" : ""} border-t-2 border-encre`}>
+      {cs.map((c, i) => (
+        <div key={i} className="py-4 pr-4 border-b border-filet">
+          <dt className="sr-only">{c.libelle}</dt>
+          <dd>
+            <span className="block title-section text-[44px] sm:text-[56px] leading-none text-primary">{c.valeur}</span>
+            <span aria-hidden className="block mt-2 text-[15px] font-semibold">{c.libelle}</span>
+          </dd>
+        </div>
+      ))}
+    </dl>
   );
 };
 
@@ -79,23 +79,22 @@ const ContenuBloc = ({ b, n, resoudre }: { b: Bloc; n: NumeroOnde; resoudre: Res
     }
     case "bouton":
       return b.libelle && b.lien && lienSur(b.lien) ? <Lien href={b.lien} className={btnPrimary}>{b.libelle}</Lien> : null;
-    case "chiffres": {
-      const cs = b.chiffres.filter((c) => c.valeur || c.libelle);
-      if (!cs.length) return null;
+    case "chiffres":
+      return <Chiffres chiffres={b.chiffres} />;
+    case "trimestre":
       return (
-        <dl className={`grid grid-cols-2 ${cs.length === 3 ? "sm:grid-cols-3" : cs.length === 4 ? "sm:grid-cols-4" : ""} border-t-2 border-encre`}>
-          {cs.map((c, i) => (
-            <div key={i} className="py-4 pr-4 border-b border-filet">
-              <dt className="sr-only">{c.libelle}</dt>
-              <dd>
-                <span className="block title-section text-[44px] sm:text-[56px] leading-none text-primary">{c.valeur}</span>
-                <span aria-hidden className="block mt-2 text-[15px] font-semibold">{c.libelle}</span>
-              </dd>
-            </div>
-          ))}
-        </dl>
+        <div className="space-y-8">
+          {b.titre && <h2 className="title-section text-[30px] sm:text-[36px]">{b.titre}</h2>}
+          {b.texte && <TexteRiche texte={b.texte} className="text-[17px] leading-relaxed max-w-[68ch]" />}
+          <Chiffres chiffres={b.chiffres} />
+        </div>
       );
-    }
+    case "evenements":
+      return <VueEvenements b={b} />;
+    case "podcast":
+      return <VuePodcast b={b} n={n} resoudre={resoudre} />;
+    case "nouveaux_membres":
+      return <VueNouveauxMembres b={b} n={n} />;
   }
 };
 
