@@ -23,7 +23,10 @@ const AdminLogin = () => {
         _user_id: session.user.id,
         _role: "admin",
       });
-      if (hasAdmin) navigate("/admin", { replace: true });
+      if (hasAdmin) { navigate("/admin", { replace: true }); return; }
+      // Éditeur·ice de L'Onde du Sud : directement dans sa rubrique
+      const { data: estEditeur } = await supabase.rpc("has_role", { _user_id: session.user.id, _role: "editeur" });
+      if (estEditeur) navigate("/admin/onde", { replace: true });
     });
   }, [navigate]);
 
@@ -73,6 +76,8 @@ const AdminLogin = () => {
         _role: "admin",
       });
       if (!hasAdmin) {
+        const { data: estEditeur } = await supabase.rpc("has_role", { _user_id: user.id, _role: "editeur" });
+        if (estEditeur) { navigate("/admin/onde"); return; }
         await supabase.auth.signOut();
         setError("Ce compte n'a pas accès à l'administration.");
         setLoading(false);

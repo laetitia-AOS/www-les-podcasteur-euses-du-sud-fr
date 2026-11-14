@@ -14,6 +14,7 @@ export const PAGES = {
   agenda: "/agenda",
   adherer: "/adherer",
   partenaires: "/partenaires",
+  onde: "/onde",
 } as const;
 
 type FicheLien = { id: string; slug?: string | null; type_profil?: string | null; nom_podcast?: string | null };
@@ -132,6 +133,11 @@ export const PAGES_SEO = {
     title: titreSeo("Nos partenaires"),
     description:
       "Les partenaires des Podcasteur·euses du Sud : radios, lieux et collectifs qui soutiennent le podcast à Marseille et en Région Sud, et nos projets communs.",
+  },
+  onde: {
+    title: titreSeo("L'Onde du Sud, la lettre mensuelle"),
+    description:
+      "L'Onde du Sud, la lettre mensuelle des Podcasteur·euses du Sud : chaque numéro à lire et à écouter, avec les rendez-vous et les podcasts de Région Sud.",
   },
   proposer: {
     title: titreSeo("Proposer un événement podcast"),

@@ -5,19 +5,23 @@ import type { User } from "@supabase/supabase-js";
 export const useAdminAuth = () => {
   const [user, setUser] = useState<User | null>(null);
   const [isAdmin, setIsAdmin] = useState(false);
+  // Éditeur·ice de L'Onde du Sud : accès à la seule rubrique « L'Onde du Sud » de l'administration
+  const [isEditeur, setIsEditeur] = useState(false);
   const [loading, setLoading] = useState(true);
   const initialCheckDone = useRef(false);
 
   useEffect(() => {
     const checkAdmin = async (currentUser: User | null) => {
       if (currentUser) {
-        const { data } = await supabase.rpc("has_role", {
-          _user_id: currentUser.id,
-          _role: "admin",
-        });
+        const [{ data }, { data: editeur }] = await Promise.all([
+          supabase.rpc("has_role", { _user_id: currentUser.id, _role: "admin" }),
+          supabase.rpc("has_role", { _user_id: currentUser.id, _role: "editeur" }),
+        ]);
         setIsAdmin(!!data);
+        setIsEditeur(!!editeur);
       } else {
         setIsAdmin(false);
+        setIsEditeur(false);
       }
       setUser(currentUser);
       setLoading(false);
@@ -47,7 +51,8 @@ export const useAdminAuth = () => {
     await supabase.auth.signOut();
     setUser(null);
     setIsAdmin(false);
+    setIsEditeur(false);
   };
 
-  return { user, isAdmin, loading, signOut };
+  return { user, isAdmin, isEditeur, loading, signOut };
 };

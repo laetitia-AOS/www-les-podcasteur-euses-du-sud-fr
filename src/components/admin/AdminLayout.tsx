@@ -1,6 +1,6 @@
 import { useState, type ReactNode } from "react";
 import { Link, Navigate, NavLink, useLocation } from "react-router-dom";
-import { BookOpen, CalendarDays, ExternalLink, Handshake, Inbox, Loader2, LogOut, Mail, Menu, Users, X } from "lucide-react";
+import { BookOpen, CalendarDays, ExternalLink, Handshake, Inbox, Loader2, LogOut, Mail, Menu, Radio, Users, X } from "lucide-react";
 import { useAdminAuth } from "@/hooks/useAdminAuth";
 import SEOHead from "@/components/SEOHead";
 import { useATraiter, totalRubrique } from "@/components/admin/useATraiter";
@@ -12,6 +12,7 @@ export const RUBRIQUES = [
   { id: "agenda", label: "Agenda", to: "/admin/agenda", icon: CalendarDays },
   { id: "messages", label: "Messages", to: "/admin/messages", icon: Mail },
   { id: "partenaires", label: "Partenaires", to: "/admin/partenaires", icon: Handshake },
+  { id: "onde", label: "L'Onde du Sud", to: "/admin/onde", icon: Radio },
 ] as const;
 
 interface Props {
@@ -19,11 +20,13 @@ interface Props {
   description?: ReactNode;
   actions?: ReactNode;
   children: ReactNode;
+  /** « onde » : rubrique ouverte aussi aux éditeur·ices de L'Onde du Sud (les autres restent réservées aux admins). */
+  acces?: "admin" | "onde";
 }
 
 /** Cadre commun de l'administration : vérification admin, menu latéral, en-tête de rubrique. */
-const AdminLayout = ({ titre, description, actions, children }: Props) => {
-  const { user, isAdmin, loading, signOut } = useAdminAuth();
+const AdminLayout = ({ titre, description, actions, children, acces = "admin" }: Props) => {
+  const { user, isAdmin, isEditeur, loading, signOut } = useAdminAuth();
   const { data: compteurs } = useATraiter(isAdmin);
   const [menuOuvert, setMenuOuvert] = useState(false);
   const { pathname } = useLocation();
@@ -35,14 +38,20 @@ const AdminLayout = ({ titre, description, actions, children }: Props) => {
       </div>
     );
   }
-  if (!user || !isAdmin) return <Navigate to="/admin/login" replace />;
+  if (!user) return <Navigate to="/admin/login" replace />;
+  if (!isAdmin) {
+    // Un·e éditeur·ice n'entre que dans la rubrique L'Onde du Sud (la base applique la même règle)
+    if (isEditeur && acces !== "onde") return <Navigate to="/admin/onde" replace />;
+    if (!isEditeur) return <Navigate to="/admin/login" replace />;
+  }
+  const rubriques = isAdmin ? RUBRIQUES : RUBRIQUES.filter((r) => r.id === "onde");
 
   const total = compteurs ? Object.values(compteurs).reduce((a, b) => a + b, 0) : 0;
   const lien = "flex items-center gap-3 px-3 py-2.5 text-sm font-semibold border-2 transition-colors motion-reduce:transition-none focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-background";
 
   const nav = (
     <nav aria-label="Administration" className="flex flex-col gap-1">
-      {RUBRIQUES.map((r) => {
+      {rubriques.map((r) => {
         const n = r.id === "a-traiter" ? total : totalRubrique(compteurs, r.id);
         return (
           <NavLink
@@ -77,7 +86,7 @@ const AdminLayout = ({ titre, description, actions, children }: Props) => {
       {/* Menu : colonne fixe sur ordinateur, déroulant sur téléphone */}
       <aside className="bg-primary text-primary-foreground md:w-60 md:shrink-0 md:sticky md:top-0 md:h-screen md:overflow-y-auto">
         <div className="flex items-center justify-between px-4 py-4 md:py-6">
-          <Link to="/admin" className="font-display font-black text-lg leading-tight focus-visible:outline focus-visible:outline-2 focus-visible:outline-background">
+          <Link to={isAdmin ? "/admin" : "/admin/onde"} className="font-display font-black text-lg leading-tight focus-visible:outline focus-visible:outline-2 focus-visible:outline-background">
             Administration
             <span className="block font-mono text-[11px] font-normal tracking-widest uppercase text-accent">Podcasteur·euses du Sud</span>
           </Link>

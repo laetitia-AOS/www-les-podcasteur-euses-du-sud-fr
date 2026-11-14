@@ -19,6 +19,9 @@ const Footer = () => {
               </a>
             </li>
             <li>
+              <Link to="/onde" className="inline-flex min-h-[44px] items-center underline underline-offset-4">L'Onde du Sud</Link>
+            </li>
+            <li>
               <Link to="/partenaires" className="inline-flex min-h-[44px] items-center underline underline-offset-4">Partenaires</Link>
             </li>
             <li>

@@ -111,3 +111,12 @@
 - [x] 11. Textes alternatifs, langue
 - [x] 12. Tableau de vérification
 - [x] Revue SEO & AI search, puis scan de sécurité
+
+## L'Onde du Sud — lot 1 (lettre mensuelle sur le site, sans e-mail)
+- [ ] Rôle « editeur » (rédige / publie L'Onde seulement), page admin « Éditeurs de L'Onde » (admin seul)
+- [ ] Numéros (numéro, mois, titre, chapeau, couverture + alt, audio + voix, blocs ordonnés, statut, dates, auteur)
+- [ ] Blocs : texte (gras/italique/liens), images 1–6, extrait audio, bouton, chiffres clés 2–4 ; rubriques 01, 02…
+- [ ] Droits serveur : lecture publique des publiés, brouillons équipe seulement, suppression admin seulement, fichiers via fonction serveur (MP3 20 Mo, images 3 Mo)
+- [ ] Pages /onde, /onde/[slug] (lecteur existant), /admin/onde (liste, éditeur, aperçu, publier), lien pied de page
+- [ ] Référencement : titres, descriptions, Article, plan du site, noindex admin
+- [ ] Vérifications (tableau), scan sécurité, revue SEO — ne pas publier

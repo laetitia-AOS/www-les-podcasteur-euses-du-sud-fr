@@ -15,6 +15,8 @@ export type Episode = {
   image: string | null;
   link: string | null;
   summary?: string | null;
+  /** Page à ouvrir depuis le lecteur quand ce n'est pas une fiche de podcast (numéro de L'Onde du Sud). */
+  href?: string;
 };
 
 // Les épisodes sont enregistrés par la lecture planifiée des flux (toutes les 6 heures).

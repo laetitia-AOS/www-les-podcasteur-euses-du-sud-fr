@@ -700,6 +700,66 @@ export type Database = {
         }
         Relationships: []
       }
+      onde_numeros: {
+        Row: {
+          audio_url: string | null
+          audio_voix: string | null
+          auteur_id: string | null
+          blocs: Json
+          chapeau: string
+          couverture_alt: string | null
+          couverture_url: string | null
+          created_at: string
+          id: string
+          modifie_par: string | null
+          mois: string
+          numero: number
+          publie_le: string | null
+          slug: string
+          statut: string
+          titre: string
+          updated_at: string
+        }
+        Insert: {
+          audio_url?: string | null
+          audio_voix?: string | null
+          auteur_id?: string | null
+          blocs?: Json
+          chapeau?: string
+          couverture_alt?: string | null
+          couverture_url?: string | null
+          created_at?: string
+          id?: string
+          modifie_par?: string | null
+          mois: string
+          numero: number
+          publie_le?: string | null
+          slug: string
+          statut?: string
+          titre?: string
+          updated_at?: string
+        }
+        Update: {
+          audio_url?: string | null
+          audio_voix?: string | null
+          auteur_id?: string | null
+          blocs?: Json
+          chapeau?: string
+          couverture_alt?: string | null
+          couverture_url?: string | null
+          created_at?: string
+          id?: string
+          modifie_par?: string | null
+          mois?: string
+          numero?: number
+          publie_le?: string | null
+          slug?: string
+          statut?: string
+          titre?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       partenaires: {
         Row: {
           accroche: string | null
@@ -1333,6 +1393,43 @@ export type Database = {
       mon_evenement: { Args: { _id: string }; Returns: boolean }
       mon_lieu: { Args: { _id: string }; Returns: boolean }
       nb_venues: { Args: { _evenement_id: string }; Returns: number }
+      onde_bloc_propre: {
+        Args: { b: Json; n: number; publier: boolean }
+        Returns: Json
+      }
+      onde_donner_editeur: { Args: { _email: string }; Returns: string }
+      onde_editeurs: {
+        Args: never
+        Returns: {
+          email: string
+          nom: string
+          user_id: string
+        }[]
+      }
+      onde_fichier: {
+        Args: { label: string; required?: boolean; v: string }
+        Returns: string
+      }
+      onde_lien: {
+        Args: { label: string; required?: boolean; v: string }
+        Returns: string
+      }
+      onde_noms: {
+        Args: { _ids: string[] }
+        Returns: {
+          id: string
+          nom: string
+        }[]
+      }
+      onde_retirer_editeur: { Args: { _user_id: string }; Returns: boolean }
+      onde_texte_riche: {
+        Args: { label: string; maxlen: number; required?: boolean; v: string }
+        Returns: string
+      }
+      onde_txt: {
+        Args: { label: string; maxlen: number; required?: boolean; v: string }
+        Returns: string
+      }
       pds_collab_codes: { Args: never; Returns: string[] }
       pds_collab_depuis_texte: { Args: { t: string }; Returns: string[] }
       pds_email: { Args: { required?: boolean; v: string }; Returns: string }
@@ -1390,6 +1487,7 @@ export type Database = {
         Args: { label: string; maxlen?: number; v: string }
         Returns: string
       }
+      peut_editer_onde: { Args: never; Returns: boolean }
       peut_proposer_evenement: { Args: never; Returns: boolean }
       podcast_visible: { Args: { _id: string }; Returns: boolean }
       rapport_semaine: { Args: { _debut: string }; Returns: Json }
@@ -1400,7 +1498,7 @@ export type Database = {
       unaccent: { Args: { "": string }; Returns: string }
     }
     Enums: {
-      app_role: "admin" | "moderator" | "user"
+      app_role: "admin" | "moderator" | "user" | "editeur"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -1528,7 +1626,7 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
-      app_role: ["admin", "moderator", "user"],
+      app_role: ["admin", "moderator", "user", "editeur"],
     },
   },
 } as const

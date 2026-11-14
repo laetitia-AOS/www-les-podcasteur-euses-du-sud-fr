@@ -62,7 +62,8 @@ const ResetPassword = () => {
         _user_id: user.id,
         _role: "admin",
       });
-      navigate(hasAdmin ? "/admin" : "/mon-espace", { replace: true });
+      const { data: estEditeur } = hasAdmin ? { data: false } : await supabase.rpc("has_role", { _user_id: user.id, _role: "editeur" });
+      navigate(hasAdmin ? "/admin" : estEditeur ? "/admin/onde" : "/mon-espace", { replace: true });
       return;
     }
     navigate("/admin/login", { replace: true });

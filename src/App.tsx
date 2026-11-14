@@ -46,6 +46,11 @@ const ProposerEvenement = lazy(() => import("./pages/ProposerEvenement"));
 const Podcasts = lazy(() => import("./pages/Podcasts"));
 const Partenaires = lazy(() => import("./pages/Partenaires"));
 const AdminPartenaires = lazy(() => import("./pages/AdminPartenaires"));
+const Onde = lazy(() => import("./pages/Onde"));
+const OndeNumero = lazy(() => import("./pages/OndeNumero"));
+const AdminOnde = lazy(() => import("./pages/AdminOnde"));
+const AdminOndeNumero = lazy(() => import("./pages/AdminOndeNumero"));
+const AdminOndeApercu = lazy(() => import("./pages/AdminOndeApercu"));
 
 const queryClient = new QueryClient();
 
@@ -95,6 +100,8 @@ const App = () => (
             <Route path="/structures/:slug" element={<StructureEcoProfile />} />
             <Route path="/adherer" element={<Adhesion />} />
             <Route path="/partenaires" element={<Partenaires />} />
+            <Route path="/onde" element={<Onde />} />
+            <Route path="/onde/:slug" element={<OndeNumero />} />
             <Route path="/proposer-evenement-podcast" element={<ProposerEvenement />} />
             <Route path="/bienvenue" element={<Bienvenue />} />
             <Route path="/referencer-mon-podcast" element={<Formulaire />} />
@@ -122,6 +129,9 @@ const App = () => (
             <Route path="/admin/agenda" element={<AdminEvenements />} />
             <Route path="/admin/messages" element={<AdminContacts />} />
             <Route path="/admin/partenaires" element={<AdminPartenaires />} />
+            <Route path="/admin/onde" element={<AdminOnde />} />
+            <Route path="/admin/onde/:id" element={<AdminOndeNumero />} />
+            <Route path="/admin/onde/:id/apercu" element={<AdminOndeApercu />} />
             {/* Anciennes adresses de l'admin */}
             <Route path="/admin/adhesions" element={<AdminRedirect to="/admin/membres" />} />
             <Route path="/admin/evenements" element={<AdminRedirect to="/admin/agenda" />} />

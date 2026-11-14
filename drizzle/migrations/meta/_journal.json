@@ -246,6 +246,27 @@
       "when": 1794421480856,
       "tag": "0034_admin_a_traiter_avis",
       "breakpoints": true
+    },
+    {
+      "idx": 35,
+      "version": "7",
+      "when": 1794620005263,
+      "tag": "0035_onde_role_editeur",
+      "breakpoints": true
+    },
+    {
+      "idx": 36,
+      "version": "7",
+      "when": 1794620068808,
+      "tag": "0036_onde_numeros",
+      "breakpoints": true
+    },
+    {
+      "idx": 37,
+      "version": "7",
+      "when": 1794620120183,
+      "tag": "0037_onde_fichiers",
+      "breakpoints": true
     }
   ]
 }

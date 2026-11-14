@@ -38,3 +38,9 @@ verify_jwt = false
 
 [functions.rapport-hebdo]
 verify_jwt = false
+
+[functions.onde-fichier]
+verify_jwt = false
+
+[functions.onde-media]
+verify_jwt = false

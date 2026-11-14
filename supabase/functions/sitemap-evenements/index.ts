@@ -1,4 +1,4 @@
-// Plan du site complet : pages générales, événements publiés (à venir et archives) et fiches visibles, lus avec les droits d'un visiteur.
+// Plan du site complet : pages générales, événements publiés (à venir et archives), fiches visibles et numéros publiés de L'Onde du Sud, lus avec les droits d'un visiteur.
 // Les adresses suivent celles du site (src/lib/seo.ts) : /ecouter/… podcast, /annuaire/… pro, /studios/… studio, /structures/… structure.
 import { createClient } from "npm:@supabase/supabase-js@2.45.0";
 
@@ -31,6 +31,7 @@ Deno.serve(async (req) => {
     ["/adherer", "monthly", "0.8"],
     ["/proposer-evenement-podcast", "monthly", "0.5"],
     ["/partenaires", "monthly", "0.5"],
+    ["/onde", "monthly", "0.7"],
     ["/contact", "yearly", "0.4"],
     ["/mentions-legales", "yearly", "0.2"],
     ["/politique-de-confidentialite", "yearly", "0.2"],
@@ -67,6 +68,22 @@ Deno.serve(async (req) => {
     urls.push(`  <url>
     <loc>${esc(`${SITE_URL}${chemin(f.type_profil, f.nom_podcast)}${f.slug}`)}</loc>
     <lastmod>${String(f.created_at).slice(0, 10)}</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>`);
+  }
+
+  // L'Onde du Sud : numéros publiés seulement (la lecture visiteur ne renvoie jamais un brouillon)
+  const { data: numeros } = await supabase
+    .from("onde_numeros")
+    .select("slug, updated_at, publie_le")
+    .eq("statut", "publie")
+    .order("mois", { ascending: false })
+    .limit(1000);
+  for (const n of numeros || []) {
+    urls.push(`  <url>
+    <loc>${esc(`${SITE_URL}/onde/${n.slug}`)}</loc>
+    <lastmod>${String(n.updated_at || n.publie_le).slice(0, 10)}</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>`);

@@ -14,7 +14,8 @@ const ctrl = "w-11 h-11 inline-flex items-center justify-center hover:text-accen
 const PlayerBar = () => {
   const { episode, playing, current, duration, toggle, seek, skip, close, load } = usePlayer();
   const { pathname } = useLocation();
-  const isAdmin = pathname.startsWith("/admin");
+  // Administration : pas de lecteur, sauf sur l'aperçu d'un numéro de L'Onde (pour écouter avant de publier)
+  const isAdmin = pathname.startsWith("/admin") && !/^\/admin\/onde\/[^/]+\/apercu$/.test(pathname);
   const prive = PRIVE.some((r) => r.test(pathname));
   const welcomeDone = useRef(false);
 
@@ -27,7 +28,7 @@ const PlayerBar = () => {
 
   if (isAdmin || (!episode && prive)) return null;
 
-  const podcastHref = episode ? `/ecouter/${episode.podcastSlug || episode.podcastId}` : "/ecouter";
+  const podcastHref = episode ? episode.href || `/ecouter/${episode.podcastSlug || episode.podcastId}` : "/ecouter";
 
   return (
     <>
@@ -40,7 +41,7 @@ const PlayerBar = () => {
           <div className="mx-auto w-full max-w-[1240px] px-4 sm:px-8 py-3 flex flex-wrap sm:flex-nowrap items-center gap-x-4 gap-y-2">
             <Link to={podcastHref} className="group flex items-center gap-3 min-w-0 flex-1 sm:flex-none sm:w-[300px]">
               {episode.image && (
-                <img src={episode.image} alt={`Pochette du podcast ${episode.podcastName}`} className="w-11 h-11 object-cover shrink-0" />
+                <img src={episode.image} alt={episode.href ? `Couverture de ${episode.podcastName}` : `Pochette du podcast ${episode.podcastName}`} className="w-11 h-11 object-cover shrink-0" />
               )}
               <span className="min-w-0">
                 <span className="block font-bold text-sm truncate group-hover:underline underline-offset-4">{episode.title}</span>
@@ -81,7 +82,7 @@ const PlayerBar = () => {
             </div>
 
             <Link to={podcastHref} className="hidden md:inline-flex min-h-[44px] items-center text-sm font-bold underline underline-offset-4 shrink-0">
-              Voir la fiche
+              {episode.href ? "Voir la page" : "Voir la fiche"}
             </Link>
             <button onClick={close} className={`${ctrl} shrink-0`} aria-label="Arrêter l'écoute">
               <Square className="w-4 h-4" fill="currentColor" aria-hidden />
