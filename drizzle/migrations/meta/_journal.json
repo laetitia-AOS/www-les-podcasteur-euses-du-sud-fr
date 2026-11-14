@@ -372,6 +372,13 @@
       "when": 1794672314443,
       "tag": "0052_onde_nouveaux_membres_periode_25_24",
       "breakpoints": true
+    },
+    {
+      "idx": 53,
+      "version": "7",
+      "when": 1794673737846,
+      "tag": "0053_evenements_veille_serveur_en_relecture",
+      "breakpoints": true
     }
   ]
 }

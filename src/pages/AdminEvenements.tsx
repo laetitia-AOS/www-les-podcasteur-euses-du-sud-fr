@@ -534,6 +534,7 @@ const AdminEvenements = () => {
                     <p className="font-medium text-foreground truncate">{evt.titre}</p>
                     <Badge variant="outline" className="text-xs">{STATUT_LABEL[evt.statut] || evt.statut}</Badge>
                     {evt.origine === "membre" && <Badge variant="outline" className="text-xs">Proposé par {evt.propose_par_nom ? formatName(evt.propose_par_nom) : "un membre"}</Badge>}
+                    {evt.origine !== "membre" && evt.propose_par_nom && <Badge variant="outline" className="text-xs">Proposé par {evt.propose_par_nom}</Badge>}
                     {numerosEvenement(etatOnde, evt.id).length > 0 && <Badge className="text-xs rounded-none whitespace-nowrap">{badgeOnde(numerosEvenement(etatOnde, evt.id))}</Badge>}
                   </div>
                   {evt.sous_titre && <p className="text-xs text-muted-foreground">{evt.sous_titre}</p>}
