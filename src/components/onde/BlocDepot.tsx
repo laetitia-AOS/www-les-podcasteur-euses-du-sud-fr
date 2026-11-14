@@ -4,6 +4,8 @@ import { Link } from "react-router-dom";
 import { AlertTriangle, ExternalLink, X } from "lucide-react";
 import TexteRiche from "@/components/onde/TexteRiche";
 import BoutonEcoute, { type Resoudre } from "@/components/onde/BoutonEcoute";
+import { QrEcoute, useImpression } from "@/components/onde/impressionOnde";
+import { adresseImprimee } from "@/lib/ondePied";
 import { Champ, ChampTexteRiche } from "@/components/onde/champsOnde";
 import { Input } from "@/components/ui/input";
 import { btnSecondary, linkUnderline } from "@/lib/pds";
@@ -27,6 +29,7 @@ export const VueDepot = ({ b, n, resoudre }: { b: BlocDepot; n: NumeroOnde; reso
     ? { id: b.id, type: "audio", url: b.url, titre: b.titre || "Extrait", podcast: "", createur: qui ? `${qui.verbe} ${qui.nom}` : "", lien: qui?.href || "" }
     : undefined;
   const lien = b.lien && lienSur(b.lien) ? b.lien : null;
+  const impression = useImpression();
   return (
     <div className={`border-2 border-encre bg-surface ${photo ? "grid sm:grid-cols-[minmax(0,5fr)_minmax(0,7fr)]" : ""}`}>
       {photo && (
@@ -35,7 +38,11 @@ export const VueDepot = ({ b, n, resoudre }: { b: BlocDepot; n: NumeroOnde; reso
       <div className="p-5 sm:p-6 space-y-4 min-w-0">
         {b.titre && <h2 className="title-section text-[28px] sm:text-[34px] leading-tight">{b.titre}</h2>}
         {b.texte && <TexteRiche texte={b.texte} className="text-[17px] leading-relaxed" />}
-        {(extrait || lien) && (
+        {impression && (extrait || (lien && !qui?.ressource)) && <QrEcoute libelle={b.titre ? `Écouter « ${b.titre} »` : "Écouter le son déposé"} />}
+        {impression && lien && qui?.ressource && (
+          <p className="text-[15px]"><span className="font-bold">Voir la ressource : </span><span className="font-mono break-all">{adresseImprimee(lien)}</span></p>
+        )}
+        {!impression && (extrait || lien) && (
           <div className="flex flex-wrap items-center gap-4">
             {extrait && (
               <span className="inline-flex items-center gap-3">

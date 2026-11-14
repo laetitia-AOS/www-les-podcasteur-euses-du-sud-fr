@@ -1,12 +1,15 @@
 // « Recevoir L'Onde du Sud chaque mois » : formulaire d'abonnement, sur /onde, en bas des numéros,
 // dans le pied de page et sur l'accueil. Le serveur (onde_inscrire) vérifie l'adresse, enregistre le
-// consentement et limite les envois répétés. Un·e adhérent·e à jour connecté·e voit un message à la place.
+// consentement et limite les envois répétés. Un·e adhérent·e à jour connecté·e voit un message à la place :
+// « Tu reçois déjà… », ou « Tu ne reçois plus… » + « Me réabonner » s'il ou elle s'est désinscrit·e.
 import { useId, useState } from "react";
 import { Link } from "react-router-dom";
+import { useQueryClient } from "@tanstack/react-query";
 import { z } from "zod";
 import { btnPrimary, linkUnderline } from "@/lib/pds";
 import { messageServeur } from "@/lib/inscription";
-import { CONSENTEMENT_ONDE, NOM_ONDE, inscrireOnde, useMembreOnde } from "@/lib/onde";
+import { CONSENTEMENT_ONDE, NOM_ONDE, inscrireOnde } from "@/lib/onde";
+import { reabonnerMembre, useEtatLecteur, type EtatLecteur } from "@/lib/ondePied";
 import { ONDE_DEPOSER } from "@/lib/ondeDepots";
 
 const schema = z.object({
@@ -26,6 +29,39 @@ export const DejaMembreOnde = ({ className = "" }: { className?: string }) => (
     </Link>
   </div>
 );
+
+/** Adhérent·e à jour connecté·e qui s'est désinscrit·e : réabonnement en un clic (adresse lue dans la session). */
+export const PlusAbonneOnde = ({ className = "" }: { className?: string }) => {
+  const qc = useQueryClient();
+  const [etat, setEtat] = useState<"idle" | "envoi" | "erreur">("idle");
+  const [msg, setMsg] = useState("");
+  const reabonner = async () => {
+    setEtat("envoi");
+    try {
+      await reabonnerMembre();
+      qc.setQueryData<EtatLecteur>(["onde-membre"], "membre");
+      setEtat("idle");
+    } catch (e) {
+      setMsg(messageServeur(e as { code?: string; message?: string }, "Le réabonnement n'a pas pu être enregistré. Réessaie dans un instant."));
+      setEtat("erreur");
+    }
+  };
+  return (
+    <div role="status" className={className}>
+      <p className="text-[17px] font-bold max-w-[60ch]">Tu ne reçois plus {NOM_ONDE}.</p>
+      <button type="button" onClick={reabonner} disabled={etat === "envoi"} className={`${btnPrimary} mt-3`}>
+        {etat === "envoi" ? "Un instant…" : "Me réabonner"}
+      </button>
+      {etat === "erreur" && <p role="alert" className="mt-2 text-destructive font-semibold">{msg}</p>}
+    </div>
+  );
+};
+
+/** Message à la place du formulaire pour un·e adhérent·e à jour connecté·e ; null sinon. */
+export const MessageMembreOnde = ({ etat, className = "" }: { etat: EtatLecteur | undefined; className?: string }) =>
+  etat === "membre" ? <DejaMembreOnde className={className} />
+  : etat === "membre_desinscrit" ? <PlusAbonneOnde className={className} />
+  : null;
 
 /** Champs, case et bouton. « ligne » : version compacte (pied de page, accueil), bouton « Je m'abonne ». */
 export const FormulaireOnde = ({ ligne = false }: { ligne?: boolean }) => {
@@ -116,14 +152,15 @@ export const FormulaireOnde = ({ ligne = false }: { ligne?: boolean }) => {
  */
 const InscriptionOnde = ({ className = "", ancre, mention }: { className?: string; ancre?: string; mention?: string }) => {
   const id = useId();
-  const { data: membre } = useMembreOnde();
+  const { data: lecteur } = useEtatLecteur();
+  const membre = lecteur === "membre" || lecteur === "membre_desinscrit";
 
   return (
     <section id={ancre} aria-labelledby={`${id}-titre`} className={`scroll-mt-24 border-2 border-encre bg-surface p-5 sm:p-7 ${className}`}>
       {mention && <p className="font-mono text-sm font-bold uppercase tracking-wider text-primary mb-2">{mention}</p>}
       <h2 id={`${id}-titre`} className="title-section text-[26px] sm:text-[32px]">Recevoir {NOM_ONDE} chaque mois</h2>
       {membre ? (
-        <DejaMembreOnde className="mt-3" />
+        <MessageMembreOnde etat={lecteur} className="mt-3" />
       ) : (
         <>
           <p className="mt-2 text-[15px] max-w-[60ch]">

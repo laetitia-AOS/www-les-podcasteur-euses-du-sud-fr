@@ -5,6 +5,7 @@ import SEOHead from "@/components/SEOHead";
 import NumeroVue from "@/components/onde/NumeroVue";
 import InscriptionOnde from "@/components/onde/InscriptionOnde";
 import { btnSecondary, container } from "@/lib/pds";
+import { useAncre } from "@/hooks/useAncre";
 import { PAGES, breadcrumbLd } from "@/lib/seo";
 import { NOM_ONDE, articleOndeLd, descriptionOnde, ondeHref, titreSeoOnde, useNumeroPublie } from "@/lib/onde";
 
@@ -12,6 +13,8 @@ import { NOM_ONDE, articleOndeLd, descriptionOnde, ondeHref, titreSeoOnde, useNu
 const OndeNumero = () => {
   const { slug } = useParams();
   const { data: n, isLoading } = useNumeroPublie(slug);
+  // Liens courts du PDF (/o/1/02) et « Recevoir L'Onde chaque mois » : #b02, #ecouter, #recevoir
+  useAncre(!!n);
 
   if (isLoading) {
     return (
@@ -65,9 +68,9 @@ const OndeNumero = () => {
             <li aria-current="page" className="text-muted-foreground">n°{n.numero}</li>
           </ol>
         </nav>
-        <NumeroVue n={n} />
+        <NumeroVue n={n} lienAbonnement="#recevoir" />
         <div className={`${container} pb-16`}>
-          <InscriptionOnde className="mb-10 max-w-[860px]" />
+          <InscriptionOnde ancre="recevoir" className="mb-10 max-w-[860px]" />
           <Link to={PAGES.onde} className={btnSecondary}>Tous les numéros</Link>
         </div>
       </main>

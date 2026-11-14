@@ -5,6 +5,7 @@ import SEOHead from "@/components/SEOHead";
 import InscriptionOnde from "@/components/onde/InscriptionOnde";
 import EncartDepot from "@/components/onde/EncartDepot";
 import { container, h1Ligne } from "@/lib/pds";
+import { useAncre } from "@/hooks/useAncre";
 import { PAGES, PAGES_SEO, SITE_URL, breadcrumbLd } from "@/lib/seo";
 import { NOM_COMPLET_ONDE, NOM_ONDE, etiquetteNumero, ondeHref, useNumerosPublies } from "@/lib/onde";
 
@@ -13,6 +14,8 @@ const Onde = () => {
   const { data: numeros = [], isLoading, isError } = useNumerosPublies();
   // Aucun numéro publié : l'abonnement passe en haut de la page, sous le titre
   const aucunNumero = !isLoading && !isError && numeros.length === 0;
+  // /onde#recevoir (bouton des numéros et des e-mails) : le formulaire n'existe qu'une fois la liste chargée
+  useAncre(!isLoading);
 
   const jsonLd = [
     breadcrumbLd([

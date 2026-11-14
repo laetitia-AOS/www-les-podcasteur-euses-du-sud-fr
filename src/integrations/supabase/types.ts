@@ -989,6 +989,27 @@ export type Database = {
         }
         Relationships: []
       }
+      onde_reglages: {
+        Row: {
+          id: boolean
+          lien_don: string | null
+          modifie_par: string | null
+          updated_at: string
+        }
+        Insert: {
+          id?: boolean
+          lien_don?: string | null
+          modifie_par?: string | null
+          updated_at?: string
+        }
+        Update: {
+          id?: boolean
+          lien_don?: string | null
+          modifie_par?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
       partenaires: {
         Row: {
           accroche: string | null
@@ -1623,6 +1644,7 @@ export type Database = {
           prenom: string
         }[]
       }
+      mon_abonnement_onde: { Args: never; Returns: Json }
       mon_adhesion: {
         Args: never
         Returns: {
@@ -1832,6 +1854,8 @@ export type Database = {
         Args: { label: string; required?: boolean; v: string }
         Returns: string
       }
+      onde_lien_don: { Args: never; Returns: string }
+      onde_me_reabonner: { Args: never; Returns: string }
       onde_membres_calcul: {
         Args: { _mois: string; _numero_id: string }
         Returns: {
@@ -1867,6 +1891,7 @@ export type Database = {
         Args: { _bloc_id: string; _mois: string; _numero_id: string }
         Returns: Json
       }
+      onde_regler_lien_don: { Args: { _lien: string }; Returns: string }
       onde_reinscrire: { Args: { _jeton: string }; Returns: string }
       onde_retirer_editeur: { Args: { _user_id: string }; Returns: boolean }
       onde_supprimer_abonne: { Args: { _id: string }; Returns: boolean }

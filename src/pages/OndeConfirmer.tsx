@@ -6,7 +6,9 @@ import SEOHead from "@/components/SEOHead";
 import { supabase } from "@/integrations/supabase/client";
 import { btnPrimary, btnSecondary, container } from "@/lib/pds";
 import { PAGES } from "@/lib/seo";
+import { useQueryClient } from "@tanstack/react-query";
 import { NOM_ONDE, ONDE_CONFIRMER, jetonValide } from "@/lib/onde";
+import { retenirAbonnement } from "@/lib/ondePied";
 
 type Etat = "chargement" | "actif" | "desinscrit" | "introuvable" | "erreur";
 
@@ -15,14 +17,17 @@ const OndeConfirmer = () => {
   const [params] = useSearchParams();
   const jeton = params.get("jeton");
   const [etat, setEtat] = useState<Etat>(jetonValide(jeton) ? "chargement" : "introuvable");
+  const qc = useQueryClient();
 
   useEffect(() => {
     if (!jetonValide(jeton)) return;
     supabase.rpc("onde_confirmer", { _jeton: jeton.trim() }).then(({ data, error }) => {
       if (error) return setEtat("erreur");
       setEtat(data === "actif" || data === "desinscrit" ? data : "introuvable");
+      // Abonnement confirmé depuis cet appareil : le bouton « Recevoir L'Onde chaque mois » des numéros s'efface
+      if (data === "actif") { retenirAbonnement(true); qc.invalidateQueries({ queryKey: ["onde-membre"] }); }
     });
-  }, [jeton]);
+  }, [jeton, qc]);
 
   return (
     <>

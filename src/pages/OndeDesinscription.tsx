@@ -6,7 +6,9 @@ import SEOHead from "@/components/SEOHead";
 import { supabase } from "@/integrations/supabase/client";
 import { btnPrimary, btnSecondary, container } from "@/lib/pds";
 import { PAGES } from "@/lib/seo";
+import { useQueryClient } from "@tanstack/react-query";
 import { NOM_ONDE, ONDE_DESINSCRIPTION, jetonValide } from "@/lib/onde";
+import { retenirAbonnement } from "@/lib/ondePied";
 
 type Etat = "chargement" | "desinscrit" | "reinscription" | "reinscrit" | "introuvable" | "erreur";
 
@@ -16,14 +18,16 @@ const OndeDesinscription = () => {
   const jeton = params.get("jeton");
   const [etat, setEtat] = useState<Etat>(jetonValide(jeton) ? "chargement" : "introuvable");
   const [erreurReinscription, setErreurReinscription] = useState(false);
+  const qc = useQueryClient();
 
   useEffect(() => {
     if (!jetonValide(jeton)) return;
     supabase.rpc("onde_desinscrire", { _jeton: jeton.trim() }).then(({ data, error }) => {
       if (error) return setEtat("erreur");
       setEtat(data === "desinscrit" ? "desinscrit" : "introuvable");
+      if (data === "desinscrit") { retenirAbonnement(false); qc.invalidateQueries({ queryKey: ["onde-membre"] }); }
     });
-  }, [jeton]);
+  }, [jeton, qc]);
 
   const reinscrire = async () => {
     if (!jetonValide(jeton)) return;
@@ -35,6 +39,8 @@ const OndeDesinscription = () => {
       setEtat("desinscrit");
       return;
     }
+    retenirAbonnement(true);
+    qc.invalidateQueries({ queryKey: ["onde-membre"] });
     setEtat("reinscrit");
   };
 

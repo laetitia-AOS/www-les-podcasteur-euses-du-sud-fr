@@ -4,6 +4,7 @@ import { Globe } from "lucide-react";
 import MemberAvatar from "@/components/MemberAvatar";
 import TexteRiche from "@/components/onde/TexteRiche";
 import BoutonEcoute, { type Resoudre } from "@/components/onde/BoutonEcoute";
+import { QrEcoute, useImpression } from "@/components/onde/impressionOnde";
 import { eventHref } from "@/components/agenda/EventRow";
 import { cityFromAddress, isOnline } from "@/components/home/useHomeData";
 import { dateLongue, horairesParis, jourCourt, readableTitle, surPlusieursJours } from "@/lib/events";
@@ -57,6 +58,7 @@ export const VueEvenements = ({ b }: { b: BlocEvenements }) => {
 
 export const VuePodcast = ({ b, n, resoudre }: { b: BlocPodcast; n: NumeroOnde; resoudre: Resoudre }) => {
   const { data: p, isLoading } = usePodcastChoisi(b.podcast_id || undefined);
+  const impression = useImpression();
   if (b.podcast_id && isLoading) return <Attente />;
   const nomPodcast = p ? titreFiche(p) : "";
   const createur = p ? fullName(p.prenom, p.nom) : "";
@@ -82,7 +84,8 @@ export const VuePodcast = ({ b, n, resoudre }: { b: BlocPodcast; n: NumeroOnde; 
           </div>
         )}
         {b.texte && <TexteRiche texte={b.texte} className="text-[17px] leading-relaxed" />}
-        {extrait && (
+        {extrait && impression && <QrEcoute libelle={extrait.titre || "Écouter l'extrait"} />}
+        {extrait && !impression && (
           <div className="flex items-center gap-4">
             <BoutonEcoute n={n} extrait={extrait} resoudre={resoudre} label={extrait.titre || "extrait"} />
             <p className="font-bold leading-snug">{extrait.titre}</p>

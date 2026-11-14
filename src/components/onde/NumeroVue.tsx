@@ -5,6 +5,9 @@ import BoutonEcoute, { type Resoudre } from "@/components/onde/BoutonEcoute";
 import { VueEvenements, VueNouveauxMembres, VuePodcast } from "@/components/onde/BlocsAuto";
 import { VueDepot } from "@/components/onde/BlocDepot";
 import EncartDepot from "@/components/onde/EncartDepot";
+import PiedNumero from "@/components/onde/PiedNumero";
+import { ImpressionCtx, QrEcoute, SonCtx, useImpression } from "@/components/onde/impressionOnde";
+import { ANCRE_ECOUTER, ancreBloc } from "@/lib/ondePied";
 import { container, btnPrimary, linkUnderline } from "@/lib/pds";
 import { NOM_ONDE, etiquetteNumero, lienSur, numeroRubrique, type Bloc, type Chiffre, type NumeroOnde } from "@/lib/onde";
 
@@ -38,6 +41,7 @@ const Lien = ({ href, className, children }: { href: string; className: string; 
   );
 
 const ContenuBloc = ({ b, n, resoudre }: { b: Bloc; n: NumeroOnde; resoudre: Resoudre }) => {
+  const impression = useImpression();
   switch (b.type) {
     case "texte":
       return (
@@ -66,7 +70,7 @@ const ContenuBloc = ({ b, n, resoudre }: { b: Bloc; n: NumeroOnde; resoudre: Res
       const qui = [b.podcast, b.createur].filter(Boolean).join(" · ");
       return (
         <div className="border-2 border-encre bg-surface p-5 flex items-start gap-4">
-          <BoutonEcoute n={n} extrait={b} resoudre={resoudre} label={b.titre || "extrait"} />
+          {!impression && <BoutonEcoute n={n} extrait={b} resoudre={resoudre} label={b.titre || "extrait"} />}
           <div className="min-w-0">
             <p className="font-bold text-[18px] leading-snug">{b.titre || "Extrait"}</p>
             {qui && <p className="text-[15px] text-muted-foreground mt-0.5">{qui}</p>}
@@ -75,6 +79,7 @@ const ContenuBloc = ({ b, n, resoudre }: { b: Bloc; n: NumeroOnde; resoudre: Res
                 Écouter l'épisode complet <ExternalLink className="w-3.5 h-3.5" aria-hidden />
               </Lien>
             )}
+            {impression && b.url && <QrEcoute libelle="Écouter l'extrait" className="mt-4" />}
           </div>
         </div>
       );
@@ -104,11 +109,16 @@ const ContenuBloc = ({ b, n, resoudre }: { b: Bloc; n: NumeroOnde; resoudre: Res
 
 /**
  * Un numéro de L'Onde du Sud tel qu'il s'affiche sur le site : titre (seul H1), chapeau,
- * bandeau « Écouter ce numéro », couverture puis blocs numérotés 01, 02, 03…, et l'encart « Déposer pour L'Onde ».
+ * bandeau « Écouter ce numéro », couverture puis blocs numérotés 01, 02, 03…, l'encart « Déposer pour L'Onde »
+ * et le pied fixe (« Ce que l'adhésion t'ouvre », abonnement, adhésion, don).
  * « resoudre » : pour l'aperçu d'un brouillon, remplace les adresses des fichiers par des liens temporaires.
+ * « impression » : version PDF (admin), chaque son remplacé par un QR code et un lien court.
+ * « lienAbonnement » : cible du bouton « Recevoir L'Onde chaque mois » (formulaire de la page, sinon /onde#recevoir).
+ * Ancres : #ecouter (version audio du numéro), #b01, #b02… (blocs), cibles des liens courts /o/1, /o/1/02.
  */
-const NumeroVue = ({ n, resoudre = identite }: { n: NumeroOnde; resoudre?: Resoudre }) => (
-  <article>
+const NumeroVue = ({ n, resoudre = identite, impression = false, lienAbonnement }: { n: NumeroOnde; resoudre?: Resoudre; impression?: boolean; lienAbonnement?: string }) => (
+  <ImpressionCtx.Provider value={impression}>
+  <article className={impression ? "onde-pdf" : undefined}>
     <header className={`${container} pt-6 pb-8`}>
       <p className="font-mono text-sm font-bold uppercase tracking-wider text-primary">{NOM_ONDE} · {etiquetteNumero(n)}</p>
       <h1 className="title-section text-[40px] sm:text-[56px] lg:text-[64px] mt-2 max-w-[22ch]">{n.titre || "Sans titre"}</h1>
@@ -116,13 +126,21 @@ const NumeroVue = ({ n, resoudre = identite }: { n: NumeroOnde; resoudre?: Resou
     </header>
 
     {n.audio_url && (
-      <section aria-label="Version audio du numéro" className="bg-primary text-primary-foreground">
+      <section id={ANCRE_ECOUTER} aria-label="Version audio du numéro" className="scroll-mt-24 bg-primary text-primary-foreground break-inside-avoid">
         <div className={`${container} py-5 flex items-center gap-4`}>
-          <BoutonEcoute n={n} resoudre={resoudre} label="ce numéro" />
-          <div className="min-w-0">
-            <p className="font-display font-black text-[22px] sm:text-[26px] leading-tight">Écouter ce numéro</p>
-            {n.audio_voix && <p className="text-[15px] text-primary-foreground/85">Lu par {n.audio_voix}, la voix du mois</p>}
-          </div>
+          {impression ? (
+            <SonCtx.Provider value={{ numero: n.numero }}>
+              <QrEcoute libelle={n.audio_voix ? `Écouter ce numéro, lu par ${n.audio_voix}` : "Écouter ce numéro"} />
+            </SonCtx.Provider>
+          ) : (
+            <>
+              <BoutonEcoute n={n} resoudre={resoudre} label="ce numéro" />
+              <div className="min-w-0">
+                <p className="font-display font-black text-[22px] sm:text-[26px] leading-tight">Écouter ce numéro</p>
+                {n.audio_voix && <p className="text-[15px] text-primary-foreground/85">Lu par {n.audio_voix}, la voix du mois</p>}
+              </div>
+            </>
+          )}
         </div>
       </section>
     )}
@@ -133,21 +151,25 @@ const NumeroVue = ({ n, resoudre = identite }: { n: NumeroOnde; resoudre?: Resou
       </div>
     )}
 
-    <div className={`${container} py-12 md:py-16`}>
-      <div className="max-w-[820px] space-y-14">
+    <div className={`${container} py-12 md:py-16 print:py-8`}>
+      <div className="max-w-[820px] space-y-14 print:space-y-10">
         {n.blocs.map((b, i) => (
-          <section key={b.id || i} aria-labelledby={`rubrique-${i}`}>
-            <p id={`rubrique-${i}`} className="font-mono text-sm font-bold uppercase tracking-wider text-accent-text pb-2 mb-5 border-b-2 border-encre">
+          <section key={b.id || i} id={ancreBloc(numeroRubrique(i))} aria-labelledby={`rubrique-${i}`} className="scroll-mt-24">
+            <p id={`rubrique-${i}`} className="font-mono text-sm font-bold uppercase tracking-wider text-accent-text pb-2 mb-5 border-b-2 border-encre break-after-avoid">
               <span className="text-foreground">{numeroRubrique(i)}</span>
               {b.rubrique ? <> — {b.rubrique}</> : null}
             </p>
-            <ContenuBloc b={b} n={n} resoudre={resoudre} />
+            <SonCtx.Provider value={{ numero: n.numero, rubrique: numeroRubrique(i) }}>
+              <ContenuBloc b={b} n={n} resoudre={resoudre} />
+            </SonCtx.Provider>
           </section>
         ))}
         <EncartDepot />
+        <PiedNumero lienAbonnement={lienAbonnement} />
       </div>
     </div>
   </article>
+  </ImpressionCtx.Provider>
 );
 
 export default NumeroVue;
