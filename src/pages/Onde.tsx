@@ -2,6 +2,7 @@ import { Link } from "react-router-dom";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import SEOHead from "@/components/SEOHead";
+import InscriptionOnde from "@/components/onde/InscriptionOnde";
 import { container, h1Ligne } from "@/lib/pds";
 import { PAGES, PAGES_SEO, SITE_URL, breadcrumbLd } from "@/lib/seo";
 import { NOM_COMPLET_ONDE, NOM_ONDE, etiquetteNumero, ondeHref, useNumerosPublies } from "@/lib/onde";
@@ -81,6 +82,8 @@ const Onde = () => {
               ))}
             </ul>
           </div>
+
+          <InscriptionOnde className="mt-14 max-w-[860px]" />
         </div>
       </main>
       <Footer />

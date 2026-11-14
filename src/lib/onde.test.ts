@@ -94,3 +94,19 @@ describe("L'Onde du Sud", () => {
     expect(moisSuivant("2027-01-01")).toBe("2027-02-01");
   });
 });
+
+import { jetonValide, lienConfirmationOnde, lienDesinscriptionOnde } from "./onde";
+
+describe("abonné·es de L'Onde : liens par jeton", () => {
+  it("n'accepte que des jetons au bon format", () => {
+    expect(jetonValide("3f2b8c1e-9d4a-4c7b-8e21-5a6f0b9c2d13")).toBe(true);
+    expect(jetonValide("abc")).toBe(false);
+    expect(jetonValide("")).toBe(false);
+    expect(jetonValide(null)).toBe(false);
+  });
+  it("construit les liens de confirmation et de désinscription sur l'adresse www du site", () => {
+    const j = "3f2b8c1e-9d4a-4c7b-8e21-5a6f0b9c2d13";
+    expect(lienConfirmationOnde(j)).toBe(`https://www.les-podcasteur-euses-du-sud.fr/onde/confirmer?jeton=${j}`);
+    expect(lienDesinscriptionOnde(j)).toBe(`https://www.les-podcasteur-euses-du-sud.fr/onde/desinscription?jeton=${j}`);
+  });
+});

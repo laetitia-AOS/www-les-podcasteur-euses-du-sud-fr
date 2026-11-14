@@ -6,6 +6,7 @@ import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import AdminLayout from "@/components/admin/AdminLayout";
 import { AdminOnglets, Panneau, useOnglet } from "@/components/admin/AdminOnglets";
+import AbonnesOnde from "@/components/onde/AbonnesOnde";
 import { useAdminAuth } from "@/hooks/useAdminAuth";
 import {
   AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription,
@@ -23,6 +24,7 @@ import {
 const ONGLETS_ADMIN = [
   { id: "numeros", label: "Numéros" },
   { id: "editeurs", label: "Éditeurs de L'Onde" },
+  { id: "abonnes", label: "Abonnés" },
 ];
 
 const AdminOnde = () => {
@@ -152,6 +154,12 @@ const AdminOnde = () => {
               ))}
             </ol>
           )}
+        </Panneau>
+      )}
+
+      {isAdmin && onglet === "abonnes" && (
+        <Panneau id="abonnes">
+          <AbonnesOnde />
         </Panneau>
       )}
 

@@ -700,6 +700,57 @@ export type Database = {
         }
         Relationships: []
       }
+      onde_abonnes: {
+        Row: {
+          confirme_le: string | null
+          consentement_le: string | null
+          consentement_texte: string | null
+          created_at: string
+          desinscrit_le: string | null
+          email: string
+          essais: number
+          essais_depuis: string
+          id: string
+          jeton: string
+          prenom: string | null
+          source: string
+          statut: string
+          updated_at: string
+        }
+        Insert: {
+          confirme_le?: string | null
+          consentement_le?: string | null
+          consentement_texte?: string | null
+          created_at?: string
+          desinscrit_le?: string | null
+          email: string
+          essais?: number
+          essais_depuis?: string
+          id?: string
+          jeton?: string
+          prenom?: string | null
+          source?: string
+          statut?: string
+          updated_at?: string
+        }
+        Update: {
+          confirme_le?: string | null
+          consentement_le?: string | null
+          consentement_texte?: string | null
+          created_at?: string
+          desinscrit_le?: string | null
+          email?: string
+          essais?: number
+          essais_depuis?: string
+          id?: string
+          jeton?: string
+          prenom?: string | null
+          source?: string
+          statut?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       onde_numeros: {
         Row: {
           audio_url: string | null
@@ -1393,6 +1444,23 @@ export type Database = {
       mon_evenement: { Args: { _id: string }; Returns: boolean }
       mon_lieu: { Args: { _id: string }; Returns: boolean }
       nb_venues: { Args: { _evenement_id: string }; Returns: number }
+      onde_abonnes_bilan: { Args: never; Returns: Json }
+      onde_abonnes_liste: {
+        Args: never
+        Returns: {
+          adherent: boolean
+          confirme_le: string
+          consentement_le: string
+          consentement_texte: string
+          created_at: string
+          desinscrit_le: string
+          email: string
+          id: string
+          prenom: string
+          source: string
+          statut: string
+        }[]
+      }
       onde_bloc_propre: {
         Args: { b: Json; n: number; publier: boolean }
         Returns: Json
@@ -1410,6 +1478,16 @@ export type Database = {
           ville: string
         }[]
       }
+      onde_confirmer: { Args: { _jeton: string }; Returns: string }
+      onde_desinscrire: { Args: { _jeton: string }; Returns: string }
+      onde_destinataires: {
+        Args: never
+        Returns: {
+          email: string
+          origine: string
+          prenom: string
+        }[]
+      }
       onde_donner_editeur: { Args: { _email: string }; Returns: string }
       onde_editeurs: {
         Args: never
@@ -1421,6 +1499,15 @@ export type Database = {
       }
       onde_fichier: {
         Args: { label: string; required?: boolean; v: string }
+        Returns: string
+      }
+      onde_inscrire: {
+        Args: {
+          _consentement: boolean
+          _email: string
+          _prenom: string
+          _source: string
+        }
         Returns: string
       }
       onde_lien: {
@@ -1462,7 +1549,10 @@ export type Database = {
         Args: { _bloc_id: string; _mois: string; _numero_id: string }
         Returns: Json
       }
+      onde_reinscrire: { Args: { _jeton: string }; Returns: string }
       onde_retirer_editeur: { Args: { _user_id: string }; Returns: boolean }
+      onde_supprimer_abonne: { Args: { _id: string }; Returns: boolean }
+      onde_texte_consentement: { Args: { _source: string }; Returns: string }
       onde_texte_riche: {
         Args: { label: string; maxlen: number; required?: boolean; v: string }
         Returns: string

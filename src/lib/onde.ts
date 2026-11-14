@@ -447,3 +447,40 @@ export const envoyerFichierOnde = async (numeroId: string, file: File, sorte: "i
   if (!r.ok || !json.url) throw new Error(json.error || "Le fichier n'a pas pu être envoyé. Réessayez.");
   return json.url as string;
 };
+
+// ——— Abonné·es (lot 3) ———
+// Inscription, confirmation et désinscription passent par des fonctions serveur (onde_inscrire, onde_confirmer,
+// onde_desinscrire, onde_reinscrire) : la liste n'est jamais lisible depuis le navigateur, sauf par les admins.
+
+export const ONDE_CONFIRMER = "/onde/confirmer";
+export const ONDE_DESINSCRIPTION = "/onde/desinscription";
+
+/** Textes des cases de consentement (le serveur enregistre les mêmes, avec la date). */
+export const CONSENTEMENT_ONDE = "J'accepte de recevoir L'Onde du Sud par e-mail. Je peux me désinscrire à tout moment.";
+export const CONSENTEMENT_ONDE_EVENEMENT = "Je veux aussi recevoir L'Onde du Sud, la lettre mensuelle";
+
+export type SourceAbonne = "onde" | "evenement" | "adhesion";
+export type StatutAbonne = "en_attente" | "actif" | "desinscrit";
+
+export const LIBELLE_STATUT_ABONNE: Record<StatutAbonne, string> = {
+  en_attente: "En attente de confirmation",
+  actif: "Actif",
+  desinscrit: "Désinscrit·e",
+};
+export const LIBELLE_SOURCE_ABONNE: Record<SourceAbonne, string> = {
+  onde: "Formulaire L'Onde",
+  evenement: "Inscription à un événement",
+  adhesion: "Adhésion",
+};
+
+const RE_JETON = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+/** Un jeton de lien de confirmation ou de désinscription a toujours ce format. */
+export const jetonValide = (j?: string | null): j is string => !!j && RE_JETON.test(j.trim());
+
+/** Liens envoyés par e-mail (lot 4). */
+export const lienConfirmationOnde = (jeton: string) => `${SITE_URL}${ONDE_CONFIRMER}?jeton=${encodeURIComponent(jeton)}`;
+export const lienDesinscriptionOnde = (jeton: string) => `${SITE_URL}${ONDE_DESINSCRIPTION}?jeton=${encodeURIComponent(jeton)}`;
+
+/** Inscription : même réponse que l'adresse soit nouvelle ou déjà abonnée. */
+export const inscrireOnde = (prenom: string | null, email: string, source: "onde" | "evenement") =>
+  supabase.rpc("onde_inscrire", { _prenom: prenom ?? "", _email: email.trim(), _consentement: true, _source: source });

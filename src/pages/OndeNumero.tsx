@@ -3,6 +3,7 @@ import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import SEOHead from "@/components/SEOHead";
 import NumeroVue from "@/components/onde/NumeroVue";
+import InscriptionOnde from "@/components/onde/InscriptionOnde";
 import { btnSecondary, container } from "@/lib/pds";
 import { PAGES, breadcrumbLd } from "@/lib/seo";
 import { NOM_ONDE, articleOndeLd, descriptionOnde, ondeHref, titreSeoOnde, useNumeroPublie } from "@/lib/onde";
@@ -66,6 +67,7 @@ const OndeNumero = () => {
         </nav>
         <NumeroVue n={n} />
         <div className={`${container} pb-16`}>
+          <InscriptionOnde className="mb-10 max-w-[860px]" />
           <Link to={PAGES.onde} className={btnSecondary}>Tous les numéros</Link>
         </div>
       </main>

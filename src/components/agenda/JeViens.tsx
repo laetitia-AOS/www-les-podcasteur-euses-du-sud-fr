@@ -4,6 +4,7 @@ import { z } from "zod";
 import { supabase } from "@/integrations/supabase/client";
 import { btnPrimary, btnSecondary } from "@/lib/pds";
 import { messageServeur } from "@/lib/inscription";
+import { CONSENTEMENT_ONDE_EVENEMENT, inscrireOnde } from "@/lib/onde";
 
 const schema = z.object({
   nom: z.string().trim().min(2, "Indiquez votre nom.").max(100),
@@ -34,7 +35,7 @@ const JeViens = ({ evenementId, places }: { evenementId: string; places: number 
   const [session, setSession] = useState<{ email: string; nom: string } | null>(null);
   const [deja, setDeja] = useState(false);
   const [open, setOpen] = useState(false);
-  const [v, setV] = useState({ nom: "", email: "", telephone: "", website: "" });
+  const [v, setV] = useState({ nom: "", email: "", telephone: "", website: "", onde: false });
   const [err, setErr] = useState<Record<string, string>>({});
   const [state, setState] = useState<"idle" | "sending" | "ok" | "error">("idle");
   const [msg, setMsg] = useState("");
@@ -52,10 +53,12 @@ const JeViens = ({ evenementId, places }: { evenementId: string; places: number 
     })();
   }, [evenementId]);
 
-  const enregistrer = async (nom: string, email: string, telephone?: string) => {
+  const enregistrer = async (nom: string, email: string, telephone?: string, onde = false) => {
     setState("sending");
     const [prenom, ...reste] = nom.trim().split(/\s+/);
     const { error } = await supabase.from("evenement_inscriptions").insert({ evenement_id: evenementId, prenom, nom: reste.join(" "), email, telephone: telephone?.trim() || null });
+    // Case « Je veux aussi recevoir L'Onde du Sud » : demande enregistrée à part, sans jamais bloquer la réponse à l'événement
+    if (onde && (!error || error.code === "23505")) inscrireOnde(prenom, email, "evenement").then(() => {}, () => {});
     if (error) {
       setMsg(error.code === "23505" ? "Vous êtes déjà noté·e pour cet événement." : messageServeur(error, "Ça n'a pas marché. Réessayez dans un instant."));
       setState(error.code === "23505" ? "ok" : "error");
@@ -81,7 +84,7 @@ const JeViens = ({ evenementId, places }: { evenementId: string; places: number 
       return;
     }
     setErr({});
-    enregistrer(p.data.nom, p.data.email, p.data.telephone);
+    enregistrer(p.data.nom, p.data.email, p.data.telephone, v.onde);
   };
 
   return (
@@ -114,6 +117,10 @@ const JeViens = ({ evenementId, places }: { evenementId: string; places: number 
             <input id="jv-tel" type="tel" value={v.telephone} onChange={(e) => setV({ ...v, telephone: e.target.value })} autoComplete="tel" inputMode="tel" className={field} aria-invalid={!!err.telephone} />
             {err.telephone && <p className="mt-1 text-sm text-destructive">{err.telephone}</p>}
           </div>
+          <label htmlFor="jv-onde" className="flex items-start gap-3 text-sm cursor-pointer">
+            <input id="jv-onde" type="checkbox" checked={v.onde} onChange={(e) => setV({ ...v, onde: e.target.checked })} className="mt-0.5 h-5 w-5 shrink-0 accent-primary" />
+            <span>{CONSENTEMENT_ONDE_EVENEMENT}</span>
+          </label>
           <div className="hidden" aria-hidden>
             <label htmlFor="jv-website">Site web</label>
             <input id="jv-website" tabIndex={-1} autoComplete="off" value={v.website} onChange={(e) => setV({ ...v, website: e.target.value })} />
