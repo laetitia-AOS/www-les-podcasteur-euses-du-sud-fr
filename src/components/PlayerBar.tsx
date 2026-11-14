@@ -32,10 +32,10 @@ const PlayerBar = () => {
 
   return (
     <>
-      <div aria-hidden className={episode ? "h-[132px] sm:h-[76px]" : "h-[76px]"} />
+      <div aria-hidden className={`print:hidden ${episode ? "h-[132px] sm:h-[76px]" : "h-[76px]"}`} />
       <section
         aria-label="Lecteur audio"
-        className="fixed bottom-0 inset-x-0 z-50 bg-encre text-surface border-t-[3px] border-accent"
+        className="print:hidden fixed bottom-0 inset-x-0 z-50 bg-encre text-surface border-t-[3px] border-accent"
       >
         {episode ? (
           <div className="mx-auto w-full max-w-[1240px] px-4 sm:px-8 py-3 flex flex-wrap sm:flex-nowrap items-center gap-x-4 gap-y-2">

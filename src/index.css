@@ -204,3 +204,13 @@
   0% { transform: translateX(-100%); }
   100% { transform: translateX(300%); }
 }
+
+/* Impression et version PDF d'un numéro de L'Onde du Sud (admin) : A4, fond blanc, couleurs gardées,
+   blocs jamais coupés au milieu d'une photo, d'un QR code ou du pied du numéro. */
+@media print {
+  @page { size: A4; margin: 14mm 12mm 16mm; }
+  html, body { background: hsl(var(--pds-surface)) !important; }
+  body { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  .onde-pdf img, .onde-pdf .onde-qr, .onde-pdf .onde-pied { break-inside: avoid; }
+  .onde-pdf h2, .onde-pdf h3 { break-after: avoid; }
+}

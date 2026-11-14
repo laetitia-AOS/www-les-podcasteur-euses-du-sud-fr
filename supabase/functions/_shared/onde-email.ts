@@ -12,6 +12,24 @@ export const PHRASE_ABONNE = "Tu reçois cette lettre parce que tu es membre ou 
 export const PHRASE_STOP = "Tu ne veux plus la recevoir ? Réponds STOP à ce message.";
 /** Lot 5 : lien « Déposer pour L'Onde » (espace membre pour un·e adhérent·e, page d'adhésion sinon). */
 export const LIEN_DEPOSER = `${SITE}/onde/deposer`;
+export const LIEN_ADHERER = `${SITE}/adherer`;
+
+/** Pied fixe de chaque numéro (mêmes textes sur le site : src/lib/ondePied.ts, vérifié par un test). */
+export const PIED_ABONNEMENT = "Recevoir L'Onde chaque mois";
+export const PIED_ADHERER = "Adhérer";
+export const PIED_DON = "Soutenir L'Onde par un don";
+export const TITRE_ADHESION_OUVRE = "Ce que l'adhésion t'ouvre";
+export const ADHESION_OUVRE: readonly string[] = [
+  "Ta fiche visible dans l'annuaire et ton podcast dans « Écouter »",
+  "Tes épisodes dans le lecteur du site",
+  "Les messages des autres membres et « Je cherche / J'apporte »",
+  "Proposer des événements à l'agenda",
+  "Déposer tes sons pour L'Onde du Sud",
+  "Partager des ressources avec le réseau dans L'Onde du Sud (sans autopromotion commerciale)",
+];
+/** Lien de don accepté : adresse complète en https (même règle que la base). */
+export const lienDonValide = (l?: string | null): l is string =>
+  !!l && l.length <= 500 && /^https:\/\/[a-z0-9]([a-z0-9-]*[a-z0-9])?(\.[a-z0-9]([a-z0-9-]*[a-z0-9])?)+(:[0-9]{1,5})?([/?#][^\s<>"'`\\]*)?$/i.test(l);
 
 /** « Ce mois-ci, 3 dépôts. » (même phrase sur le site : src/lib/ondeDepots.ts) */
 export const phraseDepots = (n: number) =>
@@ -73,6 +91,8 @@ export type ContexteEmail = {
   deposants?: Record<string, { nom: string; href?: string | null; ressource?: boolean }>;
   /** Nombre de dépôts reçus ce mois-ci, pour l'encart du bas. */
   depotsCeMois?: number;
+  /** Lien du bouton « Soutenir L'Onde par un don » (réglage de l'admin) ; vide : pas de bouton. */
+  lienDon?: string | null;
 };
 /** abonne / test : lien de désinscription personnel ; copie : lien d'inscription et « Réponds STOP ». */
 export type ModeEmail = { type: "abonne" | "test"; lienDesinscription: string } | { type: "copie" };
@@ -328,6 +348,29 @@ export const emailNumero = (n: NumeroEmail, ctx: ContexteEmail, mode: ModeEmail)
   const quand = `n°${n.numero} · ${moisAnnee(n.mois)}`;
   const blocs = n.blocs.map((b, i) => rendreBloc(b, i, n, ctx)).filter((r): r is NonNullable<Rendu> => !!r);
   const encart = texteEncartDepot(ctx.depotsCeMois ?? 0);
+  const don = lienDonValide(ctx.lienDon?.trim()) ? ctx.lienDon!.trim() : null;
+  const boutonsPied: [string, string, string, string][] = [
+    [lienSite(LIEN_INSCRIPTION, n.numero), PIED_ABONNEMENT, C.blanc, C.encre],
+    [lienSite(LIEN_ADHERER, n.numero), PIED_ADHERER, C.bleu, C.blanc],
+    ...(don ? [[don, PIED_DON, C.orange, C.encre] as [string, string, string, string]] : []),
+  ];
+  const espace = `<div style="height:10px;line-height:10px;font-size:10px;">&nbsp;</div>`;
+  const piedNumeroHtml = `<tr><td class="marge" style="padding:0 32px 32px 32px;">
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="border-collapse:collapse;border:2px solid ${C.encre};">
+<tr><td style="padding:18px 20px;font-family:${POLICE};font-size:15px;line-height:22px;color:${C.encre};">
+<p style="margin:0 0 10px 0;font-family:${POLICE};font-size:19px;line-height:24px;font-weight:800;">${esc(TITRE_ADHESION_OUVRE)}</p>
+${ADHESION_OUVRE.map((t) => `<p style="margin:0 0 6px 0;"><span style="color:${C.orange};">&#9632;</span>&nbsp; ${esc(t)}</p>`).join("\n")}
+</td></tr>
+<tr><td style="padding:16px 20px 18px 20px;border-top:2px solid ${C.encre};">
+${boutonsPied.map(([h, l, f, t]) => bouton(h, l, f, t)).join(espace)}
+</td></tr></table>
+</td></tr>`;
+  const piedNumeroTexte = [
+    TITRE_ADHESION_OUVRE,
+    ...ADHESION_OUVRE.map((t) => `- ${t}`),
+    "",
+    ...boutonsPied.map(([h, l]) => `${l} : ${h}`),
+  ].join("\n");
 
   const piedHtml = mode.type === "copie"
     ? `<p style="margin:0 0 10px 0;"><a href="${esc(lienSite(LIEN_INSCRIPTION, n.numero))}" style="color:${C.bleu};font-weight:700;text-decoration:underline;">Recevoir L'Onde du Sud chaque mois</a></p>
@@ -384,6 +427,7 @@ ${bouton(page, "Lire et écouter le numéro complet", C.bleu, C.blanc)}
 ${bouton(lienSite(LIEN_DEPOSER, n.numero), "Déposer pour L'Onde", C.orange, C.encre)}
 </td></tr></table>
 </td></tr>
+${piedNumeroHtml}
 <tr><td class="marge" bgcolor="${C.fond}" style="padding:20px 32px;background:${C.fond};border-top:2px solid ${C.encre};font-family:${POLICE};font-size:13px;line-height:19px;color:${C.gris};">
 ${piedHtml}
 <p style="margin:12px 0 0 0;">Les Podcasteur·euses du Sud · <a href="${esc(lienSite("/", n.numero))}" style="color:${C.gris};text-decoration:underline;">les-podcasteur-euses-du-sud.fr</a></p>
@@ -408,6 +452,8 @@ ${piedHtml}
     "",
     encart,
     `Déposer pour L'Onde : ${lienSite(LIEN_DEPOSER, n.numero)}`,
+    "",
+    piedNumeroTexte,
     "",
     "—",
     piedTexte,

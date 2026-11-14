@@ -54,8 +54,13 @@ async function contexte(n: NumeroEmail): Promise<ContexteEmail> {
       deposants[c.depot_id] = { nom, href: c.fiche_id ? ficheHref({ id: c.fiche_id, slug: c.slug, type_profil: c.type_profil, nom_podcast: c.nom_podcast }) : null, ressource: c.type === "ressource" };
     }
   }
-  const { data: depotsCeMois } = await pub.rpc("onde_depots_ce_mois");
-  return { evenements: ev.data || [], podcasts: pod.data || [], membres, deposants, depotsCeMois: typeof depotsCeMois === "number" ? depotsCeMois : 0 };
+  const [{ data: depotsCeMois }, { data: lienDon }] = await Promise.all([pub.rpc("onde_depots_ce_mois"), pub.rpc("onde_lien_don")]);
+  return {
+    evenements: ev.data || [], podcasts: pod.data || [], membres, deposants,
+    depotsCeMois: typeof depotsCeMois === "number" ? depotsCeMois : 0,
+    // Pied fixe : bouton « Soutenir L'Onde par un don » seulement si le lien est réglé dans l'admin
+    lienDon: typeof lienDon === "string" ? lienDon : null,
+  };
 }
 
 /** Même règle que ficheHref du site (src/lib/seo.ts). */

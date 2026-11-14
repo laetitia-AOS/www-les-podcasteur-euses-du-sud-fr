@@ -54,6 +54,8 @@ const OndeDeposer = lazy(() => import("./pages/OndeDeposer"));
 const AdminOnde = lazy(() => import("./pages/AdminOnde"));
 const AdminOndeNumero = lazy(() => import("./pages/AdminOndeNumero"));
 const AdminOndeApercu = lazy(() => import("./pages/AdminOndeApercu"));
+const AdminOndePdf = lazy(() => import("./pages/AdminOndePdf"));
+const OndeLienCourt = lazy(() => import("./pages/OndeLienCourt"));
 
 const queryClient = new QueryClient();
 
@@ -108,6 +110,9 @@ const App = () => (
             <Route path="/onde/desinscription" element={<OndeDesinscription />} />
             <Route path="/onde/deposer" element={<OndeDeposer />} />
             <Route path="/onde/:slug" element={<OndeNumero />} />
+            {/* Liens courts imprimés dans la version PDF d'un numéro (QR codes) */}
+            <Route path="/o/:numero" element={<OndeLienCourt />} />
+            <Route path="/o/:numero/:bloc" element={<OndeLienCourt />} />
             <Route path="/proposer-evenement-podcast" element={<ProposerEvenement />} />
             <Route path="/bienvenue" element={<Bienvenue />} />
             <Route path="/referencer-mon-podcast" element={<Formulaire />} />
@@ -138,6 +143,7 @@ const App = () => (
             <Route path="/admin/onde" element={<AdminOnde />} />
             <Route path="/admin/onde/:id" element={<AdminOndeNumero />} />
             <Route path="/admin/onde/:id/apercu" element={<AdminOndeApercu />} />
+            <Route path="/admin/onde/:id/pdf" element={<AdminOndePdf />} />
             {/* Anciennes adresses de l'admin */}
             <Route path="/admin/adhesions" element={<AdminRedirect to="/admin/membres" />} />
             <Route path="/admin/evenements" element={<AdminRedirect to="/admin/agenda" />} />

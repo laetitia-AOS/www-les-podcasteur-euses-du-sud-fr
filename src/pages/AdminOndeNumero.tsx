@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import {
-  AlertTriangle, ArrowDown, ArrowUp, BarChart3, CalendarDays, CalendarRange, Check, Eye, Image as ImageIcon, Inbox, Loader2,
+  AlertTriangle, ArrowDown, ArrowUp, BarChart3, CalendarDays, CalendarRange, Check, Eye, FileDown, Image as ImageIcon, Inbox, Loader2,
   Mic, Music, MousePointerClick, Plus, Trash2, Type, Users, X,
 } from "lucide-react";
 import { toast } from "sonner";
@@ -415,25 +415,31 @@ const AdminOndeNumero = () => {
       actions={
         n && (
           <>
-            <a
-              href={`/admin/onde/${n.id}/apercu`}
-              target="_blank"
-              rel="noopener noreferrer"
-              className={btnSecondary}
-              onClick={async (e) => {
-                // Brouillon modifié : on enregistre d'abord, puis l'aperçu s'ouvre sur la version à jour
-                if (publie || (etat.t !== "modifie" && etat.t !== "encours")) return;
-                e.preventDefault();
-                const onglet = window.open("about:blank", "_blank");
-                if (onglet) onglet.opener = null;
-                await enregistrer();
-                const adresse = `/admin/onde/${n.id}/apercu`;
-                if (onglet) onglet.location.href = adresse;
-                else window.open(adresse, "_blank", "noopener");
-              }}
-            >
-              <Eye className="w-4 h-4" aria-hidden /> Aperçu<span className="sr-only"> (nouvel onglet)</span>
-            </a>
+            {(["apercu", "pdf"] as const).map((page) => (
+              <a
+                key={page}
+                href={`/admin/onde/${n.id}/${page}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className={btnSecondary}
+                onClick={async (e) => {
+                  // Brouillon modifié : on enregistre d'abord, puis l'aperçu (ou le PDF) s'ouvre sur la version à jour
+                  if (publie || (etat.t !== "modifie" && etat.t !== "encours")) return;
+                  e.preventDefault();
+                  const onglet = window.open("about:blank", "_blank");
+                  if (onglet) onglet.opener = null;
+                  await enregistrer();
+                  const adresse = `/admin/onde/${n.id}/${page}`;
+                  if (onglet) onglet.location.href = adresse;
+                  else window.open(adresse, "_blank", "noopener");
+                }}
+              >
+                {page === "apercu"
+                  ? <><Eye className="w-4 h-4" aria-hidden /> Aperçu</>
+                  : <><FileDown className="w-4 h-4" aria-hidden /> Télécharger en PDF</>}
+                <span className="sr-only"> (nouvel onglet)</span>
+              </a>
+            ))}
             {publie ? (
               <>
                 <button type="button" className={btnSecondary} onClick={() => setConfirmerRetrait(true)} disabled={etat.t === "encours"}>Retirer du site</button>

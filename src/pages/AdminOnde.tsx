@@ -1,13 +1,14 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { ExternalLink, Eye, Loader2, Pencil, Plus, Trash2, UserMinus, UserPlus } from "lucide-react";
+import { ExternalLink, Eye, FileDown, Loader2, Pencil, Plus, Trash2, UserMinus, UserPlus } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import AdminLayout from "@/components/admin/AdminLayout";
 import { AdminOnglets, Panneau, useOnglet } from "@/components/admin/AdminOnglets";
 import AbonnesOnde from "@/components/onde/AbonnesOnde";
 import DepotsOnde from "@/components/onde/DepotsOnde";
+import ReglageDon from "@/components/onde/ReglageDon";
 import { compteurAdminDepots, useDepotsCeMois } from "@/lib/ondeDepots";
 import { useAdminAuth } from "@/hooks/useAdminAuth";
 import {
@@ -157,6 +158,9 @@ const AdminOnde = () => {
                     <a href={`/admin/onde/${n.id}/apercu`} target="_blank" rel="noopener noreferrer" className={btnIcone} aria-label={`Aperçu du n°${n.numero} (nouvel onglet)`}>
                       <Eye className="w-4 h-4" aria-hidden />
                     </a>
+                    <a href={`/admin/onde/${n.id}/pdf`} target="_blank" rel="noopener noreferrer" className={btnIcone} aria-label={`Télécharger le n°${n.numero} en PDF (nouvel onglet)`} title="Télécharger en PDF">
+                      <FileDown className="w-4 h-4" aria-hidden />
+                    </a>
                     {n.statut === "publie" && (
                       <a href={ondeHref(n.slug)} target="_blank" rel="noopener noreferrer" className={btnIcone} aria-label={`Voir le n°${n.numero} sur le site (nouvel onglet)`}>
                         <ExternalLink className="w-4 h-4" aria-hidden />
@@ -172,6 +176,7 @@ const AdminOnde = () => {
               ))}
             </ol>
           )}
+          <ReglageDon />
         </Panneau>
       )}
 

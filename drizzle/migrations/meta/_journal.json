@@ -344,6 +344,13 @@
       "when": 1794666978223,
       "tag": "0048_onde_pied_don_reabonnement",
       "breakpoints": true
+    },
+    {
+      "idx": 49,
+      "version": "7",
+      "when": 1794667327295,
+      "tag": "0049_onde_reglages_sans_acces_direct",
+      "breakpoints": true
     }
   ]
 }
