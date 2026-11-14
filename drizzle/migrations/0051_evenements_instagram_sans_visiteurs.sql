@@ -1,0 +1,1 @@
+REVOKE ALL ON public.evenements_instagram FROM anon;

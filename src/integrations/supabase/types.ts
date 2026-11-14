@@ -498,6 +498,32 @@ export type Database = {
           },
         ]
       }
+      evenements_instagram: {
+        Row: {
+          compte: string
+          evenement_id: string
+          updated_at: string
+        }
+        Insert: {
+          compte: string
+          evenement_id: string
+          updated_at?: string
+        }
+        Update: {
+          compte?: string
+          evenement_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "evenements_instagram_evenement_id_fkey"
+            columns: ["evenement_id"]
+            isOneToOne: true
+            referencedRelation: "evenements"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       evenements_proposeurs: {
         Row: {
           created_at: string
@@ -1679,6 +1705,11 @@ export type Database = {
           statut: string
         }[]
       }
+      onde_agenda_basculer: {
+        Args: { _ajouter: boolean; _evenement_id: string }
+        Returns: Json
+      }
+      onde_agenda_etat: { Args: never; Returns: Json }
       onde_bloc_depot: {
         Args: { b: Json; n: number; publier: boolean }
         Returns: Json
