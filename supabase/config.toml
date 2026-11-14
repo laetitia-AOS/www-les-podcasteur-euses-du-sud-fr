@@ -53,3 +53,6 @@ verify_jwt = false
 
 [functions.onde-desinscription]
 verify_jwt = false
+
+[functions.onde-depot]
+verify_jwt = false

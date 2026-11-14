@@ -3,6 +3,7 @@ import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import SEOHead from "@/components/SEOHead";
 import InscriptionOnde from "@/components/onde/InscriptionOnde";
+import EncartDepot from "@/components/onde/EncartDepot";
 import { container, h1Ligne } from "@/lib/pds";
 import { PAGES, PAGES_SEO, SITE_URL, breadcrumbLd } from "@/lib/seo";
 import { NOM_COMPLET_ONDE, NOM_ONDE, etiquetteNumero, ondeHref, useNumerosPublies } from "@/lib/onde";
@@ -45,6 +46,7 @@ const Onde = () => {
           <p className="mt-4 text-lg max-w-[60ch]">
             Chaque mois, un numéro à lire et à écouter : les rendez-vous du réseau, des podcasts d'ici et la vie de l'association.
           </p>
+          <EncartDepot className="mt-8 max-w-[860px]" />
 
           <div className="mt-12 border-t-2 border-encre">
             {isLoading && <p className="py-8 text-muted-foreground">Chargement des numéros…</p>}

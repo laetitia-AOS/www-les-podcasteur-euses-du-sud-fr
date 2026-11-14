@@ -11,6 +11,8 @@ import PodcastCard from "@/components/espace-membre/PodcastCard";
 import { FICHE_COLUMNS, cardCls, sectionTitle, type FicheMembre } from "@/components/espace-membre/types";
 import { anneeEnCours, formatLongDate, ilYA, libelleValidite, lienRenouveler, periodeRenouvellement, publicProfilePath, type EtatServeur } from "@/lib/espaceMembre";
 import SupprimerDonnees from "@/components/espace-membre/SupprimerDonnees";
+import DeposerOnde from "@/components/espace-membre/DeposerOnde";
+import { ANCRE_DEPOT } from "@/lib/ondeDepots";
 import { readableTitle } from "@/lib/events";
 import { btnPrimary, btnSecondary, formatName, linkUnderline } from "@/lib/pds";
 import logoPds from "@/assets/logo-pds.png";
@@ -32,6 +34,7 @@ const SECTIONS = [
   { id: "podcasts", label: "Mes podcasts" },
   { id: "demandes", label: "Demandes reçues" },
   { id: "evenements", label: "Mes événements" },
+  { id: ANCRE_DEPOT, label: "Déposer pour L'Onde" },
   { id: "adhesion", label: "Adhésion" },
   { id: "suppression", label: "Mes données" },
 ];
@@ -98,6 +101,13 @@ const MonEspace = () => {
     setDemandes((list) => list.map((x) => (x.id === id ? { ...x, lu_le: new Date().toISOString() } : x)));
     supabase.rpc("marquer_demande_lue", { _id: id }).then(({ error }) => { if (error) console.error(error); });
   };
+
+  // Arrivée par un lien vers une section (« Déposer pour L'Onde » : /mon-espace#onde) : on y descend une fois la page chargée
+  useEffect(() => {
+    if (loading || !window.location.hash) return;
+    const el = document.getElementById(decodeURIComponent(window.location.hash.slice(1)));
+    if (el) requestAnimationFrame(() => el.scrollIntoView({ block: "start" }));
+  }, [loading]);
 
   // Section en cours de lecture : surlignée dans le menu
   useEffect(() => {
@@ -262,6 +272,7 @@ const MonEspace = () => {
               </div>
               <div className="flex flex-wrap gap-3">
                 {publicPath && <Link to={publicPath} className={btnSecondary}>Voir mon profil public</Link>}
+                <a href={`#${ANCRE_DEPOT}`} className={btnSecondary}>Déposer pour L'Onde</a>
 {peutRenouveler &&                 <Link to={ADHERER} className="inline-flex items-center justify-center gap-2 min-h-[44px] px-5 font-bold text-[15px] leading-none bg-encre text-surface border-2 border-encre hover:bg-surface hover:text-foreground transition-colors">{adhesion ? `Renouveler pour ${anneeRenouv}` : "Adhérer"}</Link>}
               </div>
             </div>
@@ -424,6 +435,9 @@ const MonEspace = () => {
             </div>
             <MesEvenements evenements={evenements} onChange={rechargerEvenements} />
           </section>
+
+          {/* Déposer pour L'Onde du Sud */}
+          <DeposerOnde adhererHref={ADHERER} />
 
           {/* Adhésion */}
           <section id="adhesion" aria-labelledby="adhesion-title" className="scroll-mt-6">

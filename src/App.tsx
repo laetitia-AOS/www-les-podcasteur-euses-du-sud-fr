@@ -50,6 +50,7 @@ const Onde = lazy(() => import("./pages/Onde"));
 const OndeNumero = lazy(() => import("./pages/OndeNumero"));
 const OndeConfirmer = lazy(() => import("./pages/OndeConfirmer"));
 const OndeDesinscription = lazy(() => import("./pages/OndeDesinscription"));
+const OndeDeposer = lazy(() => import("./pages/OndeDeposer"));
 const AdminOnde = lazy(() => import("./pages/AdminOnde"));
 const AdminOndeNumero = lazy(() => import("./pages/AdminOndeNumero"));
 const AdminOndeApercu = lazy(() => import("./pages/AdminOndeApercu"));
@@ -105,6 +106,7 @@ const App = () => (
             <Route path="/onde" element={<Onde />} />
             <Route path="/onde/confirmer" element={<OndeConfirmer />} />
             <Route path="/onde/desinscription" element={<OndeDesinscription />} />
+            <Route path="/onde/deposer" element={<OndeDeposer />} />
             <Route path="/onde/:slug" element={<OndeNumero />} />
             <Route path="/proposer-evenement-podcast" element={<ProposerEvenement />} />
             <Route path="/bienvenue" element={<Bienvenue />} />

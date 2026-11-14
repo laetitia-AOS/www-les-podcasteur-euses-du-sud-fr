@@ -754,6 +754,81 @@ export type Database = {
         }
         Relationships: []
       }
+      onde_depots: {
+        Row: {
+          accord_publication: boolean
+          audio_url: string | null
+          consentement_le: string | null
+          created_at: string
+          droits: boolean
+          email: string
+          id: string
+          lien_ecoute: string | null
+          notifie_le: string | null
+          numero_id: string | null
+          photo_url: string | null
+          podcast_id: string | null
+          statut: string
+          texte: string
+          titre: string
+          type: string
+          updated_at: string
+        }
+        Insert: {
+          accord_publication?: boolean
+          audio_url?: string | null
+          consentement_le?: string | null
+          created_at?: string
+          droits?: boolean
+          email: string
+          id?: string
+          lien_ecoute?: string | null
+          notifie_le?: string | null
+          numero_id?: string | null
+          photo_url?: string | null
+          podcast_id?: string | null
+          statut?: string
+          texte: string
+          titre: string
+          type: string
+          updated_at?: string
+        }
+        Update: {
+          accord_publication?: boolean
+          audio_url?: string | null
+          consentement_le?: string | null
+          created_at?: string
+          droits?: boolean
+          email?: string
+          id?: string
+          lien_ecoute?: string | null
+          notifie_le?: string | null
+          numero_id?: string | null
+          photo_url?: string | null
+          podcast_id?: string | null
+          statut?: string
+          texte?: string
+          titre?: string
+          type?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "onde_depots_numero_id_fkey"
+            columns: ["numero_id"]
+            isOneToOne: false
+            referencedRelation: "onde_numeros"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "onde_depots_podcast_id_fkey"
+            columns: ["podcast_id"]
+            isOneToOne: false
+            referencedRelation: "podcasts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       onde_envoi_journal: {
         Row: {
           copie: boolean
@@ -1485,6 +1560,23 @@ export type Database = {
           type: string
         }[]
       }
+      mes_depots_onde: {
+        Args: never
+        Returns: {
+          audio_url: string
+          created_at: string
+          id: string
+          lien_ecoute: string
+          photo_url: string
+          publie_mois: string
+          publie_slug: string
+          statut: string
+          texte: string
+          titre: string
+          type: string
+          updated_at: string
+        }[]
+      }
       mes_evenements: {
         Args: never
         Returns: {
@@ -1541,6 +1633,7 @@ export type Database = {
           type_adhesion: string
         }[]
       }
+      mon_depot_onde: { Args: { _id: string }; Returns: boolean }
       mon_evenement: { Args: { _id: string }; Returns: boolean }
       mon_lieu: { Args: { _id: string }; Returns: boolean }
       nb_venues: { Args: { _evenement_id: string }; Returns: number }
@@ -1560,6 +1653,10 @@ export type Database = {
           source: string
           statut: string
         }[]
+      }
+      onde_bloc_depot: {
+        Args: { b: Json; n: number; publier: boolean }
+        Returns: Json
       }
       onde_bloc_propre: {
         Args: { b: Json; n: number; publier: boolean }
@@ -1586,6 +1683,68 @@ export type Database = {
         }[]
       }
       onde_confirmer: { Args: { _jeton: string }; Returns: string }
+      onde_credits_depots: {
+        Args: { _numero_id: string }
+        Returns: {
+          depot_id: string
+          fiche_id: string
+          nom: string
+          nom_podcast: string
+          prenom: string
+          slug: string
+          type_profil: string
+        }[]
+      }
+      onde_depot_notifie: { Args: { _id: string }; Returns: undefined }
+      onde_depot_publie: {
+        Args: { _id: string }
+        Returns: {
+          mois: string
+          numero_id: string
+          slug: string
+        }[]
+      }
+      onde_depot_statut: {
+        Args: { _id: string; _statut: string }
+        Returns: undefined
+      }
+      onde_depots_a_notifier: {
+        Args: { _numero_id: string }
+        Returns: {
+          email: string
+          id: string
+          titre: string
+          type: string
+        }[]
+      }
+      onde_depots_ce_mois: { Args: never; Returns: number }
+      onde_depots_equipe: {
+        Args: never
+        Returns: {
+          audio_url: string
+          created_at: string
+          fiche_id: string
+          fiche_nom_podcast: string
+          fiche_slug: string
+          fiche_type: string
+          fiche_visible: boolean
+          id: string
+          lien_ecoute: string
+          nom: string
+          numero: number
+          numero_id: string
+          numero_mois: string
+          numero_statut: string
+          photo_url: string
+          prenom: string
+          publie: boolean
+          statut: string
+          texte: string
+          titre: string
+          type: string
+          updated_at: string
+        }[]
+      }
       onde_desinscrire: { Args: { _jeton: string }; Returns: string }
       onde_destinataires: {
         Args: never
@@ -1651,6 +1810,7 @@ export type Database = {
           termine_le: string
         }[]
       }
+      onde_etiquette_depot: { Args: { _type: string }; Returns: string }
       onde_fichier: {
         Args: { label: string; required?: boolean; v: string }
         Returns: string
@@ -1715,6 +1875,10 @@ export type Database = {
         Args: { label: string; maxlen: number; required?: boolean; v: string }
         Returns: string
       }
+      onde_utiliser_depot: {
+        Args: { _depot_id: string; _numero_id: string }
+        Returns: string
+      }
       pds_collab_codes: { Args: never; Returns: string[] }
       pds_collab_depuis_texte: { Args: { t: string }; Returns: string[] }
       pds_email: { Args: { required?: boolean; v: string }; Returns: string }
@@ -1772,6 +1936,7 @@ export type Database = {
         Args: { label: string; maxlen?: number; v: string }
         Returns: string
       }
+      peut_deposer_onde: { Args: never; Returns: boolean }
       peut_editer_onde: { Args: never; Returns: boolean }
       peut_proposer_evenement: { Args: never; Returns: boolean }
       podcast_visible: { Args: { _id: string }; Returns: boolean }

@@ -3,6 +3,8 @@ import { ExternalLink } from "lucide-react";
 import TexteRiche from "@/components/onde/TexteRiche";
 import BoutonEcoute, { type Resoudre } from "@/components/onde/BoutonEcoute";
 import { VueEvenements, VueNouveauxMembres, VuePodcast } from "@/components/onde/BlocsAuto";
+import { VueDepot } from "@/components/onde/BlocDepot";
+import EncartDepot from "@/components/onde/EncartDepot";
 import { container, btnPrimary, linkUnderline } from "@/lib/pds";
 import { NOM_ONDE, etiquetteNumero, lienSur, numeroRubrique, type Bloc, type Chiffre, type NumeroOnde } from "@/lib/onde";
 
@@ -95,12 +97,14 @@ const ContenuBloc = ({ b, n, resoudre }: { b: Bloc; n: NumeroOnde; resoudre: Res
       return <VuePodcast b={b} n={n} resoudre={resoudre} />;
     case "nouveaux_membres":
       return <VueNouveauxMembres b={b} n={n} />;
+    case "depot":
+      return <VueDepot b={b} n={n} resoudre={resoudre} />;
   }
 };
 
 /**
  * Un numéro de L'Onde du Sud tel qu'il s'affiche sur le site : titre (seul H1), chapeau,
- * bandeau « Écouter ce numéro », couverture puis blocs numérotés 01, 02, 03…
+ * bandeau « Écouter ce numéro », couverture puis blocs numérotés 01, 02, 03…, et l'encart « Déposer pour L'Onde ».
  * « resoudre » : pour l'aperçu d'un brouillon, remplace les adresses des fichiers par des liens temporaires.
  */
 const NumeroVue = ({ n, resoudre = identite }: { n: NumeroOnde; resoudre?: Resoudre }) => (
@@ -140,6 +144,7 @@ const NumeroVue = ({ n, resoudre = identite }: { n: NumeroOnde; resoudre?: Resou
             <ContenuBloc b={b} n={n} resoudre={resoudre} />
           </section>
         ))}
+        <EncartDepot />
       </div>
     </div>
   </article>

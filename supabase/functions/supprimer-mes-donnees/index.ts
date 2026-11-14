@@ -47,6 +47,9 @@ Deno.serve(async (req) => {
   const { data: estAdmin } = await admin.rpc("has_role", { _user_id: user.id, _role: "admin" });
   if (estAdmin) return json({ error: "Un compte administrateur ne peut pas être supprimé depuis l'espace membre. Écrivez à l'équipe." }, 403);
 
+  // L'Onde du Sud : dossiers des dépôts de la personne (espace privé « onde »), notés avant l'effacement
+  const { data: depots } = await admin.from("onde_depots").select("id").eq("email", user.email.toLowerCase());
+
   const { data: images, error } = await admin.rpc("effacer_donnees_membre", { _email: user.email });
   if (error) {
     console.error("effacer_donnees_membre:", error.message);
@@ -68,6 +71,14 @@ Deno.serve(async (req) => {
     for (let i = 0; i < uniques.length; i += 100) {
       const { error: e } = await admin.storage.from(b).remove(uniques.slice(i, i + 100));
       if (e) console.warn("Stockage:", b, e.message);
+    }
+  }
+
+  for (const d of (depots || []) as { id: string }[]) {
+    const { data: fichiers } = await admin.storage.from("onde").list(`depots/${d.id}`, { limit: 100 });
+    if (fichiers?.length) {
+      const { error: e } = await admin.storage.from("onde").remove(fichiers.map((f) => `depots/${d.id}/${f.name}`));
+      if (e) console.warn("Stockage onde:", e.message);
     }
   }
 

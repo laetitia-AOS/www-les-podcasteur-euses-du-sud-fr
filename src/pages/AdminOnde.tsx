@@ -7,6 +7,8 @@ import { supabase } from "@/integrations/supabase/client";
 import AdminLayout from "@/components/admin/AdminLayout";
 import { AdminOnglets, Panneau, useOnglet } from "@/components/admin/AdminOnglets";
 import AbonnesOnde from "@/components/onde/AbonnesOnde";
+import DepotsOnde from "@/components/onde/DepotsOnde";
+import { compteurAdminDepots, useDepotsCeMois } from "@/lib/ondeDepots";
 import { useAdminAuth } from "@/hooks/useAdminAuth";
 import {
   AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription,
@@ -23,13 +25,18 @@ import {
 
 const ONGLETS_ADMIN = [
   { id: "numeros", label: "Numéros" },
+  { id: "depots", label: "Dépôts du mois" },
   { id: "editeurs", label: "Éditeurs de L'Onde" },
   { id: "abonnes", label: "Abonnés" },
 ];
+/** Éditeur·ices : numéros et dépôts seulement. */
+const ONGLETS_EDITEUR = ONGLETS_ADMIN.slice(0, 2);
 
 const AdminOnde = () => {
   const { isAdmin } = useAdminAuth();
-  const [onglet, setOnglet] = useOnglet(isAdmin ? ONGLETS_ADMIN : ONGLETS_ADMIN.slice(0, 1));
+  const onglets = isAdmin ? ONGLETS_ADMIN : ONGLETS_EDITEUR;
+  const [onglet, setOnglet] = useOnglet(onglets);
+  const { data: depotsMois } = useDepotsCeMois();
   const navigate = useNavigate();
   const qc = useQueryClient();
   const [aSupprimer, setASupprimer] = useState<NumeroOnde | null>(null);
@@ -92,7 +99,16 @@ const AdminOnde = () => {
     <AdminLayout
       acces="onde"
       titre={NOM_ONDE}
-      description={<>La lettre mensuelle, publiée sur le site : une page par numéro, archivée sur la page <Link to="/onde" className="underline underline-offset-4">L'Onde du Sud</Link>.</>}
+      description={
+        <>
+          La lettre mensuelle, publiée sur le site : une page par numéro, archivée sur la page <Link to="/onde" className="underline underline-offset-4">L'Onde du Sud</Link>.
+          {depotsMois !== undefined && (
+            <button type="button" onClick={() => setOnglet("depots")} className="block mt-2 font-mono text-sm text-muted-foreground underline underline-offset-4 hover:text-foreground min-h-[44px] sm:min-h-0">
+              {compteurAdminDepots(depotsMois)}
+            </button>
+          )}
+        </>
+      }
       actions={
         onglet === "numeros" && (
           <button type="button" className={btnPrimary} onClick={() => creer.mutate()} disabled={creer.isPending || isLoading}>
@@ -102,7 +118,7 @@ const AdminOnde = () => {
         )
       }
     >
-      {isAdmin && <AdminOnglets onglets={ONGLETS_ADMIN} courant={onglet} onChange={setOnglet} label="L'Onde du Sud" />}
+      <AdminOnglets onglets={onglets} courant={onglet} onChange={setOnglet} label="L'Onde du Sud" />
 
       {onglet === "numeros" && (
         <Panneau id="numeros">
@@ -156,6 +172,12 @@ const AdminOnde = () => {
               ))}
             </ol>
           )}
+        </Panneau>
+      )}
+
+      {onglet === "depots" && (
+        <Panneau id="depots">
+          <DepotsOnde />
         </Panneau>
       )}
 

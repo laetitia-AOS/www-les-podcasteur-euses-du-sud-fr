@@ -10,6 +10,15 @@ export const ONDE_COPIE = "podcastsdusud@gmail.com";
 export const LIEN_INSCRIPTION = `${SITE}/onde#recevoir`;
 export const PHRASE_ABONNE = "Tu reçois cette lettre parce que tu es membre ou inscrit·e à L'Onde du Sud";
 export const PHRASE_STOP = "Tu ne veux plus la recevoir ? Réponds STOP à ce message.";
+/** Lot 5 : lien « Déposer pour L'Onde » (espace membre pour un·e adhérent·e, page d'adhésion sinon). */
+export const LIEN_DEPOSER = `${SITE}/onde/deposer`;
+
+/** « Ce mois-ci, 3 dépôts. » (même phrase sur le site : src/lib/ondeDepots.ts) */
+export const phraseDepots = (n: number) =>
+  n <= 0 ? "Ce mois-ci, pas encore de dépôt." : `Ce mois-ci, ${n} dépôt${n > 1 ? "s" : ""}.`;
+/** Encart fixe en bas de chaque numéro (page et e-mail). */
+export const texteEncartDepot = (n: number) =>
+  `L'Onde du Sud est faite avec les sons de ses membres. ${phraseDepots(n)} Dépose le tien avant le 25 pour le prochain numéro.`;
 
 const C = { bleu: "#1530B8", orange: "#F28C28", encre: "#0F0F12", fond: "#F3F2EE", filet: "#C9C7BF", blanc: "#FFFFFF", gris: "#55555C" };
 const POLICE = "Archivo, 'Helvetica Neue', Helvetica, Arial, sans-serif";
@@ -35,6 +44,9 @@ export type BlocEmail = {
   chiffres?: Chiffre[];
   evenements?: string[];
   podcast_id?: string;
+  /** Bloc « dépôt » d'un·e membre (lot 5). */
+  depot_id?: string;
+  photo?: { url: string; alt?: string };
 };
 export type NumeroEmail = {
   id: string;
@@ -57,6 +69,10 @@ export type ContexteEmail = {
   podcasts: PodcastEmail[];
   /** Nouveaux membres par identifiant de bloc. */
   membres: Record<string, MembreEmail[]>;
+  /** « Déposé par » : nom et adresse de la fiche (relative, fiche visible seulement), par identifiant de dépôt. */
+  deposants?: Record<string, { nom: string; href?: string | null }>;
+  /** Nombre de dépôts reçus ce mois-ci, pour l'encart du bas. */
+  depotsCeMois?: number;
 };
 /** abonne / test : lien de désinscription personnel ; copie : lien d'inscription et « Réponds STOP ». */
 export type ModeEmail = { type: "abonne" | "test"; lienDesinscription: string } | { type: "copie" };
@@ -147,6 +163,7 @@ export const resumeBloc = (b: BlocEmail, podcasts: PodcastEmail[] = []): string 
     case "texte":
     case "trimestre":
     case "podcast":
+    case "depot":
       return couper(texteSimple(b.texte));
     case "audio": {
       const t = (b.titre || "").trim();
@@ -220,13 +237,16 @@ const evenementsHtml = (evs: EvenementEmail[], numero: number) =>
 
 type Rendu = { html: string; texte: string } | null;
 
+/** Nom affiché « Prénom Nom » d'un·e déposant·e (même règle que formatName du site). */
+export const nomDeposant = (p: { prenom?: string | null; nom?: string | null }) => nomComplet(p);
+
 const rendreBloc = (b: BlocEmail, i: number, n: NumeroEmail, ctx: ContexteEmail): Rendu => {
   const rubrique = (b.rubrique || "").trim();
   const resume = resumeBloc(b, ctx.podcasts);
   const tete = etiquetteHtml(i, rubrique);
   const teteTexte = `${etiquette(i)} — ${rubrique.toUpperCase()}`;
   const titre = (b.titre || "").trim();
-  const titreHtml = titre && (b.type === "texte" || b.type === "trimestre")
+  const titreHtml = titre && (b.type === "texte" || b.type === "trimestre" || b.type === "depot")
     ? `<p style="margin:0 0 6px 0;font-family:${POLICE};font-size:19px;line-height:24px;font-weight:800;color:${C.encre};">${esc(titre)}</p>` : "";
   const corps: string[] = [];
   const texte: string[] = [teteTexte];
@@ -263,6 +283,16 @@ const rendreBloc = (b: BlocEmail, i: number, n: NumeroEmail, ctx: ContexteEmail)
       texte.push(`${titreFiche(p)} — ${href}`);
     }
     if (resume) { corps.push(paragraphe(resume)); texte.push(resume); }
+  } else if (b.type === "depot") {
+    if (resume) { corps.push(paragraphe(resume)); texte.push(resume); }
+    const qui = b.depot_id ? ctx.deposants?.[b.depot_id] : undefined;
+    if (qui?.nom) {
+      const href = qui.href ? lienSite(qui.href, n.numero) : null;
+      corps.push(`<p style="margin:8px 0 0 0;font-family:${POLICE};font-size:15px;line-height:22px;color:${C.gris};">Déposé par ${href
+        ? `<a href="${esc(href)}" style="color:${C.encre};font-weight:700;text-decoration:underline;">${esc(qui.nom)}</a>`
+        : `<strong style="color:${C.encre};">${esc(qui.nom)}</strong>`}</p>`);
+      texte.push(`Déposé par ${qui.nom}${href ? ` — ${href}` : ""}`);
+    }
   } else if (b.type === "bouton") {
     if (resume) { corps.push(paragraphe(resume)); texte.push(resume); }
     if (b.libelle?.trim() && lienSur(b.lien)) {
@@ -290,6 +320,7 @@ export const emailNumero = (n: NumeroEmail, ctx: ContexteEmail, mode: ModeEmail)
   const ecoute = libelleEcoute(n);
   const quand = `n°${n.numero} · ${moisAnnee(n.mois)}`;
   const blocs = n.blocs.map((b, i) => rendreBloc(b, i, n, ctx)).filter((r): r is NonNullable<Rendu> => !!r);
+  const encart = texteEncartDepot(ctx.depotsCeMois ?? 0);
 
   const piedHtml = mode.type === "copie"
     ? `<p style="margin:0 0 10px 0;"><a href="${esc(lienSite(LIEN_INSCRIPTION, n.numero))}" style="color:${C.bleu};font-weight:700;text-decoration:underline;">Recevoir L'Onde du Sud chaque mois</a></p>
@@ -339,6 +370,13 @@ ${blocs.map((b) => b.html).join("\n")}
 <tr><td class="marge" style="padding:30px 32px 32px 32px;">
 ${bouton(page, "Lire et écouter le numéro complet", C.bleu, C.blanc)}
 </td></tr>
+<tr><td class="marge" style="padding:0 32px 32px 32px;">
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="border-collapse:collapse;"><tr>
+<td style="padding:18px 20px;border:2px solid ${C.encre};border-left:8px solid ${C.orange};font-family:${POLICE};font-size:16px;line-height:24px;color:${C.encre};">
+<p style="margin:0 0 14px 0;">${esc(encart)}</p>
+${bouton(lienSite(LIEN_DEPOSER, n.numero), "Déposer pour L'Onde", C.orange, C.encre)}
+</td></tr></table>
+</td></tr>
 <tr><td class="marge" bgcolor="${C.fond}" style="padding:20px 32px;background:${C.fond};border-top:2px solid ${C.encre};font-family:${POLICE};font-size:13px;line-height:19px;color:${C.gris};">
 ${piedHtml}
 <p style="margin:12px 0 0 0;">Les Podcasteur·euses du Sud · <a href="${esc(lienSite("/", n.numero))}" style="color:${C.gris};text-decoration:underline;">les-podcasteur-euses-du-sud.fr</a></p>
@@ -360,6 +398,9 @@ ${piedHtml}
     ...blocs.flatMap((b) => ["", b.texte]),
     "",
     `Lire et écouter le numéro complet : ${page}`,
+    "",
+    encart,
+    `Déposer pour L'Onde : ${lienSite(LIEN_DEPOSER, n.numero)}`,
     "",
     "—",
     piedTexte,
@@ -395,5 +436,37 @@ ${bouton(lien, "Je confirme mon inscription", C.bleu, C.blanc)}
 <tr><td bgcolor="${C.fond}" style="padding:16px 32px;background:${C.fond};border-top:2px solid ${C.encre};font-family:${POLICE};font-size:13px;line-height:19px;color:${C.gris};">Les Podcasteur·euses du Sud · <a href="${SITE}" style="color:${C.gris};">les-podcasteur-euses-du-sud.fr</a></td></tr>
 </table></td></tr></table></body></html>`;
   const texte = [bonjour, "", l1, l2, "", `Je confirme mon inscription : ${lien}`, "", l3, "", "Les Podcasteur·euses du Sud — " + SITE].join("\n");
+  return { objet, html, texte };
+};
+
+// ——— Retour au déposant (lot 5) ———
+
+/** « Ton son », « Ta recommandation »… selon ce qui a été déposé. */
+const NOM_DEPOT: Record<string, string> = { son: "Ton son", coulisses: "Ton son", projet: "Ton son", ecoute: "Ta recommandation", appel: "Ton annonce" };
+
+/** E-mail court au « tu » quand le numéro qui reprend un dépôt « Retenu » part par e-mail. */
+export const emailDeposant = (n: Pick<NumeroEmail, "numero" | "mois" | "slug">, d: { titre: string; type: string }): EmailConstruit => {
+  const quoi = NOM_DEPOT[d.type] || "Ton son";
+  const mois = moisAnnee(n.mois);
+  const titre = texteSimple(d.titre);
+  const objet = `${quoi} « ${titre} » est dans L'Onde du Sud de ${mois}`;
+  const page = lienSite(`/onde/${n.slug}`, n.numero);
+  const l1 = `${quoi} « ${titre} » est dans le numéro de ${mois} de L'Onde du Sud, avec ton nom et un lien vers ta page.`;
+  const l2 = "Merci de l'avoir déposé : c'est avec les sons des membres que la lettre se fabrique.";
+  const html = `<!DOCTYPE html>
+<html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="color-scheme" content="light"><title>${esc(objet)}</title></head>
+<body style="margin:0;padding:0;background:${C.fond};">
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" bgcolor="${C.fond}" style="background:${C.fond};"><tr><td align="center" style="padding:24px 10px;">
+<table role="presentation" width="600" cellpadding="0" cellspacing="0" border="0" bgcolor="${C.blanc}" style="width:600px;max-width:100%;background:${C.blanc};border:2px solid ${C.encre};">
+<tr><td style="padding:20px 32px;border-bottom:2px solid ${C.encre};"><p style="margin:0;font-family:${POLICE};font-size:24px;line-height:28px;font-weight:800;color:${C.encre};">L'Onde du Sud<span style="color:${C.orange};">.</span></p></td></tr>
+<tr><td style="padding:26px 32px 32px 32px;font-family:${POLICE};font-size:17px;line-height:26px;color:${C.encre};">
+<p style="margin:0 0 14px 0;">Bonjour,</p>
+<p style="margin:0 0 14px 0;">${esc(l1)}</p>
+<p style="margin:0 0 22px 0;">${esc(l2)}</p>
+${bouton(page, "Lire le numéro", C.bleu, C.blanc)}
+</td></tr>
+<tr><td bgcolor="${C.fond}" style="padding:16px 32px;background:${C.fond};border-top:2px solid ${C.encre};font-family:${POLICE};font-size:13px;line-height:19px;color:${C.gris};">Les Podcasteur·euses du Sud · <a href="${SITE}" style="color:${C.gris};">les-podcasteur-euses-du-sud.fr</a></td></tr>
+</table></td></tr></table></body></html>`;
+  const texte = ["Bonjour,", "", l1, l2, "", `Lire le numéro : ${page}`, "", "Les Podcasteur·euses du Sud — " + SITE].join("\n");
   return { objet, html, texte };
 };

@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import {
-  AlertTriangle, ArrowDown, ArrowUp, BarChart3, CalendarDays, CalendarRange, Check, Eye, Image as ImageIcon, Loader2,
+  AlertTriangle, ArrowDown, ArrowUp, BarChart3, CalendarDays, CalendarRange, Check, Eye, Image as ImageIcon, Inbox, Loader2,
   Mic, Music, MousePointerClick, Plus, Trash2, Type, Users, X,
 } from "lucide-react";
 import { toast } from "sonner";
@@ -12,6 +12,7 @@ import AdminLayout from "@/components/admin/AdminLayout";
 import { BadgeEnvoi, BadgeStatut, btnIcone, dateHeure, messageOnde, useEnvoisResume, useNomsEquipe } from "@/components/onde/adminOnde";
 import { BoutonFichier, Champ, ChampTexteRiche } from "@/components/onde/champsOnde";
 import { EditeurEvenements, EditeurNouveauxMembres, EditeurPodcast } from "@/components/onde/EditeursAuto";
+import { EditeurDepot } from "@/components/onde/BlocDepot";
 import EnvoiOnde from "@/components/onde/EnvoiOnde";
 import { useAdminAuth } from "@/hooks/useAdminAuth";
 import {
@@ -33,7 +34,7 @@ type Envoi = (cle: string, file: File, sorte: "image" | "audio", apres: (url: st
 
 const ICONES: Record<TypeBloc, typeof Type> = {
   texte: Type, images: ImageIcon, audio: Music, bouton: MousePointerClick, chiffres: BarChart3,
-  evenements: CalendarDays, podcast: Mic, nouveaux_membres: Users, trimestre: CalendarRange,
+  evenements: CalendarDays, podcast: Mic, nouveaux_membres: Users, trimestre: CalendarRange, depot: Inbox,
 };
 
 const EditeurBloc = ({
@@ -159,6 +160,7 @@ const EditeurBloc = ({
         {b.type === "evenements" && <EditeurEvenements b={b} pid={pid} onChange={onChange} />}
         {b.type === "podcast" && <EditeurPodcast b={b} pid={pid} resoudre={resoudre} envoi={envoi} envoyer={envoyer} onChange={onChange} />}
         {b.type === "nouveaux_membres" && <EditeurNouveauxMembres b={b} pid={pid} numeroId={numeroId} onChange={onChange} />}
+        {b.type === "depot" && <EditeurDepot b={b} pid={pid} numeroId={numeroId} resoudre={resoudre} onChange={onChange} />}
 
         {(b.type === "chiffres" || b.type === "trimestre") && (
           <div className="space-y-3">
@@ -229,6 +231,18 @@ const AdminOndeNumero = () => {
   const version = useRef(0);
 
   useEffect(() => { if (charge && !n) setN(charge); }, [charge, n]);
+
+  // Arrivée depuis « Utiliser dans un numéro » (#bloc-…) : le bloc créé est montré
+  const blocVise = useRef(false);
+  useEffect(() => {
+    if (!n || blocVise.current || !window.location.hash.startsWith("#bloc-")) return;
+    blocVise.current = true;
+    requestAnimationFrame(() => {
+      const el = document.getElementById(window.location.hash.slice(1));
+      el?.scrollIntoView({ behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" });
+      (document.getElementById(`${window.location.hash.slice(1)}-titre`) as HTMLInputElement | null)?.focus({ preventScroll: true });
+    });
+  }, [n]);
 
   const resoudre = useFichiersEquipe(n ? fichiersNumero(n) : []);
   const nom = useNomsEquipe(n ? [n.auteur_id, n.modifie_par] : []);
@@ -544,7 +558,7 @@ const AdminOndeNumero = () => {
             <div className="border-2 border-dashed border-encre p-4">
               <p className="font-bold mb-3">Ajouter un bloc</p>
               <ul className="grid sm:grid-cols-2 lg:grid-cols-3 gap-3">
-                {TYPES_BLOCS.map((t) => {
+                {TYPES_BLOCS.filter((t) => !t.horsAjout).map((t) => {
                   const Icone = ICONES[t.type];
                   return (
                     <li key={t.type}>

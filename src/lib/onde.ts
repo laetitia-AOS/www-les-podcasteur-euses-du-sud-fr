@@ -27,9 +27,14 @@ export type BlocPodcast = Base & { type: "podcast"; podcast_id?: string; texte?:
 /** Rempli par la base : « membres » est la liste arrêtée à la publication (jamais écrite par le navigateur). */
 export type BlocNouveauxMembres = Base & { type: "nouveaux_membres"; mois?: string; membres?: string[] };
 export type BlocTrimestre = Base & { type: "trimestre"; titre?: string; texte?: string; chiffres: Chiffre[] };
+/**
+ * Lot 5 : bloc créé depuis un dépôt d'un·e membre (« Utiliser dans un numéro »). Texte, son et photo sont copiés
+ * puis retouchables ; « Déposé par » est relu à chaque affichage d'après « depot_id » (onde_credits_depots).
+ */
+export type BlocDepot = Base & { type: "depot"; depot_id: string; titre?: string; texte?: string; url?: string; lien?: string; photo?: ImageOnde };
 export type Bloc =
   | BlocTexte | BlocImages | BlocAudio | BlocBouton | BlocChiffres
-  | BlocEvenements | BlocPodcast | BlocNouveauxMembres | BlocTrimestre;
+  | BlocEvenements | BlocPodcast | BlocNouveauxMembres | BlocTrimestre | BlocDepot;
 export type TypeBloc = Bloc["type"];
 
 export type NumeroOnde = {
@@ -87,7 +92,8 @@ export const IMAGE_MAX_OCTETS = 3 * 1024 * 1024;
 export const AUDIO_MAX_OCTETS = 20 * 1024 * 1024;
 export const IMAGE_TYPES = ["image/jpeg", "image/png", "image/webp"];
 
-export const TYPES_BLOCS: ReadonlyArray<{ type: TypeBloc; label: string; aide: string; mention?: string }> = [
+/** « horsAjout » : bloc créé ailleurs (onglet « Dépôts du mois »), absent de la liste « Ajouter un bloc ». */
+export const TYPES_BLOCS: ReadonlyArray<{ type: TypeBloc; label: string; aide: string; mention?: string; horsAjout?: boolean }> = [
   { type: "texte", label: "Texte", aide: "Un titre et un texte, avec gras, italique et liens." },
   { type: "images", label: "Photo ou galerie", aide: "De 1 à 6 photos." },
   { type: "audio", label: "Extrait audio", aide: "Un MP3 qui se lance dans le lecteur du site." },
@@ -97,6 +103,7 @@ export const TYPES_BLOCS: ReadonlyArray<{ type: TypeBloc; label: string; aide: s
   { type: "podcast", label: "Podcast à l'écoute", aide: "Un podcast de l'annuaire, votre présentation et un extrait si vous voulez." },
   { type: "nouveaux_membres", label: "Les nouveaux membres du mois", aide: "Rempli tout seul, rien à écrire." },
   { type: "trimestre", label: "Le trimestre du collectif", aide: "Un texte et de 2 à 4 chiffres clés.", mention: "chaque trimestre" },
+  { type: "depot", label: "Dépôt d'un·e membre", aide: "Créé depuis l'onglet « Dépôts du mois ».", horsAjout: true },
 ];
 
 export const libelleType = (t: TypeBloc) => TYPES_BLOCS.find((b) => b.type === t)?.label ?? t;
@@ -117,6 +124,7 @@ export const nouveauBloc = (type: TypeBloc, moisNumero?: string): Bloc => {
     case "podcast": return { id, type, rubrique: "À l'écoute", podcast_id: "", texte: "", url: "", titre: "" };
     case "nouveaux_membres": return { id, type, rubrique: "Les nouveaux membres du mois", mois: moisPrecedent(moisNumero || moisCourant()) };
     case "trimestre": return { id, type, rubrique: "Le trimestre du collectif", titre: "", texte: "", chiffres: [{ valeur: "", libelle: "" }, { valeur: "", libelle: "" }] };
+    case "depot": return { id, type, rubrique: "", depot_id: "", titre: "", texte: "" };
   }
 };
 
@@ -295,6 +303,11 @@ export const manquesPublication = (n: Pick<NumeroOnde, "titre" | "chapeau" | "co
     }
     if (b.type === "nouveaux_membres" && !b.mois) m.push(`${q} : le mois.`);
     if (b.type === "trimestre" && !(b.texte || "").trim()) m.push(`${q} : le texte.`);
+    if (b.type === "depot") {
+      if (!(b.titre || "").trim()) m.push(`${q} : le titre.`);
+      if (b.photo?.url && !(b.photo.alt || "").trim()) m.push(`${q} : le texte alternatif de la photo.`);
+      if (b.lien && !lienSur(b.lien.trim())) m.push(`${q} : le lien d'écoute doit commencer par https://`);
+    }
     if (b.type === "chiffres" || b.type === "trimestre") {
       if (b.chiffres.length < LIMITES_ONDE.chiffresMin || b.chiffres.length > LIMITES_ONDE.chiffresMax) m.push(`${q} : de 2 à 4 chiffres.`);
       if (b.chiffres.some((c) => !c.valeur.trim() || !c.libelle.trim())) m.push(`${q} : chaque chiffre avec son libellé.`);
@@ -364,7 +377,7 @@ export const useNumeroPublie = (slug: string | undefined) =>
 // ——— Fichiers ———
 
 /** Chemin d'un fichier dans l'espace « onde », d'après son adresse publique. */
-export const cheminFichier = (url: string): string | null => /\/onde-media\/([0-9a-f-]{36}\/[A-Za-z0-9_-]+\.(?:jpg|png|webp|mp3))$/.exec(url)?.[1] ?? null;
+export const cheminFichier = (url: string): string | null => /\/onde-media\/((?:depots\/)?[0-9a-f-]{36}\/[A-Za-z0-9_-]+\.(?:jpg|png|webp|mp3))$/.exec(url)?.[1] ?? null;
 
 /** Tous les fichiers d'un numéro (couverture, audio, photos, extraits). */
 export const fichiersNumero = (n: Pick<NumeroOnde, "couverture_url" | "audio_url" | "blocs">): string[] => {
@@ -373,7 +386,8 @@ export const fichiersNumero = (n: Pick<NumeroOnde, "couverture_url" | "audio_url
   if (n.audio_url) out.push(n.audio_url);
   for (const b of n.blocs) {
     if (b.type === "images") b.images.forEach((i) => i.url && out.push(i.url));
-    if ((b.type === "audio" || b.type === "podcast") && b.url) out.push(b.url);
+    if ((b.type === "audio" || b.type === "podcast" || b.type === "depot") && b.url) out.push(b.url);
+    if (b.type === "depot" && b.photo?.url) out.push(b.photo.url);
   }
   return out;
 };

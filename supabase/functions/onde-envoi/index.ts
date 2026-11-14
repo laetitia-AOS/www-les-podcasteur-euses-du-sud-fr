@@ -3,7 +3,7 @@
 // Les adresses des destinataires ne quittent jamais le serveur, sauf les adresses en erreur, montrées aux seuls admins.
 import { createClient } from "npm:@supabase/supabase-js@2.45.0";
 import {
-  ONDE_COPIE, ONDE_EXPEDITEUR, ONDE_REPONSE, SITE, emailNumero, objetNumero,
+  ONDE_COPIE, ONDE_EXPEDITEUR, ONDE_REPONSE, SITE, emailDeposant, emailNumero, nomDeposant, objetNumero,
   type ContexteEmail, type MembreEmail, type ModeEmail, type NumeroEmail,
 } from "../_shared/onde-email.ts";
 import { resendConfigure, resendEnvoyer, resendLot, type MessageResend } from "../_shared/resend.ts";
@@ -44,7 +44,49 @@ async function contexte(n: NumeroEmail): Promise<ContexteEmail> {
     const { data } = await pub.rpc("onde_nouveaux_membres", { _numero_id: n.id, _bloc_id: b.id });
     membres[b.id] = (data || []) as MembreEmail[];
   }
-  return { evenements: ev.data || [], podcasts: pod.data || [], membres };
+  // Lot 5 : « Déposé par » (nom et fiche visible, relus comme sur le site) et nombre de dépôts du mois pour l'encart
+  const deposants: NonNullable<ContexteEmail["deposants"]> = {};
+  if (n.blocs.some((b) => b.type === "depot")) {
+    const { data } = await pub.rpc("onde_credits_depots", { _numero_id: n.id });
+    for (const c of (data || []) as { depot_id: string; prenom: string | null; nom: string | null; fiche_id: string | null; slug: string | null; type_profil: string | null; nom_podcast: string | null }[]) {
+      const nom = nomDeposant(c);
+      if (!nom) continue;
+      deposants[c.depot_id] = { nom, href: c.fiche_id ? ficheHref({ id: c.fiche_id, slug: c.slug, type_profil: c.type_profil, nom_podcast: c.nom_podcast }) : null };
+    }
+  }
+  const { data: depotsCeMois } = await pub.rpc("onde_depots_ce_mois");
+  return { evenements: ev.data || [], podcasts: pod.data || [], membres, deposants, depotsCeMois: typeof depotsCeMois === "number" ? depotsCeMois : 0 };
+}
+
+/** Même règle que ficheHref du site (src/lib/seo.ts). */
+function ficheHref(p: { id: string; slug: string | null; type_profil: string | null; nom_podcast: string | null }) {
+  const id = p.slug || p.id;
+  if (p.type_profil === "studio") return `/studios/${id}`;
+  if (p.type_profil === "structure_eco") return `/structures/${id}`;
+  if (p.type_profil === "podcasteur" && (p.nom_podcast || "").trim() && !/^[—–\-.\s]+$/.test(p.nom_podcast || "")) return `/ecouter/${id}`;
+  return `/annuaire/${id}`;
+}
+
+/**
+ * Lot 5 : quand le numéro part, chaque membre dont le dépôt « Retenu » y figure reçoit un court e-mail (une seule fois).
+ * Ne bloque jamais l'envoi du numéro.
+ */
+async function notifierDeposants(admin: Client, n: NumeroEmail) {
+  try {
+    const { data } = await admin.rpc("onde_depots_a_notifier", { _numero_id: n.id });
+    for (const d of (data || []) as { id: string; email: string; titre: string; type: string }[]) {
+      const e = emailDeposant(n, d);
+      const r = await resendEnvoyer({ from: ONDE_EXPEDITEUR, to: [d.email], reply_to: ONDE_REPONSE, subject: e.objet, html: e.html, text: e.texte }, `onde-depot-${d.id}`);
+      if (r.ok) await admin.rpc("onde_depot_notifie", { _id: d.id });
+      else {
+        console.error("retour au déposant", r.erreur);
+        if (r.quota) break;
+      }
+      await attendre(PAUSE);
+    }
+  } catch (e) {
+    console.error("retour aux déposant·es", e instanceof Error ? e.message : e);
+  }
 }
 
 const enTetes = (jeton: string): Record<string, string> => ({
@@ -191,6 +233,7 @@ Deno.serve(async (req) => {
       return json({ error: "L'envoi n'a pas pu démarrer. Réessayez." }, 500);
     }
     await traiter(admin, envoiId as string, numero, ctx);
+    await notifierDeposants(admin, numero);
     return json({ ok: true, envoi: await bilan() });
   }
 
@@ -199,5 +242,6 @@ Deno.serve(async (req) => {
   if (!b) return json({ error: "Ce numéro n'a pas encore été envoyé." }, 409);
   if (b.statut === "termine") return json({ error: "Cet envoi est déjà terminé." }, 409);
   await traiter(admin, b.id, numero, ctx);
+  await notifierDeposants(admin, numero);
   return json({ ok: true, envoi: await bilan() });
 });
