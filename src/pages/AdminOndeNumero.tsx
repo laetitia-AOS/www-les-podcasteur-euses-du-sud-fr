@@ -425,7 +425,17 @@ const AdminOndeNumero = () => {
               target="_blank"
               rel="noopener noreferrer"
               className={btnSecondary}
-              onClick={() => { if (!publie && etat.t === "modifie") void enregistrer(); }}
+              onClick={async (e) => {
+                // Brouillon modifié : on enregistre d'abord, puis l'aperçu s'ouvre sur la version à jour
+                if (publie || (etat.t !== "modifie" && etat.t !== "encours")) return;
+                e.preventDefault();
+                const onglet = window.open("about:blank", "_blank");
+                if (onglet) onglet.opener = null;
+                await enregistrer();
+                const adresse = `/admin/onde/${n.id}/apercu`;
+                if (onglet) onglet.location.href = adresse;
+                else window.open(adresse, "_blank", "noopener");
+              }}
             >
               <Eye className="w-4 h-4" aria-hidden /> Aperçu<span className="sr-only"> (nouvel onglet)</span>
             </a>

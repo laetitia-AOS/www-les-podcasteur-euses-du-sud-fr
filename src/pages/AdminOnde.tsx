@@ -65,6 +65,13 @@ const AdminOnde = () => {
 
   const supprimer = useMutation({
     mutationFn: async (id: string) => {
+      // Les fichiers du numéro (photos, MP3) sont effacés d'abord : en cas d'échec, le numéro reste intact
+      const { data: fichiers, error: errListe } = await supabase.storage.from("onde").list(id, { limit: 1000 });
+      if (errListe) throw errListe;
+      if (fichiers?.length) {
+        const { error: errFichiers } = await supabase.storage.from("onde").remove(fichiers.map((f) => `${id}/${f.name}`));
+        if (errFichiers) throw errFichiers;
+      }
       const { error, count } = await supabase.from("onde_numeros").delete({ count: "exact" }).eq("id", id);
       if (error) throw error;
       if (!count) throw { code: "42501" };
@@ -159,7 +166,7 @@ const AdminOnde = () => {
           <AlertDialogHeader>
             <AlertDialogTitle>Supprimer le n°{aSupprimer?.numero} ?</AlertDialogTitle>
             <AlertDialogDescription>
-              Le numéro disparaît du site et de cette liste, sans retour possible. Pour le retirer seulement du site, ouvrez-le et cliquez sur « Retirer du site ».
+              Le numéro et ses fichiers (photos, MP3) disparaissent du site et de cette liste, sans retour possible. Pour le retirer seulement du site, ouvrez-le et cliquez sur « Retirer du site ».
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>

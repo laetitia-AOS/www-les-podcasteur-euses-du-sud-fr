@@ -8,7 +8,7 @@ import {
   type Bloc, type BlocAudio, type NumeroOnde,
 } from "@/lib/onde";
 
-type Resoudre = (url: string) => string;
+type Resoudre = (url: string) => string | undefined;
 const identite: Resoudre = (u) => u;
 
 const btnRond =

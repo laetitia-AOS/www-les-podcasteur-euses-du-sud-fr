@@ -11,19 +11,24 @@ const CORS = {
   "Access-Control-Expose-Headers": "content-length, content-range, accept-ranges",
 };
 
+// Une réponse « introuvable » n'est jamais gardée en cache : un fichier demandé avant la publication
+// doit s'afficher dès que le numéro est publié.
+const introuvable = () =>
+  new Response("Fichier introuvable", { status: 404, headers: { ...CORS, "Cache-Control": "no-store" } });
+
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response("ok", { headers: CORS });
   if (req.method !== "GET" && req.method !== "HEAD") return new Response("Méthode non autorisée", { status: 405, headers: CORS });
 
   const m = new URL(req.url).pathname.match(CHEMIN);
-  if (!m) return new Response("Fichier introuvable", { status: 404, headers: CORS });
+  if (!m) return introuvable();
   const [, numeroId, nom, ext] = m;
 
   const url = Deno.env.get("SUPABASE_URL")!;
   const cle = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
   const admin = createClient(url, cle, { auth: { persistSession: false } });
   const { data: numero } = await admin.from("onde_numeros").select("id").eq("id", numeroId).eq("statut", "publie").maybeSingle();
-  if (!numero) return new Response("Fichier introuvable", { status: 404, headers: CORS });
+  if (!numero) return introuvable();
 
   const headers: Record<string, string> = { Authorization: `Bearer ${cle}`, apikey: cle };
   const range = req.headers.get("Range");
@@ -31,7 +36,7 @@ Deno.serve(async (req) => {
   const r = await fetch(`${url}/storage/v1/object/onde/${numeroId}/${nom}.${ext}`, { method: req.method, headers });
   if (!r.ok && r.status !== 206) {
     await r.body?.cancel();
-    return new Response("Fichier introuvable", { status: 404, headers: CORS });
+    return introuvable();
   }
 
   const out = new Headers(CORS);

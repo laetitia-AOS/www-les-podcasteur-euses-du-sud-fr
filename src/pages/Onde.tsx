@@ -3,8 +3,8 @@ import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import SEOHead from "@/components/SEOHead";
 import { container, h1Ligne } from "@/lib/pds";
-import { PAGES, PAGES_SEO, SITE_NAME, SITE_URL, breadcrumbLd } from "@/lib/seo";
-import { NOM_ONDE, etiquetteNumero, ondeHref, useNumerosPublies } from "@/lib/onde";
+import { PAGES, PAGES_SEO, SITE_URL, breadcrumbLd } from "@/lib/seo";
+import { NOM_COMPLET_ONDE, NOM_ONDE, etiquetteNumero, ondeHref, useNumerosPublies } from "@/lib/onde";
 
 /** Archives de L'Onde du Sud, du numéro le plus récent au plus ancien. */
 const Onde = () => {
@@ -19,7 +19,7 @@ const Onde = () => {
       ? {
           "@context": "https://schema.org",
           "@type": "ItemList",
-          name: `${NOM_ONDE}, la lettre des ${SITE_NAME}`,
+          name: NOM_COMPLET_ONDE,
           url: `${SITE_URL}${PAGES.onde}`,
           itemListElement: numeros.map((n, i) => ({
             "@type": "ListItem",
@@ -39,7 +39,7 @@ const Onde = () => {
         <div className={`${container} pt-10 md:pt-14`}>
           <h1 className="title-page text-[52px] sm:text-[88px]">
             <span className="block">{NOM_ONDE}<span className="sr-only">, </span></span>
-            <span className={h1Ligne}>la lettre des {SITE_NAME}</span>
+            <span className={h1Ligne}>la lettre des Podcasteur·euses du Sud</span>
           </h1>
           <p className="mt-4 text-lg max-w-[60ch]">
             Chaque mois, un numéro à lire et à écouter : les rendez-vous du réseau, des podcasts d'ici et la vie de l'association.

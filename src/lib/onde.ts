@@ -6,6 +6,8 @@ import type { Episode } from "@/lib/episodes";
 import { SITE_NAME, SITE_URL, descriptionSeo } from "@/lib/seo";
 
 export const NOM_ONDE = "L'Onde du Sud";
+/** Nom complet de la lettre (H1 des archives, données structurées). */
+export const NOM_COMPLET_ONDE = "L'Onde du Sud, la lettre des Podcasteur·euses du Sud";
 
 export type ImageOnde = { url: string; alt?: string };
 export type Chiffre = { valeur: string; libelle: string };
@@ -171,7 +173,7 @@ export const articleOndeLd = (n: NumeroOnde) => {
     inLanguage: "fr-FR",
     author: { "@type": "Organization", name: SITE_NAME, url: SITE_URL },
     publisher: editeur,
-    isPartOf: { "@type": "Periodical", name: `${NOM_ONDE}, la lettre des ${SITE_NAME}`, url: `${SITE_URL}/onde` },
+    isPartOf: { "@type": "Periodical", name: NOM_COMPLET_ONDE, url: `${SITE_URL}/onde` },
     ...(n.couverture_url ? { image: [n.couverture_url] } : {}),
     ...(n.audio_url
       ? { audio: { "@type": "AudioObject", contentUrl: n.audio_url, encodingFormat: "audio/mpeg", name: `${NOM_ONDE} n°${n.numero}, version audio` } }
@@ -258,8 +260,9 @@ export const manquesPublication = (n: Pick<NumeroOnde, "titre" | "chapeau" | "co
 // ——— Lecteur audio du site ———
 
 /** Version audio du numéro, ou un extrait, prêt pour le lecteur en bas de page. */
-export const episodeOnde = (n: NumeroOnde, extrait?: BlocAudio, resoudre: (u: string) => string = (u) => u): Episode | null => {
-  const url = extrait ? extrait.url : n.audio_url;
+export const episodeOnde = (n: NumeroOnde, extrait?: BlocAudio, resoudre: (u: string) => string | undefined = (u) => u): Episode | null => {
+  const brut = extrait ? extrait.url : n.audio_url;
+  const url = brut ? resoudre(brut) : undefined;
   if (!url) return null;
   const nom = `${NOM_ONDE} n°${n.numero}`;
   return {
@@ -271,8 +274,8 @@ export const episodeOnde = (n: NumeroOnde, extrait?: BlocAudio, resoudre: (u: st
     title: extrait ? extrait.titre || "Extrait" : n.titre || nom,
     date: n.publie_le,
     duration: null,
-    audioUrl: resoudre(url),
-    image: n.couverture_url ? resoudre(n.couverture_url) : null,
+    audioUrl: url,
+    image: (n.couverture_url && resoudre(n.couverture_url)) || null,
     link: extrait?.lien || null,
     href: n.slug ? ondeHref(n.slug) : undefined,
   };
@@ -347,9 +350,10 @@ export const useFichiersEquipe = (urls: string[]) => {
       return table;
     },
   });
-  return (url: string) => {
+  // Tant que le lien temporaire n'est pas prêt, rien n'est demandé (jamais l'adresse publique d'un brouillon)
+  return (url: string): string | undefined => {
     const c = cheminFichier(url);
-    return (c && q.data?.[c]) || url;
+    return c ? q.data?.[c] : url;
   };
 };
 

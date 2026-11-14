@@ -267,6 +267,20 @@
       "when": 1794620120183,
       "tag": "0037_onde_fichiers",
       "breakpoints": true
+    },
+    {
+      "idx": 38,
+      "version": "7",
+      "when": 1794621109749,
+      "tag": "0038_onde_fichiers_suppression",
+      "breakpoints": true
+    },
+    {
+      "idx": 39,
+      "version": "7",
+      "when": 1794621155251,
+      "tag": "0039_onde_droits_visiteurs",
+      "breakpoints": true
     }
   ]
 }

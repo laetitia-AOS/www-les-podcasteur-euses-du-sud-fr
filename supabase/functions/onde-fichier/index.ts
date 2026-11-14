@@ -38,6 +38,14 @@ Deno.serve(async (req) => {
     const url = Deno.env.get("SUPABASE_URL")!;
     const admin = createClient(url, Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!, { auth: { persistSession: false } });
 
+    // Le contenu est toujours lu en entier avant de répondre (sinon l'envoi reste bloqué côté navigateur)
+    const taille = Number(req.headers.get("Content-Length") || 0);
+    if (taille > AUDIO_MAX + 1024 * 1024) {
+      await req.body?.cancel();
+      return json({ error: "Fichier trop lourd : 20 Mo au maximum." }, 413);
+    }
+    const form = await req.formData().catch(() => null);
+    if (!form) return json({ error: "Envoi invalide." }, 400);
     // Qui envoie : session obligatoire, rôle admin ou éditeur·ice lu en base
     const token = (req.headers.get("Authorization") || "").replace(/^Bearer\s+/i, "");
     const { data: u } = token ? await createClient(url, Deno.env.get("SUPABASE_ANON_KEY")!).auth.getUser(token) : { data: { user: null } };
@@ -50,8 +58,6 @@ Deno.serve(async (req) => {
     if (rolesError) return json({ error: "Envoi impossible pour le moment." }, 500);
     if (!roles?.length) return json({ error: "Seul·es les admins et les éditeur·ices de L'Onde peuvent envoyer des fichiers." }, 403);
 
-    const form = await req.formData().catch(() => null);
-    if (!form) return json({ error: "Envoi invalide." }, 400);
     const numeroId = String(form.get("numero_id") || "");
     const attendu = String(form.get("sorte") || "");
     const file = form.get("file");
