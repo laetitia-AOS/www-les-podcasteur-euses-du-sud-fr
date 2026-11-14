@@ -11,6 +11,8 @@ import { NOM_COMPLET_ONDE, NOM_ONDE, etiquetteNumero, ondeHref, useNumerosPublie
 /** Archives de L'Onde du Sud, du numéro le plus récent au plus ancien. */
 const Onde = () => {
   const { data: numeros = [], isLoading, isError } = useNumerosPublies();
+  // Aucun numéro publié : l'abonnement passe en haut de la page, sous le titre
+  const aucunNumero = !isLoading && !isError && numeros.length === 0;
 
   const jsonLd = [
     breadcrumbLd([
@@ -46,14 +48,14 @@ const Onde = () => {
           <p className="mt-4 text-lg max-w-[60ch]">
             Chaque mois, un numéro à lire et à écouter : les rendez-vous du réseau, des podcasts d'ici et la vie de l'association.
           </p>
+          {aucunNumero && (
+            <InscriptionOnde ancre="recevoir" mention="Le premier numéro arrive en décembre" className="mt-8 max-w-[860px]" />
+          )}
           <EncartDepot className="mt-8 max-w-[860px]" />
 
-          <div className="mt-12 border-t-2 border-encre">
+          <div className={`mt-12 border-t-2 border-encre ${aucunNumero ? "hidden" : ""}`}>
             {isLoading && <p className="py-8 text-muted-foreground">Chargement des numéros…</p>}
             {isError && <p className="py-8">Les numéros n'ont pas pu être chargés. Réessayez dans un instant.</p>}
-            {!isLoading && !isError && numeros.length === 0 && (
-              <p className="py-8 text-muted-foreground">Le premier numéro arrive bientôt.</p>
-            )}
             <ul className="grid md:grid-cols-2 gap-x-10">
               {numeros.map((n, i) => (
                 <li key={n.id} className={`py-8 border-b border-filet ${i === 0 ? "md:col-span-2" : ""}`}>
@@ -85,7 +87,7 @@ const Onde = () => {
             </ul>
           </div>
 
-          <InscriptionOnde ancre="recevoir" className="mt-14 max-w-[860px]" />
+          {!isLoading && !aucunNumero && <InscriptionOnde ancre="recevoir" className="mt-14 max-w-[860px]" />}
         </div>
       </main>
       <Footer />

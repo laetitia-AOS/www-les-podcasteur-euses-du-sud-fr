@@ -1,6 +1,7 @@
 // L'Onde du Sud, la lettre mensuelle des Podcasteur·euses du Sud : types, règles, mise en forme et chargements.
 // Les mêmes règles sont appliquées côté serveur (déclencheur guard_onde_numeros) ; ici, elles guident la saisie.
-import { useQuery } from "@tanstack/react-query";
+import { useEffect } from "react";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { FunctionsHttpError } from "@supabase/supabase-js";
 import { supabase } from "@/integrations/supabase/client";
 import type { Episode } from "@/lib/episodes";
@@ -514,6 +515,32 @@ export const inscrireOnde = async (prenom: string | null, email: string, source:
   if (!error) return { error: null };
   const corps = error instanceof FunctionsHttpError ? await error.context.json().catch(() => ({})) : {};
   return { error: { code: corps?.code, message: corps?.error || error.message } };
+};
+
+/**
+ * Adhérent·e à jour connecté·e : reçoit déjà L'Onde d'office (même règle d'année civile et de tolérance que
+ * `onde_destinataires`, lue par `mon_adhesion`) ; on lui montre alors un message au lieu du formulaire.
+ * Personne non connectée : aucune requête au serveur.
+ */
+export const useMembreOnde = () => {
+  const qc = useQueryClient();
+  useEffect(() => {
+    const { data } = supabase.auth.onAuthStateChange((evt) => {
+      if (evt === "SIGNED_IN" || evt === "SIGNED_OUT") qc.invalidateQueries({ queryKey: ["onde-membre"] });
+    });
+    return () => data.subscription.unsubscribe();
+  }, [qc]);
+  return useQuery({
+    queryKey: ["onde-membre"],
+    staleTime: 5 * 60_000,
+    queryFn: async (): Promise<boolean> => {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) return false;
+      const { data } = await supabase.rpc("mon_adhesion");
+      const etat = (Array.isArray(data) ? data[0] : data)?.etat;
+      return etat === "a_jour" || etat === "tolerance";
+    },
+  });
 };
 
 // ——— Envoi par e-mail (lot 4) ———

@@ -131,3 +131,4 @@
 - [x] Lot 3 : abonné·es (inscription, confirmation, désinscription, onglet admin « Abonnés »)
 - [x] Lot 4 : envoi par e-mail (Resend)
 - [x] Lot 5 : dépôts des membres (espace membre « Déposer pour L'Onde », onglet admin « Dépôts du mois », bloc « Déposé par », encart en bas des numéros, e-mail au déposant, vérifications, scan)
+- [x] Abonnement visible partout : pied de page, accueil, menu « L'Onde », haut de /onde sans numéro, message aux membres à jour

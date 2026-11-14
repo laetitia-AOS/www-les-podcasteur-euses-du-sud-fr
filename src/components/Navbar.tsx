@@ -9,6 +9,7 @@ const links = [
   { label: "Annuaire", href: "/annuaire", match: ["/annuaire"] },
   { label: "Studios", href: "/studios", match: ["/studios", "/annuaire/studios", "/annuaire/structures"] },
   { label: "Agenda", href: "/agenda", match: ["/evenements-podcast", "/evenement-podcast", "/proposer-evenement-podcast", "/agenda"] },
+  { label: "L'Onde", href: "/onde", match: ["/onde"] },
 ];
 
 const Navbar = () => {

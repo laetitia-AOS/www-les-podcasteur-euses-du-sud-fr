@@ -9,6 +9,7 @@ import HomeQuiCherche from "@/components/home/HomeQuiCherche";
 import HomeAgenda from "@/components/home/HomeAgenda";
 import HomePresse from "@/components/home/HomePresse";
 import HomeReseau from "@/components/home/HomeReseau";
+import HomeOnde from "@/components/home/HomeOnde";
 import { useHomeProfiles, useUpcomingEvents } from "@/components/home/useHomeData";
 import { useLatestEpisodes, useRecentEpisodes } from "@/lib/episodes";
 
@@ -35,6 +36,7 @@ const Index = () => {
         <HomePhotos />
         <HomeQuiCherche profiles={profiles} />
         <HomeAgenda events={events} />
+        <HomeOnde />
         <HomePresse />
         <HomeReseau />
       </main>
