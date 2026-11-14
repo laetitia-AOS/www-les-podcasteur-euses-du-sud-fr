@@ -14,6 +14,14 @@ const json = (body: unknown, status = 200) =>
     headers: { ...corsHeaders, "Content-Type": "application/json" },
   });
 
+// Adresses réseau d'où HelloAsso envoie ses notifications (production), d'après sa documentation :
+// https://dev.helloasso.com/docs/secure-webhook
+const HELLOASSO_IPS = new Set(["51.138.206.200"]);
+
+/** Adresse réelle de l'appelant·e, posée par l'infrastructure (un appel ne peut pas la falsifier). */
+const adresseAppel = (req: Request): string =>
+  (req.headers.get("cf-connecting-ip") || req.headers.get("sb-forwarded-for") || "").split(",")[0].trim();
+
 const clean = (v: unknown, max = 200): string | null => {
   if (typeof v !== "string") return null;
   const s = v.replace(/[\u0000-\u001f\u007f]/g, "").trim().slice(0, max);
@@ -48,6 +56,12 @@ Deno.serve(async (req) => {
     // HelloAsso refuse la lecture : on garde le paiement, mais « à vérifier » (aucune fiche activée)
     // jusqu'à ce qu'un·e admin le confirme dans l'administration.
     const verified = check.status === "verified";
+    // Sans relecture possible, seul un message venu de HelloAsso lui-même est gardé « à vérifier » :
+    // personne d'autre ne peut faire enregistrer un paiement inventé au nom de quelqu'un.
+    if (!verified && !HELLOASSO_IPS.has(adresseAppel(req))) {
+      console.warn("Webhook refusé : commande non vérifiable et message hors HelloAsso");
+      return json({ error: "Order not verified" }, 403);
+    }
     const order = verified ? check.order : data;
     const supabase = createClient(Deno.env.get("SUPABASE_URL")!, Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!);
 

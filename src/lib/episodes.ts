@@ -130,9 +130,13 @@ export const fetchWelcomeEpisode = async (): Promise<Episode | null> => {
 /** Vérifie un lien de flux RSS côté serveur. Renvoie un message d'erreur, ou null si le flux est valide. */
 export const verifierFlux = async (url: string): Promise<{ ok: boolean; message: string }> => {
   try {
+    // Connecté·e : la session est jointe, le serveur peut alors lire tout hébergeur public
+    const { data: { session } } = await supabase.auth.getSession();
+    const headers: Record<string, string> = { "Content-Type": "application/json", apikey: import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY };
+    if (session?.access_token) headers.Authorization = `Bearer ${session.access_token}`;
     const res = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/verifier-flux`, {
       method: "POST",
-      headers: { "Content-Type": "application/json", apikey: import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY },
+      headers,
       body: JSON.stringify({ url }),
     });
     const data = (await res.json().catch(() => ({}))) as { ok?: boolean; message?: string };

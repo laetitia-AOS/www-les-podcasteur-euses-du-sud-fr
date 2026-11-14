@@ -38,14 +38,41 @@ const resolvesPublic = async (host: string): Promise<boolean> => {
 
 export type FetchResult = { ok: true; text: string } | { ok: false; reason: string };
 
-/** Télécharge une adresse publique : 8 s maximum, 5 Mo maximum, redirections vérifiées une à une. */
-export const safeFetchText = async (url: string, ms = 8000, maxBytes = MAX_FEED_BYTES): Promise<FetchResult> => {
+/**
+ * Hébergeurs de podcasts connus : les seuls qu'une personne non connectée peut faire lire au serveur
+ * (domaine exact ou sous-domaine).
+ */
+export const HEBERGEURS_FLUX = [
+  "ausha.co", "lepodcast.fr", "acast.com", "podcastics.com", "soundcloud.com", "anchor.fm", "spotify.com",
+  "podbean.com", "buzzsprout.com", "libsyn.com", "transistor.fm", "simplecast.com", "megaphone.fm",
+  "captivate.fm", "spreaker.com", "rss.com", "audiomeans.fr", "podcloud.fr", "blubrry.com", "omnycontent.com",
+  "art19.com", "feedburner.com", "redcircle.com", "podomatic.com", "castos.com", "hearthis.at", "audioboom.com",
+  "fireside.fm", "pinecast.com", "podigee.io", "sounder.fm", "zencastr.com", "smartcast.fr", "orini.net",
+  "radiofrance.fr", "arteradio.com",
+];
+
+export const hebergeurConnu = (host: string): boolean => {
+  const h = host.toLowerCase().replace(/\.$/, "");
+  return HEBERGEURS_FLUX.some((d) => h === d || h.endsWith(`.${d}`));
+};
+
+/**
+ * Télécharge une adresse publique : 8 s maximum, 5 Mo maximum, redirections vérifiées une à une.
+ * `autorise` (facultatif) restreint les domaines lus, redirections comprises (raison « hors_liste »).
+ */
+export const safeFetchText = async (
+  url: string,
+  ms = 8000,
+  maxBytes = MAX_FEED_BYTES,
+  autorise?: (host: string) => boolean,
+): Promise<FetchResult> => {
   let current = url;
   const ctrl = new AbortController();
   const timer = setTimeout(() => ctrl.abort(), ms);
   try {
     for (let hop = 0; hop < 5; hop++) {
       if (!isSafePublicUrl(current)) return { ok: false, reason: "adresse" };
+      if (autorise && !autorise(new URL(current).hostname)) return { ok: false, reason: "hors_liste" };
       if (!(await resolvesPublic(new URL(current).hostname))) return { ok: false, reason: "adresse" };
       const res = await fetch(current, {
         signal: ctrl.signal,

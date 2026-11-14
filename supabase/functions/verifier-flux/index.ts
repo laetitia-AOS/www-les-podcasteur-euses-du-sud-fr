@@ -1,7 +1,7 @@
 // Vérifie qu'un lien est bien un flux RSS de podcast lisible, avant de l'enregistrer.
 import { createClient } from "npm:@supabase/supabase-js@2";
 import { corsHeaders } from "npm:@supabase/supabase-js@2/cors";
-import { isSafePublicUrl, parseFeed, raisonLisible, safeFetchText } from "../_shared/flux.ts";
+import { hebergeurConnu, isSafePublicUrl, parseFeed, raisonLisible, safeFetchText } from "../_shared/flux.ts";
 
 const MAX_PAR_HEURE = 20;
 
@@ -11,6 +11,23 @@ const json = (body: unknown, status = 200) =>
 const hash = async (s: string) => {
   const d = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(`pds-flux:${s}`));
   return Array.from(new Uint8Array(d)).map((b) => b.toString(16).padStart(2, "0")).join("").slice(0, 32);
+};
+
+/**
+ * Une personne connectée qui a une fiche (ou un·e admin) peut faire lire n'importe quelle adresse publique.
+ * Sans connexion (inscription en cours), seuls les hébergeurs de podcasts connus sont lus.
+ */
+// deno-lint-ignore no-explicit-any
+const lectureLibre = async (req: Request, admin: any): Promise<boolean> => {
+  const auth = req.headers.get("Authorization") || "";
+  if (!auth.startsWith("Bearer ")) return false;
+  const { data } = await admin.auth.getUser(auth.slice(7));
+  const user = data?.user;
+  if (!user?.email) return false;
+  const { data: role } = await admin.from("user_roles").select("id").eq("user_id", user.id).eq("role", "admin").maybeSingle();
+  if (role) return true;
+  const { count } = await admin.from("podcasts").select("id", { count: "exact", head: true }).ilike("email", user.email.replace(/[\\%_]/g, "\\$&"));
+  return (count || 0) > 0;
 };
 
 const dateFr = (iso: string | null) =>
@@ -42,7 +59,13 @@ Deno.serve(async (req) => {
     // Ménage : les traces de plus d'un jour ne servent plus
     await admin.from("verifications_flux").delete().lt("created_at", new Date(Date.now() - 86400000).toISOString());
 
-    const r = await safeFetchText(url);
+    const libre = await lectureLibre(req, admin);
+    const r = await safeFetchText(url, undefined, undefined, libre ? undefined : hebergeurConnu);
+    // Hébergeur inconnu pendant l'inscription : le flux est accepté sans être lu ici ;
+    // la lecture régulière des flux le vérifiera, et l'équipe voit son état dans l'admin.
+    if (!r.ok && r.reason === "hors_liste") {
+      return json({ ok: true, verifie: false, message: "Flux enregistré : il sera vérifié après la validation de votre fiche." });
+    }
     if (!r.ok) return json({ ok: false, message: raisonLisible(r.reason) });
     const parsed = parseFeed(r.text, 1);
     if (!parsed) return json({ ok: false, message: "Ce lien ne mène pas à un flux RSS. Copiez le lien « RSS » donné par votre hébergeur (Ausha, Acast, Spotify for Creators…)." });
