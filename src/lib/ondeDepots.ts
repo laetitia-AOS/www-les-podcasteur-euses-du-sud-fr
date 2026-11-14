@@ -1,4 +1,4 @@
-// L'Onde du Sud, lot 5 : les dépôts des membres (un son, une écoute, un projet, des coulisses, un appel).
+// L'Onde du Sud, lot 5 : les dépôts des membres (un son, une écoute, un projet, des coulisses, un appel, une ressource).
 // Écriture par la fonction serveur « onde-depot » (adhérent·es à jour, fichiers vérifiés) ; lectures par des fonctions
 // de la base limitées à l'adresse connectée (mes_depots_onde) ou à l'équipe de L'Onde (onde_depots_equipe).
 import { useQuery } from "@tanstack/react-query";
@@ -12,7 +12,7 @@ export const ONDE_DEPOSER = "/onde/deposer";
 /** Section de l'espace membre. */
 export const ANCRE_DEPOT = "onde";
 
-export type TypeDepot = "son" | "ecoute" | "projet" | "coulisses" | "appel";
+export type TypeDepot = "son" | "ecoute" | "projet" | "coulisses" | "appel" | "ressource";
 export type StatutDepot = "nouveau" | "retenu" | "plus_tard" | "pas_retenu";
 
 /** Ce que l'on dépose, avec l'étiquette de rubrique proposée dans le numéro (même liste que la base : onde_etiquette_depot). */
@@ -22,7 +22,12 @@ export const TYPES_DEPOT: ReadonlyArray<{ id: TypeDepot; label: string; court: s
   { id: "projet", label: "Un projet en cours", court: "Projet en cours", etiquette: "En fabrication" },
   { id: "coulisses", label: "Les coulisses d'une fabrication (une prise de son, un micro, un montage, un silence)", court: "Coulisses", etiquette: "Les coulisses" },
   { id: "appel", label: "Un appel ou un événement", court: "Appel ou événement", etiquette: "Dans notre agenda" },
+  { id: "ressource", label: "Une ressource à partager (un outil, un tutoriel, un article, un guide, un lien utile pour la création sonore)", court: "Ressources", etiquette: "Ressources partagées" },
 ];
+/** Une ressource : le lien est obligatoire et le son facultatif (même règle dans la base : guard_onde_depots). */
+export const estRessource = (t: string | null | undefined) => t === "ressource";
+/** Mention sous le bloc : « Partagé par » pour une ressource, « Déposé par » pour le reste. */
+export const verbeCredit = (t: string | null | undefined) => (estRessource(t) ? "Partagé par" : "Déposé par");
 export const libelleTypeDepot = (t: string) => TYPES_DEPOT.find((x) => x.id === t)?.court ?? t;
 export const etiquetteDepot = (t: string) => TYPES_DEPOT.find((x) => x.id === t)?.etiquette ?? "Déposé par un·e membre";
 
@@ -39,6 +44,11 @@ export const LIMITES_DEPOT = { titre: 120, texte: 500, parMois: 10 } as const;
 /** Cases obligatoires, non cochées par défaut (même texte enregistré avec la date par le serveur). */
 export const CASE_DROITS = "Je suis l'auteur·ice de ce son ou j'ai les droits pour le diffuser";
 export const CASE_ACCORD = "J'accepte que ce dépôt soit publié dans L'Onde du Sud, avec mon nom et un lien vers ma page";
+export const CASE_AUTOPROMO = "Mon dépôt n'est pas de l'autopromotion commerciale";
+/** Règle affichée sous le formulaire, pour tous les types. */
+export const REGLE_AUTOPROMO = "L'Onde partage, elle ne vend pas : pas d'autopromotion commerciale (offres payantes, promotions, prospection).";
+/** Ce que l'adhésion ouvre, en plus de la visibilité (espace membre, page Adhérer). */
+export const PARTAGER_RESSOURCES = "Partager des ressources avec le réseau dans L'Onde du Sud";
 
 /** « Ce mois-ci, 3 dépôts. » (même phrase dans l'e-mail : supabase/functions/_shared/onde-email.ts) */
 export const phraseDepots = (n: number) =>
@@ -84,13 +94,18 @@ export type DepotEquipe = Omit<MonDepot, "publie_mois" | "publie_slug"> & {
   publie: boolean;
 };
 
-export type CreditDepot = { depot_id: string; prenom: string | null; nom: string | null; fiche_id: string | null; slug: string | null; type_profil: string | null; nom_podcast: string | null };
-/** « Déposé par » : nom et lien vers la page (seulement si la fiche est visible sur le site). */
-export const creditDepot = (c?: CreditDepot | null): { nom: string; href: string | null } | null => {
+export type CreditDepot = { depot_id: string; prenom: string | null; nom: string | null; fiche_id: string | null; slug: string | null; type_profil: string | null; nom_podcast: string | null; type?: string | null };
+/** « Déposé par » (« Partagé par » pour une ressource) : nom et lien vers la page (seulement si la fiche est visible sur le site). */
+export const creditDepot = (c?: CreditDepot | null): { nom: string; href: string | null; verbe: string; ressource: boolean } | null => {
   if (!c) return null;
   const nom = fullName(c.prenom, c.nom);
   if (!nom) return null;
-  return { nom, href: c.fiche_id ? ficheHref({ id: c.fiche_id, slug: c.slug, type_profil: c.type_profil, nom_podcast: c.nom_podcast }) : null };
+  return {
+    nom,
+    href: c.fiche_id ? ficheHref({ id: c.fiche_id, slug: c.slug, type_profil: c.type_profil, nom_podcast: c.nom_podcast }) : null,
+    verbe: verbeCredit(c.type),
+    ressource: estRessource(c.type),
+  };
 };
 
 // ——— Chargements ———
@@ -135,6 +150,9 @@ export type ChampsDepot = {
   retirerPhoto: boolean;
   droits: boolean;
   accord: boolean;
+  sansAutopromo: boolean;
+  /** Ressource : retirer le MP3 déjà déposé. */
+  retirerAudio?: boolean;
   /** Le dépôt modifié a déjà un MP3 (rien à renvoyer s'il n'est pas remplacé). */
   aDejaUnMp3?: boolean;
 };
@@ -147,7 +165,14 @@ export const erreursDepot = (c: ChampsDepot): Record<string, string> => {
   else if (c.titre.trim().length > LIMITES_DEPOT.titre) e.titre = `${LIMITES_DEPOT.titre} caractères au maximum.`;
   if (!c.texte.trim()) e.texte = "Écrivez quelques lignes.";
   else if (c.texte.trim().length > LIMITES_DEPOT.texte) e.texte = `${LIMITES_DEPOT.texte} caractères au maximum.`;
-  if (c.son === "fichier") {
+  const mp3Invalide = (a: File) =>
+    a.type && a.type !== "audio/mpeg" && a.type !== "audio/mp3" ? "Fichier au format MP3 seulement."
+      : a.size > AUDIO_MAX_OCTETS ? "Fichier MP3 trop lourd : 20 Mo au maximum." : null;
+  if (estRessource(c.type)) {
+    if (!/^https?:\/\/[^\s<>"]+$/i.test(c.lien.trim())) e.lien = "Collez le lien de la ressource, qui commence par https://";
+    const m = c.audio ? mp3Invalide(c.audio) : null;
+    if (m) e.son = m;
+  } else if (c.son === "fichier") {
     if (!c.audio && !c.aDejaUnMp3) e.son = "Ajoutez le fichier MP3, ou choisissez « Un lien d'écoute ».";
     else if (c.audio && c.audio.type && c.audio.type !== "audio/mpeg" && c.audio.type !== "audio/mp3") e.son = "Fichier au format MP3 seulement.";
     else if (c.audio && c.audio.size > AUDIO_MAX_OCTETS) e.son = "Fichier MP3 trop lourd : 20 Mo au maximum.";
@@ -155,6 +180,7 @@ export const erreursDepot = (c: ChampsDepot): Record<string, string> => {
   if (c.photo && !IMAGE_TYPES.includes(c.photo.type)) e.photo = "Photo au format JPG, PNG ou WebP.";
   if (!c.droits) e.droits = "Cochez cette case pour déposer.";
   if (!c.accord) e.accord = "Cochez cette case pour déposer.";
+  if (!c.sansAutopromo) e.sansAutopromo = "Cochez cette case pour déposer.";
   return e;
 };
 
@@ -181,9 +207,16 @@ export const envoyerDepot = async (c: ChampsDepot) => {
   f.append("type", c.type);
   f.append("titre", c.titre.trim());
   f.append("texte", c.texte.trim());
-  f.append("son", c.son);
-  if (c.son === "fichier" && c.audio) f.append("audio", c.audio, "son.mp3");
-  if (c.son === "lien") f.append("lien", c.lien.trim());
+  if (estRessource(c.type)) {
+    f.append("son", "fichier");
+    f.append("lien", c.lien.trim());
+    if (c.audio) f.append("audio", c.audio, "son.mp3");
+    else if (c.retirerAudio) f.append("retirer_audio", "1");
+  } else {
+    f.append("son", c.son);
+    if (c.son === "fichier" && c.audio) f.append("audio", c.audio, "son.mp3");
+    if (c.son === "lien") f.append("lien", c.lien.trim());
+  }
   if (c.photo) {
     const reduite = await redimensionnerImage(c.photo).catch(() => { throw new Error("Cette photo n'a pas pu être lue."); });
     if (reduite.size > IMAGE_MAX_OCTETS) throw new Error("Photo trop lourde, même réduite : 3 Mo au maximum.");
@@ -191,6 +224,7 @@ export const envoyerDepot = async (c: ChampsDepot) => {
   } else if (c.retirerPhoto) f.append("retirer_photo", "1");
   if (c.droits) f.append("droits", "1");
   if (c.accord) f.append("accord", "1");
+  if (c.sansAutopromo) f.append("sans_autopromo", "1");
   return appel(f);
 };
 

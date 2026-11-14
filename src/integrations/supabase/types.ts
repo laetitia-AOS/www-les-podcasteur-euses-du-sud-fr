@@ -768,6 +768,7 @@ export type Database = {
           numero_id: string | null
           photo_url: string | null
           podcast_id: string | null
+          sans_autopromo: boolean
           statut: string
           texte: string
           titre: string
@@ -787,6 +788,7 @@ export type Database = {
           numero_id?: string | null
           photo_url?: string | null
           podcast_id?: string | null
+          sans_autopromo?: boolean
           statut?: string
           texte: string
           titre: string
@@ -806,6 +808,7 @@ export type Database = {
           numero_id?: string | null
           photo_url?: string | null
           podcast_id?: string | null
+          sans_autopromo?: boolean
           statut?: string
           texte?: string
           titre?: string
@@ -1692,6 +1695,7 @@ export type Database = {
           nom_podcast: string
           prenom: string
           slug: string
+          type: string
           type_profil: string
         }[]
       }

@@ -48,10 +48,10 @@ async function contexte(n: NumeroEmail): Promise<ContexteEmail> {
   const deposants: NonNullable<ContexteEmail["deposants"]> = {};
   if (n.blocs.some((b) => b.type === "depot")) {
     const { data } = await pub.rpc("onde_credits_depots", { _numero_id: n.id });
-    for (const c of (data || []) as { depot_id: string; prenom: string | null; nom: string | null; fiche_id: string | null; slug: string | null; type_profil: string | null; nom_podcast: string | null }[]) {
+    for (const c of (data || []) as { depot_id: string; prenom: string | null; nom: string | null; fiche_id: string | null; slug: string | null; type_profil: string | null; nom_podcast: string | null; type?: string | null }[]) {
       const nom = nomDeposant(c);
       if (!nom) continue;
-      deposants[c.depot_id] = { nom, href: c.fiche_id ? ficheHref({ id: c.fiche_id, slug: c.slug, type_profil: c.type_profil, nom_podcast: c.nom_podcast }) : null };
+      deposants[c.depot_id] = { nom, href: c.fiche_id ? ficheHref({ id: c.fiche_id, slug: c.slug, type_profil: c.type_profil, nom_podcast: c.nom_podcast }) : null, ressource: c.type === "ressource" };
     }
   }
   const { data: depotsCeMois } = await pub.rpc("onde_depots_ce_mois");

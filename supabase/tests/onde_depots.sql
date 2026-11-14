@@ -11,6 +11,8 @@ DECLARE
   d1 uuid := gen_random_uuid();
   d2 uuid;
   d3 uuid;
+  d4 uuid := gen_random_uuid();
+  bid2 text;
   num uuid := gen_random_uuid();
   num2 uuid := gen_random_uuid();
   bid text;
@@ -48,42 +50,42 @@ BEGIN
   -- Un non-adhérent ne peut pas déposer
   ok := false;
   BEGIN
-    INSERT INTO public.onde_depots (email, type, titre, texte, lien_ecoute, droits, accord_publication)
-      VALUES (sans, 'son', 'T', 'X', 'https://exemple.invalid/a', true, true);
+    INSERT INTO public.onde_depots (email, type, titre, texte, lien_ecoute, droits, accord_publication, sans_autopromo)
+      VALUES (sans, 'son', 'T', 'X', 'https://exemple.invalid/a', true, true, true);
   EXCEPTION WHEN OTHERS THEN ok := SQLERRM LIKE '%réservé aux adhérent%'; END;
   IF NOT ok THEN RAISE EXCEPTION 'ECHEC : un non-adhérent peut déposer'; END IF;
 
   -- Les deux cases sont obligatoires, le son aussi
   ok := false;
-  BEGIN INSERT INTO public.onde_depots (email, type, titre, texte, lien_ecoute, droits, accord_publication) VALUES (membre, 'son', 'T', 'X', 'https://exemple.invalid/a', false, true);
+  BEGIN INSERT INTO public.onde_depots (email, type, titre, texte, lien_ecoute, droits, accord_publication, sans_autopromo) VALUES (membre, 'son', 'T', 'X', 'https://exemple.invalid/a', false, true, true);
   EXCEPTION WHEN OTHERS THEN ok := SQLERRM LIKE '%Cochez les deux cases%'; END;
   IF NOT ok THEN RAISE EXCEPTION 'ECHEC : dépôt sans la case des droits'; END IF;
   ok := false;
-  BEGIN INSERT INTO public.onde_depots (email, type, titre, texte, lien_ecoute, droits, accord_publication) VALUES (membre, 'son', 'T', 'X', 'https://exemple.invalid/a', true, false);
+  BEGIN INSERT INTO public.onde_depots (email, type, titre, texte, lien_ecoute, droits, accord_publication, sans_autopromo) VALUES (membre, 'son', 'T', 'X', 'https://exemple.invalid/a', true, false, true);
   EXCEPTION WHEN OTHERS THEN ok := SQLERRM LIKE '%Cochez les deux cases%'; END;
   IF NOT ok THEN RAISE EXCEPTION 'ECHEC : dépôt sans l''accord de publication'; END IF;
   ok := false;
-  BEGIN INSERT INTO public.onde_depots (email, type, titre, texte, droits, accord_publication) VALUES (membre, 'son', 'T', 'X', true, true);
+  BEGIN INSERT INTO public.onde_depots (email, type, titre, texte, droits, accord_publication, sans_autopromo) VALUES (membre, 'son', 'T', 'X', true, true, true);
   EXCEPTION WHEN OTHERS THEN ok := SQLERRM LIKE '%Ajoutez le son%'; END;
   IF NOT ok THEN RAISE EXCEPTION 'ECHEC : dépôt sans son'; END IF;
   -- Un fichier qui ne vient pas du dossier de ce dépôt est refusé
   ok := false;
-  BEGIN INSERT INTO public.onde_depots (email, type, titre, texte, audio_url, droits, accord_publication)
-    VALUES (membre, 'son', 'T', 'X', base || 'depots/' || gen_random_uuid() || '/a.mp3', true, true);
+  BEGIN INSERT INTO public.onde_depots (email, type, titre, texte, audio_url, droits, accord_publication, sans_autopromo)
+    VALUES (membre, 'son', 'T', 'X', base || 'depots/' || gen_random_uuid() || '/a.mp3', true, true, true);
   EXCEPTION WHEN OTHERS THEN ok := SQLERRM LIKE '%formulaire de dépôt%'; END;
   IF NOT ok THEN RAISE EXCEPTION 'ECHEC : fichier d''un autre dossier accepté'; END IF;
 
   -- Dépôt valide : texte nettoyé, statut « Nouveau », relié à la fiche du profil
-  INSERT INTO public.onde_depots (id, email, type, titre, texte, audio_url, photo_url, droits, accord_publication, statut)
-    VALUES (d1, membre, 'son', '<b>Le port</b> à l''aube', 'Un micro <script>x</script>posé sur le quai.', base || 'depots/' || d1 || '/a.mp3', base || 'depots/' || d1 || '/p.jpg', true, true, 'retenu');
+  INSERT INTO public.onde_depots (id, email, type, titre, texte, audio_url, photo_url, droits, accord_publication, statut, sans_autopromo)
+    VALUES (d1, membre, 'son', '<b>Le port</b> à l''aube', 'Un micro <script>x</script>posé sur le quai.', base || 'depots/' || d1 || '/a.mp3', base || 'depots/' || d1 || '/p.jpg', true, true, 'retenu', true);
   IF (SELECT titre FROM public.onde_depots WHERE id = d1) <> 'Le port à l''aube' OR (SELECT texte FROM public.onde_depots WHERE id = d1) LIKE '%<script>%' THEN
     RAISE EXCEPTION 'ECHEC : texte non nettoyé';
   END IF;
   IF (SELECT statut FROM public.onde_depots WHERE id = d1) <> 'nouveau' OR (SELECT podcast_id FROM public.onde_depots WHERE id = d1) <> fiche THEN
     RAISE EXCEPTION 'ECHEC : statut ou fiche forcés par l''envoi';
   END IF;
-  INSERT INTO public.onde_depots (email, type, titre, texte, lien_ecoute, droits, accord_publication)
-    VALUES (autre, 'ecoute', 'Une écoute', 'Texte', 'https://exemple.invalid/b', true, true) RETURNING id INTO d2;
+  INSERT INTO public.onde_depots (email, type, titre, texte, lien_ecoute, droits, accord_publication, sans_autopromo)
+    VALUES (autre, 'ecoute', 'Une écoute', 'Texte', 'https://exemple.invalid/b', true, true, true) RETURNING id INTO d2;
 
   -- Un membre ne voit que ses propres dépôts, ni la liste de l'équipe, ni les fichiers des autres
   PERFORM set_config('request.jwt.claims', json_build_object('sub', gen_random_uuid()::text, 'role', 'authenticated', 'email', autre)::text, true);
@@ -99,13 +101,37 @@ BEGIN
   PERFORM set_config('request.jwt.claims', json_build_object('sub', gen_random_uuid()::text, 'role', 'authenticated', 'email', sans)::text, true);
   IF public.peut_deposer_onde() THEN RAISE EXCEPTION 'ECHEC : un non-adhérent voit le formulaire'; END IF;
 
+  -- La troisième case (pas d'autopromotion commerciale) est obligatoire, au dépôt comme à la modification
+  ok := false;
+  BEGIN INSERT INTO public.onde_depots (email, type, titre, texte, lien_ecoute, droits, accord_publication, sans_autopromo) VALUES (membre, 'son', 'T', 'X', 'https://exemple.invalid/a', true, true, false);
+  EXCEPTION WHEN OTHERS THEN ok := SQLERRM LIKE '%autopromotion commerciale%'; END;
+  IF NOT ok THEN RAISE EXCEPTION 'ECHEC : dépôt sans la case « pas d''autopromotion commerciale »'; END IF;
+  ok := false;
+  BEGIN UPDATE public.onde_depots SET titre = 'Modifié', sans_autopromo = false WHERE id = d1;
+  EXCEPTION WHEN OTHERS THEN ok := SQLERRM LIKE '%autopromotion commerciale%'; END;
+  IF NOT ok THEN RAISE EXCEPTION 'ECHEC : dépôt modifié sans la case « pas d''autopromotion commerciale »'; END IF;
+
+  -- Une ressource : lien obligatoire, son facultatif ; un visiteur sans adhésion ne peut pas en déposer
+  ok := false;
+  BEGIN INSERT INTO public.onde_depots (email, type, titre, texte, audio_url, droits, accord_publication, sans_autopromo)
+    VALUES (membre, 'ressource', 'Un guide', 'X', NULL, true, true, true);
+  EXCEPTION WHEN OTHERS THEN ok := SQLERRM LIKE '%lien de la ressource%'; END;
+  IF NOT ok THEN RAISE EXCEPTION 'ECHEC : ressource sans lien acceptée'; END IF;
+  ok := false;
+  BEGIN INSERT INTO public.onde_depots (email, type, titre, texte, lien_ecoute, droits, accord_publication, sans_autopromo)
+    VALUES (sans, 'ressource', 'Un guide', 'X', 'https://exemple.invalid/guide', true, true, true);
+  EXCEPTION WHEN OTHERS THEN ok := SQLERRM LIKE '%réservé aux adhérent%'; END;
+  IF NOT ok THEN RAISE EXCEPTION 'ECHEC : un non-adhérent peut partager une ressource'; END IF;
+  INSERT INTO public.onde_depots (id, email, type, titre, texte, lien_ecoute, droits, accord_publication, sans_autopromo)
+    VALUES (d4, membre, 'ressource', 'Le guide du micro', 'Un tutoriel clair pour placer un micro.', 'https://exemple.invalid/guide', true, true, true);
+
   -- 10 dépôts par mois au maximum
-  FOR i IN 2..10 LOOP
-    INSERT INTO public.onde_depots (email, type, titre, texte, lien_ecoute, droits, accord_publication)
-      VALUES (membre, 'projet', 'Dépôt ' || i, 'Texte', 'https://exemple.invalid/c', true, true);
+  FOR i IN 3..10 LOOP
+    INSERT INTO public.onde_depots (email, type, titre, texte, lien_ecoute, droits, accord_publication, sans_autopromo)
+      VALUES (membre, 'projet', 'Dépôt ' || i, 'Texte', 'https://exemple.invalid/c', true, true, true);
   END LOOP;
   ok := false;
-  BEGIN INSERT INTO public.onde_depots (email, type, titre, texte, lien_ecoute, droits, accord_publication) VALUES (membre, 'projet', 'Onzième', 'T', 'https://exemple.invalid/c', true, true);
+  BEGIN INSERT INTO public.onde_depots (email, type, titre, texte, lien_ecoute, droits, accord_publication, sans_autopromo) VALUES (membre, 'projet', 'Onzième', 'T', 'https://exemple.invalid/c', true, true, true);
   EXCEPTION WHEN OTHERS THEN ok := SQLERRM LIKE '%10 dépôts ce mois-ci%'; END;
   IF NOT ok THEN RAISE EXCEPTION 'ECHEC : plus de 10 dépôts dans le mois'; END IF;
 
@@ -132,6 +158,16 @@ BEGIN
   ok := false;
   BEGIN PERFORM public.onde_utiliser_depot(d1, num); EXCEPTION WHEN OTHERS THEN ok := SQLERRM LIKE '%déjà dans ce numéro%'; END;
   IF NOT ok THEN RAISE EXCEPTION 'ECHEC : un dépôt ajouté deux fois au même numéro'; END IF;
+  -- « Utiliser dans un numéro » pour une ressource : « Ressources partagées », le lien, le texte, « Partagé par »
+  bid2 := public.onde_utiliser_depot(d4, num);
+  SELECT x.value INTO bl FROM public.onde_numeros o CROSS JOIN LATERAL jsonb_array_elements(o.blocs) x WHERE o.id = num AND x.value->>'id' = bid2;
+  IF bl IS NULL OR bl->>'rubrique' <> 'Ressources partagées' OR bl->>'lien' <> 'https://exemple.invalid/guide'
+     OR bl->>'texte' NOT LIKE '%placer un micro%' OR bl->>'depot_id' <> d4::text THEN
+    RAISE EXCEPTION 'ECHEC : bloc ressource mal rempli : %', bl;
+  END IF;
+  IF (SELECT c.type FROM public.onde_credits_depots(num) c WHERE c.depot_id = d4) IS DISTINCT FROM 'ressource' THEN
+    RAISE EXCEPTION 'ECHEC : « Partagé par » impossible (type absent)';
+  END IF;
 
   -- Brouillon : un visiteur ne voit ni le nom ni le fichier
   PERFORM set_config('request.jwt.claims', '{"role":"anon"}', true);
@@ -158,11 +194,12 @@ BEGIN
   INSERT INTO public.onde_envois (numero_id, objet) VALUES (num, 'Test');
   IF NOT EXISTS (SELECT 1 FROM public.onde_depots_a_notifier(num) WHERE id = d1) THEN RAISE EXCEPTION 'ECHEC : déposant pas prévenu à l''envoi'; END IF;
   PERFORM public.onde_depot_notifie(d1);
+  PERFORM public.onde_depot_notifie(d4);
   IF EXISTS (SELECT 1 FROM public.onde_depots_a_notifier(num)) THEN RAISE EXCEPTION 'ECHEC : déposant prévenu deux fois'; END IF;
 
   -- Un dépôt retiré par son auteur·ice bloque la publication du bloc qui le reprend
   PERFORM set_config('request.jwt.claims', json_build_object('sub', editeur::text, 'role', 'authenticated')::text, true);
-  SELECT d.id INTO d3 FROM public.onde_depots d WHERE d.email = membre AND d.id <> d1 LIMIT 1;
+  SELECT d.id INTO d3 FROM public.onde_depots d WHERE d.email = membre AND d.id <> d1 AND d.id <> d4 LIMIT 1;
   PERFORM public.onde_utiliser_depot(d3, num2);
   DELETE FROM public.onde_depots WHERE id = d3;
   ok := false;

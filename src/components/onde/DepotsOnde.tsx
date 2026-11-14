@@ -14,7 +14,7 @@ import { dateHeure, messageOnde } from "@/components/onde/adminOnde";
 import { btnSecondary, fullName, linkUnderline } from "@/lib/pds";
 import { ficheHref } from "@/lib/seo";
 import { etiquetteNumero, useFichiersEquipe, type NumeroOnde } from "@/lib/onde";
-import { STATUTS_DEPOT, TYPES_DEPOT, libelleTypeDepot, type DepotEquipe, type StatutDepot } from "@/lib/ondeDepots";
+import { STATUTS_DEPOT, TYPES_DEPOT, libelleTypeDepot, verbeCredit, type DepotEquipe, type StatutDepot } from "@/lib/ondeDepots";
 
 const select = "min-h-[44px] px-3 bg-surface border-2 border-encre text-[15px] font-semibold focus:outline-none focus-visible:outline-[3px] focus-visible:outline-accent";
 
@@ -131,11 +131,11 @@ const DepotsOnde = () => {
                   {d.audio_url && <audio controls preload="none" src={resoudre(d.audio_url)} className="w-full max-w-xl" aria-label={`Écouter : ${d.titre}`} />}
                   {d.lien_ecoute && (
                     <a href={d.lien_ecoute} target="_blank" rel="noopener noreferrer" className={`${linkUnderline} text-[15px] inline-flex items-center gap-1 min-h-[44px] break-all`}>
-                      Écouter sur le lien déposé <ExternalLink className="w-3.5 h-3.5 shrink-0" aria-hidden /><span className="sr-only"> (nouvel onglet)</span>
+                      {d.type === "ressource" ? "Ouvrir la ressource" : "Écouter sur le lien déposé"} <ExternalLink className="w-3.5 h-3.5 shrink-0" aria-hidden /><span className="sr-only"> (nouvel onglet)</span>
                     </a>
                   )}
                   <p className="text-sm">
-                    Déposé par {href
+                    {verbeCredit(d.type)} {href
                       ? <a href={href} target="_blank" rel="noopener noreferrer" className={linkUnderline}>{nom}<span className="sr-only"> (nouvel onglet)</span></a>
                       : <strong>{nom}</strong>}
                     {!href && <span className="text-muted-foreground"> (fiche pas visible sur le site)</span>}

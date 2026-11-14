@@ -308,7 +308,7 @@ const MonEspace = () => {
               <div className="mt-6 border-2 border-primary bg-primary/5 p-5 sm:p-6">
                 <p className="font-bold text-[17px]">{sursis ? "Adhérez pour garder votre visibilité" : "Adhérez pour activer votre visibilité"}</p>
                 <p className="mt-2 text-[15px] max-w-[62ch]">
-                  {sursis ? "Votre fiche est visible pour l'instant, en attente de votre adhésion." : "Votre profil est enregistré, mais il n'apparaît pas publiquement."} Avec l'adhésion, votre fiche et vos podcasts sont visibles dans l'annuaire et dans « Écouter », et les autres membres peuvent vous écrire.
+                  {sursis ? "Votre fiche est visible pour l'instant, en attente de votre adhésion." : "Votre profil est enregistré, mais il n'apparaît pas publiquement."} Avec l'adhésion, votre fiche et vos podcasts sont visibles dans l'annuaire et dans « Écouter », les autres membres peuvent vous écrire, et vous pouvez partager des ressources avec le réseau dans L'Onde du Sud.
                 </p>
                 <Link to={ADHERER} className={`${btnPrimary} mt-4`}>Adhérer maintenant</Link>
               </div>

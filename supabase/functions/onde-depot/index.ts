@@ -1,9 +1,11 @@
-// L'Onde du Sud, lot 5 : dépôt d'un·e adhérent·e (un son, une écoute, un projet, des coulisses, un appel).
+// L'Onde du Sud, lot 5 : dépôt d'un·e adhérent·e (un son, une écoute, un projet, des coulisses, un appel, une ressource).
 // Seul chemin d'écriture des membres dans « onde_depots ». Contrôles :
 // - session obligatoire, adresse lue dans la session (jamais dans la requête) ;
 // - adhésion à jour (membre_a_jour, même règle que le reste du site) pour déposer ou modifier ; retirer reste toujours possible ;
 // - un dépôt publié dans un numéro ne se modifie plus et ne se retire plus ;
 // - MP3 20 Mo et photo 3 Mo au maximum, type réel lu dans le contenu ;
+// - une ressource : lien obligatoire, MP3 facultatif ; les autres types : un MP3 ou un lien d'écoute ;
+// - les trois cases (droits, accord, pas d'autopromotion commerciale) obligatoires, ici et dans la base ;
 // - textes nettoyés, cases obligatoires et limite de 10 dépôts par mois vérifiées par la base (guard_onde_depots).
 // Les fichiers vont dans l'espace privé « onde », dossier depots/<dépôt> : ils ne sont lisibles publiquement
 // (fonction « onde-media ») qu'une fois le dépôt publié dans un numéro.
@@ -14,7 +16,7 @@ import { detecterFichier } from "../_shared/onde-fichiers.ts";
 const AUDIO_MAX = 20 * 1024 * 1024;
 const IMAGE_MAX = 3 * 1024 * 1024;
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/;
-const TYPES = ["son", "ecoute", "projet", "coulisses", "appel"];
+const TYPES = ["son", "ecoute", "projet", "coulisses", "appel", "ressource"];
 
 const json = (body: unknown, status = 200) =>
   new Response(JSON.stringify(body), { status, headers: { ...corsHeaders, "Content-Type": "application/json" } });
@@ -79,8 +81,13 @@ Deno.serve(async (req) => {
 
     const type = String(form.get("type") || "");
     if (!TYPES.includes(type)) return json({ error: "Choisissez ce que vous déposez." }, 400);
+    const ressource = type === "ressource";
     const son = String(form.get("son") || "");
-    if (son !== "fichier" && son !== "lien") return json({ error: "Ajoutez le son : un fichier MP3 ou un lien d'écoute." }, 400);
+    if (!ressource && son !== "fichier" && son !== "lien") return json({ error: "Ajoutez le son : un fichier MP3 ou un lien d'écoute." }, 400);
+    const lien = String(form.get("lien") || "").trim();
+    if (ressource && !lien) return json({ error: "Ajoutez le lien de la ressource." }, 400);
+    if (form.get("droits") !== "1" || form.get("accord") !== "1") return json({ error: "Cochez les deux cases : vos droits sur ce son et votre accord pour la publication." }, 400);
+    if (form.get("sans_autopromo") !== "1") return json({ error: "Cochez la case : votre dépôt n'est pas de l'autopromotion commerciale." }, 400);
 
     const id = ancien?.id || crypto.randomUUID();
     const envoyes: string[] = [];
@@ -101,22 +108,25 @@ Deno.serve(async (req) => {
     };
     const annuler = async () => { if (envoyes.length) await admin.storage.from("onde").remove(envoyes); };
 
-    const nouvelAudio = son === "fichier" ? await deposer(form.get("audio"), "audio") : null;
+    const nouvelAudio = ressource || son === "fichier" ? await deposer(form.get("audio"), "audio") : null;
     if (nouvelAudio instanceof Response) { await annuler(); return nouvelAudio; }
     const nouvellePhoto = await deposer(form.get("photo"), "image");
     if (nouvellePhoto instanceof Response) { await annuler(); return nouvellePhoto; }
 
-    const audio_url = son === "lien" ? null : (nouvelAudio || ancien?.audio_url || null);
+    const audio_url = ressource
+      ? (nouvelAudio || (form.get("retirer_audio") === "1" ? null : ancien?.audio_url || null))
+      : son === "lien" ? null : (nouvelAudio || ancien?.audio_url || null);
     const photo_url = nouvellePhoto || (form.get("retirer_photo") === "1" ? null : ancien?.photo_url || null);
     const ligne = {
       type,
       titre: String(form.get("titre") || ""),
       texte: String(form.get("texte") || ""),
       audio_url,
-      lien_ecoute: son === "lien" ? String(form.get("lien") || "") : null,
+      lien_ecoute: ressource || son === "lien" ? lien : null,
       photo_url,
       droits: form.get("droits") === "1",
       accord_publication: form.get("accord") === "1",
+      sans_autopromo: form.get("sans_autopromo") === "1",
     };
     const { error } = ancien
       ? await admin.from("onde_depots").update(ligne).eq("id", id)

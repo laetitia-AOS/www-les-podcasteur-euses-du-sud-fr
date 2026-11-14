@@ -14,12 +14,12 @@ import { sectionTitle } from "@/components/espace-membre/types";
 import { btnPrimary, btnSecondary, formatShortDate, linkUnderline } from "@/lib/pds";
 import { IMAGE_TYPES, useFichiersEquipe } from "@/lib/onde";
 import {
-  ANCRE_DEPOT, CASE_ACCORD, CASE_DROITS, LIMITES_DEPOT, TYPES_DEPOT, envoyerDepot, erreursDepot, libelleTypeDepot,
-  lienPublication, retirerDepot, statutMembre, type ChampsDepot, type MonDepot,
+  ANCRE_DEPOT, CASE_ACCORD, CASE_AUTOPROMO, CASE_DROITS, LIMITES_DEPOT, REGLE_AUTOPROMO, TYPES_DEPOT,
+  envoyerDepot, erreursDepot, estRessource, libelleTypeDepot, lienPublication, retirerDepot, statutMembre, type ChampsDepot, type MonDepot,
 } from "@/lib/ondeDepots";
 
 const field = "w-full min-h-[48px] px-3 bg-surface border-2 border-encre text-[16px] focus:outline-none focus-visible:outline-[3px] focus-visible:outline-accent";
-const vide: ChampsDepot = { type: "", titre: "", texte: "", son: "fichier", audio: null, lien: "", photo: null, retirerPhoto: false, droits: false, accord: false };
+const vide: ChampsDepot = { type: "", titre: "", texte: "", son: "fichier", audio: null, lien: "", photo: null, retirerPhoto: false, droits: false, accord: false, sansAutopromo: false };
 
 const DeposerOnde = ({ adhererHref }: { adhererHref: string }) => {
   const id = useId();
@@ -58,7 +58,7 @@ const DeposerOnde = ({ adhererHref }: { adhererHref: string }) => {
     setModifie(d);
     setC({
       depotId: d.id, type: d.type, titre: d.titre, texte: d.texte, son: d.audio_url ? "fichier" : "lien", audio: null,
-      lien: d.lien_ecoute || "", photo: null, retirerPhoto: false, droits: false, accord: false, aDejaUnMp3: !!d.audio_url,
+      lien: d.lien_ecoute || "", photo: null, retirerPhoto: false, droits: false, accord: false, sansAutopromo: false, aDejaUnMp3: !!d.audio_url,
     });
     setErr({});
     setMsg("");
@@ -104,6 +104,7 @@ const DeposerOnde = ({ adhererHref }: { adhererHref: string }) => {
     }
   };
 
+  const ressource = estRessource(c.type);
   const desc = (k: string) => (err[k] ? `${id}-e-${k}` : undefined);
   const erreur = (k: string) => (err[k] ? <p id={`${id}-e-${k}`} className="mt-1 text-sm text-destructive">{err[k]}</p> : null);
 
@@ -112,7 +113,8 @@ const DeposerOnde = ({ adhererHref }: { adhererHref: string }) => {
       <h2 id={`${id}-titre`} className={`${sectionTitle} pb-3 border-b-2 border-encre`}>Déposer pour L'Onde</h2>
       <p className="mt-4 text-[15px] max-w-[66ch]">
         L'Onde du Sud, la lettre mensuelle, se fabrique d'abord avec ce que déposent les adhérent·es : un son, une écoute, un projet,
-        les coulisses d'une fabrication. L'équipe pioche chaque mois. Déposez avant le 25 pour le numéro suivant.
+        les coulisses d'une fabrication, une ressource à partager. L'équipe pioche chaque mois. Déposez avant le 25 pour le numéro suivant.
+        Avec l'adhésion, vous pouvez aussi partager des ressources avec le réseau dans L'Onde du Sud.
       </p>
 
       {chargePeut ? (
@@ -120,7 +122,7 @@ const DeposerOnde = ({ adhererHref }: { adhererHref: string }) => {
       ) : !peut ? (
         <div className="mt-5 border-2 border-primary bg-primary/5 p-5 sm:p-6">
           <p className="font-bold text-[17px]">Le dépôt est réservé aux adhérent·es à jour</p>
-          <p className="mt-2 text-[15px] max-w-[62ch]">Avec l'adhésion, vous pouvez proposer vos sons pour L'Onde du Sud, en plus de la visibilité de votre fiche.</p>
+          <p className="mt-2 text-[15px] max-w-[62ch]">Avec l'adhésion, vous pouvez proposer vos sons pour L'Onde du Sud et partager des ressources avec le réseau dans L'Onde du Sud, en plus de la visibilité de votre fiche.</p>
           <Link to={adhererHref} className={`${btnPrimary} mt-4`}>Adhérer</Link>
         </div>
       ) : (
@@ -161,11 +163,32 @@ const DeposerOnde = ({ adhererHref }: { adhererHref: string }) => {
               <label htmlFor={`${id}-x`} className="block text-sm font-bold">Quelques lignes *</label>
               <span className={`font-mono text-xs ${c.texte.length > LIMITES_DEPOT.texte ? "text-destructive font-bold" : "text-muted-foreground"}`}>{c.texte.length} / {LIMITES_DEPOT.texte}</span>
             </div>
-            <p id={`${id}-x-aide`} className="text-sm text-muted-foreground mb-1.5">Ce qu'on entend, et comment c'est fait.</p>
+            <p id={`${id}-x-aide`} className="text-sm text-muted-foreground mb-1.5">{ressource ? "Ce que c'est, et en quoi c'est utile pour la création sonore." : "Ce qu'on entend, et comment c'est fait."}</p>
             <textarea id={`${id}-x`} rows={5} value={c.texte} onChange={(e) => maj({ texte: e.target.value })} className={`${field} py-2`} aria-invalid={!!err.texte} aria-describedby={[`${id}-x-aide`, desc("texte")].filter(Boolean).join(" ")} />
             {erreur("texte")}
           </div>
 
+          {ressource ? (
+            <div className="space-y-5">
+              <div>
+                <label htmlFor={`${id}-lienr`} className="block text-sm font-bold mb-1">Le lien de la ressource *</label>
+                <input id={`${id}-lienr`} type="url" inputMode="url" placeholder="https://…" value={c.lien} onChange={(e) => maj({ lien: e.target.value })} className={field} aria-invalid={!!err.lien} aria-describedby={desc("lien")} />
+                {erreur("lien")}
+              </div>
+              <div>
+                <label htmlFor={`${id}-mp3r`} className="block text-sm font-bold mb-1">{c.aDejaUnMp3 && !c.retirerAudio ? "Remplacer le son (facultatif)" : "Un son (facultatif)"}</label>
+                {c.aDejaUnMp3 && !c.retirerAudio && !c.audio && modifie?.audio_url && (
+                  <div className="flex flex-wrap items-center gap-3 mb-2">
+                    <audio controls preload="none" src={resoudre(modifie.audio_url)} className="w-full max-w-xl" aria-label="Écouter le MP3 déjà déposé" />
+                    <button type="button" className={`${linkUnderline} text-sm min-h-[44px]`} onClick={() => maj({ retirerAudio: true })}>Retirer le son</button>
+                  </div>
+                )}
+                <input key={`mp3r-${cle}`} id={`${id}-mp3r`} type="file" accept="audio/mpeg,.mp3" onChange={(e) => maj({ audio: e.target.files?.[0] || null })} className="block text-[15px] file:mr-3 file:min-h-[44px] file:px-4 file:border-2 file:border-encre file:bg-background file:font-bold file:cursor-pointer" aria-describedby={desc("son")} />
+                <p className="mt-1 text-sm text-muted-foreground">MP3 de 20 Mo au maximum.</p>
+                {erreur("son")}
+              </div>
+            </div>
+          ) : (
           <fieldset aria-describedby={desc("son")}>
             <legend className="block text-sm font-bold mb-2">Le son *</legend>
             <div className="flex flex-wrap gap-2">
@@ -191,6 +214,7 @@ const DeposerOnde = ({ adhererHref }: { adhererHref: string }) => {
             )}
             {erreur("son")}
           </fieldset>
+          )}
 
           <div>
             <label htmlFor={`${id}-photo`} className="block text-sm font-bold mb-1">Une photo (facultatif)</label>
@@ -206,7 +230,8 @@ const DeposerOnde = ({ adhererHref }: { adhererHref: string }) => {
           </div>
 
           <div className="space-y-3">
-            {([["droits", CASE_DROITS], ["accord", CASE_ACCORD]] as const).map(([k, texte]) => (
+            <p className="border-l-4 border-accent pl-3 text-[15px] font-semibold max-w-[66ch]">{REGLE_AUTOPROMO}</p>
+            {([["droits", CASE_DROITS], ["accord", CASE_ACCORD], ["sansAutopromo", CASE_AUTOPROMO]] as const).map(([k, texte]) => (
               <div key={k}>
                 <label htmlFor={`${id}-${k}`} className="flex items-start gap-3 text-[15px] cursor-pointer">
                   <input id={`${id}-${k}`} type="checkbox" checked={c[k]} onChange={(e) => maj({ [k]: e.target.checked })} className="mt-1 h-5 w-5 shrink-0 accent-primary" aria-invalid={!!err[k]} aria-describedby={desc(k)} />

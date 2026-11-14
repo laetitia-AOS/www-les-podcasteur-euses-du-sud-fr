@@ -10,12 +10,12 @@ import { btnSecondary, linkUnderline } from "@/lib/pds";
 import { LIMITES_ONDE, lienSur, type BlocAudio, type BlocDepot, type NumeroOnde } from "@/lib/onde";
 import { creditDepot, useCreditsDepots } from "@/lib/ondeDepots";
 
-const LienEcoute = ({ href }: { href: string }) =>
+const LienEcoute = ({ href, libelle = "Écouter" }: { href: string; libelle?: string }) =>
   href.startsWith("/") ? (
-    <Link to={href} className={btnSecondary}>Écouter</Link>
+    <Link to={href} className={btnSecondary}>{libelle}</Link>
   ) : (
     <a href={href} target="_blank" rel="noopener noreferrer" className={btnSecondary}>
-      Écouter <ExternalLink className="w-4 h-4" aria-hidden /><span className="sr-only"> (nouvel onglet)</span>
+      {libelle} <ExternalLink className="w-4 h-4" aria-hidden /><span className="sr-only"> (nouvel onglet)</span>
     </a>
   );
 
@@ -24,7 +24,7 @@ export const VueDepot = ({ b, n, resoudre }: { b: BlocDepot; n: NumeroOnde; reso
   const qui = creditDepot(credits?.[b.depot_id]);
   const photo = b.photo?.url ? resoudre(b.photo.url) : undefined;
   const extrait: BlocAudio | undefined = b.url
-    ? { id: b.id, type: "audio", url: b.url, titre: b.titre || "Extrait", podcast: "", createur: qui ? `Déposé par ${qui.nom}` : "", lien: qui?.href || "" }
+    ? { id: b.id, type: "audio", url: b.url, titre: b.titre || "Extrait", podcast: "", createur: qui ? `${qui.verbe} ${qui.nom}` : "", lien: qui?.href || "" }
     : undefined;
   const lien = b.lien && lienSur(b.lien) ? b.lien : null;
   return (
@@ -43,8 +43,8 @@ export const VueDepot = ({ b, n, resoudre }: { b: BlocDepot; n: NumeroOnde; reso
                 <span className="font-bold">Écouter</span>
               </span>
             )}
-            {lien && !extrait && <LienEcoute href={lien} />}
-            {lien && extrait && (
+            {lien && (!extrait || qui?.ressource) && <LienEcoute href={lien} libelle={qui?.ressource ? "Voir la ressource" : "Écouter"} />}
+            {lien && extrait && !qui?.ressource && (
               <a href={lien} target="_blank" rel="noopener noreferrer" className={`${linkUnderline} text-[15px] inline-flex items-center gap-1 min-h-[44px]`}>
                 Écouter ailleurs <ExternalLink className="w-3.5 h-3.5" aria-hidden /><span className="sr-only"> (nouvel onglet)</span>
               </a>
@@ -53,7 +53,7 @@ export const VueDepot = ({ b, n, resoudre }: { b: BlocDepot; n: NumeroOnde; reso
         )}
         {qui && (
           <p className="text-[15px] border-t border-filet pt-3">
-            Déposé par {qui.href ? <Link to={qui.href} className={linkUnderline}>{qui.nom}</Link> : <strong>{qui.nom}</strong>}
+            {qui.verbe} {qui.href ? <Link to={qui.href} className={linkUnderline}>{qui.nom}</Link> : <strong>{qui.nom}</strong>}
           </p>
         )}
       </div>
@@ -76,7 +76,7 @@ export const EditeurDepot = ({ b, pid, numeroId, resoudre, onChange }: {
         </p>
       ) : (
         <p className="text-[15px] bg-muted px-3 py-2">
-          Déposé par <strong>{qui?.nom || "…"}</strong>
+          {qui?.verbe || "Déposé par"} <strong>{qui?.nom || "…"}</strong>
           {qui && !qui.href && <span className="text-muted-foreground"> (fiche pas visible sur le site pour le moment : le nom s'affiche sans lien)</span>}
           <span className="block text-xs text-muted-foreground mt-0.5">Mention affichée sous le bloc, sur la page et dans l'e-mail.</span>
         </p>
@@ -100,7 +100,7 @@ export const EditeurDepot = ({ b, pid, numeroId, resoudre, onChange }: {
           <p className="text-sm text-muted-foreground">Pas de MP3 dans ce bloc.</p>
         )}
       </div>
-      <Champ id={`${pid}-lien`} label="Lien d'écoute" aide="Une adresse qui commence par https://">
+      <Champ id={`${pid}-lien`} label={qui?.ressource ? "Lien de la ressource" : "Lien d'écoute"} aide="Une adresse qui commence par https://">
         <Input id={`${pid}-lien`} type="url" inputMode="url" placeholder="https://…" value={b.lien || ""} onChange={(e) => onChange({ ...b, lien: e.target.value })} />
       </Champ>
       {b.photo?.url && (

@@ -1,7 +1,7 @@
 // Règles des dépôts des membres pour L'Onde du Sud (lot 5), sur des données fictives.
 import { describe, expect, it } from "vitest";
 import {
-  CASE_ACCORD, CASE_DROITS, TYPES_DEPOT, compteurAdminDepots, creditDepot, erreursDepot, etiquetteDepot, phraseDepots,
+  CASE_ACCORD, CASE_AUTOPROMO, CASE_DROITS, REGLE_AUTOPROMO, TYPES_DEPOT, compteurAdminDepots, creditDepot, erreursDepot, etiquetteDepot, phraseDepots,
   statutMembre, texteEncartDepot, type ChampsDepot,
 } from "./ondeDepots";
 import { cheminFichier, fichiersNumero, manquesPublication, TYPES_BLOCS, type NumeroOnde } from "./onde";
@@ -14,12 +14,14 @@ const media = (f: string) => `https://exemple.supabase.co/functions/v1/onde-medi
 
 const champs: ChampsDepot = {
   type: "son", titre: "Le port à l'aube", texte: "Un micro posé sur le quai.", son: "lien", audio: null,
-  lien: "https://exemple.invalid/ecoute", photo: null, retirerPhoto: false, droits: true, accord: true,
+  lien: "https://exemple.invalid/ecoute", photo: null, retirerPhoto: false, droits: true, accord: true, sansAutopromo: true,
 };
 
 describe("formulaire de dépôt", () => {
-  it("propose les cinq choix, chacun avec son étiquette de rubrique", () => {
-    expect(TYPES_DEPOT.map((t) => t.id)).toEqual(["son", "ecoute", "projet", "coulisses", "appel"]);
+  it("propose les six choix, chacun avec son étiquette de rubrique", () => {
+    expect(TYPES_DEPOT.map((t) => t.id)).toEqual(["son", "ecoute", "projet", "coulisses", "appel", "ressource"]);
+    expect(etiquetteDepot("ressource")).toBe("Ressources partagées");
+    expect(TYPES_DEPOT.find((t) => t.id === "ressource")?.court).toBe("Ressources");
     expect(etiquetteDepot("son")).toBe("À l'écoute");
     expect(etiquetteDepot("coulisses")).toBe("Les coulisses");
     expect(etiquetteDepot("appel")).toBe("Dans notre agenda");
@@ -31,6 +33,22 @@ describe("formulaire de dépôt", () => {
     expect(erreursDepot({ ...champs, accord: false }).accord).toBeTruthy();
     expect(CASE_DROITS).toBe("Je suis l'auteur·ice de ce son ou j'ai les droits pour le diffuser");
     expect(CASE_ACCORD).toBe("J'accepte que ce dépôt soit publié dans L'Onde du Sud, avec mon nom et un lien vers ma page");
+  });
+
+  it("la troisième case (pas d'autopromotion commerciale) est obligatoire pour tous les types", () => {
+    expect(CASE_AUTOPROMO).toBe("Mon dépôt n'est pas de l'autopromotion commerciale");
+    expect(REGLE_AUTOPROMO).toBe("L'Onde partage, elle ne vend pas : pas d'autopromotion commerciale (offres payantes, promotions, prospection).");
+    for (const type of TYPES_DEPOT.map((t) => t.id)) {
+      expect(erreursDepot({ ...champs, type, sansAutopromo: false }).sansAutopromo).toBeTruthy();
+    }
+  });
+
+  it("une ressource : le lien est obligatoire, le son facultatif", () => {
+    const ressource: ChampsDepot = { ...champs, type: "ressource", son: "fichier", audio: null, lien: "https://exemple.invalid/guide" };
+    expect(erreursDepot(ressource)).toEqual({});
+    expect(erreursDepot({ ...ressource, lien: "" }).lien).toBeTruthy();
+    const gros = { type: "audio/mpeg", size: 20 * 1024 * 1024 + 1 } as File;
+    expect(erreursDepot({ ...ressource, audio: gros }).son).toContain("20 Mo");
   });
 
   it("texte limité à 500 caractères, son obligatoire (MP3 de 20 Mo ou lien)", () => {
@@ -82,8 +100,12 @@ describe("bloc « dépôt » dans un numéro", () => {
 
   it("« Déposé par » : lien vers la page seulement si la fiche est visible", () => {
     expect(creditDepot({ depot_id: DEPOT, prenom: "camille", nom: "durand", fiche_id: "p1", slug: "camille-durand", type_profil: "pro_podcast", nom_podcast: null }))
-      .toEqual({ nom: "Camille Durand", href: "/annuaire/camille-durand" });
+      .toEqual({ nom: "Camille Durand", href: "/annuaire/camille-durand", verbe: "Déposé par", ressource: false });
     expect(creditDepot({ depot_id: DEPOT, prenom: "camille", nom: "durand", fiche_id: null, slug: null, type_profil: null, nom_podcast: null })?.href).toBeNull();
+  });
+
+  it("une ressource partagée affiche « Partagé par [Prénom Nom] »", () => {
+    expect(creditDepot({ depot_id: DEPOT, prenom: "camille", nom: "durand", fiche_id: null, slug: null, type_profil: null, nom_podcast: null, type: "ressource" })?.verbe).toBe("Partagé par");
   });
 });
 
@@ -105,6 +127,14 @@ describe("e-mail du numéro et retour au déposant", () => {
     expect(e.texte).toContain("Ce mois-ci, 4 dépôts. Dépose le tien avant le 25 pour le prochain numéro.");
     expect(e.html).toContain("Déposer pour L'Onde");
     expect(e.html).toContain(`${LIEN_DEPOSER}?utm_source=onde-du-sud`);
+  });
+
+  it("une ressource partagée : « Partagé par » et le lien de la ressource dans l'e-mail", () => {
+    const r: NumeroEmail = { ...n, blocs: [{ id: "b2", type: "depot", depot_id: DEPOT, rubrique: "Ressources partagées", titre: "Le guide du micro", texte: "Un tutoriel.", lien: "https://exemple.invalid/guide" }] };
+    const m = emailNumero(r, { ...ctx, deposants: { [DEPOT]: { nom: "Camille Durand", href: null, ressource: true } } }, { type: "abonne", lienDesinscription: "https://exemple.invalid/d" });
+    expect(m.texte).toContain("Partagé par Camille Durand");
+    expect(m.texte).toContain("Voir la ressource : https://exemple.invalid/guide");
+    expect(m.texte).not.toContain("Déposé par");
   });
 
   it("le déposant reçoit « Ton son « [titre] » est dans L'Onde du Sud de [mois] » avec le lien du numéro", () => {

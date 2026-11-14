@@ -69,8 +69,8 @@ export type ContexteEmail = {
   podcasts: PodcastEmail[];
   /** Nouveaux membres par identifiant de bloc. */
   membres: Record<string, MembreEmail[]>;
-  /** « Déposé par » : nom et adresse de la fiche (relative, fiche visible seulement), par identifiant de dépôt. */
-  deposants?: Record<string, { nom: string; href?: string | null }>;
+  /** « Déposé par » (« Partagé par » pour une ressource) : nom et adresse de la fiche (relative, fiche visible seulement), par identifiant de dépôt. */
+  deposants?: Record<string, { nom: string; href?: string | null; ressource?: boolean }>;
   /** Nombre de dépôts reçus ce mois-ci, pour l'encart du bas. */
   depotsCeMois?: number;
 };
@@ -286,12 +286,19 @@ const rendreBloc = (b: BlocEmail, i: number, n: NumeroEmail, ctx: ContexteEmail)
   } else if (b.type === "depot") {
     if (resume) { corps.push(paragraphe(resume)); texte.push(resume); }
     const qui = b.depot_id ? ctx.deposants?.[b.depot_id] : undefined;
+    // Une ressource partagée : son lien, en clair, sous le résumé
+    if (qui?.ressource && lienSur(b.lien)) {
+      const href = lienSite(b.lien!.trim(), n.numero);
+      corps.push(`<p style="margin:8px 0 0 0;font-family:${POLICE};font-size:16px;line-height:22px;"><a href="${esc(href)}" style="color:${C.encre};font-weight:700;text-decoration:underline;">Voir la ressource</a></p>`);
+      texte.push(`Voir la ressource : ${href}`);
+    }
     if (qui?.nom) {
+      const verbe = qui.ressource ? "Partagé par" : "Déposé par";
       const href = qui.href ? lienSite(qui.href, n.numero) : null;
-      corps.push(`<p style="margin:8px 0 0 0;font-family:${POLICE};font-size:15px;line-height:22px;color:${C.gris};">Déposé par ${href
+      corps.push(`<p style="margin:8px 0 0 0;font-family:${POLICE};font-size:15px;line-height:22px;color:${C.gris};">${verbe} ${href
         ? `<a href="${esc(href)}" style="color:${C.encre};font-weight:700;text-decoration:underline;">${esc(qui.nom)}</a>`
         : `<strong style="color:${C.encre};">${esc(qui.nom)}</strong>`}</p>`);
-      texte.push(`Déposé par ${qui.nom}${href ? ` — ${href}` : ""}`);
+      texte.push(`${verbe} ${qui.nom}${href ? ` — ${href}` : ""}`);
     }
   } else if (b.type === "bouton") {
     if (resume) { corps.push(paragraphe(resume)); texte.push(resume); }
@@ -442,7 +449,7 @@ ${bouton(lien, "Je confirme mon inscription", C.bleu, C.blanc)}
 // ——— Retour au déposant (lot 5) ———
 
 /** « Ton son », « Ta recommandation »… selon ce qui a été déposé. */
-const NOM_DEPOT: Record<string, string> = { son: "Ton son", coulisses: "Ton son", projet: "Ton son", ecoute: "Ta recommandation", appel: "Ton annonce" };
+const NOM_DEPOT: Record<string, string> = { son: "Ton son", coulisses: "Ton son", projet: "Ton son", ecoute: "Ta recommandation", appel: "Ton annonce", ressource: "Ta ressource" };
 
 /** E-mail court au « tu » quand le numéro qui reprend un dépôt « Retenu » part par e-mail. */
 export const emailDeposant = (n: Pick<NumeroEmail, "numero" | "mois" | "slug">, d: { titre: string; type: string }): EmailConstruit => {
@@ -452,7 +459,9 @@ export const emailDeposant = (n: Pick<NumeroEmail, "numero" | "mois" | "slug">, 
   const objet = `${quoi} « ${titre} » est dans L'Onde du Sud de ${mois}`;
   const page = lienSite(`/onde/${n.slug}`, n.numero);
   const l1 = `${quoi} « ${titre} » est dans le numéro de ${mois} de L'Onde du Sud, avec ton nom et un lien vers ta page.`;
-  const l2 = "Merci de l'avoir déposé : c'est avec les sons des membres que la lettre se fabrique.";
+  const l2 = d.type === "ressource"
+    ? "Merci de l'avoir partagée : c'est avec ce que déposent les membres que la lettre se fabrique."
+    : "Merci de l'avoir déposé : c'est avec les sons des membres que la lettre se fabrique.";
   const html = `<!DOCTYPE html>
 <html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="color-scheme" content="light"><title>${esc(objet)}</title></head>
 <body style="margin:0;padding:0;background:${C.fond};">

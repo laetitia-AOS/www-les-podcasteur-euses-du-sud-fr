@@ -39,7 +39,8 @@ const OndeDeposer = () => {
           <div className="max-w-[640px]">
             <h1 className="title-page text-[44px] sm:text-[64px]">Déposer pour L'Onde</h1>
             <p className="mt-5 text-lg">
-              L'Onde du Sud est faite avec les sons de ses membres : un son, une écoute, un projet, les coulisses d'une fabrication.
+              L'Onde du Sud est faite avec les sons de ses membres : un son, une écoute, un projet, les coulisses d'une fabrication,
+              une ressource à partager. Avec l'adhésion, vous pouvez aussi partager des ressources avec le réseau dans L'Onde du Sud.
               Le dépôt est réservé aux adhérent·es à jour, depuis l'espace membre.
             </p>
             <div className="mt-8 flex flex-wrap gap-3">

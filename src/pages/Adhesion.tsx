@@ -25,6 +25,7 @@ const COMPARATIF: { label: string; profil: string; membre: string }[] = [
   { label: "Épisodes dans le lecteur du site", profil: "Non", membre: "Oui, en rotation" },
   { label: "« Cherche / Apporte » visibles et messages des autres membres", profil: "Non", membre: "Oui" },
   { label: "Proposer des événements à l'agenda", profil: "Non", membre: "Oui" },
+  { label: "Partager des ressources avec le réseau dans L'Onde du Sud", profil: "Non", membre: "Oui" },
 ];
 
 const ANNEE = anneeEnCours();

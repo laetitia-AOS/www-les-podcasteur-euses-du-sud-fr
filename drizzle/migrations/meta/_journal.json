@@ -330,6 +330,13 @@
       "when": 1794665978628,
       "tag": "0046_onde_numeros_audio_duree_lecture_publique",
       "breakpoints": true
+    },
+    {
+      "idx": 47,
+      "version": "7",
+      "when": 1794666259272,
+      "tag": "0047_onde_depots_ressources",
+      "breakpoints": true
     }
   ]
 }
