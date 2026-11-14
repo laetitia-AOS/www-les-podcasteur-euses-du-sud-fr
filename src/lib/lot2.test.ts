@@ -66,7 +66,7 @@ describe("image d'une personne", () => {
 });
 
 describe("Qui cherche quoi", () => {
-  const f = (id: string, extra = {}) => ({ id, type_profil: "podcasteur", cherche_choix: ["montage"], apporte_choix: ["voix_off"], visible_sans_adhesion: false, ...extra });
+  const f = (id: string, extra = {}) => ({ id, type_profil: "podcasteur", cherche_choix: ["montage"], apporte_choix: ["voix_off"], visible_sans_adhesion: false, prenom: id, nom: "Test", nom_podcast: `Pod ${id}`, ...extra });
   it("tire trois profils parmi les membres à jour qui ont rempli cherche et apporte", () => {
     const list = [f("a"), f("b"), f("c"), f("d"), f("sursis", { visible_sans_adhesion: true }), f("vide", { apporte_choix: [] }), f("studio", { type_profil: "studio" })];
     const pick = piocherQuiCherche(list);
@@ -76,5 +76,17 @@ describe("Qui cherche quoi", () => {
   it("change selon le tirage, au lieu de prendre toujours les premiers", () => {
     const list = [f("a"), f("b"), f("c"), f("d"), f("e")];
     expect(piocherQuiCherche(list, 3, () => 0).map((p) => p.id)).not.toEqual(["a", "b", "c"]);
+  });
+  it("n'affiche qu'une fois une personne qui a plusieurs fiches", () => {
+    const julien = { prenom: "Julien", nom: "Kirsch" };
+    const list = [
+      f("j1", { ...julien, nom_podcast: "KIKI" }),
+      f("j2", { ...julien, nom_podcast: "Archi Différemment" }),
+      f("j3", { ...julien, nom_podcast: "—" }),
+      f("a"), f("b"),
+    ];
+    const pick = piocherQuiCherche(list, 3, () => 0);
+    expect(pick.filter((p) => p.nom === "Kirsch")).toHaveLength(1);
+    expect(pick.find((p) => p.nom === "Kirsch")?.nom_podcast).not.toBe("—");
   });
 });

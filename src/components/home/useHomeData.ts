@@ -66,8 +66,10 @@ export const piocherMur = <T extends Pick<HomeProfile, "type_profil" | "vignette
 /**
  * « Qui cherche quoi » : personnes (ni studio ni structure) qui ont rempli « Je cherche » et « J'apporte »,
  * membres à jour (une fiche visible grâce à un sursis est écartée), mélangées au hasard.
+ * Une même personne a souvent plusieurs fiches (une par podcast) : on n'en garde qu'une,
+ * de préférence une fiche avec un vrai podcast, pour ne pas l'afficher plusieurs fois.
  */
-export const piocherQuiCherche = <T extends Pick<HomeProfile, "type_profil" | "cherche_choix" | "apporte_choix" | "visible_sans_adhesion">>(
+export const piocherQuiCherche = <T extends Pick<HomeProfile, "type_profil" | "cherche_choix" | "apporte_choix" | "visible_sans_adhesion" | "prenom" | "nom" | "nom_podcast">>(
   profiles: T[], n = 3, rand = Math.random,
 ): T[] => {
   const pool = profiles.filter(
@@ -75,7 +77,13 @@ export const piocherQuiCherche = <T extends Pick<HomeProfile, "type_profil" | "c
       && (p.cherche_choix?.length || 0) > 0 && (p.apporte_choix?.length || 0) > 0
       && !p.visible_sans_adhesion,
   );
-  const melange = [...pool];
+  const parPersonne = new Map<string, T>();
+  for (const p of pool) {
+    const cle = `${(p.prenom || "").trim().toLowerCase()}|${(p.nom || "").trim().toLowerCase()}`;
+    const actuel = parPersonne.get(cle);
+    if (!actuel || (actuel.nom_podcast === "—" && p.nom_podcast !== "—")) parPersonne.set(cle, p);
+  }
+  const melange = [...parPersonne.values()];
   for (let i = melange.length - 1; i > 0; i--) {
     const j = Math.floor(rand() * (i + 1));
     [melange[i], melange[j]] = [melange[j], melange[i]];
