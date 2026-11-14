@@ -278,7 +278,7 @@ const rendreBloc = (b: BlocEmail, i: number, n: NumeroEmail, ctx: ContexteEmail)
   const contenu = corps.filter(Boolean).join("");
   if (!contenu) return null;
   return {
-    html: `<tr><td style="padding:22px 32px 0 32px;"><div style="border-top:2px solid ${C.encre};padding-top:14px;">${tete}${contenu}</div></td></tr>`,
+    html: `<tr><td class="marge" style="padding:22px 32px 0 32px;"><div style="border-top:2px solid ${C.encre};padding-top:14px;">${tete}${contenu}</div></td></tr>`,
     texte: texte.filter(Boolean).join("\n"),
   };
 };

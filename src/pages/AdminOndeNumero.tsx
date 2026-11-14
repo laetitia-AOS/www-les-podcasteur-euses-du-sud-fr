@@ -9,7 +9,7 @@ import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import type { Json } from "@/integrations/supabase/types";
 import AdminLayout from "@/components/admin/AdminLayout";
-import { BadgeStatut, btnIcone, dateHeure, messageOnde, useNomsEquipe } from "@/components/onde/adminOnde";
+import { BadgeEnvoi, BadgeStatut, btnIcone, dateHeure, messageOnde, useEnvoisResume, useNomsEquipe } from "@/components/onde/adminOnde";
 import { BoutonFichier, Champ, ChampTexteRiche } from "@/components/onde/champsOnde";
 import { EditeurEvenements, EditeurNouveauxMembres, EditeurPodcast } from "@/components/onde/EditeursAuto";
 import EnvoiOnde from "@/components/onde/EnvoiOnde";
@@ -232,6 +232,7 @@ const AdminOndeNumero = () => {
 
   const resoudre = useFichiersEquipe(n ? fichiersNumero(n) : []);
   const nom = useNomsEquipe(n ? [n.auteur_id, n.modifie_par] : []);
+  const envoiDe = useEnvoisResume();
 
   // Version audio déjà en ligne sans durée connue : on la lit une fois, pour le bouton « Écouter ce numéro (X min) » de l'e-mail
   const lienAudio = n?.audio_url ? resoudre(n.audio_url) : undefined;
@@ -386,6 +387,7 @@ const AdminOndeNumero = () => {
         <span className="flex flex-wrap items-center gap-x-3 gap-y-1">
           <Link to="/admin/onde" className="underline underline-offset-4">← Tous les numéros</Link>
           {n && <BadgeStatut statut={n.statut} />}
+          {n && <BadgeEnvoi envoi={envoiDe(n.id)} />}
           {n && (
             <span role="status" aria-live="polite" className={`text-sm inline-flex items-center gap-1 ${etat.t === "erreur" ? "text-destructive font-bold" : ""}`}>
               {etat.t === "encours" && <Loader2 className="w-3.5 h-3.5 animate-spin motion-reduce:animate-none" aria-hidden />}

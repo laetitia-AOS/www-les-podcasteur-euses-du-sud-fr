@@ -2,6 +2,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { formatShortDate } from "@/lib/pds";
+import { libelleEnvoye } from "@/lib/onde";
 
 export const btnIcone =
   "inline-flex items-center justify-center w-10 h-10 border-2 border-encre bg-background hover:bg-muted disabled:opacity-40 disabled:pointer-events-none focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary";
@@ -51,3 +52,24 @@ export const useNomsEquipe = (ids: (string | null | undefined)[]) => {
   return (id?: string | null) => (id && data?.[id]) || "";
 };
 
+
+/** Numéros déjà partis par e-mail (la base ne répond qu'aux admins et éditeur·ices). */
+export const useEnvoisResume = () => {
+  const { data = [] } = useQuery({
+    queryKey: ["onde-envois-resume"],
+    queryFn: async () => {
+      const { data, error } = await supabase.rpc("onde_envois_resume");
+      if (error) throw error;
+      return (data || []) as { numero_id: string; statut: string; termine_le: string | null }[];
+    },
+  });
+  return (id: string) => data.find((e) => e.numero_id === id);
+};
+
+/** « Envoyé le 14 novembre 2026 », ou « Envoi à reprendre » s'il a été interrompu. */
+export const BadgeEnvoi = ({ envoi }: { envoi?: { statut: string; termine_le: string | null } }) =>
+  !envoi ? null : envoi.statut === "termine" ? (
+    <span className="font-mono text-[11px] uppercase tracking-wider bg-encre text-surface px-1.5 py-0.5">{libelleEnvoye(envoi.termine_le)}</span>
+  ) : (
+    <span className="font-mono text-[11px] uppercase tracking-wider border border-destructive text-destructive px-1.5">Envoi à reprendre</span>
+  );

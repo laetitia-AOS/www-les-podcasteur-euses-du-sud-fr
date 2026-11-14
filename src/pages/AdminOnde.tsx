@@ -15,9 +15,9 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { btnPrimary, btnSecondary, fullName } from "@/lib/pds";
-import { BadgeStatut, btnIcone, dateHeure, messageOnde, useNomsEquipe } from "@/components/onde/adminOnde";
+import { BadgeEnvoi, BadgeStatut, btnIcone, dateHeure, messageOnde, useEnvoisResume, useNomsEquipe } from "@/components/onde/adminOnde";
 import {
-  NOM_ONDE, ONDE_COLUMNS_EQUIPE, etiquetteNumero, libelleEnvoye, moisCourant, moisSuivant, ondeHref, slugOnde, useFichiersEquipe,
+  NOM_ONDE, ONDE_COLUMNS_EQUIPE, etiquetteNumero, moisCourant, moisSuivant, ondeHref, slugOnde, useFichiersEquipe,
   type NumeroOnde,
 } from "@/lib/onde";
 
@@ -43,16 +43,7 @@ const AdminOnde = () => {
     },
   });
   const nom = useNomsEquipe(liste.flatMap((n) => [n.auteur_id, n.modifie_par]));
-  // Numéros déjà partis par e-mail (« Envoyé le … ») : la base ne répond qu'aux admins et éditeur·ices
-  const { data: envois = [] } = useQuery({
-    queryKey: ["onde-envois-resume"],
-    queryFn: async () => {
-      const { data, error } = await supabase.rpc("onde_envois_resume");
-      if (error) throw error;
-      return (data || []) as { numero_id: string; statut: string; termine_le: string | null }[];
-    },
-  });
-  const envoiDe = (id: string) => envois.find((e) => e.numero_id === id);
+  const envoiDe = useEnvoisResume();
   const resoudre = useFichiersEquipe(liste.map((n) => n.couverture_url || "").filter(Boolean));
 
   const creer = useMutation({
@@ -133,11 +124,7 @@ const AdminOnde = () => {
                   <div className="min-w-0">
                     <p className="font-mono text-xs uppercase tracking-wider text-primary flex flex-wrap items-center gap-2">
                       {etiquetteNumero(n)} <BadgeStatut statut={n.statut} />
-                      {envoiDe(n.id)?.statut === "termine" ? (
-                        <span className="font-mono text-[11px] uppercase tracking-wider bg-encre text-surface px-1.5 py-0.5">{libelleEnvoye(envoiDe(n.id)?.termine_le)}</span>
-                      ) : envoiDe(n.id) ? (
-                        <span className="font-mono text-[11px] uppercase tracking-wider border border-destructive text-destructive px-1.5">Envoi à reprendre</span>
-                      ) : null}
+                      <BadgeEnvoi envoi={envoiDe(n.id)} />
                     </p>
                     <p className="font-bold text-lg leading-tight mt-1">{n.titre || <span className="text-muted-foreground font-normal">Sans titre</span>}</p>
                     {n.chapeau && <p className="text-sm mt-1 line-clamp-2 max-w-[70ch]">{n.chapeau}</p>}
