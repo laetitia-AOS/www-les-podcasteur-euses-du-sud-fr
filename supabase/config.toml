@@ -44,3 +44,12 @@ verify_jwt = false
 
 [functions.onde-media]
 verify_jwt = false
+
+[functions.onde-envoi]
+verify_jwt = false
+
+[functions.onde-inscription]
+verify_jwt = false
+
+[functions.onde-desinscription]
+verify_jwt = false

@@ -702,6 +702,7 @@ export type Database = {
       }
       onde_abonnes: {
         Row: {
+          confirmation_envoyee_le: string | null
           confirme_le: string | null
           consentement_le: string | null
           consentement_texte: string | null
@@ -718,6 +719,7 @@ export type Database = {
           updated_at: string
         }
         Insert: {
+          confirmation_envoyee_le?: string | null
           confirme_le?: string | null
           consentement_le?: string | null
           consentement_texte?: string | null
@@ -734,6 +736,7 @@ export type Database = {
           updated_at?: string
         }
         Update: {
+          confirmation_envoyee_le?: string | null
           confirme_le?: string | null
           consentement_le?: string | null
           consentement_texte?: string | null
@@ -751,8 +754,103 @@ export type Database = {
         }
         Relationships: []
       }
+      onde_envoi_journal: {
+        Row: {
+          copie: boolean
+          email: string
+          envoi_id: string
+          envoye_le: string | null
+          erreur: string | null
+          id: string
+          jeton: string | null
+          message_id: string | null
+          prenom: string | null
+          statut: string
+          tente_le: string | null
+        }
+        Insert: {
+          copie?: boolean
+          email: string
+          envoi_id: string
+          envoye_le?: string | null
+          erreur?: string | null
+          id?: string
+          jeton?: string | null
+          message_id?: string | null
+          prenom?: string | null
+          statut?: string
+          tente_le?: string | null
+        }
+        Update: {
+          copie?: boolean
+          email?: string
+          envoi_id?: string
+          envoye_le?: string | null
+          erreur?: string | null
+          id?: string
+          jeton?: string | null
+          message_id?: string | null
+          prenom?: string | null
+          statut?: string
+          tente_le?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "onde_envoi_journal_envoi_id_fkey"
+            columns: ["envoi_id"]
+            isOneToOne: false
+            referencedRelation: "onde_envois"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      onde_envois: {
+        Row: {
+          demarre_le: string
+          destinataires: number
+          id: string
+          lance_par: string | null
+          message: string | null
+          numero_id: string
+          objet: string
+          statut: string
+          termine_le: string | null
+        }
+        Insert: {
+          demarre_le?: string
+          destinataires?: number
+          id?: string
+          lance_par?: string | null
+          message?: string | null
+          numero_id: string
+          objet: string
+          statut?: string
+          termine_le?: string | null
+        }
+        Update: {
+          demarre_le?: string
+          destinataires?: number
+          id?: string
+          lance_par?: string | null
+          message?: string | null
+          numero_id?: string
+          objet?: string
+          statut?: string
+          termine_le?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "onde_envois_numero_id_fkey"
+            columns: ["numero_id"]
+            isOneToOne: true
+            referencedRelation: "onde_numeros"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       onde_numeros: {
         Row: {
+          audio_duree: number | null
           audio_url: string | null
           audio_voix: string | null
           auteur_id: string | null
@@ -772,6 +870,7 @@ export type Database = {
           updated_at: string
         }
         Insert: {
+          audio_duree?: number | null
           audio_url?: string | null
           audio_voix?: string | null
           auteur_id?: string | null
@@ -791,6 +890,7 @@ export type Database = {
           updated_at?: string
         }
         Update: {
+          audio_duree?: number | null
           audio_url?: string | null
           audio_voix?: string | null
           auteur_id?: string | null
@@ -1478,6 +1578,13 @@ export type Database = {
           ville: string
         }[]
       }
+      onde_confirmation_a_envoyer: {
+        Args: { _email: string }
+        Returns: {
+          jeton: string
+          prenom: string
+        }[]
+      }
       onde_confirmer: { Args: { _jeton: string }; Returns: string }
       onde_desinscrire: { Args: { _jeton: string }; Returns: string }
       onde_destinataires: {
@@ -1488,6 +1595,7 @@ export type Database = {
           prenom: string
         }[]
       }
+      onde_destinataires_nombre: { Args: never; Returns: number }
       onde_donner_editeur: { Args: { _email: string }; Returns: string }
       onde_editeurs: {
         Args: never
@@ -1495,6 +1603,52 @@ export type Database = {
           email: string
           nom: string
           user_id: string
+        }[]
+      }
+      onde_envoi_bilan: {
+        Args: { _details: boolean; _numero_id: string }
+        Returns: Json
+      }
+      onde_envoi_conclure: {
+        Args: { _envoi_id: string; _message: string }
+        Returns: string
+      }
+      onde_envoi_demarrer: {
+        Args: {
+          _attendu: number
+          _copie: string
+          _lance_par: string
+          _numero_id: string
+          _objet: string
+        }
+        Returns: string
+      }
+      onde_envoi_marquer: {
+        Args: {
+          _erreur: string
+          _ids: string[]
+          _message_ids: string[]
+          _statut: string
+        }
+        Returns: undefined
+      }
+      onde_envoi_reserver: {
+        Args: { _envoi_id: string; _n: number }
+        Returns: {
+          copie: boolean
+          email: string
+          id: string
+          jeton: string
+          prenom: string
+        }[]
+      }
+      onde_envois_resume: {
+        Args: never
+        Returns: {
+          demarre_le: string
+          numero_id: string
+          statut: string
+          termine_le: string
         }[]
       }
       onde_fichier: {

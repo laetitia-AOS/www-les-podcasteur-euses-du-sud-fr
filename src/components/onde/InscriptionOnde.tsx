@@ -14,7 +14,8 @@ const schema = z.object({
 
 const field = "w-full min-h-[48px] px-3 bg-surface border-2 border-encre text-[16px] focus:outline-none focus-visible:outline-[3px] focus-visible:outline-accent";
 
-const InscriptionOnde = ({ className = "" }: { className?: string }) => {
+/** « ancre » : identifiant de la section, pour les liens « Recevoir L'Onde du Sud chaque mois » (/onde#recevoir). */
+const InscriptionOnde = ({ className = "", ancre }: { className?: string; ancre?: string }) => {
   const id = useId();
   const [v, setV] = useState({ prenom: "", email: "", consentement: false, website: "" });
   const [err, setErr] = useState<Record<string, string>>({});
@@ -43,7 +44,7 @@ const InscriptionOnde = ({ className = "" }: { className?: string }) => {
   };
 
   return (
-    <section aria-labelledby={`${id}-titre`} className={`border-2 border-encre bg-surface p-5 sm:p-7 ${className}`}>
+    <section id={ancre} aria-labelledby={`${id}-titre`} className={`scroll-mt-24 border-2 border-encre bg-surface p-5 sm:p-7 ${className}`}>
       <h2 id={`${id}-titre`} className="title-section text-[26px] sm:text-[32px]">Recevoir {NOM_ONDE} chaque mois</h2>
       {etat === "ok" ? (
         <p role="status" className="mt-3 text-[17px] font-bold max-w-[60ch]">

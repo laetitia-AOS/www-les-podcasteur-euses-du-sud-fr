@@ -12,6 +12,7 @@ import AdminLayout from "@/components/admin/AdminLayout";
 import { BadgeStatut, btnIcone, dateHeure, messageOnde, useNomsEquipe } from "@/components/onde/adminOnde";
 import { BoutonFichier, Champ, ChampTexteRiche } from "@/components/onde/champsOnde";
 import { EditeurEvenements, EditeurNouveauxMembres, EditeurPodcast } from "@/components/onde/EditeursAuto";
+import EnvoiOnde from "@/components/onde/EnvoiOnde";
 import { useAdminAuth } from "@/hooks/useAdminAuth";
 import {
   AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription,
@@ -22,7 +23,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { btnPrimary, btnSecondary } from "@/lib/pds";
 import {
-  IMAGE_TYPES, LIMITES_ONDE, NOM_ONDE, ONDE_COLUMNS_EQUIPE, TYPES_BLOCS, deplacer, envoyerFichierOnde, etiquetteNumero,
+  IMAGE_TYPES, LIMITES_ONDE, NOM_ONDE, dureeAudio, ONDE_COLUMNS_EQUIPE, TYPES_BLOCS, deplacer, envoyerFichierOnde, etiquetteNumero,
   fichiersNumero, libelleType, manquesPublication, nouveauBloc, numeroRubrique, ondeHref, slugOnde, useFichiersEquipe,
   type Bloc, type NumeroOnde, type TypeBloc,
 } from "@/lib/onde";
@@ -188,6 +189,16 @@ const EditeurBloc = ({
             <p className="text-xs text-muted-foreground">De 2 à 4 chiffres.</p>
           </div>
         )}
+
+        <Champ
+          id={`${pid}-resume`}
+          label="Résumé pour l'e-mail"
+          max={LIMITES_ONDE.resume}
+          n={(b.resume || "").length}
+          aide="Facultatif. Deux ou trois lignes reprises dans l'e-mail sous l'étiquette du bloc. Laissé vide : le début du texte du bloc est repris."
+        >
+          <Textarea id={`${pid}-resume`} rows={2} value={b.resume || ""} onChange={(e) => onChange({ ...b, resume: e.target.value.replace(/\n/g, " ") })} />
+        </Champ>
       </div>
     </li>
   );
@@ -222,6 +233,25 @@ const AdminOndeNumero = () => {
   const resoudre = useFichiersEquipe(n ? fichiersNumero(n) : []);
   const nom = useNomsEquipe(n ? [n.auteur_id, n.modifie_par] : []);
 
+  // Version audio déjà en ligne sans durée connue : on la lit une fois, pour le bouton « Écouter ce numéro (X min) » de l'e-mail
+  const lienAudio = n?.audio_url ? resoudre(n.audio_url) : undefined;
+  const dureeLue = useRef<string | null>(null);
+  useEffect(() => {
+    if (!n || !n.audio_url || n.audio_duree || !lienAudio || dureeLue.current === n.audio_url) return;
+    dureeLue.current = n.audio_url;
+    const audio = n.audio_url;
+    void dureeAudio(lienAudio).then(async (duree) => {
+      if (!duree) return;
+      if (n.statut === "publie") {
+        const { error } = await supabase.from("onde_numeros").update({ audio_duree: duree }).eq("id", n.id).eq("audio_url", audio);
+        if (!error) setN((x) => (x && x.audio_url === audio ? { ...x, audio_duree: duree } : x));
+      } else {
+        maj((x) => (x.audio_url === audio ? { audio_duree: duree } : {}));
+      }
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [n?.audio_url, n?.audio_duree, lienAudio]);
+
   const maj = (f: (x: NumeroOnde) => Partial<NumeroOnde>) => {
     setN((x) => (x ? { ...x, ...f(x) } : x));
     version.current += 1;
@@ -243,6 +273,7 @@ const AdminOndeNumero = () => {
         couverture_alt: n.couverture_alt,
         audio_url: n.audio_url,
         audio_voix: n.audio_voix,
+        audio_duree: n.audio_duree ?? null,
         blocs: n.blocs as unknown as Json,
         statut: statut ?? n.statut,
       })
@@ -414,6 +445,8 @@ const AdminOndeNumero = () => {
             </div>
           )}
 
+          {publie && <EnvoiOnde numeroId={n.id} numero={n.numero} modifie={etat.t !== "ok"} />}
+
           <section aria-labelledby="s-numero" className="space-y-5">
             <h2 id="s-numero" className="font-bold text-xl border-b-2 border-encre pb-2">Le numéro</h2>
             <div className="grid sm:grid-cols-[140px_220px] gap-4">
@@ -463,9 +496,15 @@ const AdminOndeNumero = () => {
             <h2 id="s-audio" className="font-bold text-xl border-b-2 border-encre pb-2">Version audio du numéro</h2>
             {n.audio_url && <audio controls preload="none" src={resoudre(n.audio_url)} className="w-full max-w-xl" />}
             <div className="flex flex-wrap items-center gap-3">
-              <BoutonFichier label={n.audio_url ? "Remplacer le MP3" : "Envoyer le MP3"} accept="audio/mpeg,.mp3" enCours={envoi === "audio"} onFiles={(f) => f[0] && envoyer("audio", f[0], "audio", (url) => maj(() => ({ audio_url: url })))} />
+              <BoutonFichier label={n.audio_url ? "Remplacer le MP3" : "Envoyer le MP3"} accept="audio/mpeg,.mp3" enCours={envoi === "audio"} onFiles={async (f) => {
+                if (!f[0]) return;
+                const local = URL.createObjectURL(f[0]);
+                const duree = await dureeAudio(local);
+                URL.revokeObjectURL(local);
+                await envoyer("audio", f[0], "audio", (url) => maj(() => ({ audio_url: url, audio_duree: duree })));
+              }} />
               {n.audio_url && (
-                <button type="button" className="text-sm underline underline-offset-4 inline-flex items-center gap-1 min-h-[44px]" onClick={() => maj(() => ({ audio_url: null }))}>
+                <button type="button" className="text-sm underline underline-offset-4 inline-flex items-center gap-1 min-h-[44px]" onClick={() => maj(() => ({ audio_url: null, audio_duree: null }))}>
                   <X className="w-3 h-3" aria-hidden /> Retirer la version audio
                 </button>
               )}

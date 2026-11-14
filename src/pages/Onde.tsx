@@ -83,7 +83,7 @@ const Onde = () => {
             </ul>
           </div>
 
-          <InscriptionOnde className="mt-14 max-w-[860px]" />
+          <InscriptionOnde ancre="recevoir" className="mt-14 max-w-[860px]" />
         </div>
       </main>
       <Footer />

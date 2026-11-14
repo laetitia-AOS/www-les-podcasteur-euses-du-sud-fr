@@ -27,6 +27,7 @@ const FILTRES: { id: "tous" | StatutAbonne; label: string }[] = [
   { id: "actif", label: "Actifs" },
   { id: "en_attente", label: "En attente" },
   { id: "desinscrit", label: "Désinscrits" },
+  { id: "adherent", label: "Inclus·es par l'adhésion" },
 ];
 
 const Badge = ({ children, plein = false }: { children: React.ReactNode; plein?: boolean }) => (

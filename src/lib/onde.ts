@@ -1,6 +1,7 @@
 // L'Onde du Sud, la lettre mensuelle des Podcasteur·euses du Sud : types, règles, mise en forme et chargements.
 // Les mêmes règles sont appliquées côté serveur (déclencheur guard_onde_numeros) ; ici, elles guident la saisie.
 import { useQuery } from "@tanstack/react-query";
+import { FunctionsHttpError } from "@supabase/supabase-js";
 import { supabase } from "@/integrations/supabase/client";
 import type { Episode } from "@/lib/episodes";
 import { SITE_NAME, SITE_URL, descriptionSeo } from "@/lib/seo";
@@ -12,7 +13,8 @@ export const NOM_COMPLET_ONDE = "L'Onde du Sud, la lettre des Podcasteur·euses 
 export type ImageOnde = { url: string; alt?: string };
 export type Chiffre = { valeur: string; libelle: string };
 
-type Base = { id: string; rubrique?: string };
+/** « resume » : résumé facultatif repris dans l'e-mail (sinon, le début du texte du bloc). */
+type Base = { id: string; rubrique?: string; resume?: string };
 export type BlocTexte = Base & { type: "texte"; titre?: string; texte?: string };
 export type BlocImages = Base & { type: "images"; images: ImageOnde[] };
 export type BlocAudio = Base & { type: "audio"; url?: string; titre?: string; podcast?: string; createur?: string; lien?: string };
@@ -42,6 +44,8 @@ export type NumeroOnde = {
   couverture_alt: string | null;
   audio_url: string | null;
   audio_voix: string | null;
+  /** Durée de la version audio en secondes (lue à l'envoi du MP3), pour « Écouter ce numéro (X min) ». */
+  audio_duree?: number | null;
   blocs: Bloc[];
   statut: "brouillon" | "publie";
   publie_le: string | null;
@@ -53,7 +57,7 @@ export type NumeroOnde = {
 
 /** Colonnes lisibles par tout le monde (les identifiants des auteur·ices n'en font pas partie). */
 export const ONDE_COLUMNS_PUBLIC =
-  "id, numero, mois, titre, chapeau, slug, couverture_url, couverture_alt, audio_url, audio_voix, blocs, statut, publie_le, updated_at";
+  "id, numero, mois, titre, chapeau, slug, couverture_url, couverture_alt, audio_url, audio_voix, audio_duree, blocs, statut, publie_le, updated_at";
 export const ONDE_COLUMNS_EQUIPE = `${ONDE_COLUMNS_PUBLIC}, auteur_id, modifie_par, created_at`;
 
 export const LIMITES_ONDE = {
@@ -61,6 +65,8 @@ export const LIMITES_ONDE = {
   chapeau: 240,
   alt: 250,
   rubrique: 60,
+  /** Résumé pour l'e-mail (2-3 lignes). */
+  resume: 300,
   titreBloc: 120,
   texte: 5000,
   voix: 80,
@@ -460,12 +466,14 @@ export const CONSENTEMENT_ONDE = "J'accepte de recevoir L'Onde du Sud par e-mail
 export const CONSENTEMENT_ONDE_EVENEMENT = "Je veux aussi recevoir L'Onde du Sud, la lettre mensuelle";
 
 export type SourceAbonne = "onde" | "evenement" | "adhesion";
-export type StatutAbonne = "en_attente" | "actif" | "desinscrit";
+/** « adherent » : inclus·e d'office par son adhésion (ligne créée au premier envoi), seulement tant que l'adhésion est à jour. */
+export type StatutAbonne = "en_attente" | "actif" | "desinscrit" | "adherent";
 
 export const LIBELLE_STATUT_ABONNE: Record<StatutAbonne, string> = {
   en_attente: "En attente de confirmation",
   actif: "Actif",
   desinscrit: "Désinscrit·e",
+  adherent: "Inclus·e par l'adhésion",
 };
 export const LIBELLE_SOURCE_ABONNE: Record<SourceAbonne, string> = {
   onde: "Formulaire L'Onde",
@@ -481,6 +489,70 @@ export const jetonValide = (j?: string | null): j is string => !!j && RE_JETON.t
 export const lienConfirmationOnde = (jeton: string) => `${SITE_URL}${ONDE_CONFIRMER}?jeton=${encodeURIComponent(jeton)}`;
 export const lienDesinscriptionOnde = (jeton: string) => `${SITE_URL}${ONDE_DESINSCRIPTION}?jeton=${encodeURIComponent(jeton)}`;
 
-/** Inscription : même réponse que l'adresse soit nouvelle ou déjà abonnée. */
-export const inscrireOnde = (prenom: string | null, email: string, source: "onde" | "evenement") =>
-  supabase.rpc("onde_inscrire", { _prenom: prenom ?? "", _email: email.trim(), _consentement: true, _source: source });
+/**
+ * Inscription : même réponse que l'adresse soit nouvelle ou déjà abonnée.
+ * Le serveur (fonction « onde-inscription ») enregistre la demande puis envoie l'e-mail de confirmation.
+ */
+export const inscrireOnde = async (prenom: string | null, email: string, source: "onde" | "evenement"): Promise<{ error: { code?: string; message?: string } | null }> => {
+  const { error } = await supabase.functions.invoke("onde-inscription", {
+    body: { prenom: prenom ?? "", email: email.trim(), consentement: true, source },
+  });
+  if (!error) return { error: null };
+  const corps = error instanceof FunctionsHttpError ? await error.context.json().catch(() => ({})) : {};
+  return { error: { code: corps?.code, message: corps?.error || error.message } };
+};
+
+// ——— Envoi par e-mail (lot 4) ———
+// Tout passe par la fonction serveur « onde-envoi », qui relit le rôle (admin ou éditeur·ice) en base.
+
+/** Durée d'un MP3 en secondes, lue par le navigateur (rien si elle n'est pas lisible). */
+export const dureeAudio = (src: string): Promise<number | null> =>
+  new Promise((resolve) => {
+    const a = new Audio();
+    a.preload = "metadata";
+    const fin = (v: number | null) => { a.removeAttribute("src"); a.load(); resolve(v); };
+    const t = setTimeout(() => fin(null), 15000);
+    a.onloadedmetadata = () => { clearTimeout(t); fin(Number.isFinite(a.duration) && a.duration > 0 ? Math.round(a.duration) : null); };
+    a.onerror = () => { clearTimeout(t); fin(null); };
+    a.src = src;
+  });
+
+export type BilanEnvoi = {
+  id: string;
+  statut: "en_cours" | "interrompu" | "termine";
+  message: string | null;
+  objet: string;
+  demarre_le: string;
+  termine_le: string | null;
+  destinataires: number;
+  envoyes: number;
+  erreurs: number;
+  restants: number;
+  copie: "a_envoyer" | "en_cours" | "envoye" | "erreur" | null;
+  /** Admins seulement. */
+  liste_erreurs?: { email: string; erreur: string | null; copie: boolean }[] | null;
+};
+export type EtatEnvoi = { configure: boolean; destinataires: number; envoi: BilanEnvoi | null; admin: boolean; moi: string | null; copie: string };
+export type ApercuEmail = { objet: string; html: string; texte: string; expediteur: string; reponse: string };
+
+export class ErreurEnvoi extends Error {
+  constructor(message: string, public code?: string) { super(message); }
+}
+
+export const MESSAGE_NON_CONFIGURE = "Envoi pas encore configuré";
+
+export const appelEnvoiOnde = async <T,>(action: "etat" | "apercu" | "test" | "envoyer" | "reprendre", numeroId: string, extra: Record<string, unknown> = {}): Promise<T> => {
+  const { data, error } = await supabase.functions.invoke("onde-envoi", { body: { action, numero_id: numeroId, ...extra } });
+  if (error) {
+    const corps = error instanceof FunctionsHttpError ? await error.context.json().catch(() => ({})) : {};
+    throw new ErreurEnvoi(corps?.error || "Le serveur n'a pas répondu. Vérifiez votre connexion et réessayez.", corps?.code);
+  }
+  return data as T;
+};
+
+/** « Envoyé le 14.11.2026 » une fois l'envoi terminé. */
+export const libelleEnvoye = (iso?: string | null) => {
+  if (!iso) return "";
+  const d = new Date(iso);
+  return isNaN(d.getTime()) ? "" : `Envoyé le ${d.toLocaleDateString("fr-FR", { day: "numeric", month: "long", year: "numeric" })}`;
+};
