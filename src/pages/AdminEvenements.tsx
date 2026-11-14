@@ -8,7 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
-import { CalendarDays, Plus, Pencil, Trash2, X, Loader2, Download, Image, Users, Eye, EyeOff } from "lucide-react";
+import { CalendarDays, Plus, Pencil, Trash2, X, Loader2, Download, Image, Users, Eye, EyeOff, Instagram } from "lucide-react";
 import { useSearchParams } from "react-router-dom";
 import AdminLayout from "@/components/admin/AdminLayout";
 import { AdminOnglets, Panneau, useOnglet } from "@/components/admin/AdminOnglets";
@@ -21,6 +21,9 @@ import PodcastsInvitesEditor, { type PodcastInvite } from "@/components/Podcasts
 import FaqEvenementEditor from "@/components/admin/FaqEvenementEditor";
 import { faqParDefaut, lireFaq, type FaqItem } from "@/lib/faqEvenement";
 import { sansEmojis } from "@/lib/events";
+import { CASE_ONDE, MESSAGE_SANS_BROUILLON, badgeOnde, basculerOnde, dansUnBrouillon, messageBascule, numerosBrouillon, numerosEvenement, useEtatAgendaOnde } from "@/lib/agendaOnde";
+import { instagramValide, normaliserInstagram } from "@/lib/partageEvenement";
+import PostInsta, { type EvenementInsta } from "@/components/agenda/PostInsta";
 
 type EventForm = {
   titre: string;
@@ -43,6 +46,10 @@ type EventForm = {
   tarif: string;
   statut: string;
   faq: FaqItem[];
+  /** Case « Ajouter au prochain numéro de L'Onde du Sud » */
+  onde: boolean;
+  /** Instagram de l'organisateur (@compte), gardé à part : lisible par les admins seulement */
+  instagram: string;
 };
 
 const STATUT_LABEL: Record<string, string> = { en_relecture: "En relecture", publie: "Publié", refuse: "Refusé" };
@@ -53,6 +60,7 @@ const emptyForm: EventForm = {
   image_url: "", places: "", inscription_activee: false,
   podcasts_invites: [], structure_id: "",
   format: "sur_place", lien_connexion: "", tarif: "", statut: "publie", faq: [],
+  onde: false, instagram: "",
 };
 
 const AdminEvenements = () => {
@@ -62,6 +70,9 @@ const AdminEvenements = () => {
   const [uploading, setUploading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [inscriptionsOpen, setInscriptionsOpen] = useState<{ id: string; titre: string } | null>(null);
+  // Valeurs à l'ouverture du formulaire : on ne touche à L'Onde et à Instagram que si elles changent
+  const [initial, setInitial] = useState<{ onde: boolean; instagram: string }>({ onde: false, instagram: "" });
+  const [postInsta, setPostInsta] = useState<EvenementInsta | null>(null);
   const queryClient = useQueryClient();
   const { isAdmin } = useAdminAuth();
   const [params, setParams] = useSearchParams();
@@ -83,6 +94,19 @@ const AdminEvenements = () => {
     queryFn: async () => {
       const { data } = await supabase.from("podcasts").select("id, nom_podcast").eq("type_profil", "structure_eco").order("nom_podcast");
       return data || [];
+    },
+    enabled: isAdmin,
+  });
+
+  // L'Onde du Sud : prochain numéro en préparation et numéros qui contiennent chaque événement
+  const { data: etatOnde } = useEtatAgendaOnde(isAdmin);
+  // Comptes Instagram des organisateur·ices (admins seulement, vérifié par la base)
+  const { data: comptesInsta = {} } = useQuery({
+    queryKey: ["admin-evenements-instagram"],
+    queryFn: async () => {
+      const { data, error } = await supabase.from("evenements_instagram").select("evenement_id, compte");
+      if (error) throw error;
+      return Object.fromEntries((data || []).map((r) => [r.evenement_id, r.compte])) as Record<string, string>;
     },
     enabled: isAdmin,
   });
@@ -129,17 +153,37 @@ const AdminEvenements = () => {
         ) as any,
         faq: (lireFaq(values.faq).length ? lireFaq(values.faq) : null) as any,
       };
+      let id = editingId;
       if (editingId) {
         const { error } = await supabase.from("evenements").update(payload).eq("id", editingId);
         if (error) throw error;
       } else {
-        const { error } = await supabase.from("evenements").insert(payload);
+        const { data, error } = await supabase.from("evenements").insert(payload).select("id").single();
         if (error) throw error;
+        id = data.id;
       }
+      const suites: { ton: "ok" | "erreur"; texte: string }[] = [];
+      // Instagram de l'organisateur : enregistré, modifié ou effacé seulement s'il a changé
+      const compte = normaliserInstagram(values.instagram);
+      if (id && compte !== initial.instagram) {
+        const { error } = compte
+          ? await supabase.from("evenements_instagram").upsert({ evenement_id: id, compte }, { onConflict: "evenement_id" })
+          : await supabase.from("evenements_instagram").delete().eq("evenement_id", id);
+        if (error) suites.push({ ton: "erreur", texte: "Le compte Instagram n'a pas pu être enregistré." });
+      }
+      // L'Onde du Sud : ajout ou retrait du prochain numéro en préparation, seulement si la case a changé
+      if (id && values.onde !== initial.onde) {
+        try { suites.push(messageBascule(await basculerOnde(id, values.onde))); }
+        catch { suites.push(messageBascule({ code: "erreur" })); }
+      }
+      return suites;
     },
-    onSuccess: () => {
+    onSuccess: (suites) => {
       queryClient.invalidateQueries({ queryKey: ["admin-evenements"] });
+      queryClient.invalidateQueries({ queryKey: ["admin-evenements-instagram"] });
+      queryClient.invalidateQueries({ queryKey: ["onde-agenda-etat"] });
       toast.success(editingId ? "Événement modifié" : "Événement créé");
+      for (const m of suites || []) (m.ton === "ok" ? toast.success : toast.error)(m.texte, { duration: m.ton === "ok" ? 4000 : 9000 });
       resetForm();
     },
     onError: () => toast.error("Erreur lors de l'enregistrement"),
@@ -202,13 +246,13 @@ const AdminEvenements = () => {
     inscriptions: "Aucun événement avec inscriptions.",
   };
 
-  const resetForm = () => { setForm(emptyForm); setEditingId(null); setShowForm(false); };
+  const resetForm = () => { setForm(emptyForm); setEditingId(null); setShowForm(false); setInitial({ onde: false, instagram: "" }); };
   // Réponses du dernier événement qui en a, sinon réponses habituelles : reprises pour un nouvel événement
   const faqReprise: FaqItem[] = (() => {
     const dernier = (evenements || []).find((e: any) => lireFaq(e.faq).length);
     return dernier ? lireFaq((dernier as any).faq) : faqParDefaut();
   })();
-  const nouveau = () => { setForm({ ...emptyForm, faq: faqReprise.map((f) => ({ ...f })) }); setEditingId(null); setShowForm(true); };
+  const nouveau = () => { setForm({ ...emptyForm, faq: faqReprise.map((f) => ({ ...f })) }); setEditingId(null); setInitial({ onde: false, instagram: "" }); setShowForm(true); };
 
   const toLocalDatetime = (iso: string) => {
     const d = new Date(iso);
@@ -232,7 +276,10 @@ const AdminEvenements = () => {
       format: evt.format || "sur_place", lien_connexion: evt.lien_connexion || "",
       tarif: evt.tarif || "", statut: evt.statut || "publie",
       faq: lireFaq(evt.faq),
+      onde: dansUnBrouillon(etatOnde, evt.id),
+      instagram: comptesInsta[evt.id] || "",
     });
+    setInitial({ onde: dansUnBrouillon(etatOnde, evt.id), instagram: comptesInsta[evt.id] || "" });
     setEditingId(evt.id);
     setShowForm(true);
   };
@@ -256,6 +303,8 @@ const AdminEvenements = () => {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!form.titre || !form.date_debut) { toast.error("Titre et date de début obligatoires"); return; }
+    const compte = normaliserInstagram(form.instagram);
+    if (compte && !instagramValide(compte)) { toast.error("Instagram de l'organisateur : écris le compte sous la forme @compte (lettres, chiffres, points, tirets bas)."); return; }
     saveMutation.mutate(form);
   };
 
@@ -406,6 +455,29 @@ const AdminEvenements = () => {
                   {structures.map((s) => <option key={s.id} value={s.id}>{s.nom_podcast}</option>)}
                 </select>
               </div>
+              <div>
+                <label htmlFor="evt-instagram" className="text-sm font-medium text-foreground mb-1 block">Instagram de l'organisateur</label>
+                <Input id="evt-instagram" value={form.instagram} onChange={(e) => setForm({ ...form, instagram: e.target.value })} onBlur={() => setForm((f) => ({ ...f, instagram: normaliserInstagram(f.instagram) }))}
+                  placeholder="@compte" autoComplete="off" spellCheck={false} aria-describedby="evt-instagram-aide" aria-invalid={!!form.instagram && !instagramValide(normaliserInstagram(form.instagram))} />
+                <p id="evt-instagram-aide" className={`text-xs mt-1 ${form.instagram && !instagramValide(normaliserInstagram(form.instagram)) ? "text-destructive" : "text-muted-foreground"}`}>
+                  {form.instagram && !instagramValide(normaliserInstagram(form.instagram)) ? "Format attendu : @compte (lettres, chiffres, points, tirets bas)." : "Facultatif. Visible par les admins seulement, pour le post Insta."}
+                </p>
+              </div>
+              <div className="md:col-span-2 border-2 border-foreground p-3">
+                <div className="flex items-center gap-2">
+                  <input type="checkbox" checked={form.onde} onChange={(e) => setForm({ ...form, onde: e.target.checked })} className="rounded border-border" id="evt-onde" aria-describedby="evt-onde-aide" />
+                  <label htmlFor="evt-onde" className="text-sm font-semibold text-foreground">{CASE_ONDE}</label>
+                </div>
+                <p id="evt-onde-aide" role="status" className={`text-xs mt-1 ml-6 ${form.onde && !etatOnde?.prochain && !initial.onde ? "text-destructive font-semibold" : "text-muted-foreground"}`}>
+                  {form.onde && !etatOnde?.prochain && !initial.onde
+                    ? MESSAGE_SANS_BROUILLON
+                    : initial.onde
+                      ? `Déjà dans le n°${numerosBrouillon(etatOnde, editingId || "").join(", n°")} en préparation. Décocher la case l'en retire.`
+                      : etatOnde?.prochain
+                        ? `Prochain numéro en préparation : n°${etatOnde.prochain.numero}. Ajouté au bloc « À l'agenda » à l'enregistrement.`
+                        : "Aucun numéro en préparation pour l'instant."}
+                </p>
+              </div>
               <div className="flex items-center gap-2 md:col-span-2">
                 <input type="checkbox" checked={form.publie} onChange={(e) => setForm({ ...form, publie: e.target.checked })} className="rounded border-border" id="publie" />
                 <label htmlFor="publie" className="text-sm text-foreground">Publié (visible sur le site)</label>
@@ -462,6 +534,7 @@ const AdminEvenements = () => {
                     <p className="font-medium text-foreground truncate">{evt.titre}</p>
                     <Badge variant="outline" className="text-xs">{STATUT_LABEL[evt.statut] || evt.statut}</Badge>
                     {evt.origine === "membre" && <Badge variant="outline" className="text-xs">Proposé par {evt.propose_par_nom ? formatName(evt.propose_par_nom) : "un membre"}</Badge>}
+                    {numerosEvenement(etatOnde, evt.id).length > 0 && <Badge className="text-xs rounded-none whitespace-nowrap">{badgeOnde(numerosEvenement(etatOnde, evt.id))}</Badge>}
                   </div>
                   {evt.sous_titre && <p className="text-xs text-muted-foreground">{evt.sous_titre}</p>}
                   <p className="text-xs text-muted-foreground">
@@ -495,6 +568,9 @@ const AdminEvenements = () => {
                       )}
                     </>
                   )}
+                  <Button variant="outline" size="sm" className="text-xs gap-1" onClick={() => setPostInsta(evt)}>
+                    <Instagram className="w-3.5 h-3.5" aria-hidden /> Créer le post Insta<span className="sr-only"> : {evt.titre}</span>
+                  </Button>
                   <Button variant="ghost" size="icon" aria-label="Modifier" onClick={() => { startEdit(evt); window.scrollTo({ top: 0, behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth" }); }}><Pencil className="w-4 h-4" /></Button>
                   <Button variant="ghost" size="icon" aria-label="Supprimer" onClick={() => { if (confirm("Supprimer cet événement ?")) deleteMutation.mutate(evt.id); }}>
                     <Trash2 className="w-4 h-4 text-destructive" />
@@ -505,6 +581,8 @@ const AdminEvenements = () => {
           </div>
         )}
         </Panneau>
+
+      <PostInsta evenement={postInsta} compte={postInsta ? comptesInsta[postInsta.id] : null} onClose={() => setPostInsta(null)} />
 
       <EvenementInscriptionsDialog
         evenementId={inscriptionsOpen?.id ?? null}

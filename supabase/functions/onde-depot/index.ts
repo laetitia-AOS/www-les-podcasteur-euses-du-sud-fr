@@ -86,7 +86,7 @@ Deno.serve(async (req) => {
     if (!ressource && son !== "fichier" && son !== "lien") return json({ error: "Ajoutez le son : un fichier MP3 ou un lien d'écoute." }, 400);
     const lien = String(form.get("lien") || "").trim();
     if (ressource && !lien) return json({ error: "Ajoutez le lien de la ressource." }, 400);
-    if (form.get("droits") !== "1" || form.get("accord") !== "1") return json({ error: "Cochez les deux cases : vos droits sur ce son et votre accord pour la publication." }, 400);
+    if (form.get("droits") !== "1" || form.get("accord") !== "1") return json({ error: "Cochez les cases obligatoires : vos droits et votre accord pour la publication." }, 400);
     if (form.get("sans_autopromo") !== "1") return json({ error: "Cochez la case : votre dépôt n'est pas de l'autopromotion commerciale." }, 400);
 
     const id = ancien?.id || crypto.randomUUID();

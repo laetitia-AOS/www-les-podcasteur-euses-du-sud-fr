@@ -8,6 +8,8 @@ import { SITE_NAME, SITE_URL, descriptionSeo } from "@/lib/seo";
 
 export const NOM_ONDE = "L'Onde du Sud";
 /** Nom complet de la lettre (H1 des archives, données structurées). */
+/** Titre des podcasts invités sous un événement du bloc « À l'agenda » (même titre dans l'e-mail). */
+export const TITRE_INVITES = "Ce qu'on écoutera ensemble";
 export const NOM_COMPLET_ONDE = "L'Onde du Sud, la lettre des Podcasteur·euses du Sud";
 
 export type ImageOnde = { url: string; alt?: string };

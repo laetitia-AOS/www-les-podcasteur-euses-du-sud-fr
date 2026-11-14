@@ -8,7 +8,9 @@ import { aUnPodcast, formatName } from "@/lib/pds";
 import { LIMITES_ONDE } from "@/lib/onde";
 
 export const EVENEMENT_COLONNES =
-  "id, titre, sous_titre, date_debut, date_fin, lieu, adresse, type, slug, lien_externe, inscription_activee, origine, format, propose_par_nom, tarif";
+  "id, titre, sous_titre, date_debut, date_fin, lieu, adresse, type, slug, lien_externe, inscription_activee, origine, format, propose_par_nom, tarif, podcasts_invites";
+/** Événement du bloc « À l'agenda », avec ses podcasts invités (« Ce qu'on écoutera ensemble »). */
+export type EvenementOnde = HomeEvent & { podcasts_invites?: unknown };
 
 /** « Organisé par PDS » ou « Proposé par Marie Dupont ». */
 export const origineEvenement = (e: Pick<HomeEvent, "origine" | "propose_par_nom">) =>
@@ -42,7 +44,7 @@ export const useEvenementsChoisis = (ids: string[]) => {
     queryKey: ["onde-agenda-choisis", liste],
     enabled: liste.length > 0,
     staleTime: 60 * 1000,
-    queryFn: async (): Promise<HomeEvent[]> => {
+    queryFn: async (): Promise<EvenementOnde[]> => {
       const { data, error } = await supabase
         .from("evenements")
         .select(EVENEMENT_COLONNES)
@@ -50,7 +52,7 @@ export const useEvenementsChoisis = (ids: string[]) => {
         .eq("statut", "publie")
         .order("date_debut", { ascending: true });
       if (error) throw error;
-      return (data || []) as HomeEvent[];
+      return (data || []) as EvenementOnde[];
     },
   });
 };

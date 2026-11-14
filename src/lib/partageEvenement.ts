@@ -168,3 +168,181 @@ export async function dessinerVignette(e: InfoPartage, format: FormatVignette): 
 
   return new Promise((resolve, reject) => c.toBlob((b) => (b ? resolve(b) : reject(new Error("vignette"))), "image/png"));
 }
+
+// ---------- Instagram (admin → Agenda, « Créer le post Insta ») ----------
+// Rien n'est publié automatiquement : l'équipe télécharge les visuels et copie la légende.
+
+/** Même règle que la base (evenements_instagram) : « @compte », lettres minuscules, chiffres, points et tirets bas. */
+export const normaliserInstagram = (v: string) => {
+  let s = (v || "").trim().toLowerCase();
+  s = s.replace(/^https?:\/\/(www\.)?instagram\.com\//, "").replace(/[/?#].*$/, "");
+  if (!s) return "";
+  return s.startsWith("@") ? s : `@${s}`;
+};
+export const instagramValide = (compte: string) =>
+  /^@[a-z0-9._]{1,30}$/.test(compte) && !/\.\./.test(compte) && !/^@\./.test(compte) && !/\.$/.test(compte);
+
+export const LEGENDE_MAX = 2200;
+export const MENTION_AGENDA = "À l'agenda des Podcasteur·euses du Sud";
+export const SITE_COURT = "les-podcasteur-euses-du-sud.fr";
+
+/** Rappel affiché sous la légende. */
+export const rappelCollaborateur = (compte?: string | null) =>
+  compte
+    ? `Au moment de publier sur Instagram, invite ${compte} en collaborateur.`
+    : "Au moment de publier sur Instagram, invite l'organisateur en collaborateur (son compte n'est pas renseigné dans l'événement).";
+
+const TAG_TYPE: Record<string, string> = {
+  apero_ecoute: "#ecoutecollective",
+  ecoute: "#ecoutecollective",
+  atelier: "#atelierpodcast",
+  live: "#podcastlive",
+  rencontre: "#rencontrepodcast",
+};
+const motDiese = (s: string) => s.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().replace(/[^a-z0-9]+/g, "");
+
+/** 4 à 6 mots-clés : création sonore, podcast, la ville (sinon Région Sud), le type, l'association. */
+export const hashtagsInsta = (e: { typeCode?: string | null; ville?: string; enLigne?: boolean }) => {
+  const ville = e.ville ? motDiese(e.ville) : "";
+  const tags = ["#creationsonore", "#podcast", ville ? `#${ville}` : "#regionsud", e.typeCode ? TAG_TYPE[e.typeCode] : "", "#podcasteureusesdusud"];
+  if (tags.filter(Boolean).length < 5) tags.push("#sudpodcast");
+  return [...new Set(tags.filter(Boolean))].slice(0, 6);
+};
+
+export type InfoInsta = InfoPartage & {
+  typeCode?: string | null;
+  /** Description de l'événement (on en tire une phrase si le sous-titre est vide). */
+  description?: string | null;
+};
+
+/** Ce que l'événement apporte côté création sonore : le sous-titre, sinon la première phrase de la description. */
+export const phraseInsta = (e: Pick<InfoInsta, "sousTitre" | "description">) => {
+  const propre = (t?: string | null) => (t || "").replace(/\s+/g, " ").trim();
+  const st = propre(e.sousTitre);
+  if (st) return st.replace(/[.!…]*$/, ".");
+  const d = propre(e.description);
+  if (d) {
+    const m = /^(.{20,}?[.!?…])(\s|$)/.exec(d);
+    const p = (m ? m[1] : d).slice(0, 400);
+    return /[.!?…]$/.test(p) ? p : `${p}.`;
+  }
+  return "Un moment pour écouter et parler de création sonore ensemble.";
+};
+
+/** Légende prête à copier, au tutoiement, 2 200 caractères au plus. */
+export const legendeInsta = (e: InfoInsta, compte?: string | null) => {
+  const fin = [
+    "",
+    `Quand : ${e.dateLong}, ${e.horaires}`,
+    e.enLigne ? "Où : en ligne" : `Où : ${[e.lieu, e.adresse && e.adresse !== e.lieu ? e.adresse : "", !e.adresse && e.ville ? e.ville : ""].filter(Boolean).join(", ") || "lieu à venir"}`,
+    "",
+    `Tu viens ? Toutes les infos : ${e.url}`,
+    compte ? `Avec ${compte}` : "",
+    "",
+    hashtagsInsta(e).join(" "),
+  ].filter((l, i, a) => !(l === "" && a[i - 1] === "")).join("\n");
+  const tete = `${titrePartage(e)}\n${phraseInsta(e)}\n`;
+  const place = LEGENDE_MAX - fin.length - 1;
+  const debut = tete.length <= place ? tete : `${tete.slice(0, Math.max(0, place - 1)).trimEnd()}…`;
+  return `${debut}\n${fin}`.replace(/\n{3,}/g, "\n\n").trim().slice(0, LEGENDE_MAX);
+};
+
+export type FormatInsta = "post" | "story";
+export const TAILLES_INSTA: Record<FormatInsta, [number, number]> = { post: [1080, 1350], story: [1080, 1920] };
+
+/**
+ * Visuel Instagram aux couleurs du site : fond bleu, filets encre et orange, Archivo + IBM Plex Mono, angles droits.
+ * Avec photo : la photo en haut ; sans photo (ou photo de l'organisateur) : version typographique.
+ */
+export async function dessinerPostInsta(e: InfoPartage, format: FormatInsta, avecPhoto: boolean): Promise<Blob> {
+  const [W, H] = TAILLES_INSTA[format];
+  const c = document.createElement("canvas");
+  c.width = W; c.height = H;
+  const ctx = c.getContext("2d")!;
+  await Promise.all([
+    document.fonts.load('900 96px "Archivo"'), document.fonts.load('800 40px "Archivo"'), document.fonts.load('500 40px "Archivo"'),
+    document.fonts.load('500 28px "IBM Plex Mono"'), document.fonts.load('700 28px "IBM Plex Mono"'),
+  ]).catch(() => null);
+  const bleu = css("--pds-bleu"), orange = css("--pds-orange"), encre = css("--pds-encre"), fond = css("--pds-fond");
+  const [visuel, logo] = await Promise.all([avecPhoto && e.image ? chargerImage(e.image) : Promise.resolve(null), chargerImage("/favicon.png")]);
+  const story = format === "story";
+  const pad = 72;
+  const largeur = W - pad * 2;
+  // Zones sûres de la story (barres d'Instagram en haut et en bas)
+  const haut = story ? 200 : 0;
+  const bas = story ? 260 : 0;
+
+  ctx.fillStyle = bleu; ctx.fillRect(0, 0, W, H);
+  ctx.textBaseline = "top";
+  const espace = (t: string) => t.split("").join(String.fromCharCode(8202));
+  let y: number;
+
+  if (visuel) {
+    const zoneH = story ? 660 : 600;
+    const zy = haut;
+    ctx.fillStyle = encre; ctx.fillRect(0, zy, W, zoneH);
+    const ecart = (visuel.width / visuel.height) / (W / zoneH);
+    if (ecart > 0.75 && ecart < 1.33) couvrir(ctx, visuel, 0, zy, W, zoneH); else contenir(ctx, visuel, 0, zy, W, zoneH);
+    ctx.fillStyle = encre; ctx.fillRect(0, zy + zoneH, W, 6);
+    ctx.fillStyle = orange; ctx.fillRect(0, zy + zoneH + 6, W, 12);
+    y = zy + zoneH + 18 + 52;
+  } else {
+    // Version typographique : grand bloc date en orange, filets
+    y = haut + (story ? 110 : 84);
+    ctx.fillStyle = orange;
+    ctx.font = '700 28px "IBM Plex Mono", monospace';
+    ctx.fillText(espace(`${e.type}${e.enLigne ? " · EN LIGNE" : e.ville ? ` · ${e.ville}` : ""}`.toLocaleUpperCase("fr-FR")), pad, y);
+    y += 64;
+    ctx.fillStyle = "#ffffff"; ctx.fillRect(pad, y, largeur, 4);
+    y += 40;
+    const tailleDate = story ? 112 : 96;
+    ctx.fillStyle = orange;
+    ctx.font = `900 ${tailleDate}px "Archivo", sans-serif`;
+    for (const l of lignes(ctx, e.dateLong, largeur, 3)) { ctx.fillText(l, pad, y); y += tailleDate * 1.0; }
+    y += 36;
+  }
+
+  if (visuel) {
+    ctx.fillStyle = orange;
+    ctx.font = '700 26px "IBM Plex Mono", monospace';
+    ctx.fillText(espace(`${e.type}${e.enLigne ? " · EN LIGNE" : e.ville ? ` · ${e.ville}` : ""}`.toLocaleUpperCase("fr-FR")), pad, y);
+    y += 56;
+  }
+
+  // Titre
+  const tailleTitre = visuel ? (story ? 80 : 72) : (story ? 108 : 92);
+  ctx.fillStyle = "#ffffff";
+  ctx.font = `900 ${tailleTitre}px "Archivo", sans-serif`;
+  const maxTitre = visuel ? (story ? 4 : 3) : (story ? 6 : 4);
+  for (const l of lignes(ctx, e.titre, largeur, maxTitre)) { ctx.fillText(l, pad, y); y += tailleTitre * 1.02; }
+  y += 30;
+
+  // Infos : date (si photo), horaires, lieu
+  const infos = [
+    visuel ? e.dateLong : "",
+    e.horaires.charAt(0).toLocaleUpperCase("fr-FR") + e.horaires.slice(1),
+    e.enLigne ? "En ligne" : [e.lieu, e.adresse && e.adresse !== e.lieu ? e.adresse : e.ville || ""].filter(Boolean).join(", "),
+  ].filter(Boolean);
+  const tailleInfo = story ? 42 : 38;
+  const piedY = H - bas - 200;
+  for (const [i, t] of infos.entries()) {
+    ctx.font = `${i === 0 && visuel ? 800 : 500} ${tailleInfo}px "Archivo", sans-serif`;
+    ctx.fillStyle = i === 0 && visuel ? "#ffffff" : fond;
+    for (const l of lignes(ctx, t, largeur, 2)) {
+      if (y + tailleInfo > piedY - 30) break;
+      ctx.fillText(l, pad, y); y += tailleInfo * 1.28;
+    }
+  }
+
+  // Pied : filet, mention de l'agenda, logo et adresse du site
+  ctx.fillStyle = "#ffffff"; ctx.fillRect(pad, piedY, largeur, 4);
+  ctx.fillStyle = "#ffffff";
+  ctx.font = '800 34px "Archivo", sans-serif';
+  if (logo) ctx.drawImage(logo, pad, piedY + 40, 72, 72);
+  ctx.fillText(MENTION_AGENDA, pad + 96, piedY + 40);
+  ctx.fillStyle = orange;
+  ctx.font = '500 28px "IBM Plex Mono", monospace';
+  ctx.fillText(`${SITE_COURT}/agenda`, pad + 96, piedY + 94);
+
+  return new Promise((resolve, reject) => c.toBlob((b) => (b ? resolve(b) : reject(new Error("visuel"))), "image/png"));
+}

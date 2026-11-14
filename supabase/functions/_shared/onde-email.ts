@@ -1,6 +1,7 @@
 // L'Onde du Sud : construction des e-mails (numéro du mois et confirmation d'inscription).
 // Module sans dépendance : utilisé par les fonctions serveur (Deno) et par les tests du site (Vitest).
 // Mise en page pour les messageries : tableaux, 600 px, styles en ligne, texte lisible sans images, version texte brut.
+import { invitesEvenement, type FicheInvite, type InviteAffiche } from "./invites.ts";
 
 export const SITE = "https://www.les-podcasteur-euses-du-sud.fr";
 export const ONDE_EXPEDITEUR = "L'Onde du Sud <onde@les-podcasteur-euses-du-sud.fr>";
@@ -79,7 +80,8 @@ export type NumeroEmail = {
   audio_duree?: number | null;
   blocs: BlocEmail[];
 };
-export type EvenementEmail = { id: string; titre: string; date_debut: string; lieu?: string | null; slug?: string | null };
+/** podcasts_invites : champ « Podcasts invités » de l'agenda, affiché sous « Ce qu'on écoutera ensemble ». */
+export type EvenementEmail = { id: string; titre: string; date_debut: string; lieu?: string | null; slug?: string | null; podcasts_invites?: unknown };
 export type PodcastEmail = { id: string; slug?: string | null; nom_podcast?: string | null; prenom?: string | null; nom?: string | null; type_profil?: string | null };
 export type MembreEmail = PodcastEmail & { photo_url?: string | null };
 export type ContexteEmail = {
@@ -93,6 +95,8 @@ export type ContexteEmail = {
   depotsCeMois?: number;
   /** Lien du bouton « Soutenir L'Onde par un don » (réglage de l'admin) ; vide : pas de bouton. */
   lienDon?: string | null;
+  /** Fiches visibles de l'annuaire, pour relier les podcasts invités à leur fiche. */
+  fiches?: FicheInvite[];
 };
 /** abonne / test : lien de désinscription personnel ; copie : lien d'inscription et « Réponds STOP ». */
 export type ModeEmail = { type: "abonne" | "test"; lienDesinscription: string } | { type: "copie" };
@@ -243,13 +247,54 @@ const vignettesHtml = (ms: MembreEmail[], numero: number) => {
     .join("")}</table>`;
 };
 
-const evenementsHtml = (evs: EvenementEmail[], numero: number) =>
+/** Titre de la liste des podcasts invités sous un événement (même titre sur le site). */
+export const TITRE_INVITES = "Ce qu'on écoutera ensemble";
+
+const lienInvite = (p: InviteAffiche, numero: number) =>
+  p.fiche ? lienSite(ficheHref({ ...p.fiche, nom_podcast: p.fiche.nom_podcast ?? null }), numero) : p.lienEcoute;
+
+/** Podcasts invités : petites vignettes, trois par ligne. */
+const invitesHtml = (ps: InviteAffiche[], numero: number) => {
+  if (!ps.length) return "";
+  const lignes: InviteAffiche[][] = [];
+  for (let i = 0; i < ps.length; i += 3) lignes.push(ps.slice(i, i + 3));
+  return `<p style="margin:10px 0 4px 0;font-family:${MONO};font-size:11px;line-height:14px;letter-spacing:1px;text-transform:uppercase;color:${C.gris};font-weight:700;">${esc(TITRE_INVITES)}</p>
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="border-collapse:collapse;">${lignes
+    .map((l) => `<tr>${l
+      .map((p) => {
+        const nom = p.podcast || formatNom(p.createur);
+        const href = lienInvite(p, numero);
+        const visuel = p.vignette
+          ? `<img src="${esc(p.vignette)}" width="40" height="40" alt="${esc(p.podcast ? `Pochette de ${p.podcast}` : nom)}" style="display:block;width:40px;height:40px;object-fit:cover;border:1px solid ${C.encre};">`
+          : `<table role="presentation" cellpadding="0" cellspacing="0" border="0"><tr><td width="40" height="40" align="center" valign="middle" bgcolor="${C.bleu}" style="width:40px;height:40px;background:${C.bleu};font-family:${MONO};font-size:15px;font-weight:700;color:${C.blanc};">${p.rang}</td></tr></table>`;
+        const titre = href ? `<a href="${esc(href)}" style="color:${C.encre};text-decoration:underline;">${esc(nom)}</a>` : esc(nom);
+        const qui = p.podcast && p.createur ? `<br><span style="font-weight:400;color:${C.gris};">${esc(formatNom(p.createur))}</span>` : "";
+        return `<td width="33%" valign="top" style="padding:4px 6px 4px 0;"><table role="presentation" cellpadding="0" cellspacing="0" border="0"><tr>
+<td valign="top" width="40" style="width:40px;">${visuel}</td>
+<td valign="top" style="padding-left:8px;font-family:${POLICE};font-size:13px;line-height:17px;font-weight:700;color:${C.encre};"><span style="font-family:${MONO};color:${C.bleu};">${p.rang}.</span> ${titre}${qui}</td>
+</tr></table></td>`;
+      })
+      .join("")}${"<td width=\"33%\"></td>".repeat(3 - l.length)}</tr>`)
+    .join("")}</table>`;
+};
+
+/** Version texte brut : une ligne. */
+export const invitesTexte = (ps: InviteAffiche[], numero: number) =>
+  ps.length
+    ? `  ${TITRE_INVITES} : ${ps.map((p) => {
+      const nom = p.podcast || formatNom(p.createur);
+      const href = lienInvite(p, numero);
+      return `${p.rang}. ${nom}${p.podcast && p.createur ? ` (${formatNom(p.createur)})` : ""}${href ? ` ${href}` : ""}`;
+    }).join(" · ")}`
+    : "";
+
+const evenementsHtml = (evs: EvenementEmail[], numero: number, fiches: FicheInvite[] = []) =>
   `<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="border-collapse:collapse;margin-top:6px;">${evs
     .map((e) => {
       const href = lienSite(e.slug ? `/agenda/${e.slug}` : "/agenda", numero);
       return `<tr><td style="padding:8px 0;border-top:1px solid ${C.filet};font-family:${POLICE};font-size:15px;line-height:22px;color:${C.encre};">
 <span style="font-family:${MONO};font-size:13px;color:${C.bleu};font-weight:700;">${esc(dateCourte(e.date_debut))}</span><br>
-<a href="${esc(href)}" style="color:${C.encre};font-weight:700;text-decoration:underline;">${esc(e.titre)}</a>${e.lieu ? `<span style="color:${C.gris};"> — ${esc(e.lieu)}</span>` : ""}</td></tr>`;
+<a href="${esc(href)}" style="color:${C.encre};font-weight:700;text-decoration:underline;">${esc(e.titre)}</a>${e.lieu ? `<span style="color:${C.gris};"> — ${esc(e.lieu)}</span>` : ""}${invitesHtml(invitesEvenement(e.podcasts_invites, fiches), numero)}</td></tr>`;
     })
     .join("")}</table>`;
 
@@ -277,8 +322,11 @@ const rendreBloc = (b: BlocEmail, i: number, n: NumeroEmail, ctx: ContexteEmail)
       .sort((a, z) => a.date_debut.localeCompare(z.date_debut));
     if (!evs.length) return null;
     if (resume) { corps.push(paragraphe(resume)); texte.push(resume); }
-    corps.push(evenementsHtml(evs, n.numero));
-    evs.forEach((e) => texte.push(`- ${dateCourte(e.date_debut)} : ${e.titre}${e.lieu ? ` — ${e.lieu}` : ""}\n  ${lienSite(e.slug ? `/agenda/${e.slug}` : "/agenda", n.numero)}`));
+    corps.push(evenementsHtml(evs, n.numero, ctx.fiches));
+    evs.forEach((e) => {
+      const inv = invitesTexte(invitesEvenement(e.podcasts_invites, ctx.fiches), n.numero);
+      texte.push(`- ${dateCourte(e.date_debut)} : ${e.titre}${e.lieu ? ` — ${e.lieu}` : ""}\n  ${lienSite(e.slug ? `/agenda/${e.slug}` : "/agenda", n.numero)}${inv ? `\n${inv}` : ""}`);
+    });
   } else if (b.type === "nouveaux_membres") {
     const ms = ctx.membres[b.id] || [];
     if (!ms.length) return null;

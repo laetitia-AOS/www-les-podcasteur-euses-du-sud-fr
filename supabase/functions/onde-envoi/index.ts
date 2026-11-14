@@ -36,9 +36,14 @@ async function contexte(n: NumeroEmail): Promise<ContexteEmail> {
   const idsEv = [...new Set(n.blocs.flatMap((b) => (b.type === "evenements" ? b.evenements || [] : [])))].filter((i) => RE_UUID.test(i));
   const idsPod = [...new Set(n.blocs.flatMap((b) => (b.type === "podcast" && b.podcast_id ? [b.podcast_id] : [])))].filter((i) => RE_UUID.test(i));
   const [ev, pod] = await Promise.all([
-    idsEv.length ? pub.from("evenements").select("id, titre, date_debut, lieu, slug").in("id", idsEv).eq("statut", "publie") : { data: [] },
+    idsEv.length ? pub.from("evenements").select("id, titre, date_debut, lieu, slug, podcasts_invites").in("id", idsEv).eq("statut", "publie") : { data: [] },
     idsPod.length ? pub.from("podcasts").select("id, slug, nom_podcast, prenom, nom, type_profil").in("id", idsPod) : { data: [] },
   ]);
+  // « Ce qu'on écoutera ensemble » : fiches visibles de l'annuaire, pour relier les podcasts invités (relus à chaque envoi)
+  const avecInvites = (ev.data || []).some((e: { podcasts_invites?: unknown }) => Array.isArray(e.podcasts_invites) && e.podcasts_invites.length > 0);
+  const fiches = avecInvites
+    ? ((await pub.from("podcasts").select("id, slug, nom_podcast, prenom, nom, type_profil, vignette_url, photo_profil_url").eq("valide", true).limit(2000)).data || [])
+    : [];
   const membres: Record<string, MembreEmail[]> = {};
   for (const b of n.blocs.filter((x) => x.type === "nouveaux_membres")) {
     const { data } = await pub.rpc("onde_nouveaux_membres", { _numero_id: n.id, _bloc_id: b.id });
@@ -56,7 +61,7 @@ async function contexte(n: NumeroEmail): Promise<ContexteEmail> {
   }
   const [{ data: depotsCeMois }, { data: lienDon }] = await Promise.all([pub.rpc("onde_depots_ce_mois"), pub.rpc("onde_lien_don")]);
   return {
-    evenements: ev.data || [], podcasts: pod.data || [], membres, deposants,
+    evenements: ev.data || [], podcasts: pod.data || [], membres, deposants, fiches,
     depotsCeMois: typeof depotsCeMois === "number" ? depotsCeMois : 0,
     // Pied fixe : bouton « Soutenir L'Onde par un don » seulement si le lien est réglé dans l'admin
     lienDon: typeof lienDon === "string" ? lienDon : null,

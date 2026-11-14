@@ -43,6 +43,9 @@ export const LIMITES_DEPOT = { titre: 120, texte: 500, parMois: 10 } as const;
 
 /** Cases obligatoires, non cochées par défaut (même texte enregistré avec la date par le serveur). */
 export const CASE_DROITS = "Je suis l'auteur·ice de ce son ou j'ai les droits pour le diffuser";
+/** Pour « Une ressource à partager », la case de droits change de texte (même case, même obligation). */
+export const CASE_DROITS_RESSOURCE = "J'ai le droit de partager cette ressource";
+export const caseDroits = (type?: string | null) => (type === "ressource" ? CASE_DROITS_RESSOURCE : CASE_DROITS);
 export const CASE_ACCORD = "J'accepte que ce dépôt soit publié dans L'Onde du Sud, avec mon nom et un lien vers ma page";
 export const CASE_AUTOPROMO = "Mon dépôt n'est pas de l'autopromotion commerciale";
 /** Règle affichée sous le formulaire, pour tous les types. */

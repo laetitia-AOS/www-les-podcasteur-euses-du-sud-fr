@@ -14,7 +14,7 @@ import { sectionTitle } from "@/components/espace-membre/types";
 import { btnPrimary, btnSecondary, formatShortDate, linkUnderline } from "@/lib/pds";
 import { IMAGE_TYPES, useFichiersEquipe } from "@/lib/onde";
 import {
-  ANCRE_DEPOT, CASE_ACCORD, CASE_AUTOPROMO, CASE_DROITS, LIMITES_DEPOT, REGLE_AUTOPROMO, TYPES_DEPOT,
+  ANCRE_DEPOT, CASE_ACCORD, CASE_AUTOPROMO, caseDroits, LIMITES_DEPOT, REGLE_AUTOPROMO, TYPES_DEPOT,
   envoyerDepot, erreursDepot, estRessource, libelleTypeDepot, lienPublication, retirerDepot, statutMembre, type ChampsDepot, type MonDepot,
 } from "@/lib/ondeDepots";
 
@@ -231,7 +231,7 @@ const DeposerOnde = ({ adhererHref }: { adhererHref: string }) => {
 
           <div className="space-y-3">
             <p className="border-l-4 border-accent pl-3 text-[15px] font-semibold max-w-[66ch]">{REGLE_AUTOPROMO}</p>
-            {([["droits", CASE_DROITS], ["accord", CASE_ACCORD], ["sansAutopromo", CASE_AUTOPROMO]] as const).map(([k, texte]) => (
+            {([["droits", caseDroits(c.type)], ["accord", CASE_ACCORD], ["sansAutopromo", CASE_AUTOPROMO]] as const).map(([k, texte]) => (
               <div key={k}>
                 <label htmlFor={`${id}-${k}`} className="flex items-start gap-3 text-[15px] cursor-pointer">
                   <input id={`${id}-${k}`} type="checkbox" checked={c[k]} onChange={(e) => maj({ [k]: e.target.checked })} className="mt-1 h-5 w-5 shrink-0 accent-primary" aria-invalid={!!err[k]} aria-describedby={desc(k)} />

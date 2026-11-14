@@ -6,17 +6,56 @@ import TexteRiche from "@/components/onde/TexteRiche";
 import BoutonEcoute, { type Resoudre } from "@/components/onde/BoutonEcoute";
 import { QrEcoute, useImpression } from "@/components/onde/impressionOnde";
 import { eventHref } from "@/components/agenda/EventRow";
-import { cityFromAddress, isOnline } from "@/components/home/useHomeData";
+import { cityFromAddress, isOnline, useHomeProfiles } from "@/components/home/useHomeData";
 import { dateLongue, horairesParis, jourCourt, readableTitle, surPlusieursJours } from "@/lib/events";
 import { ficheHref } from "@/lib/seo";
-import { btnSecondary, cleanCity, fullName, linkUnderline, titreFiche } from "@/lib/pds";
+import { btnSecondary, cleanCity, formatName, fullName, linkUnderline, titreFiche } from "@/lib/pds";
 import { origineEvenement, useEvenementsChoisis, useNouveauxMembres, usePodcastChoisi } from "@/lib/ondeBlocs";
+import { invitesEvenement, type FicheInvite } from "../../../supabase/functions/_shared/invites";
+import { TITRE_INVITES } from "@/lib/onde";
 import type { BlocAudio, BlocEvenements, BlocNouveauxMembres, BlocPodcast, NumeroOnde } from "@/lib/onde";
 
 const Attente = () => <p className="text-muted-foreground" aria-busy="true">Chargement…</p>;
 
+/** « Ce qu'on écoutera ensemble » : podcasts invités de l'événement, relus dans l'agenda à chaque affichage. */
+const InvitesEvenement = ({ invites, fiches, titreEvt }: { invites: unknown; fiches: FicheInvite[]; titreEvt: string }) => {
+  const liste = invitesEvenement(invites, fiches);
+  if (!liste.length) return null;
+  return (
+    <div className="mt-4">
+      <p className="font-mono text-[12px] uppercase tracking-[0.08em] font-bold text-muted-foreground">{TITRE_INVITES}</p>
+      <ol className="mt-2 grid sm:grid-cols-2 gap-x-5 gap-y-3" aria-label={`${TITRE_INVITES} à ${titreEvt}`}>
+        {liste.map((p) => {
+          const nom = p.podcast || formatName(p.createur);
+          const qui = p.podcast && p.createur ? formatName(p.createur) : "";
+          const href = p.fiche ? ficheHref(p.fiche as Parameters<typeof ficheHref>[0]) : null;
+          const titre = href
+            ? <Link to={href} className="hover:underline underline-offset-4">{nom}</Link>
+            : p.lienEcoute
+              ? <a href={p.lienEcoute} target="_blank" rel="noopener noreferrer" className="hover:underline underline-offset-4">{nom}<span className="sr-only"> (nouvel onglet)</span></a>
+              : nom;
+          return (
+            <li key={p.rang} className="flex items-center gap-3 min-w-0">
+              <span className="font-mono text-[13px] font-bold text-primary w-4 shrink-0" aria-hidden>{p.rang}</span>
+              {p.vignette
+                ? <img src={p.vignette} alt="" loading="lazy" className="w-12 h-12 shrink-0 object-cover border-2 border-encre" />
+                : <span className="w-12 h-12 shrink-0 bg-primary border-2 border-encre" aria-hidden />}
+              <span className="min-w-0">
+                <span className="sr-only">{p.rang}. </span>
+                <span className="block font-bold leading-tight">{titre}</span>
+                {qui && <span className="block text-sm text-muted-foreground">{qui}</span>}
+              </span>
+            </li>
+          );
+        })}
+      </ol>
+    </div>
+  );
+};
+
 export const VueEvenements = ({ b }: { b: BlocEvenements }) => {
   const { data, isLoading } = useEvenementsChoisis(b.evenements);
+  const { data: fiches = [] } = useHomeProfiles();
   if (!b.evenements.length) return null;
   if (isLoading) return <Attente />;
   const evts = data || [];
@@ -45,6 +84,7 @@ export const VueEvenements = ({ b }: { b: BlocEvenements }) => {
                   ? <span className="inline-flex items-center gap-1.5"><Globe className="w-4 h-4" aria-hidden /> En ligne</span>
                   : [e.lieu, ville].filter(Boolean).join(", ")}
               </p>
+              <InvitesEvenement invites={e.podcasts_invites} fiches={fiches} titreEvt={titre} />
               <Link to={eventHref(e)} className={`${linkUnderline} text-[15px] inline-flex items-center min-h-[44px]`}>
                 Voir l'événement<span className="sr-only"> : {titre}</span>
               </Link>
