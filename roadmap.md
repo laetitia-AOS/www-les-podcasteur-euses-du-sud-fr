@@ -128,4 +128,5 @@
 ## L'Onde du Sud
 - [x] Lot 1 : numéros sur le site, rôle éditeur, éditeur par blocs
 - [x] Lot 2 : blocs automatiques (agenda, podcast à l'écoute, nouveaux membres — 1re adhésion ou retour après une année sans —, trimestre du collectif)
-- [ ] Lot 3 : envoi par e-mail (à venir)
+- [x] Lot 3 : abonné·es (inscription, confirmation, désinscription, onglet admin « Abonnés »)
+- [ ] Lot 4 : envoi par e-mail (à venir)

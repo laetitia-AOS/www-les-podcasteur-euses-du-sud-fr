@@ -109,7 +109,7 @@ const AbonnesOnde = () => {
 
       <dl className="mt-6 grid grid-cols-2 lg:grid-cols-4 gap-3">
         {chiffres.map(([n, label]) => (
-          <div key={label} className="border-2 border-encre bg-background p-4 flex flex-col-reverse">
+          <div key={label} className="border-2 border-encre bg-background p-4 flex flex-col-reverse justify-end">
             <dt className="text-sm">{label}</dt>
             <dd className="font-mono text-3xl font-bold">{n ?? "…"}</dd>
           </div>
