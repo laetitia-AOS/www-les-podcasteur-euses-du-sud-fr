@@ -45,10 +45,9 @@ const EditeurBloc = ({
   const pid = `bloc-${b.id}`;
   return (
     <li className="border-2 border-encre bg-surface scroll-mt-24" id={pid}>
-      <div className="flex flex-wrap items-center gap-2 px-4 py-3 border-b border-filet">
-        <span className="font-mono font-bold text-lg">{numeroRubrique(i)}</span>
-        <span className="inline-flex items-center gap-1.5 font-bold"><Icone className="w-4 h-4" aria-hidden /> {libelleType(b.type)}</span>
-        <span className="flex-1" />
+      <div className="flex items-center gap-2 px-4 py-3 border-b border-filet">
+        <span className="font-mono font-bold text-lg shrink-0">{numeroRubrique(i)}</span>
+        <span className="flex-1 min-w-0 inline-flex items-center gap-1.5 font-bold leading-tight"><Icone className="w-4 h-4 shrink-0" aria-hidden /> {libelleType(b.type)}</span>
         <button type="button" className={btnIcone} onClick={() => onMove(-1)} disabled={i === 0} aria-label={`Monter le bloc ${numeroRubrique(i)}`}><ArrowUp className="w-4 h-4" aria-hidden /></button>
         <button type="button" className={btnIcone} onClick={() => onMove(1)} disabled={i === total - 1} aria-label={`Descendre le bloc ${numeroRubrique(i)}`}><ArrowDown className="w-4 h-4" aria-hidden /></button>
         <button type="button" className={btnIcone} onClick={onDelete} aria-label={`Supprimer le bloc ${numeroRubrique(i)}`}><Trash2 className="w-4 h-4" aria-hidden /></button>
@@ -515,8 +514,8 @@ const AdminOndeNumero = () => {
                       >
                         <span className="flex items-center gap-2 font-bold">
                           <Icone className="w-4 h-4 shrink-0" aria-hidden /> {t.label}
-                          {t.mention && <span className="ml-auto font-mono text-[11px] font-normal uppercase tracking-wider border border-encre px-1.5 whitespace-nowrap">{t.mention}</span>}
                         </span>
+                        {t.mention && <span className="inline-block mt-1 font-mono text-[11px] uppercase tracking-wider border border-encre px-1.5 whitespace-nowrap">{t.mention}</span>}
                         <span className="block text-sm text-muted-foreground mt-0.5">{t.aide}</span>
                       </button>
                     </li>

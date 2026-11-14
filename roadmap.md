@@ -124,3 +124,8 @@
 
 ## L'Onde du Sud — lot 2
 - [x] Blocs Événements de l'agenda, Podcast à l'écoute, Nouveaux membres du mois, Trimestre du collectif
+
+## L'Onde du Sud
+- [x] Lot 1 : numéros sur le site, rôle éditeur, éditeur par blocs
+- [x] Lot 2 : blocs automatiques (agenda, podcast à l'écoute, nouveaux membres — 1re adhésion ou retour après une année sans —, trimestre du collectif)
+- [ ] Lot 3 : envoi par e-mail (à venir)

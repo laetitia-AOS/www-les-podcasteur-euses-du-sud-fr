@@ -217,8 +217,8 @@ export const EditeurNouveauxMembres = ({ b, pid, numeroId, onChange }: { b: Bloc
             {bilan.deja > 0 && <p className="text-sm text-muted-foreground">{bilan.deja} déjà présenté·e{bilan.deja > 1 ? "s" : ""} dans un autre numéro : personne n'apparaît deux fois.</p>}
             <p className="text-xs text-muted-foreground">
               {bilan.fige
-                ? "Liste arrêtée à la publication : elle ne change plus, et ces personnes n'apparaîtront dans aucun autre numéro."
-                : "Apparaissent les personnes dont la première adhésion date de ce mois, avec une fiche validée, une photo de profil et un podcast. Les autres apparaîtront dans le numéro où leur fiche sera complète. La liste est arrêtée à la publication."}
+                ? "Liste arrêtée à la publication : elle ne change plus. Ces personnes ne réapparaîtront que si elles reviennent après au moins une année sans adhésion."
+                : "Comptent la toute première adhésion et le retour après au moins une année sans adhésion, pas le renouvellement de l'année précédente. Apparaissent celles et ceux qui ont une fiche validée, une photo de profil et un podcast ; les autres apparaîtront dans le numéro où leur fiche sera complète. La liste est arrêtée à la publication."}
             </p>
           </>
         )}

@@ -288,6 +288,13 @@
       "when": 1794623388366,
       "tag": "0040_onde_blocs_automatiques",
       "breakpoints": true
+    },
+    {
+      "idx": 41,
+      "version": "7",
+      "when": 1794643629961,
+      "tag": "0041_onde_nouveaux_membres_retours",
+      "breakpoints": true
     }
   ]
 }
