@@ -1,0 +1,4 @@
+# L'Onde du Sud — composants
+
+- Dépôts des membres (lot 5) : table `onde_depots` sans accès direct ; dépôt, modification et retrait par `onde-depot` seulement (adhérent·es à jour, `guard_onde_depots`), lectures par `mes_depots_onde` (membre) et `onde_depots_equipe` (équipe) ; règles et libellés dans `src/lib/ondeDepots.ts` ; « Utiliser dans un numéro » (`onde_utiliser_depot`) crée un bloc `depot` qui ne garde que `depot_id` pour « Déposé par » (relu par `onde_credits_depots`), fichiers dans `onde/depots/<dépôt>` servis par `onde-media` seulement une fois le dépôt dans un numéro publié ; règles vérifiées par `supabase/tests/onde_depots.sql`.
+- Le bloc `depot` et l'encart de dépôts (`BlocDepot`, `EncartDepot`) sont affichés par `NumeroVue`, donc identiques sur la page publique et l'aperçu ; l'e-mail les reproduit dans `supabase/functions/_shared/onde-email.ts`.

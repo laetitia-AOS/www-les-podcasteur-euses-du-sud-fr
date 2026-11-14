@@ -130,4 +130,4 @@
 - [x] Lot 2 : blocs automatiques (agenda, podcast à l'écoute, nouveaux membres — 1re adhésion ou retour après une année sans —, trimestre du collectif)
 - [x] Lot 3 : abonné·es (inscription, confirmation, désinscription, onglet admin « Abonnés »)
 - [x] Lot 4 : envoi par e-mail (Resend)
-- [ ] Lot 5 : dépôts des membres (espace membre « Déposer pour L'Onde », onglet admin « Dépôts du mois », bloc « Déposé par », encart en bas des numéros, e-mail au déposant, vérifications, scan)
+- [x] Lot 5 : dépôts des membres (espace membre « Déposer pour L'Onde », onglet admin « Dépôts du mois », bloc « Déposé par », encart en bas des numéros, e-mail au déposant, vérifications, scan)
