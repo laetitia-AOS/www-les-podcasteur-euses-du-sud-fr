@@ -27,7 +27,10 @@ const numero: NumeroEmail = {
 const ctx: ContexteEmail = {
   evenements: [{ id: "e1", titre: "Atelier-écoute", date_debut: "2026-12-09T17:30:00Z", lieu: "Marseille", slug: "atelier-ecoute" }],
   podcasts: [],
-  membres: { b4: [{ id: "p1", prenom: "camille", nom: "durand", photo_url: "https://exemple.invalid/p.jpg", nom_podcast: "Voix du Port", slug: "voix-du-port", type_profil: "podcasteur" }] },
+  membres: { b4: [
+    { id: "p1", prenom: "camille", nom: "durand", photo_url: "https://exemple.invalid/p.jpg", nom_podcast: "Voix du Port", slug: "voix-du-port", type_profil: "podcasteur" },
+    { id: "p2", prenom: "eddy", nom: "JATTEAU", photo_url: null, nom_podcast: "—", slug: "eddy-jatteau", type_profil: "pro_podcast" },
+  ] },
 };
 const lien = "https://www.les-podcasteur-euses-du-sud.fr/onde/desinscription?jeton=22222222-2222-2222-2222-222222222222";
 
@@ -108,4 +111,20 @@ describe("e-mail de confirmation", () => {
 it("expéditeur et adresse de réponse", () => {
   expect(ONDE_EXPEDITEUR).toBe("L'Onde du Sud <onde@les-podcasteur-euses-du-sud.fr>");
   expect(ONDE_REPONSE).toBe("podcastsdusud@gmail.com");
+});
+
+describe("e-mail : nouveaux membres du mois", () => {
+  const m = emailNumero(numero, ctx, { type: "abonne", lienDesinscription: lien });
+  it("remet en forme les noms (« eddy JATTEAU » → « Eddy Jatteau »)", () => {
+    expect(m.html).toContain("Eddy Jatteau");
+    expect(m.texte).toContain("Eddy Jatteau");
+    expect(m.html).not.toContain("JATTEAU");
+  });
+  it("sans photo, affiche les initiales", () => {
+    expect(m.html).toMatch(/>EJ<\/td>/);
+  });
+  it("le nom ouvre la fiche, en HTML comme en texte", () => {
+    expect(m.html).toMatch(/<a href="https:\/\/www\.les-podcasteur-euses-du-sud\.fr\/annuaire\/eddy-jatteau[^"]*"[^>]*>Eddy Jatteau<\/a>/);
+    expect(m.texte).toMatch(/Eddy Jatteau — https:\/\/www\.les-podcasteur-euses-du-sud\.fr\/annuaire\/eddy-jatteau/);
+  });
 });

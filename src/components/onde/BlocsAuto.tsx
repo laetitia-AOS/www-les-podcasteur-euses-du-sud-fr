@@ -9,7 +9,7 @@ import { eventHref } from "@/components/agenda/EventRow";
 import { cityFromAddress, isOnline, useHomeProfiles } from "@/components/home/useHomeData";
 import { dateLongue, horairesParis, jourCourt, readableTitle, surPlusieursJours } from "@/lib/events";
 import { ficheHref } from "@/lib/seo";
-import { btnSecondary, cleanCity, formatName, fullName, linkUnderline, titreFiche } from "@/lib/pds";
+import { aUnPodcast, btnSecondary, cleanCity, formatName, fullName, linkUnderline, titreFiche } from "@/lib/pds";
 import { origineEvenement, useEvenementsChoisis, useNouveauxMembres, usePodcastChoisi } from "@/lib/ondeBlocs";
 import { invitesEvenement, type FicheInvite } from "../../../supabase/functions/_shared/invites";
 import { TITRE_INVITES } from "@/lib/onde";
@@ -149,19 +149,22 @@ export const VueNouveauxMembres = ({ b, n }: { b: BlocNouveauxMembres; n: Numero
   return (
     <ul className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
       {cartes.map((c) => {
-        const nom = fullName(c.prenom, c.nom);
+        const nom = fullName(c.prenom, c.nom) || titreFiche(c);
         const ville = cleanCity(c.ville);
+        const href = ficheHref(c);
         return (
           <li key={c.id} className="border-2 border-encre bg-surface p-4 flex flex-col gap-3">
             <div className="flex items-center gap-3 min-w-0">
               <MemberAvatar prenom={c.prenom} nom={c.nom} photoUrl={c.photo_url} />
               <div className="min-w-0">
-                <h3 className="font-bold text-[18px] leading-tight">{nom}</h3>
+                <h3 className="font-bold text-[18px] leading-tight">
+                  <Link to={href} className="underline decoration-2 underline-offset-4 hover:text-primary focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary">{nom}</Link>
+                </h3>
                 {ville && <p className="text-sm text-muted-foreground">{ville}</p>}
               </div>
             </div>
-            <p className="text-[15px]"><span className="text-muted-foreground">Podcast : </span><span className="font-semibold">{titreFiche({ nom_podcast: c.nom_podcast })}</span></p>
-            <Link to={ficheHref(c)} className={`${linkUnderline} text-[15px] mt-auto inline-flex items-center min-h-[44px]`}>
+            {aUnPodcast(c) && <p className="text-[15px]"><span className="text-muted-foreground">Podcast : </span><span className="font-semibold">{c.nom_podcast!.trim()}</span></p>}
+            <Link to={href} className={`${linkUnderline} text-[15px] mt-auto inline-flex items-center min-h-[44px]`}>
               Voir sa page<span className="sr-only"> : {nom}</span>
             </Link>
           </li>

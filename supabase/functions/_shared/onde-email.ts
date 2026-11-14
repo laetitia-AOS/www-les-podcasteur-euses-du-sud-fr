@@ -332,7 +332,7 @@ const rendreBloc = (b: BlocEmail, i: number, n: NumeroEmail, ctx: ContexteEmail)
     if (!ms.length) return null;
     if (resume) { corps.push(paragraphe(resume)); texte.push(resume); }
     corps.push(vignettesHtml(ms, n.numero));
-    texte.push(ms.map((m) => `- ${nomComplet(m) || titreFiche(m)}${(m.nom_podcast || "").trim() && !/^[—–\-.\s]+$/.test(m.nom_podcast || "") ? ` (${m.nom_podcast!.trim()})` : ""}`).join("\n"));
+    texte.push(ms.map((m) => `- ${nomComplet(m) || titreFiche(m)}${(m.nom_podcast || "").trim() && !/^[—–\-.\s]+$/.test(m.nom_podcast || "") ? ` (${m.nom_podcast!.trim()})` : ""} — ${lienSite(ficheHref(m), n.numero)}`).join("\n"));
   } else if (b.type === "chiffres") {
     if (resume) { corps.push(paragraphe(resume)); texte.push(resume); }
     const ch = chiffresHtml(b.chiffres || []);

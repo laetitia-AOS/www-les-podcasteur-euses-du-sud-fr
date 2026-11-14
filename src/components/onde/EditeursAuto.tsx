@@ -7,9 +7,9 @@ import { BoutonFichier, Champ, ChampTexteRiche } from "@/components/onde/champsO
 import { cityFromAddress, isOnline } from "@/components/home/useHomeData";
 import { jourCourt, readableTitle } from "@/lib/events";
 import { btnSecondary, cleanCity, formatName, fullName, titreFiche } from "@/lib/pds";
-import { LIMITES_ONDE, moisAnnee, type BlocEvenements, type BlocNouveauxMembres, type BlocPodcast } from "@/lib/onde";
+import { LIMITES_ONDE, moisAnnee, periodeAdhesions, type BlocEvenements, type BlocNouveauxMembres, type BlocPodcast } from "@/lib/onde";
 import {
-  dansLesJours, filtrerPodcasts, ligneBilan, origineEvenement, useBilanMembres, useEvenementsAVenir,
+  dansLesJours, filtrerPodcasts, ligneBilan, ligneSansFiche, origineEvenement, useBilanMembres, useEvenementsAVenir,
   useEvenementsChoisis, usePodcastChoisi, usePodcastsAnnuaire, type PodcastOnde,
 } from "@/lib/ondeBlocs";
 
@@ -193,37 +193,37 @@ const Noms = ({ titre, noms }: { titre: string; noms: string[] }) =>
 
 export const EditeurNouveauxMembres = ({ b, pid, numeroId, onChange }: { b: BlocNouveauxMembres; pid: string; numeroId: string; onChange: (b: BlocNouveauxMembres) => void }) => {
   const { data: bilan, isLoading, isError } = useBilanMembres(numeroId, b.id, b.mois);
+  const periode = b.mois ? periodeAdhesions(b.mois) : null;
   return (
     <>
       <div className="grid sm:grid-cols-[220px_1fr] gap-4 items-start">
-        <Champ id={`${pid}-mois`} label="Mois des adhésions *">
+        <Champ id={`${pid}-mois`} label="Adhésions jusqu'au 24 de *">
           <Input id={`${pid}-mois`} type="month" value={(b.mois || "").slice(0, 7)} onChange={(e) => e.target.value && onChange({ ...b, mois: `${e.target.value}-01` })} />
         </Champ>
         <p className="text-sm text-muted-foreground sm:pt-7">
-          Rempli automatiquement, rien à écrire. Par défaut, le mois qui précède celui du numéro.
+          Rempli automatiquement, rien à écrire. Par défaut, le mois qui précède celui du numéro : du 25 au 24, à l'heure de Paris.
         </p>
       </div>
       <div className="border-2 border-encre bg-background p-4 space-y-2" role="status" aria-live="polite">
+        {periode && <p className="font-bold">{periode.texte}{b.mois ? ` ${moisAnnee(b.mois).split(" ")[1]}` : ""}</p>}
         {isLoading ? <Chargement /> : isError || !bilan ? (
           <p className="text-sm text-destructive font-bold">Le calcul n'a pas pu être fait. Rechargez la page.</p>
         ) : (
           <>
-            <p className="font-bold">{ligneBilan(bilan)}{b.mois ? ` (${moisAnnee(b.mois)})` : ""}</p>
-            {bilan.reportes > 0 && (
-              <p className="text-sm">Dont {bilan.reportes} personne{bilan.reportes > 1 ? "s" : ""} d'un mois précédent, dont la fiche est maintenant complète.</p>
-            )}
-            <Noms titre="Affiché·es" noms={bilan.affiches} />
-            <Noms titre="En attente d'une fiche complète" noms={bilan.en_attente} />
+            <p>{ligneBilan(bilan)}</p>
+            <p>{ligneSansFiche(bilan.sans_fiche)}</p>
+            <Noms titre="Cité·es" noms={bilan.affiches} />
             {bilan.deja > 0 && <p className="text-sm text-muted-foreground">{bilan.deja} déjà présenté·e{bilan.deja > 1 ? "s" : ""} dans un autre numéro : personne n'apparaît deux fois.</p>}
             <p className="text-xs text-muted-foreground">
               {bilan.fige
-                ? "Liste arrêtée à la publication : elle ne change plus. Ces personnes ne réapparaîtront que si elles reviennent après au moins une année sans adhésion."
-                : "Comptent la toute première adhésion et le retour après au moins une année sans adhésion, pas le renouvellement de l'année précédente. Apparaissent celles et ceux qui ont une fiche validée, une photo de profil et un podcast ; les autres apparaîtront dans le numéro où leur fiche sera complète. La liste est arrêtée à la publication."}
+                ? "Liste arrêtée à la publication : elle ne change plus."
+                : "Comptent la toute première adhésion et le retour après au moins une année sans adhésion, pas le renouvellement de l'année précédente. Seules les personnes qui ont une fiche publique dans l'annuaire sont citées. La liste est arrêtée à la publication."}
             </p>
           </>
         )}
       </div>
-      <p className="text-xs text-muted-foreground">Ce cadre n'est visible que par l'équipe. Sur le site, chaque carte montre la photo, le nom, le podcast, la ville et un lien « Voir sa page ».</p>
+      <p className="text-xs text-muted-foreground">Ce cadre n'est visible que par l'équipe. Sur le site, chaque carte montre la photo (ou les initiales), le nom qui ouvre sa fiche, le podcast et la ville.</p>
     </>
   );
 };
+

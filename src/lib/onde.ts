@@ -186,6 +186,22 @@ export const moisPrecedent = (mois: string) => {
   return `${a}-${String(m).padStart(2, "0")}-01`;
 };
 
+/**
+ * Période des « nouveaux membres du mois » pour le mois choisi dans le bloc :
+ * du 25 du mois précédent au 24 de ce mois, inclus, heure de Paris (même règle que la base).
+ * Bloc « novembre 2026 » (numéro de décembre) → du 25 octobre au 24 novembre 2026.
+ */
+export const periodeAdhesions = (mois: string) => {
+  const d = lireMois(mois);
+  if (!d) return null;
+  const avant = lireMois(moisPrecedent(mois))!;
+  return {
+    debut: `${avant.a}-${String(avant.m).padStart(2, "0")}-25`,
+    fin: `${d.a}-${String(d.m).padStart(2, "0")}-24`,
+    texte: `Adhésions du 25 ${MOIS[avant.m - 1]} au 24 ${MOIS[d.m - 1]}`,
+  };
+};
+
 export const moisCourant = (maintenant = new Date()) =>
   `${maintenant.getFullYear()}-${String(maintenant.getMonth() + 1).padStart(2, "0")}-01`;
 

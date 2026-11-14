@@ -137,10 +137,12 @@ export const useNouveauxMembres = (numeroId: string, blocId: string) =>
 
 /** Ligne de suivi pour l'équipe : nombres et noms seulement. */
 export type BilanMembres = {
+  debut: string;
+  fin: string;
   nouveaux: number;
   affiches: string[];
-  en_attente: string[];
-  reportes: number;
+  /** Nouvelles adhésions écartées faute de fiche publique : un nombre, jamais de nom. */
+  sans_fiche: number;
   deja: number;
   fige: boolean;
 };
@@ -158,6 +160,12 @@ export const useBilanMembres = (numeroId: string, blocId: string, mois?: string)
 
 const pluriel = (n: number, un: string, plusieurs: string) => `${n} ${n > 1 ? plusieurs : un}`;
 
-/** « 3 nouveaux membres ce mois-ci, 1 affiché·e, 2 en attente d'une fiche complète » */
-export const ligneBilan = (b: Pick<BilanMembres, "nouveaux" | "affiches" | "en_attente">) =>
-  `${pluriel(b.nouveaux, "nouveau membre", "nouveaux membres")} ce mois-ci, ${pluriel(b.affiches.length, "affiché·e", "affiché·es")}, ${b.en_attente.length} en attente d'une fiche complète`;
+/** « 3 nouvelles adhésions sur la période, 1 membre cité·e » */
+export const ligneBilan = (b: Pick<BilanMembres, "nouveaux" | "affiches">) =>
+  `${pluriel(b.nouveaux, "nouvelle adhésion", "nouvelles adhésions")} sur la période, ${pluriel(b.affiches.length, "membre cité·e", "membres cité·es")}`;
+
+/** « 2 nouvelles adhésions sans fiche, non citées » (sans aucun nom). */
+export const ligneSansFiche = (n: number) =>
+  n === 0 ? "Aucune nouvelle adhésion écartée faute de fiche"
+  : n === 1 ? "1 nouvelle adhésion sans fiche, non citée"
+  : `${n} nouvelles adhésions sans fiche, non citées`;

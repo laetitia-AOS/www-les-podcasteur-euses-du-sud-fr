@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
-import { manquesPublication, moisPrecedent, nouveauBloc, TYPES_BLOCS, type Bloc, type NumeroOnde } from "./onde";
-import { dansLesJours, filtrerPodcasts, ligneBilan, origineEvenement } from "./ondeBlocs";
+import { manquesPublication, moisPrecedent, nouveauBloc, periodeAdhesions, TYPES_BLOCS, type Bloc, type NumeroOnde } from "./onde";
+import { dansLesJours, filtrerPodcasts, ligneBilan, ligneSansFiche, origineEvenement } from "./ondeBlocs";
 
 const base: NumeroOnde = {
   id: "00000000-0000-0000-0000-000000000001",
@@ -70,10 +70,24 @@ describe("L'Onde du Sud — blocs automatiques", () => {
     expect((nouveauBloc("nouveaux_membres", "2027-01-01") as Extract<Bloc, { type: "nouveaux_membres" }>).mois).toBe("2026-12-01");
   });
 
-  it("nouveaux membres : la ligne de l'admin « X nouveaux membres ce mois-ci, Y affichés, Z en attente d'une fiche complète »", () => {
-    expect(ligneBilan({ nouveaux: 3, affiches: ["a"], en_attente: ["b", "c"] })).toBe(
-      "3 nouveaux membres ce mois-ci, 1 affiché·e, 2 en attente d'une fiche complète",
-    );
+  it("nouveaux membres : numéro de décembre 2026 → adhésions du 25 octobre au 24 novembre 2026", () => {
+    const bloc = nouveauBloc("nouveaux_membres", "2026-12-01") as Extract<Bloc, { type: "nouveaux_membres" }>;
+    expect(periodeAdhesions(bloc.mois!)).toEqual({ debut: "2026-10-25", fin: "2026-11-24", texte: "Adhésions du 25 octobre au 24 novembre" });
+  });
+
+  it("nouveaux membres : numéro de janvier 2027 → adhésions du 25 novembre au 24 décembre 2026", () => {
+    const bloc = nouveauBloc("nouveaux_membres", "2027-01-01") as Extract<Bloc, { type: "nouveaux_membres" }>;
+    expect(periodeAdhesions(bloc.mois!)).toMatchObject({ debut: "2026-11-25", fin: "2026-12-24" });
+  });
+
+  it("nouveaux membres : numéro de février 2027 → adhésions du 25 décembre 2026 au 24 janvier 2027", () => {
+    expect(periodeAdhesions("2027-01-01")).toMatchObject({ debut: "2026-12-25", fin: "2027-01-24" });
+  });
+
+  it("nouveaux membres : nombre d'adhésions écartées faute de fiche, sans nom", () => {
+    expect(ligneSansFiche(2)).toBe("2 nouvelles adhésions sans fiche, non citées");
+    expect(ligneSansFiche(1)).toBe("1 nouvelle adhésion sans fiche, non citée");
+    expect(ligneBilan({ nouveaux: 3, affiches: ["a"] })).toBe("3 nouvelles adhésions sur la période, 1 membre cité·e");
   });
 
   it("le trimestre du collectif : étiquette fixée, un texte et de 2 à 4 chiffres", () => {
