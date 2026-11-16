@@ -379,6 +379,13 @@
       "when": 1794673737846,
       "tag": "0053_evenements_veille_serveur_en_relecture",
       "breakpoints": true
+    },
+    {
+      "idx": 54,
+      "version": "7",
+      "when": 1794814538238,
+      "tag": "0054_evenements_organisateur_exterieur",
+      "breakpoints": true
     }
   ]
 }

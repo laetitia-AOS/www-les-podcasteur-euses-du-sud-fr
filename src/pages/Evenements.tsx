@@ -8,7 +8,7 @@ import Footer from "@/components/Footer";
 import SEOHead from "@/components/SEOHead";
 import { PAGES, PAGES_SEO } from "@/lib/seo";
 import EventRow, { eventHref } from "@/components/agenda/EventRow";
-import { aVenirFilter, estEvenementVeille, isOnline, isOrganizedByPds, passeFilter, type HomeEvent } from "@/components/home/useHomeData";
+import { aVenirFilter, isOnline, isOrganizedByPds, passeFilter, sansOrganisateur, type HomeEvent } from "@/components/home/useHomeData";
 import { btnListen, container, h1Ligne, formatShortDate } from "@/lib/pds";
 import { cleanAddress, dateParis, isoParis, jourCourt, readableTitle } from "@/lib/events";
 import photo1 from "@/assets/photos/09-rencontre-inseec-cercle.jpg.asset.json";
@@ -31,13 +31,13 @@ const FILTERS = [
   { key: "tous", label: "Tous", test: () => true },
   { key: "ligne", label: "En ligne", test: (e: AgendaEvent) => isOnline(e) },
   { key: "place", label: "Sur place", test: (e: AgendaEvent) => !isOnline(e) },
-  { key: "pds", label: "Les rendez-vous PDS", test: (e: AgendaEvent) => isOrganizedByPds(e) && !estEvenementVeille(e) },
+  { key: "pds", label: "Les rendez-vous PDS", test: (e: AgendaEvent) => isOrganizedByPds(e) && !sansOrganisateur(e) },
   { key: "membres", label: "Proposés par les membres", test: (e: AgendaEvent) => !isOrganizedByPds(e) },
   { key: "ateliers", label: "Ateliers-écoute", test: (e: AgendaEvent) => e.type === "apero_ecoute" },
 ] as const;
 
 const SITE = "https://www.les-podcasteur-euses-du-sud.fr";
-const FIELDS = "id, titre, sous_titre, description, date_debut, date_fin, lieu, adresse, type, slug, lien_externe, inscription_activee, image_url, origine, format, propose_par_nom, tarif, lien_connexion";
+const FIELDS = "id, titre, sous_titre, description, date_debut, date_fin, lieu, adresse, type, slug, lien_externe, inscription_activee, image_url, origine, format, propose_par_nom, organisateur_exterieur, tarif, lien_connexion";
 
 const Evenements = () => {
   const [filter, setFilter] = useState<(typeof FILTERS)[number]["key"]>("tous");

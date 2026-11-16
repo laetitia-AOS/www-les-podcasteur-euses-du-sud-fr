@@ -38,6 +38,9 @@ describe("L'Onde du Sud — blocs automatiques", () => {
     expect(origineEvenement({ origine: "membre", propose_par_nom: "marie dupont" })).toBe("Proposé par Marie Dupont");
     // Venu de la veille hebdo : ni « organisé par PDS » ni le nom de la structure.
     expect(origineEvenement({ origine: "pds", propose_par_nom: "Veille hebdo (Claude)" })).toBe("");
+    // Case « Ce n'est pas PDS qui organise » cochée dans l'admin : rien non plus.
+    expect(origineEvenement({ origine: "pds", propose_par_nom: null, organisateur_exterieur: true })).toBe("");
+    expect(origineEvenement({ origine: "pds", propose_par_nom: null, organisateur_exterieur: false })).toBe("Organisé par PDS");
   });
 
   it("événements : au moins un coché pour publier, 8 au maximum", () => {

@@ -406,6 +406,7 @@ export type Database = {
           lien_externe: string | null
           lieu: string | null
           motif_refus: string | null
+          organisateur_exterieur: boolean
           origine: string
           places: number | null
           podcasts_invites: Json | null
@@ -436,6 +437,7 @@ export type Database = {
           lien_externe?: string | null
           lieu?: string | null
           motif_refus?: string | null
+          organisateur_exterieur?: boolean
           origine?: string
           places?: number | null
           podcasts_invites?: Json | null
@@ -466,6 +468,7 @@ export type Database = {
           lien_externe?: string | null
           lieu?: string | null
           motif_refus?: string | null
+          organisateur_exterieur?: boolean
           origine?: string
           places?: number | null
           podcasts_invites?: Json | null
@@ -1959,6 +1962,7 @@ export type Database = {
           lien_externe: string | null
           lieu: string | null
           motif_refus: string | null
+          organisateur_exterieur: boolean
           origine: string
           places: number | null
           podcasts_invites: Json | null

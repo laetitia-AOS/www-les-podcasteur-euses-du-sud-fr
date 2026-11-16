@@ -105,6 +105,7 @@ export type HomeEvent = {
   origine?: string | null;
   format?: string | null;
   propose_par_nom?: string | null;
+  organisateur_exterieur?: boolean | null;
   tarif?: string | null;
   date_fin?: string | null;
 };
@@ -125,7 +126,7 @@ export const useUpcomingEvents = () =>
     queryFn: async () => {
       const { data, error } = await supabase
         .from("evenements")
-        .select("id, titre, sous_titre, date_debut, date_fin, lieu, adresse, type, slug, lien_externe, inscription_activee, origine, format, propose_par_nom, tarif")
+        .select("id, titre, sous_titre, date_debut, date_fin, lieu, adresse, type, slug, lien_externe, inscription_activee, origine, format, propose_par_nom, organisateur_exterieur, tarif")
         .eq("statut", "publie")
         .or(aVenirFilter())
         .order("date_debut", { ascending: true })
@@ -149,6 +150,10 @@ export const isOrganizedByPds = (e: Pick<HomeEvent, "origine">) => (e.origine ??
 export const estEvenementVeille = (e: Pick<HomeEvent, "origine" | "propose_par_nom">) =>
   isOrganizedByPds(e) && !!e.propose_par_nom?.trim();
 
+/** Aucun organisateur affiché : événement venu de la veille, ou case « Ce n'est pas PDS qui organise » cochée. */
+export const sansOrganisateur = (e: Pick<HomeEvent, "origine" | "propose_par_nom" | "organisateur_exterieur">) =>
+  estEvenementVeille(e) || !!e.organisateur_exterieur;
+
 // « apero_ecoute » est le code du rendez-vous mensuel, désormais appelé « Atelier-écoute »
 export const EVENT_TYPES = [
   { value: "apero_ecoute", label: "Atelier-écoute" },
@@ -161,9 +166,9 @@ export const EVENT_TYPES = [
 
 export const EVENT_TYPE_LABELS: Record<string, string> = Object.fromEntries(EVENT_TYPES.map((t) => [t.value, t.label]));
 
-/** « organisé par PDS », « proposé par Marie Dupont », ou '' quand on ne sait pas qui organise (veille). */
-export const organisateurLabel = (e: Pick<HomeEvent, "origine" | "propose_par_nom">) =>
-  estEvenementVeille(e) ? ""
+/** « organisé par PDS », « proposé par Marie Dupont », ou '' quand on ne sait pas qui organise. */
+export const organisateurLabel = (e: Pick<HomeEvent, "origine" | "propose_par_nom" | "organisateur_exterieur">) =>
+  sansOrganisateur(e) ? ""
     : isOrganizedByPds(e) ? "organisé par PDS"
     : e.propose_par_nom ? `proposé par ${formatName(e.propose_par_nom)}` : "proposé par un membre";
 

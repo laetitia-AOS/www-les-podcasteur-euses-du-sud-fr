@@ -50,6 +50,10 @@ type EventForm = {
   onde: boolean;
   /** Instagram de l'organisateur (@compte), gardé à part : lisible par les admins seulement */
   instagram: string;
+  /** Case « Ce n'est pas PDS qui organise » : aucun organisateur affiché publiquement */
+  organisateur_exterieur: boolean;
+  /** Origine de la fiche : « membre » (proposé par un membre) ou « pds » (ajouté par l'équipe ou la veille) */
+  origine: string;
 };
 
 const STATUT_LABEL: Record<string, string> = { en_relecture: "En relecture", publie: "Publié", refuse: "Refusé" };
@@ -61,6 +65,7 @@ const emptyForm: EventForm = {
   podcasts_invites: [], structure_id: "",
   format: "sur_place", lien_connexion: "", tarif: "", statut: "publie", faq: [],
   onde: false, instagram: "",
+  organisateur_exterieur: false, origine: "pds",
 };
 
 const AdminEvenements = () => {
@@ -152,6 +157,8 @@ const AdminEvenements = () => {
           (p) => p && (p.nom_podcast || p.host || p.vignette_url)
         ) as any,
         faq: (lireFaq(values.faq).length ? lireFaq(values.faq) : null) as any,
+        // Réservé aux événements ajoutés par l'équipe : une proposition de membre garde « Proposé par … »
+        organisateur_exterieur: values.origine !== "membre" && values.organisateur_exterieur,
       };
       let id = editingId;
       if (editingId) {
@@ -278,6 +285,7 @@ const AdminEvenements = () => {
       faq: lireFaq(evt.faq),
       onde: dansUnBrouillon(etatOnde, evt.id),
       instagram: comptesInsta[evt.id] || "",
+      organisateur_exterieur: !!evt.organisateur_exterieur, origine: evt.origine || "pds",
     });
     setInitial({ onde: dansUnBrouillon(etatOnde, evt.id), instagram: comptesInsta[evt.id] || "" });
     setEditingId(evt.id);
@@ -486,6 +494,18 @@ const AdminEvenements = () => {
                 <input type="checkbox" checked={form.inscription_activee} onChange={(e) => setForm({ ...form, inscription_activee: e.target.checked })} className="rounded border-border" id="inscription_activee" />
                 <label htmlFor="inscription_activee" className="text-sm text-foreground">Activer le formulaire d'inscription sur la page de l'événement</label>
               </div>
+              {/* Case réservée aux événements ajoutés par l'équipe : une proposition de membre garde « Proposé par … » */}
+              {form.origine !== "membre" && (
+                <div className="md:col-span-2 border-2 border-foreground p-3">
+                  <div className="flex items-center gap-2">
+                    <input type="checkbox" checked={form.organisateur_exterieur} onChange={(e) => setForm({ ...form, organisateur_exterieur: e.target.checked })} className="rounded border-border" id="evt-organisateur-exterieur" aria-describedby="evt-organisateur-exterieur-aide" />
+                    <label htmlFor="evt-organisateur-exterieur" className="text-sm font-semibold text-foreground">Ce n'est pas PDS qui organise</label>
+                  </div>
+                  <p id="evt-organisateur-exterieur-aide" className="text-xs mt-1 ml-6 text-muted-foreground">
+                    Aucun organisateur n'est affiché sur la page de l'événement, dans l'agenda ni dans L'Onde du Sud.
+                  </p>
+                </div>
+              )}
 
               <div className="md:col-span-2 pt-2 border-t border-border">
                 <PodcastsInvitesEditor

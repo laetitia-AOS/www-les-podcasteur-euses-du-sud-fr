@@ -11,7 +11,7 @@ import JeViens from "@/components/agenda/JeViens";
 import PartageEvenement from "@/components/agenda/PartageEvenement";
 import PodcastsInvitesDisplay from "@/components/PodcastsInvitesDisplay";
 import { eventHref } from "@/components/agenda/EventRow";
-import { EVENT_TYPE_LABELS, aVenirFilter, cityFromAddress, estEvenementVeille, isOnline, isOrganizedByPds, type HomeEvent } from "@/components/home/useHomeData";
+import { EVENT_TYPE_LABELS, aVenirFilter, cityFromAddress, isOnline, isOrganizedByPds, sansOrganisateur, type HomeEvent } from "@/components/home/useHomeData";
 import { withUtm } from "@/lib/utm";
 import { btnPrimary, btnSecondary, container, formatName, linkUnderline } from "@/lib/pds";
 import { cleanAddress, dateLongue, surPlusieursJours, dateParis, downloadIcs, googleCalendarUrl, heureParis, horairesParis, isoParis, prixDepuisTarif, publicDescription, readableTitle } from "@/lib/events";
@@ -52,7 +52,7 @@ const EvenementDetail = () => {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("evenements")
-        .select("id, titre, sous_titre, description, date_debut, date_fin, lieu, adresse, type, slug, lien_externe, inscription_activee, image_url, places, podcasts_invites, origine, format, propose_par_nom, tarif, lien_connexion, faq")
+        .select("id, titre, sous_titre, description, date_debut, date_fin, lieu, adresse, type, slug, lien_externe, inscription_activee, image_url, places, podcasts_invites, origine, format, propose_par_nom, organisateur_exterieur, tarif, lien_connexion, faq")
         .eq("slug", slug!)
         .eq("statut", "publie")
         .maybeSingle();
@@ -84,8 +84,8 @@ const EvenementDetail = () => {
     const end = evt.date_fin ? new Date(evt.date_fin) : null;
     const online = isOnline(evt);
     const pds = isOrganizedByPds(evt);
-    // Venu de la veille hebdo : ce n'est pas l'association qui organise, et on n'a pas le nom de la structure.
-    const veille = estEvenementVeille(evt);
+    // Case « Ce n'est pas PDS qui organise » cochée, ou événement venu de la veille : rien n'est affiché à ce sujet.
+    const sansOrga = sansOrganisateur(evt);
     const city = online ? "" : cityFromAddress(evt.adresse) || (evt.lieu && /marseille/i.test(evt.lieu) ? "Marseille" : "");
     const titre = readableTitle(evt.titre);
     const h1 = `${H1_TYPE[evt.type] || "Événement podcast"} ${online ? "en ligne" : city ? `à ${city}` : "en Région Sud"} : ${titre}`;
@@ -95,12 +95,12 @@ const EvenementDetail = () => {
     const horaires = plusieursJours ? `de ${hour(start)} (premier jour) à ${hour(end!)} (dernier jour)` : end ? `de ${hour(start)} à ${hour(end)}` : `à partir de ${hour(start)}`;
     const lieuPhrase = online ? "en ligne" : evt.lieu ? `chez ${evt.lieu}${city ? ` (${city})` : ""}` : city ? `à ${city}` : "";
     const tarif = evt.tarif || "";
-    const organisateur = veille ? "" : pds ? "Les Podcasteur·euses du Sud" : formatName(evt.propose_par_nom) || "Un membre du réseau";
-    const organisateurPhrase = veille ? "" : pds ? "organisé par Les Podcasteur·euses du Sud" : `proposé par ${formatName(evt.propose_par_nom) || "un membre du réseau"}`;
+    const organisateur = sansOrga ? "" : pds ? "Les Podcasteur·euses du Sud" : formatName(evt.propose_par_nom) || "Un membre du réseau";
+    const organisateurPhrase = sansOrga ? "" : pds ? "organisé par Les Podcasteur·euses du Sud" : `proposé par ${formatName(evt.propose_par_nom) || "un membre du réseau"}`;
     const intro = `${dateLong}, ${horaires}${lieuPhrase ? `, ${lieuPhrase}` : ""}.${evt.sous_titre ? ` ${evt.sous_titre.replace(/\.$/, "")}.` : ""}${tarif ? ` ${tarif}.` : ""}`;
     const isPast = (end || start) < new Date();
     const url = `${SITE}${eventHref(evt)}`;
-    return { start, end, plusieursJours, online, pds, veille, city, titre, h1, dateLong, horaires, tarif, organisateur, organisateurPhrase, intro, isPast, url, description: publicDescription(evt.description) };
+    return { start, end, plusieursJours, online, pds, sansOrga, city, titre, h1, dateLong, horaires, tarif, organisateur, organisateurPhrase, intro, isPast, url, description: publicDescription(evt.description) };
   }, [evt]);
 
   const jsonLd = useMemo(() => {

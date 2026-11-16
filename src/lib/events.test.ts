@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { heureParis, horairesParis, isoParis } from "./events";
-import { DEPARTEMENTS_PDS, EVENT_TYPE_LABELS, chiffresAccueil, estEvenementVeille, organisateurLabel } from "@/components/home/useHomeData";
+import { DEPARTEMENTS_PDS, EVENT_TYPE_LABELS, chiffresAccueil, estEvenementVeille, organisateurLabel, sansOrganisateur } from "@/components/home/useHomeData";
 
 // Atelier-écoute du 9 novembre 2026 : enregistré en heure universelle (17h30–20h30)
 const DEBUT = "2026-11-09T17:30:00+00:00";
@@ -72,5 +72,13 @@ describe("organisateur affiché sur un événement", () => {
     expect(estEvenementVeille({ origine: "pds", propose_par_nom: "Veille hebdo (Claude)" })).toBe(true);
     expect(estEvenementVeille({ origine: "pds", propose_par_nom: null })).toBe(false);
     expect(estEvenementVeille({ origine: "membre", propose_par_nom: "Veille hebdo (Claude)" })).toBe(false);
+  });
+  it("rien non plus quand la case « Ce n'est pas PDS qui organise » est cochée", () => {
+    expect(organisateurLabel({ origine: "pds", propose_par_nom: null, organisateur_exterieur: true })).toBe("");
+    expect(sansOrganisateur({ origine: "pds", propose_par_nom: null, organisateur_exterieur: true })).toBe(true);
+    expect(sansOrganisateur({ origine: "pds", propose_par_nom: null, organisateur_exterieur: false })).toBe(false);
+    // La case ne concerne pas les propositions de membres : elles gardent « proposé par … »
+    expect(sansOrganisateur({ origine: "membre", propose_par_nom: "eddy jatteau", organisateur_exterieur: false })).toBe(false);
+    expect(organisateurLabel({ origine: "membre", propose_par_nom: "jatteau", organisateur_exterieur: false })).toBe("proposé par Jatteau");
   });
 });
