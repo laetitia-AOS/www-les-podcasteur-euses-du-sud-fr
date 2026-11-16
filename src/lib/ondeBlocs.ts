@@ -3,7 +3,7 @@
 // Les nouveaux membres sont calculés par la base, qui ne renvoie que nom, photo, podcast, ville et adresse de fiche.
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { aVenirFilter, isOrganizedByPds, type HomeEvent } from "@/components/home/useHomeData";
+import { aVenirFilter, estEvenementVeille, isOrganizedByPds, type HomeEvent } from "@/components/home/useHomeData";
 import { aUnPodcast, formatName } from "@/lib/pds";
 import { LIMITES_ONDE } from "@/lib/onde";
 
@@ -12,9 +12,11 @@ export const EVENEMENT_COLONNES =
 /** Événement du bloc « À l'agenda », avec ses podcasts invités (« Ce qu'on écoutera ensemble »). */
 export type EvenementOnde = HomeEvent & { podcasts_invites?: unknown };
 
-/** « Organisé par PDS » ou « Proposé par Marie Dupont ». */
+/** « Organisé par PDS », « Proposé par Marie Dupont », ou '' (événement venu de la veille : on ne sait pas qui organise). */
 export const origineEvenement = (e: Pick<HomeEvent, "origine" | "propose_par_nom">) =>
-  isOrganizedByPds(e) ? "Organisé par PDS" : e.propose_par_nom ? `Proposé par ${formatName(e.propose_par_nom)}` : "Proposé par un membre";
+  estEvenementVeille(e) ? ""
+    : isOrganizedByPds(e) ? "Organisé par PDS"
+    : e.propose_par_nom ? `Proposé par ${formatName(e.propose_par_nom)}` : "Proposé par un membre";
 
 /** Vrai si l'événement commence dans les « jours » prochains jours. */
 export const dansLesJours = (e: Pick<HomeEvent, "date_debut">, jours: number = LIMITES_ONDE.joursAgenda, maintenant = new Date()) =>

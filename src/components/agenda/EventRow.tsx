@@ -26,8 +26,9 @@ const EventRow = ({ e, primary, cta }: { e: HomeEvent; primary?: boolean; cta?: 
         <p className="font-mono text-xs text-muted-foreground mt-1">{dayHour}</p>
       </div>
       <div className="min-w-0">
+        {/* Parties manquantes (organisateur inconnu, tarif vide) retirées : pas de point séparateur orphelin */}
         <p className="text-sm font-bold text-accent-text">
-          {EVENT_TYPE_LABELS[e.type] || e.type} · {organisateurLabel(e)}{e.tarif ? ` · ${e.tarif}` : ""}
+          {[EVENT_TYPE_LABELS[e.type] || e.type, organisateurLabel(e), e.tarif].filter(Boolean).join(" · ")}
         </p>
         <Link to={href} className="block font-bold text-[20px] sm:text-[24px] leading-tight hover:underline underline-offset-4">{readableTitle(e.titre)}</Link>
         {e.sous_titre && <p className="text-muted-foreground mt-1 line-clamp-2">{e.sous_titre}</p>}

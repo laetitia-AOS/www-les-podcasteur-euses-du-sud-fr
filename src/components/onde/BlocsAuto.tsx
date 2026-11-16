@@ -74,7 +74,7 @@ export const VueEvenements = ({ b }: { b: BlocEvenements }) => {
           <li key={e.id} className="grid grid-cols-[76px_1fr] sm:grid-cols-[104px_1fr] gap-x-5 py-5 border-b border-filet">
             <p className="title-section text-[28px] sm:text-[38px] leading-none"><time dateTime={e.date_debut}>{jourCourt(e.date_debut, e.date_fin)}</time></p>
             <div className="min-w-0">
-              <p className="text-sm font-bold text-accent-text">{origineEvenement(e)}</p>
+              {origineEvenement(e) && <p className="text-sm font-bold text-accent-text">{origineEvenement(e)}</p>}
               <h3 className="font-bold text-[20px] sm:text-[22px] leading-tight mt-1">
                 <Link to={eventHref(e)} className="hover:underline underline-offset-4">{titre}</Link>
               </h3>

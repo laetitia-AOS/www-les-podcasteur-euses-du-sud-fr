@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { heureParis, horairesParis, isoParis } from "./events";
-import { DEPARTEMENTS_PDS, EVENT_TYPE_LABELS, chiffresAccueil } from "@/components/home/useHomeData";
+import { DEPARTEMENTS_PDS, EVENT_TYPE_LABELS, chiffresAccueil, estEvenementVeille, organisateurLabel } from "@/components/home/useHomeData";
 
 // Atelier-écoute du 9 novembre 2026 : enregistré en heure universelle (17h30–20h30)
 const DEBUT = "2026-11-09T17:30:00+00:00";
@@ -55,5 +55,22 @@ describe("lot 4 : titres et dates sur plusieurs jours", () => {
     // Soirée qui finit à minuit : un seul jour
     expect(jourCourt("2026-06-19T07:00:00Z", "2026-06-19T22:00:00Z")).toBe("19.06");
     expect(dateLongue("2026-06-19T07:00:00Z", "2026-06-20T19:00:00Z")).toBe("Du 19 au 20 juin 2026");
+  });
+});
+
+describe("organisateur affiché sur un événement", () => {
+  it("« organisé par PDS » pour un rendez-vous de l'association", () => {
+    expect(organisateurLabel({ origine: "pds", propose_par_nom: null })).toBe("organisé par PDS");
+    expect(organisateurLabel({ origine: null, propose_par_nom: null })).toBe("organisé par PDS");
+  });
+  it("« proposé par [nom] » pour un événement proposé par un membre", () => {
+    expect(organisateurLabel({ origine: "membre", propose_par_nom: "julien kirsch" })).toBe("proposé par Julien Kirsch");
+    expect(organisateurLabel({ origine: "membre", propose_par_nom: null })).toBe("proposé par un membre");
+  });
+  it("rien du tout pour un événement venu de la veille hebdo", () => {
+    expect(organisateurLabel({ origine: "pds", propose_par_nom: "Veille hebdo (Claude)" })).toBe("");
+    expect(estEvenementVeille({ origine: "pds", propose_par_nom: "Veille hebdo (Claude)" })).toBe(true);
+    expect(estEvenementVeille({ origine: "pds", propose_par_nom: null })).toBe(false);
+    expect(estEvenementVeille({ origine: "membre", propose_par_nom: "Veille hebdo (Claude)" })).toBe(false);
   });
 });

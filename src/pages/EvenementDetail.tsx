@@ -11,7 +11,7 @@ import JeViens from "@/components/agenda/JeViens";
 import PartageEvenement from "@/components/agenda/PartageEvenement";
 import PodcastsInvitesDisplay from "@/components/PodcastsInvitesDisplay";
 import { eventHref } from "@/components/agenda/EventRow";
-import { EVENT_TYPE_LABELS, aVenirFilter, cityFromAddress, isOnline, isOrganizedByPds, type HomeEvent } from "@/components/home/useHomeData";
+import { EVENT_TYPE_LABELS, aVenirFilter, cityFromAddress, estEvenementVeille, isOnline, isOrganizedByPds, type HomeEvent } from "@/components/home/useHomeData";
 import { withUtm } from "@/lib/utm";
 import { btnPrimary, btnSecondary, container, formatName, linkUnderline } from "@/lib/pds";
 import { cleanAddress, dateLongue, surPlusieursJours, dateParis, downloadIcs, googleCalendarUrl, heureParis, horairesParis, isoParis, prixDepuisTarif, publicDescription, readableTitle } from "@/lib/events";
@@ -84,6 +84,8 @@ const EvenementDetail = () => {
     const end = evt.date_fin ? new Date(evt.date_fin) : null;
     const online = isOnline(evt);
     const pds = isOrganizedByPds(evt);
+    // Venu de la veille hebdo : ce n'est pas l'association qui organise, et on n'a pas le nom de la structure.
+    const veille = estEvenementVeille(evt);
     const city = online ? "" : cityFromAddress(evt.adresse) || (evt.lieu && /marseille/i.test(evt.lieu) ? "Marseille" : "");
     const titre = readableTitle(evt.titre);
     const h1 = `${H1_TYPE[evt.type] || "Événement podcast"} ${online ? "en ligne" : city ? `à ${city}` : "en Région Sud"} : ${titre}`;
@@ -93,11 +95,12 @@ const EvenementDetail = () => {
     const horaires = plusieursJours ? `de ${hour(start)} (premier jour) à ${hour(end!)} (dernier jour)` : end ? `de ${hour(start)} à ${hour(end)}` : `à partir de ${hour(start)}`;
     const lieuPhrase = online ? "en ligne" : evt.lieu ? `chez ${evt.lieu}${city ? ` (${city})` : ""}` : city ? `à ${city}` : "";
     const tarif = evt.tarif || "";
-    const organisateur = pds ? "Les Podcasteur·euses du Sud" : formatName(evt.propose_par_nom) || "Un membre du réseau";
+    const organisateur = veille ? "" : pds ? "Les Podcasteur·euses du Sud" : formatName(evt.propose_par_nom) || "Un membre du réseau";
+    const organisateurPhrase = veille ? "" : pds ? "organisé par Les Podcasteur·euses du Sud" : `proposé par ${formatName(evt.propose_par_nom) || "un membre du réseau"}`;
     const intro = `${dateLong}, ${horaires}${lieuPhrase ? `, ${lieuPhrase}` : ""}.${evt.sous_titre ? ` ${evt.sous_titre.replace(/\.$/, "")}.` : ""}${tarif ? ` ${tarif}.` : ""}`;
     const isPast = (end || start) < new Date();
     const url = `${SITE}${eventHref(evt)}`;
-    return { start, end, plusieursJours, online, pds, city, titre, h1, dateLong, horaires, tarif, organisateur, intro, isPast, url, description: publicDescription(evt.description) };
+    return { start, end, plusieursJours, online, pds, veille, city, titre, h1, dateLong, horaires, tarif, organisateur, organisateurPhrase, intro, isPast, url, description: publicDescription(evt.description) };
   }, [evt]);
 
   const jsonLd = useMemo(() => {
@@ -125,9 +128,12 @@ const EvenementDetail = () => {
         offers: { "@type": "Offer", price: prixDepuisTarif(evt.tarif), priceCurrency: "EUR", availability: "https://schema.org/InStock", url: evt.lien_externe || view.url, ...(evt.tarif && { description: evt.tarif }) },
       }),
       ...(evt.places && { maximumAttendeeCapacity: evt.places }),
-      organizer: view.pds
-        ? { "@type": "Organization", name: "Les Podcasteur·euses du Sud", url: SITE }
-        : { "@type": "Person", name: view.organisateur },
+      // Organisateur inconnu (événement venu de la veille) : rien n'est affirmé.
+      ...(view.organisateur && {
+        organizer: view.pds
+          ? { "@type": "Organization", name: "Les Podcasteur·euses du Sud", url: SITE }
+          : { "@type": "Person", name: view.organisateur },
+      }),
     };
   }, [evt, view]);
 
@@ -213,7 +219,7 @@ const EvenementDetail = () => {
           </div>
           <div className="min-w-0">
             <p className="text-sm font-bold text-primary">
-              {EVENT_TYPE_LABELS[evt.type] || "Événement"} · {view.online ? "en ligne" : "sur place"} · {view.pds ? "organisé par Les Podcasteur·euses du Sud" : `proposé par ${view.organisateur}`}
+              {[EVENT_TYPE_LABELS[evt.type] || "Événement", view.online ? "en ligne" : "sur place", view.organisateurPhrase].filter(Boolean).join(" · ")}
             </p>
             <h1 className="title-section text-[40px] sm:text-[56px] lg:text-[64px] mt-2">{view.h1}</h1>
             <p className="mt-5 text-lg max-w-[62ch]">{view.intro}</p>
@@ -249,7 +255,9 @@ const EvenementDetail = () => {
               </div>
               {evt.places && <div><dt className="text-sm font-bold">Places</dt><dd className="font-mono">{evt.places}</dd></div>}
               {view.tarif && <div><dt className="text-sm font-bold">Tarif</dt><dd>{view.tarif}</dd></div>}
-              <div><dt className="text-sm font-bold">{view.pds ? "Organisé par" : "Proposé par"}</dt><dd>{view.organisateur}</dd></div>
+              {view.organisateur && (
+                <div><dt className="text-sm font-bold">{view.pds ? "Organisé par" : "Proposé par"}</dt><dd>{view.organisateur}</dd></div>
+              )}
             </dl>
 
             {!view.isPast && (

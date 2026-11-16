@@ -142,6 +142,13 @@ export const isOnline = (e: Pick<HomeEvent, "lieu" | "adresse" | "format">) =>
 /** Organisé par l'association, ou proposé par un membre (champ « origine »). */
 export const isOrganizedByPds = (e: Pick<HomeEvent, "origine">) => (e.origine ?? "pds") === "pds";
 
+/**
+ * Événement venu de la veille hebdomadaire : ajouté par la connexion serveur, sans compte membre.
+ * Ce n'est pas l'association qui l'organise et on n'a pas le nom de la structure : rien n'est affiché à ce sujet.
+ */
+export const estEvenementVeille = (e: Pick<HomeEvent, "origine" | "propose_par_nom">) =>
+  isOrganizedByPds(e) && !!e.propose_par_nom?.trim();
+
 // « apero_ecoute » est le code du rendez-vous mensuel, désormais appelé « Atelier-écoute »
 export const EVENT_TYPES = [
   { value: "apero_ecoute", label: "Atelier-écoute" },
@@ -154,9 +161,11 @@ export const EVENT_TYPES = [
 
 export const EVENT_TYPE_LABELS: Record<string, string> = Object.fromEntries(EVENT_TYPES.map((t) => [t.value, t.label]));
 
-/** « organisé par PDS » ou « proposé par Marie Dupont » */
+/** « organisé par PDS », « proposé par Marie Dupont », ou '' quand on ne sait pas qui organise (veille). */
 export const organisateurLabel = (e: Pick<HomeEvent, "origine" | "propose_par_nom">) =>
-  isOrganizedByPds(e) ? "organisé par PDS" : e.propose_par_nom ? `proposé par ${formatName(e.propose_par_nom)}` : "proposé par un membre";
+  estEvenementVeille(e) ? ""
+    : isOrganizedByPds(e) ? "organisé par PDS"
+    : e.propose_par_nom ? `proposé par ${formatName(e.propose_par_nom)}` : "proposé par un membre";
 
 /** Ville tirée de l'adresse, sans code postal ni arrondissement. */
 export const cityFromAddress = (adresse?: string | null): string => {

@@ -33,9 +33,11 @@ describe("L'Onde du Sud — blocs automatiques", () => {
     expect(dansLesJours({ date_debut: "2027-01-14T18:00:00Z" }, undefined, maintenant)).toBe(false);
   });
 
-  it("événements : « Organisé par PDS » ou « Proposé par [membre] »", () => {
+  it("événements : « Organisé par PDS », « Proposé par [membre] », rien pour la veille", () => {
     expect(origineEvenement({ origine: "pds", propose_par_nom: null })).toBe("Organisé par PDS");
     expect(origineEvenement({ origine: "membre", propose_par_nom: "marie dupont" })).toBe("Proposé par Marie Dupont");
+    // Venu de la veille hebdo : ni « organisé par PDS » ni le nom de la structure.
+    expect(origineEvenement({ origine: "pds", propose_par_nom: "Veille hebdo (Claude)" })).toBe("");
   });
 
   it("événements : au moins un coché pour publier, 8 au maximum", () => {

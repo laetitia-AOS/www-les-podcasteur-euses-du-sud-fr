@@ -3,13 +3,13 @@ import { Link } from "react-router-dom";
 import { Plus } from "lucide-react";
 import EventRow from "@/components/agenda/EventRow";
 import { btnSecondary, container, linkUnderline } from "@/lib/pds";
-import { isOnline, isOrganizedByPds, type HomeEvent } from "./useHomeData";
+import { estEvenementVeille, isOnline, isOrganizedByPds, type HomeEvent } from "./useHomeData";
 
 const FILTERS = [
   { key: "tous", label: "Tous" },
   { key: "ligne", label: "En ligne" },
   { key: "place", label: "Sur place" },
-  { key: "pds", label: "Organisés par PDS" },
+  { key: "pds", label: "Les rendez-vous PDS" },
   { key: "membres", label: "Proposés par les membres" },
 ] as const;
 type FilterKey = (typeof FILTERS)[number]["key"];
@@ -18,7 +18,7 @@ const matches = (e: HomeEvent, f: FilterKey) => {
   switch (f) {
     case "ligne": return isOnline(e);
     case "place": return !isOnline(e);
-    case "pds": return isOrganizedByPds(e);
+    case "pds": return isOrganizedByPds(e) && !estEvenementVeille(e);
     case "membres": return !isOrganizedByPds(e);
     default: return true;
   }
