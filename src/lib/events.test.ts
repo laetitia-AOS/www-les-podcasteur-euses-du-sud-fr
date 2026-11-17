@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { heureParis, horairesParis, isoParis } from "./events";
-import { DEPARTEMENTS_PDS, EVENT_TYPE_LABELS, chiffresAccueil, estEvenementVeille, organisateurLabel, sansOrganisateur } from "@/components/home/useHomeData";
+import { DEPARTEMENTS_PDS, EVENT_TYPE_LABELS, chiffresAccueil, estEvenementVeille, estRendezVousPds, organisateurLabel, sansOrganisateur } from "@/components/home/useHomeData";
 
 // Atelier-écoute du 9 novembre 2026 : enregistré en heure universelle (17h30–20h30)
 const DEBUT = "2026-11-09T17:30:00+00:00";
@@ -80,5 +80,16 @@ describe("organisateur affiché sur un événement", () => {
     // La case ne concerne pas les propositions de membres : elles gardent « proposé par … »
     expect(sansOrganisateur({ origine: "membre", propose_par_nom: "eddy jatteau", organisateur_exterieur: false })).toBe(false);
     expect(organisateurLabel({ origine: "membre", propose_par_nom: "jatteau", organisateur_exterieur: false })).toBe("proposé par Jatteau");
+  });
+});
+
+describe("rendez-vous PDS mis en avant dans l'agenda", () => {
+  it("met en avant les événements organisés par l'association", () => {
+    expect(estRendezVousPds({ origine: "pds", propose_par_nom: null, organisateur_exterieur: false })).toBe(true);
+  });
+  it("ne met pas en avant la veille, les structures extérieures ni les membres", () => {
+    expect(estRendezVousPds({ origine: "pds", propose_par_nom: "Veille hebdo (Claude)", organisateur_exterieur: false })).toBe(false);
+    expect(estRendezVousPds({ origine: "pds", propose_par_nom: null, organisateur_exterieur: true })).toBe(false);
+    expect(estRendezVousPds({ origine: "membre", propose_par_nom: "Shani Ogan", organisateur_exterieur: false })).toBe(false);
   });
 });

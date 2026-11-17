@@ -8,7 +8,7 @@ import Footer from "@/components/Footer";
 import SEOHead from "@/components/SEOHead";
 import { PAGES, PAGES_SEO } from "@/lib/seo";
 import EventRow, { eventHref } from "@/components/agenda/EventRow";
-import { aVenirFilter, isOnline, isOrganizedByPds, passeFilter, sansOrganisateur, type HomeEvent } from "@/components/home/useHomeData";
+import { aVenirFilter, estRendezVousPds, isOnline, isOrganizedByPds, passeFilter, type HomeEvent } from "@/components/home/useHomeData";
 import { btnListen, container, h1Ligne, formatShortDate } from "@/lib/pds";
 import { cleanAddress, dateParis, isoParis, jourCourt, readableTitle } from "@/lib/events";
 import photo1 from "@/assets/photos/09-rencontre-inseec-cercle.jpg.asset.json";
@@ -31,7 +31,7 @@ const FILTERS = [
   { key: "tous", label: "Tous", test: () => true },
   { key: "ligne", label: "En ligne", test: (e: AgendaEvent) => isOnline(e) },
   { key: "place", label: "Sur place", test: (e: AgendaEvent) => !isOnline(e) },
-  { key: "pds", label: "Les rendez-vous PDS", test: (e: AgendaEvent) => isOrganizedByPds(e) && !sansOrganisateur(e) },
+  { key: "pds", label: "Les rendez-vous PDS", test: (e: AgendaEvent) => estRendezVousPds(e) },
   { key: "membres", label: "Proposés par les membres", test: (e: AgendaEvent) => !isOrganizedByPds(e) },
   { key: "ateliers", label: "Ateliers-écoute", test: (e: AgendaEvent) => e.type === "apero_ecoute" },
 ] as const;
@@ -164,7 +164,7 @@ const Evenements = () => {
               <section key={month} className="mt-10" aria-label={month}>
                 <h2 className="title-section text-[30px] sm:text-[36px] capitalize pb-3 border-b-2 border-encre">{month}</h2>
                 <ul className="divide-y divide-filet border-b border-filet">
-                  {events.map((e) => <EventRow key={e.id} e={e} primary={rowIndex++ === 0} cta="Voir" />)}
+                  {events.map((e) => <EventRow key={e.id} e={e} primary={rowIndex++ === 0} cta="Voir" vedette />)}
                 </ul>
               </section>
             ))

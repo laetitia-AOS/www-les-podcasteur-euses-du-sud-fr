@@ -108,6 +108,7 @@ export type HomeEvent = {
   organisateur_exterieur?: boolean | null;
   tarif?: string | null;
   date_fin?: string | null;
+  image_url?: string | null;
 };
 
 /** Événements à venir : pas encore terminés (date de fin, sinon date de début). Les autres passent en archives. */
@@ -153,6 +154,10 @@ export const estEvenementVeille = (e: Pick<HomeEvent, "origine" | "propose_par_n
 /** Aucun organisateur affiché : événement venu de la veille, ou case « Ce n'est pas PDS qui organise » cochée. */
 export const sansOrganisateur = (e: Pick<HomeEvent, "origine" | "propose_par_nom" | "organisateur_exterieur">) =>
   estEvenementVeille(e) || !!e.organisateur_exterieur;
+
+/** Vrai rendez-vous de l'association (ni veille, ni case « Ce n'est pas PDS qui organise ») : mis en avant dans l'agenda. */
+export const estRendezVousPds = (e: Pick<HomeEvent, "origine" | "propose_par_nom" | "organisateur_exterieur">) =>
+  isOrganizedByPds(e) && !sansOrganisateur(e);
 
 // « apero_ecoute » est le code du rendez-vous mensuel, désormais appelé « Atelier-écoute »
 export const EVENT_TYPES = [
