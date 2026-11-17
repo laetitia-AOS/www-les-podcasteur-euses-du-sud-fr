@@ -66,7 +66,7 @@ BEGIN
   END IF;
   IF NOT EXISTS (SELECT 1 FROM public.onde_destinataires() d WHERE d.email = membre) THEN RAISE EXCEPTION 'ECHEC : membre réabonné absent des destinataires'; END IF;
 
-  -- Sans adhésion à jour : pas de réabonnement en un clic (il faut confirmer par e-mail)
+  -- Sans adhésion à jour : pas de réabonnement en un clic (il faut renvoyer le formulaire)
   PERFORM set_config('request.jwt.claims', json_build_object('sub', gen_random_uuid()::text, 'role', 'authenticated', 'email', 'onde-pied-sans@exemple.invalid')::text, true);
   ok := false;
   BEGIN PERFORM public.onde_me_reabonner(); EXCEPTION WHEN OTHERS THEN ok := SQLERRM LIKE '%adhérent·es à jour%'; END;

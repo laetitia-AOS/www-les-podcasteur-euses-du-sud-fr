@@ -487,8 +487,8 @@ export const envoyerFichierOnde = async (numeroId: string, file: File, sorte: "i
 };
 
 // ——— Abonné·es (lot 3) ———
-// Inscription, confirmation et désinscription passent par des fonctions serveur (onde_inscrire, onde_confirmer,
-// onde_desinscrire, onde_reinscrire) : la liste n'est jamais lisible depuis le navigateur, sauf par les admins.
+// Inscription (active tout de suite, sans e-mail de confirmation), désinscription et réinscription passent par des
+// fonctions serveur (onde_inscrire, onde_desinscrire, onde_reinscrire ; onde_confirmer ne sert plus qu'aux anciens liens) : la liste n'est jamais lisible depuis le navigateur, sauf par les admins.
 
 export const ONDE_CONFIRMER = "/onde/confirmer";
 export const ONDE_DESINSCRIPTION = "/onde/desinscription";
@@ -502,7 +502,7 @@ export type SourceAbonne = "onde" | "evenement" | "adhesion";
 export type StatutAbonne = "en_attente" | "actif" | "desinscrit" | "adherent";
 
 export const LIBELLE_STATUT_ABONNE: Record<StatutAbonne, string> = {
-  en_attente: "En attente de confirmation",
+  en_attente: "En attente (ancienne inscription)",
   actif: "Actif",
   desinscrit: "Désinscrit·e",
   adherent: "Inclus·e par l'adhésion",
@@ -523,7 +523,7 @@ export const lienDesinscriptionOnde = (jeton: string) => `${SITE_URL}${ONDE_DESI
 
 /**
  * Inscription : même réponse que l'adresse soit nouvelle ou déjà abonnée.
- * Le serveur (fonction « onde-inscription ») enregistre la demande puis envoie l'e-mail de confirmation.
+ * Le serveur (fonction « onde-inscription ») enregistre l'abonnement, actif tout de suite.
  */
 export const inscrireOnde = async (prenom: string | null, email: string, source: "onde" | "evenement", nom?: string | null): Promise<{ error: { code?: string; message?: string } | null }> => {
   const { error } = await supabase.functions.invoke("onde-inscription", {

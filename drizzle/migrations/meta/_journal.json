@@ -393,6 +393,13 @@
       "when": 1794943449347,
       "tag": "0055_onde_abonnes_nom",
       "breakpoints": true
+    },
+    {
+      "idx": 56,
+      "version": "7",
+      "when": 1794945284568,
+      "tag": "0056_onde_inscription_sans_confirmation",
+      "breakpoints": true
     }
   ]
 }

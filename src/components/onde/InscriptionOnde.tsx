@@ -9,7 +9,7 @@ import { z } from "zod";
 import { btnPrimary, linkUnderline } from "@/lib/pds";
 import { messageServeur } from "@/lib/inscription";
 import { CONSENTEMENT_ONDE, NOM_ONDE, inscrireOnde } from "@/lib/onde";
-import { reabonnerMembre, useEtatLecteur, type EtatLecteur } from "@/lib/ondePied";
+import { reabonnerMembre, retenirAbonnement, useEtatLecteur, type EtatLecteur } from "@/lib/ondePied";
 import { ONDE_DEPOSER } from "@/lib/ondeDepots";
 
 const schema = z.object({
@@ -96,13 +96,14 @@ export const FormulaireOnde = ({ ligne = false }: { ligne?: boolean }) => {
       setEtat("erreur");
       return;
     }
+    retenirAbonnement(true);
     setEtat("ok");
   };
 
   if (etat === "ok") {
     return (
       <p role="status" className={`${ligne ? "" : "mt-3"} text-[17px] font-bold max-w-[60ch]`}>
-        C'est noté. Pour finir, confirmez votre inscription grâce au lien qui vous sera envoyé par e-mail.
+        C'est noté : vous recevrez le prochain numéro de L'Onde du Sud par e-mail.
       </p>
     );
   }

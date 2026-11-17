@@ -1,9 +1,7 @@
-// Inscription à L'Onde du Sud (formulaire public) puis e-mail de confirmation avec le lien /onde/confirmer.
-// La base (onde_inscrire) vérifie l'adresse, le consentement et limite à 5 essais par heure et par adresse ;
-// l'e-mail de confirmation part au plus une fois toutes les 10 minutes pour une même adresse, et ne recopie rien de ce qui a été saisi.
+// Inscription à L'Onde du Sud (formulaire public). Pas d'e-mail de confirmation (choix de l'association) :
+// la case cochée vaut accord et l'abonnement est actif tout de suite. La base (onde_inscrire) vérifie l'adresse,
+// le consentement et limite à 5 essais par heure et par adresse.
 import { createClient } from "npm:@supabase/supabase-js@2.45.0";
-import { ONDE_EXPEDITEUR, ONDE_REPONSE, SITE, emailConfirmation } from "../_shared/onde-email.ts";
-import { resendConfigure, resendEnvoyer } from "../_shared/resend.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -31,22 +29,6 @@ Deno.serve(async (req) => {
     return json({ error: "L'inscription n'a pas pu être enregistrée." }, 500);
   }
 
-  // Sans clé Resend : l'inscription est gardée, l'e-mail partira quand la personne renverra le formulaire.
-  if (resendConfigure()) {
-    const { data } = await admin.rpc("onde_confirmation_a_envoyer", { _email: email });
-    const ligne = Array.isArray(data) ? data[0] : null;
-    if (ligne?.jeton) {
-      const e = emailConfirmation(`${SITE}/onde/confirmer?jeton=${ligne.jeton}`);
-      const r = await resendEnvoyer(
-        { from: ONDE_EXPEDITEUR, to: [email.toLowerCase()], reply_to: ONDE_REPONSE, subject: e.objet, html: e.html, text: e.texte },
-        `onde-confirmation-${ligne.jeton}-${Math.floor(Date.now() / 600_000)}`,
-      );
-      if (!r.ok) {
-        console.error("confirmation non envoyée", r.erreur);
-        await admin.from("onde_abonnes").update({ confirmation_envoyee_le: null }).eq("jeton", ligne.jeton);
-      }
-    }
-  }
   // Même réponse dans tous les cas, pour ne jamais révéler si une adresse est déjà abonnée
   return json({ ok: true });
 });

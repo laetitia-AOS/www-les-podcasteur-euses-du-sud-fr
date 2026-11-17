@@ -25,7 +25,6 @@ type Bilan = { adherents_office: number; destinataires: number; actifs: number; 
 const FILTRES: { id: "tous" | StatutAbonne; label: string }[] = [
   { id: "tous", label: "Tous" },
   { id: "actif", label: "Actifs" },
-  { id: "en_attente", label: "En attente" },
   { id: "desinscrit", label: "Désinscrits" },
   { id: "adherent", label: "Inclus·es par l'adhésion" },
 ];
@@ -97,7 +96,6 @@ const AbonnesOnde = () => {
   const chiffres: [number | undefined, string][] = [
     [bilan?.adherents_office, "adhérent·es inclus·es d'office"],
     [bilan?.actifs, "abonné·es actif·ves"],
-    [bilan?.en_attente, "en attente de confirmation"],
     [bilan?.desinscrits, "désinscrit·es"],
   ];
 
@@ -105,7 +103,7 @@ const AbonnesOnde = () => {
     <div>
       <p className="text-[15px] max-w-[70ch]">
         Les adhérent·es à jour reçoivent {NOM_ONDE} d'office, sauf s'ils ou elles se sont désinscrit·es.
-        Les autres la reçoivent seulement après avoir confirmé leur inscription par le lien envoyé par e-mail.
+        Les autres la reçoivent dès qu'ils ou elles ont rempli le formulaire d'abonnement, case cochée.
       </p>
 
       <dl className="mt-6 grid grid-cols-2 lg:grid-cols-4 gap-3">

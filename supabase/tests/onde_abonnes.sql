@@ -26,13 +26,13 @@ BEGIN
   BEGIN PERFORM public.onde_inscrire('Test', 'pas-une-adresse', true, 'onde'); EXCEPTION WHEN OTHERS THEN ok := true; END;
   IF NOT ok THEN RAISE EXCEPTION 'ECHEC : adresse invalide acceptée'; END IF;
 
-  -- Inscription : en attente de confirmation, texte du consentement gardé
+  -- Inscription : active tout de suite (plus d'étape de confirmation), texte du consentement gardé
   PERFORM public.onde_inscrire('Test', 'onde-ab-1@exemple.invalid', true, 'onde', 'Fictif');
   IF NOT EXISTS (SELECT 1 FROM public.onde_abonnes WHERE email = 'onde-ab-1@exemple.invalid' AND nom = 'Fictif') THEN
     RAISE EXCEPTION 'ECHEC : nom non enregistré';
   END IF;
   SELECT a.statut, a.jeton INTO s, j FROM public.onde_abonnes a WHERE a.email = 'onde-ab-1@exemple.invalid';
-  IF s IS DISTINCT FROM 'en_attente' THEN RAISE EXCEPTION 'ECHEC : statut % au lieu de en_attente', s; END IF;
+  IF s IS DISTINCT FROM 'actif' THEN RAISE EXCEPTION 'ECHEC : statut % au lieu de actif', s; END IF;
   IF NOT EXISTS (SELECT 1 FROM public.onde_abonnes WHERE email = 'onde-ab-1@exemple.invalid' AND consentement_le IS NOT NULL
     AND consentement_texte = 'J''accepte de recevoir L''Onde du Sud par e-mail. Je peux me désinscrire à tout moment.') THEN
     RAISE EXCEPTION 'ECHEC : consentement non enregistré';
@@ -51,12 +51,17 @@ BEGIN
   BEGIN PERFORM public.onde_inscrire('Test', 'onde-ab-1@exemple.invalid', true, 'onde'); EXCEPTION WHEN OTHERS THEN ok := SQLERRM LIKE '%5 envois%'; END;
   IF NOT ok THEN RAISE EXCEPTION 'ECHEC : 6e envoi dans l''heure accepté'; END IF;
 
-  -- Confirmation, désinscription, réinscription par le jeton
-  IF public.onde_confirmer(j) <> 'actif' THEN RAISE EXCEPTION 'ECHEC : confirmation'; END IF;
+  -- Ancien lien de confirmation sans effet, désinscription, réinscription par le jeton
+  IF public.onde_confirmer(j) <> 'actif' THEN RAISE EXCEPTION 'ECHEC : ancien lien de confirmation'; END IF;
   IF public.onde_desinscrire(j) <> 'desinscrit' THEN RAISE EXCEPTION 'ECHEC : désinscription'; END IF;
   IF public.onde_desinscrire(j) <> 'desinscrit' THEN RAISE EXCEPTION 'ECHEC : deuxième clic de désinscription'; END IF;
   IF public.onde_confirmer(j) <> 'desinscrit' THEN RAISE EXCEPTION 'ECHEC : un ancien lien de confirmation réabonne'; END IF;
   IF public.onde_reinscrire(j) <> 'actif' THEN RAISE EXCEPTION 'ECHEC : réinscription'; END IF;
+  -- Désinscrit·e qui renvoie le formulaire, case cochée : de nouveau actif·ve tout de suite
+  PERFORM public.onde_desinscrire(j);
+  UPDATE public.onde_abonnes SET essais = 0 WHERE jeton = j;
+  PERFORM public.onde_inscrire('Test', 'onde-ab-1@exemple.invalid', true, 'onde');
+  IF (SELECT statut FROM public.onde_abonnes WHERE jeton = j) <> 'actif' THEN RAISE EXCEPTION 'ECHEC : formulaire renvoyé après désinscription'; END IF;
   IF public.onde_desinscrire(gen_random_uuid()) <> 'introuvable' THEN RAISE EXCEPTION 'ECHEC : jeton inconnu accepté'; END IF;
 
   -- Destinataires : adhérent·e à jour inclus·e d'office, sauf désinscrit·e ; non-adhérent·e seulement si actif·ve
@@ -75,8 +80,8 @@ BEGIN
     RAISE EXCEPTION 'ECHEC : abonnée active absente';
   END IF;
   PERFORM public.onde_inscrire(NULL, 'onde-ab-2@exemple.invalid', true, 'evenement');
-  IF EXISTS (SELECT 1 FROM public.onde_destinataires() d WHERE d.email = 'onde-ab-2@exemple.invalid') THEN
-    RAISE EXCEPTION 'ECHEC : abonnée en attente déjà incluse';
+  IF NOT EXISTS (SELECT 1 FROM public.onde_destinataires() d WHERE d.email = 'onde-ab-2@exemple.invalid') THEN
+    RAISE EXCEPTION 'ECHEC : abonnée par la case « Je viens » absente des destinataires';
   END IF;
 
   -- Un compte connecté qui n'est pas admin (membre ou éditeur·ice) ne lit pas la liste
