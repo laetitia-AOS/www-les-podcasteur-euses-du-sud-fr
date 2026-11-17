@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import {
-  articleOndeLd, decouperLigne, deplacer, descriptionOnde, manquesPublication, moisSuivant, nouveauBloc, numeroRubrique,
-  slugOnde, titreSeoOnde, type NumeroOnde,
+  altCouverture, articleOndeLd, decouperLigne, deplacer, descriptionOnde, lienHttps, manquesPublication, moisSuivant, nouveauBloc,
+  numeroRubrique, numerosAffiches, positionNouveauBloc, slugOnde, titreSeoOnde, type Bloc, type NumeroOnde,
 } from "./onde";
 
 const base: NumeroOnde = {
@@ -31,11 +31,20 @@ describe("L'Onde du Sud", () => {
     expect(titreSeoOnde(base)).toBe("Le Sud a des voix — L'Onde du Sud n°1, décembre 2026 | Les Podcasteur·euses du Sud");
   });
 
-  it("méta-description tirée du chapeau, entre 140 et 160 caractères", () => {
+  it("méta-description tirée du chapeau, entre 140 et 160 caractères, finie par le numéro et le mois", () => {
     const d = descriptionOnde(base);
     expect(d.startsWith(base.chapeau)).toBe(true);
+    expect(d.endsWith("L'Onde du Sud n°1, décembre 2026.")).toBe(true);
     expect(d.length).toBeGreaterThanOrEqual(140);
     expect(d.length).toBeLessThanOrEqual(160);
+  });
+
+  it("deux numéros au même chapeau (même très long) ont des descriptions différentes", () => {
+    const long = { ...base, chapeau: "Un mois de création sonore dans le Sud : ateliers d'écoute, nouveaux podcasts, coulisses de fabrication, rencontres et toutes les dates de l'agenda du réseau." };
+    const a = descriptionOnde(long);
+    const b = descriptionOnde({ ...long, numero: 2, mois: "2027-01-01" });
+    expect(a).not.toBe(b);
+    for (const d of [a, b]) { expect(d.length).toBeGreaterThanOrEqual(140); expect(d.length).toBeLessThanOrEqual(160); }
   });
 
   it("données structurées Article : auteur = l'association, image = couverture", () => {
@@ -108,5 +117,42 @@ describe("abonné·es de L'Onde : liens par jeton", () => {
     const j = "3f2b8c1e-9d4a-4c7b-8e21-5a6f0b9c2d13";
     expect(lienConfirmationOnde(j)).toBe(`https://www.les-podcasteur-euses-du-sud.fr/onde/confirmer?jeton=${j}`);
     expect(lienDesinscriptionOnde(j)).toBe(`https://www.les-podcasteur-euses-du-sud.fr/onde/desinscription?jeton=${j}`);
+  });
+});
+
+describe("« Ce qui bouge » et « À l'écoute »", () => {
+  const evts = nouveauBloc("evenements");
+  const texte = nouveauBloc("texte");
+  it("« Ce qui bouge » se place juste après « Les prochains ateliers »", () => {
+    const ateliers = { ...evts, rubrique: "Les prochains ateliers" };
+    expect(positionNouveauBloc([texte, ateliers, texte], "ce_qui_bouge")).toBe(2);
+    // sans cette étiquette : après le premier bloc « Événements de l'agenda »
+    expect(positionNouveauBloc([texte, evts, texte, texte], "ce_qui_bouge")).toBe(2);
+    expect(positionNouveauBloc([texte, texte], "ce_qui_bouge")).toBe(2);
+    // les autres blocs vont toujours à la fin
+    expect(positionNouveauBloc([texte, ateliers, texte], "texte")).toBe(3);
+  });
+
+  it("« À l'écoute » ne porte pas de numéro, les autres blocs se suivent sans trou", () => {
+    const blocs = [texte, nouveauBloc("podcast"), nouveauBloc("ce_qui_bouge"), texte] as Bloc[];
+    expect(numerosAffiches(blocs)).toEqual(["01", null, "02", "03"]);
+  });
+
+  it("titre et texte obligatoires ; 1 200 caractères au plus ; liens en https seulement", () => {
+    const b = { ...nouveauBloc("ce_qui_bouge"), titre: "", texte: "" } as Bloc;
+    const m = manquesPublication({ ...base, blocs: [b] });
+    expect(m).toEqual(expect.arrayContaining(["Bloc 01 (Ce qui bouge) : le titre.", "Bloc 01 (Ce qui bouge) : le texte."]));
+    const trop = { ...b, titre: "T", texte: "a".repeat(1201), source_lien: "http://exemple.invalid" } as Bloc;
+    const m2 = manquesPublication({ ...base, blocs: [trop] });
+    expect(m2.some((x) => x.includes("1200 caractères"))).toBe(true);
+    expect(m2.some((x) => x.includes("source doit commencer par https://"))).toBe(true);
+    const plusLoin = { ...nouveauBloc("podcast"), podcast_id: "p", texte: "Présentation", plus_loin_lien: "/agenda" } as Bloc;
+    expect(manquesPublication({ ...base, blocs: [plusLoin] }).some((x) => x.includes("« Pour aller plus loin » doit commencer par https://"))).toBe(true);
+    expect(lienHttps("https://www.cbnews.fr/article")).toBe(true);
+    for (const l of ["http://exemple.invalid", "javascript:alert(1)", "/agenda", "https://exemple.invalid/a b", 'https://x.fr/"><script>']) expect(lienHttps(l)).toBe(false);
+  });
+
+  it("texte alternatif de la couverture générée", () => {
+    expect(altCouverture(base)).toBe("Couverture de L'Onde du Sud n°1, décembre 2026");
   });
 });

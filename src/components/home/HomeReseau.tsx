@@ -28,7 +28,7 @@ const HomeReseau = () => (
           <ul className="mt-4 space-y-2 text-[17px] list-disc pl-5 flex-1">
             <li>Visible dans l'annuaire et dans « Écouter »</li>
             <li>Accès à « Qui cherche quoi »</li>
-            <li>Rencontres et apéros écoute</li>
+            <li>Rencontres et ateliers d'écoute</li>
           </ul>
           <p className="mt-4 text-sm text-muted-foreground">
             Le prix est un frein ? Adhérez à partir de 1 €. Studios et agences : 100 € par an.

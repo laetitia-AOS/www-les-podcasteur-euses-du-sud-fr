@@ -133,3 +133,10 @@
 - [x] Lot 5 : dépôts des membres (espace membre « Déposer pour L'Onde », onglet admin « Dépôts du mois », bloc « Déposé par », encart en bas des numéros, e-mail au déposant, vérifications, scan)
 - [x] Abonnement visible partout : pied de page, accueil, menu « L'Onde », haut de /onde sans numéro, message aux membres à jour
 - [x] Pied fixe des numéros (abonnement, adhésion, don), réglage « Lien de don », version PDF avec QR codes, « Me réabonner » pour les membres désinscrit·es
+
+## Nov. 2026 — Ateliers d'écoute, « Ce qui bouge », couverture, visuel LinkedIn
+- [x] 1. Plus de mot « apéro » dans le site (textes, affiches des ateliers) + liste des contenus en base à corriger
+- [x] 2. Bloc « Ce qui bouge » (éditeur, page, e-mail, PDF) + « Pour aller plus loin » dans « À l'écoute », sans numéro
+- [x] 3. Couverture générée depuis l'audio (1080×1350, 1200×630, image de partage, titres/descriptions uniques)
+- [x] 4. « Créer le visuel (Instagram et LinkedIn) » + légende LinkedIn, logo en haut à gauche
+- [x] Sécurité serveur, tests, essai écran sur numéro de test effacé, scan

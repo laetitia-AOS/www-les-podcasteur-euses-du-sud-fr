@@ -3,7 +3,7 @@
 
 export const SITE_URL = "https://www.les-podcasteur-euses-du-sud.fr";
 export const SITE_NAME = "Les Podcasteur·euses du Sud";
-/** Image de partage par défaut (nom du site sur fond bleu et photo d’un apéro écoute, 1200 × 630). */
+/** Image de partage par défaut (nom du site sur fond bleu et photo d’un atelier d’écoute, 1200 × 630). */
 export const DEFAULT_SHARE_IMAGE = `${SITE_URL}/vignette-partage.jpg`;
 
 /** Adresses des pages principales. */
@@ -97,7 +97,7 @@ export const PAGES_SEO = {
   accueil: {
     title: "Les Podcasteur·euses du Sud — podcasts, créateur·ices et studios en Région Sud",
     description:
-      "Écoutez les podcasts fabriqués à Marseille et en Région Sud, trouvez qui les fait, un studio où enregistrer et les prochains apéros écoute près de chez vous.",
+      "Écoutez les podcasts faits à Marseille et en Région Sud, trouvez qui les fait, un studio où enregistrer et les prochains ateliers d'écoute près de chez vous.",
   },
   ecouter: {
     title: titreSeo("Écouter les podcasts de Marseille et de Région Sud"),
@@ -117,7 +117,7 @@ export const PAGES_SEO = {
   agenda: {
     title: titreSeo("Agenda des événements podcast en Région Sud"),
     description:
-      "Apéros écoute, ateliers, lives et rencontres podcast à Marseille, en Région Sud et en ligne. Ajoutez-les à votre agenda, ou proposez votre événement.",
+      "Ateliers d'écoute, lives, rencontres et ateliers podcast à Marseille, en Région Sud et en ligne. Ajoutez-les à votre agenda, ou proposez votre événement.",
   },
   adherer: {
     title: titreSeo("Adhérer aux Podcasteur·euses du Sud"),
@@ -142,7 +142,7 @@ export const PAGES_SEO = {
   proposer: {
     title: titreSeo("Proposer un événement podcast"),
     description:
-      "Proposez votre événement podcast en Région Sud : apéro écoute, atelier, live ou rencontre. Envoyé par un·e membre à jour, il est relu sous 48 à 72 heures.",
+      "Proposez votre événement podcast en Région Sud : atelier d'écoute, atelier, live ou rencontre. Envoyé par un·e membre à jour, il est relu sous 48 à 72 heures.",
   },
   ajouterPodcast: {
     title: titreSeo("Ajouter un podcast à ma fiche"),

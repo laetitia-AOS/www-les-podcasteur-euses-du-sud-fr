@@ -1,4 +1,5 @@
-// Admin → Agenda : « Créer le post Insta » (admins seulement). Tout est fait dans le navigateur ; rien n'est publié sur Instagram.
+// Admin → Agenda : « Créer le visuel (Instagram et LinkedIn) » (admins seulement, page d'administration vérifiée).
+// Tout est fait dans le navigateur, rien n'est enregistré ni publié sur Instagram ou LinkedIn.
 import { useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
 import { Copy, Download, Loader2 } from "lucide-react";
@@ -8,7 +9,7 @@ import { EVENT_TYPE_LABELS, cityFromAddress, isOnline } from "@/components/home/
 import { cleanAddress, dateLongue, heureParis, publicDescription, readableTitle, surPlusieursJours } from "@/lib/events";
 import { SITE_URL } from "@/lib/seo";
 import {
-  LEGENDE_MAX, TAILLES_INSTA, dessinerPostInsta, legendeInsta, rappelCollaborateur,
+  LEGENDE_MAX, TAILLES_INSTA, dessinerPostInsta, legendeInsta, legendeLinkedin, rappelCollaborateur,
   type FormatInsta, type InfoInsta,
 } from "@/lib/partageEvenement";
 
@@ -57,6 +58,7 @@ const PostInsta = ({ evenement, compte, onClose }: { evenement: EvenementInsta |
   const [occupe, setOccupe] = useState(false);
   const photo = aUnePhoto && avecPhoto;
   const legende = info ? legendeInsta(info, compte) : "";
+  const legendeLi = info ? legendeLinkedin(info) : "";
 
   useEffect(() => { setAvecPhoto(true); }, [evenement?.id]);
 
@@ -85,8 +87,8 @@ const PostInsta = ({ evenement, compte, onClose }: { evenement: EvenementInsta |
     a.click();
   };
 
-  const copier = async () => {
-    try { await navigator.clipboard.writeText(legende); toast.success("Légende copiée."); }
+  const copier = async (texte: string, reseau: string) => {
+    try { await navigator.clipboard.writeText(texte); toast.success(`Légende ${reseau} copiée.`); }
     catch { toast.error("La copie n'a pas fonctionné : sélectionne le texte et copie-le à la main."); }
   };
 
@@ -94,8 +96,8 @@ const PostInsta = ({ evenement, compte, onClose }: { evenement: EvenementInsta |
     <Dialog open={!!evenement} onOpenChange={(o) => { if (!o) onClose(); }}>
       <DialogContent className="max-w-4xl max-h-[92vh] overflow-y-auto rounded-none sm:rounded-none border-2 border-foreground">
         <DialogHeader>
-          <DialogTitle className="font-display text-2xl">Créer le post Insta</DialogTitle>
-          <DialogDescription>{info?.titre} · rien n'est publié automatiquement : télécharge les visuels et copie la légende.</DialogDescription>
+          <DialogTitle className="font-display text-2xl">Créer le visuel (Instagram et LinkedIn)</DialogTitle>
+          <DialogDescription>{info?.titre} · rien n'est publié automatiquement : télécharge les visuels et copie les légendes. Le visuel 4:5 sert aussi pour LinkedIn.</DialogDescription>
         </DialogHeader>
 
         <div role="group" aria-label="Version du visuel" className="flex flex-wrap gap-2">
@@ -125,13 +127,22 @@ const PostInsta = ({ evenement, compte, onClose }: { evenement: EvenementInsta |
         </div>
 
         <div className="space-y-2">
-          <label htmlFor="legende-insta" className="block text-sm font-bold">Légende prête à copier</label>
+          <label htmlFor="legende-insta" className="block text-sm font-bold">Légende Instagram prête à copier</label>
           <textarea id="legende-insta" readOnly value={legende} rows={10} className="w-full border-2 border-foreground bg-card p-3 text-[15px] font-sans" />
           <div className="flex flex-wrap items-center gap-3">
-            <button type="button" className={btn} onClick={copier}><Copy className="w-4 h-4" aria-hidden /> Copier</button>
+            <button type="button" className={btn} onClick={() => copier(legende, "Instagram")}><Copy className="w-4 h-4" aria-hidden /> Copier<span className="sr-only"> la légende Instagram</span></button>
             <span className="font-mono text-[12px] text-muted-foreground">{legende.length} / {LEGENDE_MAX} caractères</span>
           </div>
           <p className="border-l-4 border-accent pl-3 text-[15px] font-semibold">{rappelCollaborateur(compte)}</p>
+        </div>
+
+        <div className="space-y-2">
+          <label htmlFor="legende-linkedin" className="block text-sm font-bold">Légende LinkedIn prête à copier</label>
+          <textarea id="legende-linkedin" readOnly value={legendeLi} rows={11} className="w-full border-2 border-foreground bg-card p-3 text-[15px] font-sans" />
+          <div className="flex flex-wrap items-center gap-3">
+            <button type="button" className={btn} onClick={() => copier(legendeLi, "LinkedIn")}><Copy className="w-4 h-4" aria-hidden /> Copier<span className="sr-only"> la légende LinkedIn</span></button>
+            <span className="font-mono text-[12px] text-muted-foreground">{legendeLi.length} caractères</span>
+          </div>
         </div>
       </DialogContent>
     </Dialog>

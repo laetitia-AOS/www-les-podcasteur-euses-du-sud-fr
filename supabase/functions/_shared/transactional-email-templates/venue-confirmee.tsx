@@ -26,5 +26,5 @@ export const template = {
   component: VenueConfirmee,
   subject: (d: Record<string, any>) => `C'est noté : on vous attend${d.titre ? ` à « ${d.titre} »` : ''} !`,
   displayName: 'Venue confirmée (« Je viens »)',
-  previewData: { prenom: 'Alix', titre: 'Apéro écoute chez CultureShock', date: 'lundi 9 novembre 2026, 18h30', lieu: 'CultureShock, Marseille', slug: 'atelier-ecoute-cultureshock-2026-11-09' },
+  previewData: { prenom: 'Alix', titre: "Atelier d'écoute chez CultureShock", date: 'lundi 9 novembre 2026, 18h30', lieu: 'CultureShock, Marseille', slug: 'atelier-ecoute-cultureshock-2026-11-09' },
 } satisfies TemplateEntry

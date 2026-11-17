@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { textePartage, type InfoPartage } from "./partageEvenement";
+import { lieuLegende, textePartage, type InfoPartage } from "./partageEvenement";
 
 const e: InfoPartage = {
   titre: "Atelier-écoute", type: "Atelier", dateLong: "Lundi 9 novembre 2026", horaires: "de 17h30 à 20h30",
@@ -27,5 +27,14 @@ describe("titre de partage", () => {
   it("ne répète pas le type quand le titre le contient déjà", () => {
     expect(textePartage(e).split("\n")[0]).toBe("Atelier-écoute");
     expect(textePartage({ ...e, titre: "Soirée Fiction" }).split("\n")[0]).toBe("Atelier : Soirée Fiction");
+  });
+});
+
+describe("lieuLegende", () => {
+  it("n'écrit pas deux fois la ville déjà présente dans le lieu", () => {
+    expect(lieuLegende({ lieu: "Marseille centre-ville (lieu à venir)", ville: "Marseille" })).toBe("Marseille centre-ville (lieu à venir)");
+  });
+  it("ajoute la ville quand le lieu ne la nomme pas", () => {
+    expect(lieuLegende({ lieu: "La Coque", ville: "Marseille" })).toBe("La Coque, Marseille");
   });
 });

@@ -1894,6 +1894,10 @@ export type Database = {
         Returns: string
       }
       onde_lien_don: { Args: never; Returns: string }
+      onde_lien_https: {
+        Args: { label: string; required?: boolean; v: string }
+        Returns: string
+      }
       onde_me_reabonner: { Args: never; Returns: string }
       onde_membres_calcul: {
         Args: { _mois: string; _numero_id: string }

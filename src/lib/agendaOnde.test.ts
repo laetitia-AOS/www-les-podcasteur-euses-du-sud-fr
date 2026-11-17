@@ -1,7 +1,7 @@
 // Agenda × L'Onde du Sud × Instagram : règles demandées par l'association.
 import { describe, expect, it } from "vitest";
 import { CASE_ONDE, MESSAGE_SANS_BROUILLON, badgeOnde, dansUnBrouillon, messageBascule, numerosBrouillon, numerosEvenement, type EtatAgendaOnde } from "./agendaOnde";
-import { LEGENDE_MAX, hashtagsInsta, instagramValide, legendeInsta, normaliserInstagram, phraseInsta, rappelCollaborateur, TAILLES_INSTA, type InfoInsta } from "./partageEvenement";
+import { LEGENDE_MAX, hashtagsInsta, instagramValide, legendeInsta, legendeLinkedin, normaliserInstagram, phraseInsta, rappelCollaborateur, TAILLES_INSTA, type InfoInsta } from "./partageEvenement";
 import { CASE_DROITS, CASE_DROITS_RESSOURCE, caseDroits } from "./ondeDepots";
 import { TITRE_INVITES } from "./onde";
 import { TITRE_INVITES as TITRE_INVITES_EMAIL, emailNumero, type NumeroEmail } from "../../supabase/functions/_shared/onde-email";
@@ -138,5 +138,27 @@ describe("« Ce qu'on écoutera ensemble »", () => {
     expect(m.html).toContain("/ecouter/voix-du-port");
     expect(m.texte).toContain("Ce qu'on écoutera ensemble : 1. Voix du Port (Camille Durand)");
     expect(m.texte).toContain("2. Hors annuaire (Léa Martin) https://exemple.invalid/ecoute");
+  });
+});
+
+describe("légende LinkedIn", () => {
+  const atelier: InfoInsta = {
+    ...info, titre: "Atelier-écoute à Marseille", type: "Atelier-écoute", typeCode: "apero_ecoute", tarif: null,
+    dateLong: "Mercredi 9 décembre 2026", horaires: "de 18h30 à 21h30", sousTitre: "On écoute tes extraits 🎧 et on en parle",
+  };
+  const l = legendeLinkedin(atelier);
+  it("date, horaire, lieu, lien de la fiche et « Ouvert à tous · Entrée libre » pour un atelier d'écoute", () => {
+    expect(l).toContain("Quand : Mercredi 9 décembre 2026.");
+    expect(l).toContain("Horaire : de 18h30 à 21h30.");
+    expect(l).toContain("Où : La Friche, 41 rue Jobin, Marseille.");
+    expect(l).toContain("Ouvert à tous · Entrée libre");
+    expect(l).toContain(`Tu viens ? Toutes les infos sur la fiche de l'événement : ${info.url}`);
+    expect(legendeLinkedin(info)).not.toContain("Ouvert à tous");
+  });
+  it("pas d'émoji, 3 mots-clés au plus, tous à la fin", () => {
+    expect(/\p{Extended_Pictographic}/u.test(l)).toBe(false);
+    const tags = l.match(/#\w+/g) || [];
+    expect(tags.length).toBeLessThanOrEqual(3);
+    expect(l.trim().split("\n").pop()).toBe(tags.join(" "));
   });
 });

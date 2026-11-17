@@ -468,7 +468,7 @@ const AdminEvenements = () => {
                 <Input id="evt-instagram" value={form.instagram} onChange={(e) => setForm({ ...form, instagram: e.target.value })} onBlur={() => setForm((f) => ({ ...f, instagram: normaliserInstagram(f.instagram) }))}
                   placeholder="@compte" autoComplete="off" spellCheck={false} aria-describedby="evt-instagram-aide" aria-invalid={!!form.instagram && !instagramValide(normaliserInstagram(form.instagram))} />
                 <p id="evt-instagram-aide" className={`text-xs mt-1 ${form.instagram && !instagramValide(normaliserInstagram(form.instagram)) ? "text-destructive" : "text-muted-foreground"}`}>
-                  {form.instagram && !instagramValide(normaliserInstagram(form.instagram)) ? "Format attendu : @compte (lettres, chiffres, points, tirets bas)." : "Facultatif. Visible par les admins seulement, pour le post Insta."}
+                  {form.instagram && !instagramValide(normaliserInstagram(form.instagram)) ? "Format attendu : @compte (lettres, chiffres, points, tirets bas)." : "Facultatif. Visible par les admins seulement, pour le visuel Instagram."}
                 </p>
               </div>
               <div className="md:col-span-2 border-2 border-foreground p-3">
@@ -590,7 +590,7 @@ const AdminEvenements = () => {
                     </>
                   )}
                   <Button variant="outline" size="sm" className="text-xs gap-1" onClick={() => setPostInsta(evt)}>
-                    <Instagram className="w-3.5 h-3.5" aria-hidden /> Créer le post Insta<span className="sr-only"> : {evt.titre}</span>
+                    <Instagram className="w-3.5 h-3.5" aria-hidden /> Créer le visuel (Instagram et LinkedIn)<span className="sr-only"> : {evt.titre}</span>
                   </Button>
                   <Button variant="ghost" size="icon" aria-label="Modifier" onClick={() => { startEdit(evt); window.scrollTo({ top: 0, behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth" }); }}><Pencil className="w-4 h-4" /></Button>
                   <Button variant="ghost" size="icon" aria-label="Supprimer" onClick={() => { if (confirm("Supprimer cet événement ?")) deleteMutation.mutate(evt.id); }}>

@@ -25,5 +25,5 @@ export const template = {
   component: PropositionRefusee,
   subject: 'Des nouvelles de votre proposition d\'événement',
   displayName: 'Proposition d\'événement non retenue',
-  previewData: { prenom: 'Alix', titre: 'Atelier montage audio', motif: 'La date tombe le même soir que notre apéro écoute : on en reparle pour décembre ?' },
+  previewData: { prenom: 'Alix', titre: 'Atelier montage audio', motif: 'La date tombe le même soir que notre atelier d\'écoute : on en reparle pour décembre ?' },
 } satisfies TemplateEntry

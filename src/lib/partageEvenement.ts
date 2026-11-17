@@ -1,8 +1,9 @@
+import { chargerArchivoEtroit } from "@/lib/policeCanvas";
 // Partage d'un événement : texte prêt à publier et vignettes (image) dessinées dans le navigateur.
 
 export type InfoPartage = {
   titre: string;
-  type: string; // libellé lisible : « Apéro écoute », « Atelier »…
+  type: string; // libellé lisible : « Atelier-écoute », « Atelier »…
   dateLong: string; // « Lundi 9 novembre 2026 »
   horaires: string; // « de 18h30 à 21h30 »
   lieu?: string | null;
@@ -169,7 +170,7 @@ export async function dessinerVignette(e: InfoPartage, format: FormatVignette): 
   return new Promise((resolve, reject) => c.toBlob((b) => (b ? resolve(b) : reject(new Error("vignette"))), "image/png"));
 }
 
-// ---------- Instagram (admin → Agenda, « Créer le post Insta ») ----------
+// ---------- Instagram et LinkedIn (admin → Agenda, « Créer le visuel (Instagram et LinkedIn) ») ----------
 // Rien n'est publié automatiquement : l'équipe télécharge les visuels et copie la légende.
 
 /** Même règle que la base (evenements_instagram) : « @compte », lettres minuscules, chiffres, points et tirets bas. */
@@ -234,7 +235,7 @@ export const legendeInsta = (e: InfoInsta, compte?: string | null) => {
   const fin = [
     "",
     `Quand : ${e.dateLong}, ${e.horaires}`,
-    e.enLigne ? "Où : en ligne" : `Où : ${[e.lieu, e.adresse && e.adresse !== e.lieu ? e.adresse : "", !e.adresse && e.ville ? e.ville : ""].filter(Boolean).join(", ") || "lieu à venir"}`,
+    e.enLigne ? "Où : en ligne" : `Où : ${lieuLegende(e)}`,
     "",
     `Tu viens ? Toutes les infos : ${e.url}`,
     compte ? `Avec ${compte}` : "",
@@ -247,11 +248,55 @@ export const legendeInsta = (e: InfoInsta, compte?: string | null) => {
   return `${debut}\n${fin}`.replace(/\n{3,}/g, "\n\n").trim().slice(0, LEGENDE_MAX);
 };
 
+// ---------- LinkedIn ----------
+
+export const HASHTAGS_LINKEDIN_MAX = 3;
+/** Le rendez-vous mensuel de l'association (code « apero_ecoute », affiché « Atelier-écoute ») : ouvert à tous, entrée libre. */
+export const estAtelierEcoute = (typeCode?: string | null) => typeCode === "apero_ecoute";
+const sansPictogrammes = (t: string) =>
+  t.replace(/[\p{Extended_Pictographic}\u{1F1E6}-\u{1F1FF}\u{FE0F}\u{200D}\u{20E3}]/gu, "").replace(/[ \t]{2,}/g, " ").replace(/ +\n/g, "\n");
+
+/** Lieu d'une légende : lieu, adresse, sinon ville — sans répéter la ville déjà écrite dans le lieu. */
+export const lieuLegende = (e: { lieu?: string | null; adresse?: string | null; ville?: string | null }) => {
+  const parts = [e.lieu, e.adresse && e.adresse !== e.lieu ? e.adresse : ""].filter(Boolean) as string[];
+  const deja = parts.join(" ").toLowerCase();
+  if (!e.adresse && e.ville && !deja.includes(e.ville.toLowerCase())) parts.push(e.ville);
+  return parts.join(", ") || "lieu à venir";
+};
+
+/** Trois mots-clés au plus, en fin de texte : création sonore, podcast, la ville (sinon Région Sud). */
+export const hashtagsLinkedin = (e: { ville?: string }) =>
+  ["#creationsonore", "#podcast", e.ville ? `#${motDiese(e.ville)}` : "#regionsud"].filter((t) => t.length > 1).slice(0, HASHTAGS_LINKEDIN_MAX);
+
+/** Légende LinkedIn prête à copier : au « tu », phrases courtes, date, horaire, lieu, lien de la fiche, sans émoji, 3 mots-clés au plus. */
+export const legendeLinkedin = (e: InfoInsta) => {
+  const lieu = e.enLigne ? "en ligne" : lieuLegende(e);
+  const tarifLibre = !e.tarif || /^\s*(libre|gratuit|entrée libre)\s*\.?$/i.test(e.tarif);
+  const entree = estAtelierEcoute(e.typeCode)
+    ? (tarifLibre ? "Ouvert à tous · Entrée libre" : `Ouvert à tous · Entrée : ${e.tarif!.trim()}`)
+    : `Entrée : ${tarifLibre ? "libre" : e.tarif!.trim()}.`;
+  const lignes = [
+    titrePartage(e).replace(/[.!…]*$/, "."),
+    phraseInsta(e),
+    "",
+    `Quand : ${e.dateLong}.`,
+    `Horaire : ${e.horaires}.`,
+    `Où : ${lieu}.`,
+    entree,
+    "",
+    `Tu viens ? Toutes les infos sur la fiche de l'événement : ${e.url}`,
+    "",
+    hashtagsLinkedin(e).join(" "),
+  ];
+  return sansPictogrammes(lignes.join("\n")).replace(/\n{3,}/g, "\n\n").trim().slice(0, LEGENDE_MAX);
+};
+
 export type FormatInsta = "post" | "story";
 export const TAILLES_INSTA: Record<FormatInsta, [number, number]> = { post: [1080, 1350], story: [1080, 1920] };
 
 /**
- * Visuel Instagram aux couleurs du site : fond bleu, filets encre et orange, Archivo + IBM Plex Mono, angles droits.
+ * Visuel Instagram et LinkedIn aux couleurs du site : fond bleu, logo en haut à gauche, filets encre et orange,
+ * Archivo pour les textes et IBM Plex Mono pour les seules données (ville, horaires, adresse du site), angles droits.
  * Avec photo : la photo en haut ; sans photo (ou photo de l'organisateur) : version typographique.
  */
 export async function dessinerPostInsta(e: InfoPartage, format: FormatInsta, avecPhoto: boolean): Promise<Blob> {
@@ -259,10 +304,16 @@ export async function dessinerPostInsta(e: InfoPartage, format: FormatInsta, ave
   const c = document.createElement("canvas");
   c.width = W; c.height = H;
   const ctx = c.getContext("2d")!;
-  await Promise.all([
-    document.fonts.load('900 96px "Archivo"'), document.fonts.load('800 40px "Archivo"'), document.fonts.load('500 40px "Archivo"'),
-    document.fonts.load('500 28px "IBM Plex Mono"'), document.fonts.load('700 28px "IBM Plex Mono"'),
-  ]).catch(() => null);
+  const [etroite] = await Promise.all([
+    chargerArchivoEtroit(),
+    Promise.all([
+      document.fonts.load('900 96px "Archivo"'), document.fonts.load('800 40px "Archivo"'), document.fonts.load('500 40px "Archivo"'),
+      document.fonts.load('500 28px "IBM Plex Mono"'), document.fonts.load('700 28px "IBM Plex Mono"'),
+    ]).catch(() => null),
+  ]);
+  // Titres : Archivo 900 en largeur 64 et en capitales, comme les titres du site
+  const policeTitre = (taille: number) => (etroite ? `900 ${taille}px ${etroite}, "Archivo", sans-serif` : `900 ${Math.round(taille * 0.78)}px "Archivo", sans-serif`);
+  const enCapitales = (t: string) => t.toLocaleUpperCase("fr-FR");
   const bleu = css("--pds-bleu"), orange = css("--pds-orange"), encre = css("--pds-encre"), fond = css("--pds-fond");
   const [visuel, logo] = await Promise.all([avecPhoto && e.image ? chargerImage(e.image) : Promise.resolve(null), chargerImage("/favicon.png")]);
   const story = format === "story";
@@ -277,9 +328,34 @@ export async function dessinerPostInsta(e: InfoPartage, format: FormatInsta, ave
   const espace = (t: string) => t.split("").join(String.fromCharCode(8202));
   let y: number;
 
+  // En-tête : logo en haut à gauche et nom de l'association
+  const tLogo = 72;
+  const yTete = haut + 48;
+  if (logo) ctx.drawImage(logo, pad, yTete, tLogo, tLogo);
+  ctx.fillStyle = "#ffffff";
+  ctx.font = '800 32px "Archivo", sans-serif';
+  ctx.textBaseline = "middle";
+  ctx.fillText("Les Podcasteur·euses du Sud", pad + tLogo + 22, yTete + tLogo / 2);
+  ctx.textBaseline = "top";
+  const finTete = yTete + tLogo + 36;
+
+  // Ligne du type : le type en Archivo, la ville (une donnée) en IBM Plex Mono
+  const ligneType = (yy: number, taille: number) => {
+    ctx.fillStyle = orange;
+    ctx.font = `800 ${taille}px "Archivo", sans-serif`;
+    const type = espace(e.type.toLocaleUpperCase("fr-FR"));
+    ctx.fillText(type, pad, yy);
+    const suite = e.enLigne ? " · EN LIGNE" : e.ville ? ` · ${e.ville.toLocaleUpperCase("fr-FR")}` : "";
+    if (suite) {
+      const x = pad + ctx.measureText(type).width;
+      ctx.font = `700 ${taille}px "IBM Plex Mono", monospace`;
+      ctx.fillText(suite, x, yy);
+    }
+  };
+
   if (visuel) {
-    const zoneH = story ? 660 : 600;
-    const zy = haut;
+    const zoneH = story ? 640 : 540;
+    const zy = finTete;
     ctx.fillStyle = encre; ctx.fillRect(0, zy, W, zoneH);
     const ecart = (visuel.width / visuel.height) / (W / zoneH);
     if (ecart > 0.75 && ecart < 1.33) couvrir(ctx, visuel, 0, zy, W, zoneH); else contenir(ctx, visuel, 0, zy, W, zoneH);
@@ -288,45 +364,45 @@ export async function dessinerPostInsta(e: InfoPartage, format: FormatInsta, ave
     y = zy + zoneH + 18 + 52;
   } else {
     // Version typographique : grand bloc date en orange, filets
-    y = haut + (story ? 110 : 84);
-    ctx.fillStyle = orange;
-    ctx.font = '700 28px "IBM Plex Mono", monospace';
-    ctx.fillText(espace(`${e.type}${e.enLigne ? " · EN LIGNE" : e.ville ? ` · ${e.ville}` : ""}`.toLocaleUpperCase("fr-FR")), pad, y);
+    y = finTete + (story ? 70 : 40);
+    ligneType(y, 28);
     y += 64;
     ctx.fillStyle = "#ffffff"; ctx.fillRect(pad, y, largeur, 4);
     y += 40;
-    const tailleDate = story ? 112 : 96;
+    const tailleDate = story ? 140 : 124;
     ctx.fillStyle = orange;
-    ctx.font = `900 ${tailleDate}px "Archivo", sans-serif`;
-    for (const l of lignes(ctx, e.dateLong, largeur, 3)) { ctx.fillText(l, pad, y); y += tailleDate * 1.0; }
+    ctx.font = policeTitre(tailleDate);
+    for (const l of lignes(ctx, enCapitales(e.dateLong), largeur, 3)) { ctx.fillText(l, pad, y); y += tailleDate * 0.94; }
     y += 36;
   }
 
   if (visuel) {
-    ctx.fillStyle = orange;
-    ctx.font = '700 26px "IBM Plex Mono", monospace';
-    ctx.fillText(espace(`${e.type}${e.enLigne ? " · EN LIGNE" : e.ville ? ` · ${e.ville}` : ""}`.toLocaleUpperCase("fr-FR")), pad, y);
+    ligneType(y, 26);
     y += 56;
   }
 
   // Titre
-  const tailleTitre = visuel ? (story ? 80 : 72) : (story ? 108 : 92);
+  const tailleTitre = visuel ? (story ? 104 : 92) : (story ? 140 : 120);
   ctx.fillStyle = "#ffffff";
-  ctx.font = `900 ${tailleTitre}px "Archivo", sans-serif`;
+  ctx.font = policeTitre(tailleTitre);
   const maxTitre = visuel ? (story ? 4 : 3) : (story ? 6 : 4);
-  for (const l of lignes(ctx, e.titre, largeur, maxTitre)) { ctx.fillText(l, pad, y); y += tailleTitre * 1.02; }
+  for (const l of lignes(ctx, enCapitales(e.titre), largeur, maxTitre)) { ctx.fillText(l, pad, y); y += tailleTitre * 0.94; }
   y += 30;
 
   // Infos : date (si photo), horaires, lieu
   const infos = [
     visuel ? e.dateLong : "",
     e.horaires.charAt(0).toLocaleUpperCase("fr-FR") + e.horaires.slice(1),
-    e.enLigne ? "En ligne" : [e.lieu, e.adresse && e.adresse !== e.lieu ? e.adresse : e.ville || ""].filter(Boolean).join(", "),
+    e.enLigne ? "En ligne" : lieuLegende(e),
   ].filter(Boolean);
   const tailleInfo = story ? 42 : 38;
-  const piedY = H - bas - 200;
+  const piedY = H - bas - 130;
+  const indexHoraires = visuel ? 1 : 0;
   for (const [i, t] of infos.entries()) {
-    ctx.font = `${i === 0 && visuel ? 800 : 500} ${tailleInfo}px "Archivo", sans-serif`;
+    // Horaires : une donnée, en IBM Plex Mono ; date et lieu en Archivo
+    ctx.font = i === indexHoraires
+      ? `500 ${tailleInfo - 4}px "IBM Plex Mono", monospace`
+      : `${i === 0 && visuel ? 800 : 500} ${tailleInfo}px "Archivo", sans-serif`;
     ctx.fillStyle = i === 0 && visuel ? "#ffffff" : fond;
     for (const l of lignes(ctx, t, largeur, 2)) {
       if (y + tailleInfo > piedY - 30) break;
@@ -334,15 +410,14 @@ export async function dessinerPostInsta(e: InfoPartage, format: FormatInsta, ave
     }
   }
 
-  // Pied : filet, mention de l'agenda, logo et adresse du site
+  // Pied : filet, mention de l'agenda et adresse du site (le logo est en haut à gauche)
   ctx.fillStyle = "#ffffff"; ctx.fillRect(pad, piedY, largeur, 4);
   ctx.fillStyle = "#ffffff";
   ctx.font = '800 34px "Archivo", sans-serif';
-  if (logo) ctx.drawImage(logo, pad, piedY + 40, 72, 72);
-  ctx.fillText(MENTION_AGENDA, pad + 96, piedY + 40);
+  ctx.fillText(MENTION_AGENDA, pad, piedY + 30);
   ctx.fillStyle = orange;
   ctx.font = '500 28px "IBM Plex Mono", monospace';
-  ctx.fillText(`${SITE_COURT}/agenda`, pad + 96, piedY + 94);
+  ctx.fillText(`${SITE_COURT}/agenda`, pad, piedY + 80);
 
   return new Promise((resolve, reject) => c.toBlob((b) => (b ? resolve(b) : reject(new Error("visuel"))), "image/png"));
 }

@@ -9,7 +9,7 @@ const HomePhotos = () => (
     <figure>
       <img
         src={bande.url}
-        alt="Un apéro écoute des Podcasteur·euses du Sud : une vingtaine de personnes assises écoutent deux intervenant·es debout, dans une salle aux murs rouges."
+        alt="Un atelier d'écoute des Podcasteur·euses du Sud : une vingtaine de personnes assises écoutent deux intervenant·es debout, dans une salle aux murs rouges."
         className="w-full aspect-[16/9] sm:aspect-[1800/787] object-cover"
         width={1800}
         height={787}
@@ -19,7 +19,7 @@ const HomePhotos = () => (
         <h2 id="photos-title" className="title-section text-[24px] sm:text-[30px]">
           On se retrouve tous les mois pour écouter ensemble, en vrai.
         </h2>
-        <span className="font-mono text-sm text-muted-foreground shrink-0">Apéro écoute · Marseille</span>
+        <span className="font-mono text-sm text-muted-foreground shrink-0">Atelier d'écoute · Marseille</span>
       </figcaption>
     </figure>
     <ul className={`${container} mt-8 grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-5`}>

@@ -128,3 +128,29 @@ describe("e-mail : nouveaux membres du mois", () => {
     expect(m.texte).toMatch(/Eddy Jatteau — https:\/\/www\.les-podcasteur-euses-du-sud\.fr\/annuaire\/eddy-jatteau/);
   });
 });
+
+describe("« Ce qui bouge » dans l'e-mail", () => {
+  const n: NumeroEmail = {
+    ...numero,
+    blocs: [
+      { id: "a", type: "podcast", rubrique: "À l'écoute", podcast_id: "p9", texte: "Une écoute.", plus_loin_texte: "Le making-of", plus_loin_lien: "https://exemple.invalid/making-of" },
+      { id: "b", type: "ce_qui_bouge", rubrique: "Ce qui bouge", titre: "La voix de synthèse arrive", texte: "Texte de fond qui pose le sujet.", resume: "Ce que ça change pour nous.", question: "Et toi, tu en penses quoi ?", source_nom: "CB News", source_lien: "https://www.cbnews.fr/a" },
+    ],
+  };
+  const e = emailNumero(n, { ...ctx, podcasts: [{ id: "p9", nom_podcast: "Voix du Port", slug: "voix-du-port", type_profil: "podcasteur" }] }, { type: "abonne", lienDesinscription: lien });
+
+  it("libellé, titre, résumé et « Lire la suite → » vers le bloc sur la page du numéro ; la question reste sur la page", () => {
+    expect(e.html).toContain("01 — Ce qui bouge");
+    expect(e.html).toContain("La voix de synthèse arrive");
+    expect(e.html).toContain("Ce que ça change pour nous.");
+    expect(e.html).toContain("Lire la suite&nbsp;&rarr;");
+    expect(e.texte).toContain("Lire la suite : https://www.les-podcasteur-euses-du-sud.fr/onde/n1-decembre-2026?utm_source=onde-du-sud&utm_medium=email&utm_campaign=n1#b02");
+    expect(e.html).not.toContain("Et toi, tu en penses quoi ?");
+  });
+
+  it("« À l'écoute » sans numéro, avec « Pour aller plus loin »", () => {
+    expect(e.texte).toContain("\nÀ L'ÉCOUTE\n");
+    expect(e.html).not.toContain("01 — À l&#39;écoute");
+    expect(e.texte).toContain("Pour aller plus loin : Le making-of — https://exemple.invalid/making-of");
+  });
+});

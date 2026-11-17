@@ -2,6 +2,7 @@
 // Module sans dépendance : utilisé par les fonctions serveur (Deno) et par les tests du site (Vitest).
 // Mise en page pour les messageries : tableaux, 600 px, styles en ligne, texte lisible sans images, version texte brut.
 import { invitesEvenement, type FicheInvite, type InviteAffiche } from "./invites.ts";
+import { lienHttps, numerosAffiches } from "./onde-numerotation.ts";
 
 export const SITE = "https://www.les-podcasteur-euses-du-sud.fr";
 export const ONDE_EXPEDITEUR = "L'Onde du Sud <onde@les-podcasteur-euses-du-sud.fr>";
@@ -66,6 +67,13 @@ export type BlocEmail = {
   /** Bloc « dépôt » d'un·e membre (lot 5). */
   depot_id?: string;
   photo?: { url: string; alt?: string };
+  /** « Ce qui bouge » : source et question (la question reste sur la page). */
+  source_nom?: string;
+  source_lien?: string;
+  question?: string;
+  /** Bloc « À l'écoute » : « Pour aller plus loin ». */
+  plus_loin_texte?: string;
+  plus_loin_lien?: string;
 };
 export type NumeroEmail = {
   id: string;
@@ -188,6 +196,7 @@ export const resumeBloc = (b: BlocEmail, podcasts: PodcastEmail[] = []): string 
     case "trimestre":
     case "podcast":
     case "depot":
+    case "ce_qui_bouge":
       return couper(texteSimple(b.texte));
     case "audio": {
       const t = (b.titre || "").trim();
@@ -211,8 +220,9 @@ const bouton = (href: string, libelle: string, fond: string, texte: string) =>
 <a href="${esc(href)}" style="display:inline-block;padding:13px 22px;font-family:${POLICE};font-size:16px;font-weight:700;line-height:20px;color:${texte};text-decoration:none;">${esc(libelle)}</a>
 </td></tr></table>`;
 
-const etiquetteHtml = (i: number, rubrique: string) =>
-  `<p style="margin:0 0 6px 0;font-family:${MONO};font-size:12px;line-height:16px;letter-spacing:1px;text-transform:uppercase;color:${C.bleu};font-weight:700;">${etiquette(i)} — ${esc(rubrique)}</p>`;
+/** Étiquette du bloc : « 02 — Ce qui bouge » ; « À l'écoute » ne porte pas de numéro. */
+const etiquetteHtml = (numero: string | null, rubrique: string) =>
+  `<p style="margin:0 0 6px 0;font-family:${MONO};font-size:12px;line-height:16px;letter-spacing:1px;text-transform:uppercase;color:${C.bleu};font-weight:700;">${[numero, esc(rubrique)].filter(Boolean).join(" — ")}</p>`;
 
 const paragraphe = (t: string) =>
   t ? `<p style="margin:0;font-family:${POLICE};font-size:16px;line-height:24px;color:${C.encre};">${esc(t)}</p>` : "";
@@ -305,13 +315,13 @@ type Rendu = { html: string; texte: string } | null;
 /** Nom affiché « Prénom Nom » d'un·e déposant·e (même règle que formatName du site). */
 export const nomDeposant = (p: { prenom?: string | null; nom?: string | null }) => nomComplet(p);
 
-const rendreBloc = (b: BlocEmail, i: number, n: NumeroEmail, ctx: ContexteEmail): Rendu => {
+const rendreBloc = (b: BlocEmail, i: number, n: NumeroEmail, ctx: ContexteEmail, numero: string | null = etiquette(i)): Rendu => {
   const rubrique = (b.rubrique || "").trim();
   const resume = resumeBloc(b, ctx.podcasts);
-  const tete = etiquetteHtml(i, rubrique);
-  const teteTexte = `${etiquette(i)} — ${rubrique.toUpperCase()}`;
+  const tete = etiquetteHtml(numero, rubrique);
+  const teteTexte = [numero, rubrique.toUpperCase()].filter(Boolean).join(" — ");
   const titre = (b.titre || "").trim();
-  const titreHtml = titre && (b.type === "texte" || b.type === "trimestre" || b.type === "depot")
+  const titreHtml = titre && (b.type === "texte" || b.type === "trimestre" || b.type === "depot" || b.type === "ce_qui_bouge")
     ? `<p style="margin:0 0 6px 0;font-family:${POLICE};font-size:19px;line-height:24px;font-weight:800;color:${C.encre};">${esc(titre)}</p>` : "";
   const corps: string[] = [];
   const texte: string[] = [teteTexte];
@@ -351,6 +361,22 @@ const rendreBloc = (b: BlocEmail, i: number, n: NumeroEmail, ctx: ContexteEmail)
       texte.push(`${titreFiche(p)} — ${href}`);
     }
     if (resume) { corps.push(paragraphe(resume)); texte.push(resume); }
+    const plusLoin = (b.plus_loin_texte || "").trim();
+    if (lienHttps((b.plus_loin_lien || "").trim())) {
+      const href = b.plus_loin_lien!.trim();
+      const libelle = plusLoin || href.replace(/^https:\/\//, "");
+      corps.push(`<p style="margin:8px 0 0 0;font-family:${POLICE};font-size:15px;line-height:22px;color:${C.encre};"><strong>Pour aller plus loin :</strong> <a href="${esc(href)}" style="color:${C.encre};text-decoration:underline;">${esc(libelle)}&nbsp;&rarr;</a></p>`);
+      texte.push(`Pour aller plus loin : ${libelle} — ${href}`);
+    } else if (plusLoin) {
+      corps.push(`<p style="margin:8px 0 0 0;font-family:${POLICE};font-size:15px;line-height:22px;color:${C.encre};"><strong>Pour aller plus loin :</strong> ${esc(plusLoin)}</p>`);
+      texte.push(`Pour aller plus loin : ${plusLoin}`);
+    }
+  } else if (b.type === "ce_qui_bouge") {
+    // Libellé, titre, résumé et « Lire la suite → » vers le bloc sur la page du numéro
+    if (resume) { corps.push(paragraphe(resume)); texte.push(resume); }
+    const suite = lienSite(`/onde/${n.slug}#b${etiquette(i)}`, n.numero);
+    corps.push(`<p style="margin:8px 0 0 0;font-family:${POLICE};font-size:16px;line-height:22px;"><a href="${esc(suite)}" style="color:${C.encre};font-weight:700;text-decoration:underline;">Lire la suite&nbsp;&rarr;</a></p>`);
+    texte.push(`Lire la suite : ${suite}`);
   } else if (b.type === "depot") {
     if (resume) { corps.push(paragraphe(resume)); texte.push(resume); }
     const qui = b.depot_id ? ctx.deposants?.[b.depot_id] : undefined;
@@ -394,7 +420,8 @@ export const emailNumero = (n: NumeroEmail, ctx: ContexteEmail, mode: ModeEmail)
   const page = lienSite(`/onde/${n.slug}`, n.numero);
   const ecoute = libelleEcoute(n);
   const quand = `n°${n.numero} · ${moisAnnee(n.mois)}`;
-  const blocs = n.blocs.map((b, i) => rendreBloc(b, i, n, ctx)).filter((r): r is NonNullable<Rendu> => !!r);
+  const numeros = numerosAffiches(n.blocs);
+  const blocs = n.blocs.map((b, i) => rendreBloc(b, i, n, ctx, numeros[i])).filter((r): r is NonNullable<Rendu> => !!r);
   const encart = texteEncartDepot(ctx.depotsCeMois ?? 0);
   const don = lienDonValide(ctx.lienDon?.trim()) ? ctx.lienDon!.trim() : null;
   const boutonsPied: [string, string, string, string][] = [

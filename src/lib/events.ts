@@ -13,7 +13,8 @@ export const sansEmojis = (t: string): string =>
 
 /**
  * Titre d'événement en casse normale : un titre tout en capitales passe en minuscules (première lettre en capitale),
- * sans point d'exclamation, et « Apéro écoute » toujours écrit ainsi.
+ * sans point d'exclamation ; l'ancien nom du rendez-vous mensuel (« apéro écoute », sous toutes ses graphies)
+ * s'affiche « atelier d'écoute », le vocabulaire officiel.
  */
 export const readableTitle = (t: string): string => {
   let s = sansEmojis(t || "").replace(/\s*!+\s*/g, " ").replace(/\s{2,}/g, " ").trim();
@@ -22,7 +23,9 @@ export const readableTitle = (t: string): string => {
     const low = s.toLocaleLowerCase("fr-FR");
     s = low.charAt(0).toLocaleUpperCase("fr-FR") + low.slice(1);
   }
-  return s.replace(/ap[ée]ro\s*[-/]?\s*[ée]coute/giu, (m) => (/^A/.test(m) ? "Apéro écoute" : "apéro écoute"));
+  return s
+    .replace(/ap[ée]ros\s*[-/]?\s*[ée]coutes?/giu, (m) => (/^A/.test(m) ? "Ateliers d'écoute" : "ateliers d'écoute"))
+    .replace(/ap[ée]ro\s*[-/]?\s*[ée]coute/giu, (m) => (/^A/.test(m) ? "Atelier d'écoute" : "atelier d'écoute"));
 };
 
 /** Dernier jour réel : une fin avant 6 h du matin compte pour la veille (soirée qui finit à minuit). */

@@ -41,8 +41,9 @@ describe("lot 4 : titres et dates sur plusieurs jours", () => {
   it("titre en casse normale, sans point d'exclamation ni émoji", async () => {
     const { readableTitle } = await import("./events");
     expect(readableTitle("LA CLAQUE PODCAST PARTY !")).toBe("La claque podcast party");
-    expect(readableTitle("Apéro-écoute d'avril !")).toBe("Apéro écoute d'avril");
-    expect(readableTitle("🎧 Apéro/Ecoute")).toBe("Apéro écoute");
+    expect(readableTitle("Apéro-écoute d'avril !")).toBe("Atelier d'écoute d'avril");
+    expect(readableTitle("🎧 Apéro/Ecoute")).toBe("Atelier d'écoute");
+    expect(readableTitle("Les apéros écoute du Sud")).toBe("Les ateliers d'écoute du Sud");
   });
   it("émojis retirés à l'enregistrement, accents gardés", async () => {
     const { sansEmojis } = await import("./events");

@@ -6,10 +6,10 @@ import { VueEvenements, VueNouveauxMembres, VuePodcast } from "@/components/onde
 import { VueDepot } from "@/components/onde/BlocDepot";
 import EncartDepot from "@/components/onde/EncartDepot";
 import PiedNumero from "@/components/onde/PiedNumero";
-import { ImpressionCtx, QrEcoute, SonCtx, useImpression } from "@/components/onde/impressionOnde";
+import { ImpressionCtx, QrEcoute, QrLien, SonCtx, useImpression } from "@/components/onde/impressionOnde";
 import { ANCRE_ECOUTER, ancreBloc } from "@/lib/ondePied";
 import { container, btnPrimary, linkUnderline } from "@/lib/pds";
-import { NOM_ONDE, etiquetteNumero, lienSur, numeroRubrique, type Bloc, type Chiffre, type NumeroOnde } from "@/lib/onde";
+import { NOM_ONDE, etiquetteNumero, lienHttps, lienSur, numeroRubrique, numerosAffiches, type Bloc, type BlocCeQuiBouge, type Chiffre, type NumeroOnde } from "@/lib/onde";
 
 const identite: Resoudre = (u) => u;
 
@@ -39,6 +39,36 @@ const Lien = ({ href, className, children }: { href: string; className: string; 
       {children}<span className="sr-only"> (nouvel onglet)</span>
     </a>
   );
+
+/** « Ce qui bouge » : titre, texte, question mise en avant, « Lire la source → » (QR code dans le PDF). */
+const VueCeQuiBouge = ({ b }: { b: BlocCeQuiBouge }) => {
+  const impression = useImpression();
+  const source = (b.source_lien || "").trim();
+  const nomSource = (b.source_nom || "").trim();
+  return (
+    <div className="space-y-6">
+      {b.titre && <h2 className="title-section text-[30px] sm:text-[36px]">{b.titre}</h2>}
+      {b.texte && <TexteRiche texte={b.texte} className="text-[17px] leading-relaxed max-w-[68ch]" />}
+      {(b.question || "").trim() && (
+        <div className="border-2 border-encre border-l-[10px] border-l-accent bg-surface p-5 sm:p-6 break-inside-avoid">
+          <p className="text-[13px] font-bold uppercase tracking-[0.08em] text-accent-text">La question aux membres</p>
+          <p className="mt-2 font-display font-black text-[22px] sm:text-[26px] leading-tight">{b.question}</p>
+        </div>
+      )}
+      {lienHttps(source) && (impression ? (
+        <QrLien url={source} libelle={nomSource ? `Lire la source : ${nomSource}` : "Lire la source"} />
+      ) : (
+        <p className="text-[15px]">
+          {nomSource && <span className="text-muted-foreground">Source : {nomSource} · </span>}
+          <a href={source} target="_blank" rel="noopener noreferrer" className={`${linkUnderline} font-bold inline-flex items-center min-h-[44px]`}>
+            Lire la source →<span className="sr-only">{nomSource ? ` : ${nomSource}` : ""} (nouvel onglet)</span>
+          </a>
+        </p>
+      ))}
+      {!lienHttps(source) && nomSource && <p className="text-[15px] text-muted-foreground">Source : {nomSource}</p>}
+    </div>
+  );
+};
 
 const ContenuBloc = ({ b, n, resoudre }: { b: Bloc; n: NumeroOnde; resoudre: Resoudre }) => {
   const impression = useImpression();
@@ -104,19 +134,23 @@ const ContenuBloc = ({ b, n, resoudre }: { b: Bloc; n: NumeroOnde; resoudre: Res
       return <VueNouveauxMembres b={b} n={n} />;
     case "depot":
       return <VueDepot b={b} n={n} resoudre={resoudre} />;
+    case "ce_qui_bouge":
+      return <VueCeQuiBouge b={b} />;
   }
 };
 
 /**
  * Un numéro de L'Onde du Sud tel qu'il s'affiche sur le site : titre (seul H1), chapeau,
- * bandeau « Écouter ce numéro », couverture puis blocs numérotés 01, 02, 03…, l'encart « Déposer pour L'Onde »
+ * bandeau « Écouter ce numéro », couverture puis blocs numérotés 01, 02, 03… (« À l'écoute » sans numéro), l'encart « Déposer pour L'Onde »
  * et le pied fixe (« Ce que l'adhésion t'ouvre », abonnement, adhésion, don).
  * « resoudre » : pour l'aperçu d'un brouillon, remplace les adresses des fichiers par des liens temporaires.
  * « impression » : version PDF (admin), chaque son remplacé par un QR code et un lien court.
  * « lienAbonnement » : cible du bouton « Recevoir L'Onde chaque mois » (formulaire de la page, sinon /onde#recevoir).
  * Ancres : #ecouter (version audio du numéro), #b01, #b02… (blocs), cibles des liens courts /o/1, /o/1/02.
  */
-const NumeroVue = ({ n, resoudre = identite, impression = false, lienAbonnement }: { n: NumeroOnde; resoudre?: Resoudre; impression?: boolean; lienAbonnement?: string }) => (
+const NumeroVue = ({ n, resoudre = identite, impression = false, lienAbonnement }: { n: NumeroOnde; resoudre?: Resoudre; impression?: boolean; lienAbonnement?: string }) => {
+  const numeros = numerosAffiches(n.blocs);
+  return (
   <ImpressionCtx.Provider value={impression}>
   <article className={impression ? "onde-pdf" : undefined}>
     <header className={`${container} pt-6 pb-8`}>
@@ -147,7 +181,7 @@ const NumeroVue = ({ n, resoudre = identite, impression = false, lienAbonnement 
 
     {n.couverture_url && (
       <div className={`${container} pt-8`}>
-        <img src={resoudre(n.couverture_url)} alt={n.couverture_alt || ""} className="block w-full max-h-[620px] object-cover border border-filet" />
+        <img src={resoudre(n.couverture_url)} alt={n.couverture_alt || ""} className="block w-full max-h-[660px] object-cover border border-filet" />
       </div>
     )}
 
@@ -156,8 +190,8 @@ const NumeroVue = ({ n, resoudre = identite, impression = false, lienAbonnement 
         {n.blocs.map((b, i) => (
           <section key={b.id || i} id={ancreBloc(numeroRubrique(i))} aria-labelledby={`rubrique-${i}`} className="scroll-mt-24">
             <p id={`rubrique-${i}`} className="font-mono text-sm font-bold uppercase tracking-wider text-accent-text pb-2 mb-5 border-b-2 border-encre break-after-avoid">
-              <span className="text-foreground">{numeroRubrique(i)}</span>
-              {b.rubrique ? <> — {b.rubrique}</> : null}
+              {numeros[i] && <span className="text-foreground">{numeros[i]}</span>}
+              {b.rubrique ? <>{numeros[i] ? " — " : ""}{b.rubrique}</> : null}
             </p>
             <SonCtx.Provider value={{ numero: n.numero, rubrique: numeroRubrique(i) }}>
               <ContenuBloc b={b} n={n} resoudre={resoudre} />
@@ -170,6 +204,7 @@ const NumeroVue = ({ n, resoudre = identite, impression = false, lienAbonnement 
     </div>
   </article>
   </ImpressionCtx.Provider>
-);
+  );
+};
 
 export default NumeroVue;

@@ -12,7 +12,7 @@ import { ficheHref } from "@/lib/seo";
 import { aUnPodcast, btnSecondary, cleanCity, formatName, fullName, linkUnderline, titreFiche } from "@/lib/pds";
 import { origineEvenement, useEvenementsChoisis, useNouveauxMembres, usePodcastChoisi } from "@/lib/ondeBlocs";
 import { invitesEvenement, type FicheInvite } from "../../../supabase/functions/_shared/invites";
-import { TITRE_INVITES } from "@/lib/onde";
+import { TITRE_INVITES, lienHttps } from "@/lib/onde";
 import type { BlocAudio, BlocEvenements, BlocNouveauxMembres, BlocPodcast, NumeroOnde } from "@/lib/onde";
 
 const Attente = () => <p className="text-muted-foreground" aria-busy="true">Chargement…</p>;
@@ -96,6 +96,25 @@ export const VueEvenements = ({ b }: { b: BlocEvenements }) => {
   );
 };
 
+/** « Pour aller plus loin » : une ligne sous le podcast (texte court + lien https ; adresse en clair dans le PDF). */
+const PlusLoin = ({ b }: { b: BlocPodcast }) => {
+  const impression = useImpression();
+  const lien = (b.plus_loin_lien || "").trim();
+  const texte = (b.plus_loin_texte || "").trim();
+  if (!texte && !lienHttps(lien)) return null;
+  const libelle = texte || lien.replace(/^https:\/\//, "");
+  return (
+    <p className="text-[15px] border-l-4 border-accent pl-3">
+      <span className="font-bold">Pour aller plus loin : </span>
+      {lienHttps(lien) && !impression ? (
+        <a href={lien} target="_blank" rel="noopener noreferrer" className={linkUnderline}>{libelle} →<span className="sr-only"> (nouvel onglet)</span></a>
+      ) : (
+        <>{libelle}{lienHttps(lien) && texte ? <span className="font-mono text-[13px] break-all"> {lien.replace(/^https:\/\//, "")}</span> : null}</>
+      )}
+    </p>
+  );
+};
+
 export const VuePodcast = ({ b, n, resoudre }: { b: BlocPodcast; n: NumeroOnde; resoudre: Resoudre }) => {
   const { data: p, isLoading } = usePodcastChoisi(b.podcast_id || undefined);
   const impression = useImpression();
@@ -131,6 +150,7 @@ export const VuePodcast = ({ b, n, resoudre }: { b: BlocPodcast; n: NumeroOnde; 
             <p className="font-bold leading-snug">{extrait.titre}</p>
           </div>
         )}
+        <PlusLoin b={b} />
         {p && (
           <Link to={href} className={btnSecondary}>
             Voir la fiche du podcast<span className="sr-only"> {nomPodcast}</span>

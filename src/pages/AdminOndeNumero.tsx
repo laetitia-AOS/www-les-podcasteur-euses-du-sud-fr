@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import {
-  AlertTriangle, ArrowDown, ArrowUp, BarChart3, CalendarDays, CalendarRange, Check, Eye, FileDown, Image as ImageIcon, Inbox, Loader2,
+  Activity, AlertTriangle, ArrowDown, ArrowUp, BarChart3, CalendarDays, CalendarRange, Check, Eye, FileDown, Image as ImageIcon, Inbox, Loader2,
   Mic, Music, MousePointerClick, Plus, Trash2, Type, Users, X,
 } from "lucide-react";
 import { toast } from "sonner";
@@ -14,6 +14,7 @@ import { BoutonFichier, Champ, ChampTexteRiche } from "@/components/onde/champsO
 import { EditeurEvenements, EditeurNouveauxMembres, EditeurPodcast } from "@/components/onde/EditeursAuto";
 import { EditeurDepot } from "@/components/onde/BlocDepot";
 import EnvoiOnde from "@/components/onde/EnvoiOnde";
+import CouvertureOnde from "@/components/onde/CouvertureOnde";
 import { useAdminAuth } from "@/hooks/useAdminAuth";
 import {
   AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription,
@@ -24,8 +25,8 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { btnPrimary, btnSecondary } from "@/lib/pds";
 import {
-  IMAGE_TYPES, LIMITES_ONDE, NOM_ONDE, dureeAudio, ONDE_COLUMNS_EQUIPE, TYPES_BLOCS, deplacer, envoyerFichierOnde, etiquetteNumero,
-  fichiersNumero, libelleType, manquesPublication, nouveauBloc, numeroRubrique, ondeHref, slugOnde, useFichiersEquipe,
+  IMAGE_TYPES, LIMITES_ONDE, lienHttps, NOM_ONDE, dureeAudio, ONDE_COLUMNS_EQUIPE, TYPES_BLOCS, deplacer, envoyerFichierOnde, etiquetteNumero,
+  fichiersNumero, libelleType, manquesPublication, nouveauBloc, numeroRubrique, numerosAffiches, ondeHref, positionNouveauBloc, slugOnde, useFichiersEquipe,
   type Bloc, type NumeroOnde, type TypeBloc,
 } from "@/lib/onde";
 
@@ -34,13 +35,14 @@ type Envoi = (cle: string, file: File, sorte: "image" | "audio", apres: (url: st
 
 const ICONES: Record<TypeBloc, typeof Type> = {
   texte: Type, images: ImageIcon, audio: Music, bouton: MousePointerClick, chiffres: BarChart3,
-  evenements: CalendarDays, podcast: Mic, nouveaux_membres: Users, trimestre: CalendarRange, depot: Inbox,
+  evenements: CalendarDays, podcast: Mic, nouveaux_membres: Users, trimestre: CalendarRange, depot: Inbox, ce_qui_bouge: Activity,
 };
 
 const EditeurBloc = ({
-  b, i, total, numeroId, resoudre, envoi, envoyer, onChange, onMove, onDelete,
+  b, i, total, affiche, numeroId, resoudre, envoi, envoyer, onChange, onMove, onDelete,
 }: {
-  b: Bloc; i: number; total: number; numeroId: string; resoudre: (u: string) => string; envoi: string | null; envoyer: Envoi;
+  /** Numéro affiché sur le site (null : bloc sans numéro, comme « À l'écoute »). */
+  b: Bloc; i: number; total: number; affiche: string | null; numeroId: string; resoudre: (u: string) => string; envoi: string | null; envoyer: Envoi;
   onChange: (b: Bloc) => void; onMove: (sens: -1 | 1) => void; onDelete: () => void;
 }) => {
   const Icone = ICONES[b.type];
@@ -55,7 +57,7 @@ const EditeurBloc = ({
         <button type="button" className={btnIcone} onClick={onDelete} aria-label={`Supprimer le bloc ${numeroRubrique(i)}`}><Trash2 className="w-4 h-4" aria-hidden /></button>
       </div>
       <div className="p-4 space-y-4">
-        <Champ id={`${pid}-rubrique`} label="Étiquette de rubrique" max={LIMITES_ONDE.rubrique} n={(b.rubrique || "").length} aide={`Affichée au-dessus du bloc : « ${numeroRubrique(i)} — ${b.rubrique || "…"} ».`}>
+        <Champ id={`${pid}-rubrique`} label="Étiquette de rubrique" max={LIMITES_ONDE.rubrique} n={(b.rubrique || "").length} aide={`Affichée au-dessus du bloc : « ${affiche ? `${affiche} — ` : ""}${b.rubrique || "…"} »${affiche ? "" : " (« À l'écoute » ne porte pas de numéro)"}.`}>
           <Input id={`${pid}-rubrique`} value={b.rubrique || ""} placeholder="Ex. : Le prochain atelier, À l'écoute, Le trimestre du collectif" onChange={(e) => onChange({ ...b, rubrique: e.target.value })} />
         </Champ>
 
@@ -158,7 +160,43 @@ const EditeurBloc = ({
         )}
 
         {b.type === "evenements" && <EditeurEvenements b={b} pid={pid} onChange={onChange} />}
-        {b.type === "podcast" && <EditeurPodcast b={b} pid={pid} resoudre={resoudre} envoi={envoi} envoyer={envoyer} onChange={onChange} />}
+        {b.type === "podcast" && (
+          <>
+            <EditeurPodcast b={b} pid={pid} resoudre={resoudre} envoi={envoi} envoyer={envoyer} onChange={onChange} />
+            <fieldset className="space-y-3 border-t border-filet pt-4">
+              <legend className="text-sm font-bold">Pour aller plus loin <span className="font-normal text-muted-foreground">(facultatif, une ligne sous le podcast)</span></legend>
+              <div className="grid sm:grid-cols-2 gap-4">
+                <Champ id={`${pid}-plus-texte`} label="Texte court" max={LIMITES_ONDE.plusLoin} n={(b.plus_loin_texte || "").length}>
+                  <Input id={`${pid}-plus-texte`} value={b.plus_loin_texte || ""} placeholder="Ex. : Le making-of de l'épisode" onChange={(e) => onChange({ ...b, plus_loin_texte: e.target.value })} />
+                </Champ>
+                <Champ id={`${pid}-plus-lien`} label="Lien" aide="Une adresse complète qui commence par https://">
+                  <Input id={`${pid}-plus-lien`} type="url" inputMode="url" placeholder="https://…" value={b.plus_loin_lien || ""} aria-invalid={!!(b.plus_loin_lien || "").trim() && !lienHttps(b.plus_loin_lien!.trim())} onChange={(e) => onChange({ ...b, plus_loin_lien: e.target.value })} />
+                </Champ>
+              </div>
+            </fieldset>
+          </>
+        )}
+        {b.type === "ce_qui_bouge" && (
+          <>
+            <Champ id={`${pid}-titre`} label="Titre *" max={LIMITES_ONDE.titreBloc} n={(b.titre || "").length}>
+              <Input id={`${pid}-titre`} value={b.titre || ""} onChange={(e) => onChange({ ...b, titre: e.target.value })} />
+            </Champ>
+            <Champ id={`${pid}-texte`} label="Texte *" max={LIMITES_ONDE.texteBouge} n={(b.texte || "").length} aide="Environ 120 mots : le sujet qui travaille la création sonore, et ce que ça change pour les membres.">
+              <ChampTexteRiche id={`${pid}-texte`} rows={7} value={b.texte || ""} onChange={(v) => onChange({ ...b, texte: v })} />
+            </Champ>
+            <div className="grid sm:grid-cols-2 gap-4">
+              <Champ id={`${pid}-source-nom`} label="Source : nom" max={LIMITES_ONDE.sourceNom} n={(b.source_nom || "").length}>
+                <Input id={`${pid}-source-nom`} value={b.source_nom || ""} placeholder="Ex. : CB News" onChange={(e) => onChange({ ...b, source_nom: e.target.value })} />
+              </Champ>
+              <Champ id={`${pid}-source-lien`} label="Source : lien" aide="Une adresse complète qui commence par https://">
+                <Input id={`${pid}-source-lien`} type="url" inputMode="url" placeholder="https://…" value={b.source_lien || ""} aria-invalid={!!(b.source_lien || "").trim() && !lienHttps(b.source_lien!.trim())} onChange={(e) => onChange({ ...b, source_lien: e.target.value })} />
+              </Champ>
+            </div>
+            <Champ id={`${pid}-question`} label="Question aux membres" max={LIMITES_ONDE.question} n={(b.question || "").length} aide="Facultatif. Une question ouverte, mise en avant sous le texte.">
+              <Textarea id={`${pid}-question`} rows={2} value={b.question || ""} onChange={(e) => onChange({ ...b, question: e.target.value.replace(/\n/g, " ") })} />
+            </Champ>
+          </>
+        )}
         {b.type === "nouveaux_membres" && <EditeurNouveauxMembres b={b} pid={pid} numeroId={numeroId} onChange={onChange} />}
         {b.type === "depot" && <EditeurDepot b={b} pid={pid} numeroId={numeroId} resoudre={resoudre} onChange={onChange} />}
 
@@ -343,7 +381,11 @@ const AdminOndeNumero = () => {
     if (!n) return;
     if (n.blocs.length >= LIMITES_ONDE.blocsMax) { toast.error("30 blocs au maximum dans un numéro."); return; }
     const b = nouveauBloc(type, n.mois);
-    maj((x) => ({ blocs: [...x.blocs, b] }));
+    // « Ce qui bouge » se place juste après « Les prochains ateliers » ; les autres blocs vont à la fin
+    maj((x) => {
+      const k = positionNouveauBloc(x.blocs, type);
+      return { blocs: [...x.blocs.slice(0, k), b, ...x.blocs.slice(k)] };
+    });
     requestAnimationFrame(() => {
       document.getElementById(`bloc-${b.id}`)?.scrollIntoView({ behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" });
       (document.getElementById(`bloc-${b.id}-rubrique`) as HTMLInputElement | null)?.focus({ preventScroll: true });
@@ -492,7 +534,9 @@ const AdminOndeNumero = () => {
           </section>
 
           <section aria-labelledby="s-couverture" className="space-y-4">
-            <h2 id="s-couverture" className="font-bold text-xl border-b-2 border-encre pb-2">Photo de couverture *</h2>
+            <h2 id="s-couverture" className="font-bold text-xl border-b-2 border-encre pb-2">Couverture *</h2>
+            <CouvertureOnde n={n} resoudre={resoudre} onCouverture={(url, alt) => maj(() => ({ couverture_url: url, couverture_alt: alt }))} />
+            <p className="text-sm text-muted-foreground">Ou envoie une photo à la place :</p>
             <div className="flex flex-wrap items-start gap-4">
               {n.couverture_url ? (
                 <img src={resoudre(n.couverture_url)} alt="" className="w-64 aspect-[16/9] object-cover border border-filet" />
@@ -549,6 +593,7 @@ const AdminOndeNumero = () => {
                     b={b}
                     i={i}
                     total={n.blocs.length}
+                    affiche={numerosAffiches(n.blocs)[i]}
                     numeroId={n.id}
                     resoudre={resoudre}
                     envoi={envoi}

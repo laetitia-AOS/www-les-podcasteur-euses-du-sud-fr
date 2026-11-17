@@ -5,6 +5,9 @@ import { FunctionsHttpError } from "@supabase/supabase-js";
 import { supabase } from "@/integrations/supabase/client";
 import type { Episode } from "@/lib/episodes";
 import { SITE_NAME, SITE_URL, descriptionSeo } from "@/lib/seo";
+import { lienHttps, numerosAffiches } from "../../supabase/functions/_shared/onde-numerotation";
+
+export { lienHttps, numerosAffiches };
 
 export const NOM_ONDE = "L'Onde du Sud";
 /** Nom complet de la lettre (H1 des archives, données structurées). */
@@ -25,7 +28,13 @@ export type BlocChiffres = Base & { type: "chiffres"; chiffres: Chiffre[] };
 /** Événements cochés dans l'agenda : seuls les identifiants sont gardés, le reste est relu à chaque affichage. */
 export type BlocEvenements = Base & { type: "evenements"; evenements: string[] };
 /** Un podcast de l'annuaire (relu à chaque affichage), la présentation de l'éditeur·ice et un extrait facultatif. */
-export type BlocPodcast = Base & { type: "podcast"; podcast_id?: string; texte?: string; url?: string; titre?: string };
+export type BlocPodcast = Base & {
+  type: "podcast"; podcast_id?: string; texte?: string; url?: string; titre?: string;
+  /** « Pour aller plus loin » : un texte court et un lien https, sur une ligne sous le podcast. */
+  plus_loin_texte?: string; plus_loin_lien?: string;
+};
+/** « Ce qui bouge » : la rubrique de fond du numéro (un sujet, ce que ça change pour les membres, une question ouverte). */
+export type BlocCeQuiBouge = Base & { type: "ce_qui_bouge"; titre?: string; texte?: string; source_nom?: string; source_lien?: string; question?: string };
 /** Rempli par la base : « membres » est la liste arrêtée à la publication (jamais écrite par le navigateur). */
 export type BlocNouveauxMembres = Base & { type: "nouveaux_membres"; mois?: string; membres?: string[] };
 export type BlocTrimestre = Base & { type: "trimestre"; titre?: string; texte?: string; chiffres: Chiffre[] };
@@ -36,7 +45,7 @@ export type BlocTrimestre = Base & { type: "trimestre"; titre?: string; texte?: 
 export type BlocDepot = Base & { type: "depot"; depot_id: string; titre?: string; texte?: string; url?: string; lien?: string; photo?: ImageOnde };
 export type Bloc =
   | BlocTexte | BlocImages | BlocAudio | BlocBouton | BlocChiffres
-  | BlocEvenements | BlocPodcast | BlocNouveauxMembres | BlocTrimestre | BlocDepot;
+  | BlocEvenements | BlocPodcast | BlocNouveauxMembres | BlocTrimestre | BlocDepot | BlocCeQuiBouge;
 export type TypeBloc = Bloc["type"];
 
 export type NumeroOnde = {
@@ -86,6 +95,12 @@ export const LIMITES_ONDE = {
   blocsMax: 30,
   evenementsMax: 8,
   presentation: 1500,
+  /** « Ce qui bouge » : texte d'environ 120 mots, question aux membres, nom de la source. */
+  texteBouge: 1200,
+  question: 200,
+  sourceNom: 80,
+  /** « Pour aller plus loin » (bloc « À l'écoute ») : texte court. */
+  plusLoin: 120,
   /** Le bloc « Événements de l'agenda » propose d'abord ceux des 60 prochains jours. */
   joursAgenda: 60,
 } as const;
@@ -102,6 +117,7 @@ export const TYPES_BLOCS: ReadonlyArray<{ type: TypeBloc; label: string; aide: s
   { type: "bouton", label: "Bouton", aide: "Un libellé et un lien." },
   { type: "chiffres", label: "Chiffres clés", aide: "De 2 à 4 chiffres, chacun avec son libellé." },
   { type: "evenements", label: "Événements de l'agenda", aide: "Cochez des événements publiés : ils restent à jour tout seuls." },
+  { type: "ce_qui_bouge", label: "Ce qui bouge", aide: "Le sujet de fond du mois : ce qui change pour la création sonore, avec sa source et une question aux membres." },
   { type: "podcast", label: "Podcast à l'écoute", aide: "Un podcast de l'annuaire, votre présentation et un extrait si vous voulez." },
   { type: "nouveaux_membres", label: "Les nouveaux membres du mois", aide: "Rempli tout seul, rien à écrire." },
   { type: "trimestre", label: "Le trimestre du collectif", aide: "Un texte et de 2 à 4 chiffres clés.", mention: "chaque trimestre" },
@@ -127,7 +143,19 @@ export const nouveauBloc = (type: TypeBloc, moisNumero?: string): Bloc => {
     case "nouveaux_membres": return { id, type, rubrique: "Les nouveaux membres du mois", mois: moisPrecedent(moisNumero || moisCourant()) };
     case "trimestre": return { id, type, rubrique: "Le trimestre du collectif", titre: "", texte: "", chiffres: [{ valeur: "", libelle: "" }, { valeur: "", libelle: "" }] };
     case "depot": return { id, type, rubrique: "", depot_id: "", titre: "", texte: "" };
+    case "ce_qui_bouge": return { id, type, rubrique: "Ce qui bouge", titre: "", texte: "", source_nom: "", source_lien: "", question: "" };
   }
+};
+
+/**
+ * Place d'un nouveau bloc : « Ce qui bouge » se met juste après « Les prochains ateliers » (étiquette),
+ * sinon après le premier bloc « Événements de l'agenda » ; tous les autres blocs vont à la fin.
+ */
+export const positionNouveauBloc = (blocs: ReadonlyArray<Pick<Bloc, "type" | "rubrique">>, type: TypeBloc): number => {
+  if (type !== "ce_qui_bouge") return blocs.length;
+  let i = blocs.findIndex((b) => /prochains?\s+ateliers?/i.test(b.rubrique || ""));
+  if (i < 0) i = blocs.findIndex((b) => b.type === "evenements");
+  return i < 0 ? blocs.length : i + 1;
 };
 
 /** Numéro de rubrique affiché au-dessus d'un bloc : 01, 02, 03… */
@@ -218,8 +246,24 @@ const COMPLEMENTS_ONDE = [
 export const titreSeoOnde = (n: Pick<NumeroOnde, "titre" | "numero" | "mois">) =>
   `${n.titre.trim()} — ${NOM_ONDE} n°${n.numero}, ${moisAnnee(n.mois)} | ${SITE_NAME}`;
 
-/** Description tirée du chapeau, complétée puis coupée entre 140 et 160 caractères. */
-export const descriptionOnde = (n: Pick<NumeroOnde, "chapeau">) => descriptionSeo([n.chapeau], COMPLEMENTS_ONDE);
+/**
+ * Description tirée du chapeau, complétée, toujours terminée par « L'Onde du Sud n°X, mois année. »
+ * (unique pour chaque numéro), entre 140 et 160 caractères.
+ */
+export const descriptionOnde = (n: Pick<NumeroOnde, "chapeau" | "numero" | "mois">) => {
+  const fin = `${NOM_ONDE} n°${n.numero}, ${moisAnnee(n.mois)}.`;
+  const place = 160 - fin.length - 1;
+  let tete = descriptionSeo([n.chapeau], COMPLEMENTS_ONDE);
+  if (tete.length > place) {
+    const c = tete.slice(0, place - 1);
+    const i = c.lastIndexOf(" ");
+    tete = `${(i > place * 0.6 ? c.slice(0, i) : c).replace(/[\s,;:.–—-]+$/, "")}…`;
+  }
+  return `${tete} ${fin}`;
+};
+
+/** Texte alternatif de la couverture générée : « Couverture de L'Onde du Sud n°1, décembre 2026 ». */
+export const altCouverture = (n: Pick<NumeroOnde, "numero" | "mois">) => `Couverture de ${NOM_ONDE} n°${n.numero}, ${moisAnnee(n.mois)}`;
 
 export const articleOndeLd = (n: NumeroOnde) => {
   const url = `${SITE_URL}${ondeHref(n.slug)}`;
@@ -318,6 +362,18 @@ export const manquesPublication = (n: Pick<NumeroOnde, "titre" | "chapeau" | "co
       if (!b.podcast_id) m.push(`${q} : choisissez un podcast.`);
       if (!(b.texte || "").trim()) m.push(`${q} : le texte de présentation.`);
       if ((b.texte || "").length > LIMITES_ONDE.presentation) m.push(`${q} : la présentation est trop longue (${LIMITES_ONDE.presentation} caractères au maximum).`);
+    }
+    if (b.type === "podcast") {
+      if ((b.plus_loin_texte || "").length > LIMITES_ONDE.plusLoin) m.push(`${q} : « Pour aller plus loin » est trop long (${LIMITES_ONDE.plusLoin} caractères au maximum).`);
+      if ((b.plus_loin_lien || "").trim() && !lienHttps(b.plus_loin_lien!.trim())) m.push(`${q} : le lien « Pour aller plus loin » doit commencer par https://`);
+    }
+    if (b.type === "ce_qui_bouge") {
+      if (!(b.titre || "").trim()) m.push(`${q} : le titre.`);
+      if (!(b.texte || "").trim()) m.push(`${q} : le texte.`);
+      if ((b.titre || "").length > LIMITES_ONDE.titreBloc) m.push(`${q} : le titre est trop long (${LIMITES_ONDE.titreBloc} caractères au maximum).`);
+      if ((b.texte || "").length > LIMITES_ONDE.texteBouge) m.push(`${q} : le texte est trop long (${LIMITES_ONDE.texteBouge} caractères au maximum).`);
+      if ((b.question || "").length > LIMITES_ONDE.question) m.push(`${q} : la question est trop longue (${LIMITES_ONDE.question} caractères au maximum).`);
+      if ((b.source_lien || "").trim() && !lienHttps(b.source_lien!.trim())) m.push(`${q} : le lien de la source doit commencer par https://`);
     }
     if (b.type === "nouveaux_membres" && !b.mois) m.push(`${q} : le mois.`);
     if (b.type === "trimestre" && !(b.texte || "").trim()) m.push(`${q} : le texte.`);
@@ -460,9 +516,13 @@ export const redimensionnerImage = (file: File, max = 1600): Promise<Blob> =>
   });
 
 /** Envoie une photo (redimensionnée) ou un MP3 ; le serveur vérifie le rôle, le type réel et le poids. */
-export const envoyerFichierOnde = async (numeroId: string, file: File, sorte: "image" | "audio"): Promise<string> => {
+export const envoyerFichierOnde = async (numeroId: string, file: File, sorte: "image" | "audio", opts: { pret?: boolean } = {}): Promise<string> => {
   let contenu: Blob = file;
-  if (sorte === "image") {
+  // « pret » : image déjà fabriquée au bon format par le site (couverture générée en PNG), envoyée telle quelle
+  if (sorte === "image" && opts.pret) {
+    if (file.type !== "image/png" && file.type !== "image/jpeg") throw new Error("Image au format PNG ou JPG.");
+    if (file.size > IMAGE_MAX_OCTETS) throw new Error("Image trop lourde : 3 Mo au maximum.");
+  } else if (sorte === "image") {
     if (!IMAGE_TYPES.includes(file.type)) throw new Error("Photo au format JPG, PNG ou WebP.");
     contenu = await redimensionnerImage(file).catch(() => { throw new Error("Cette photo n'a pas pu être lue."); });
     if (contenu.size > IMAGE_MAX_OCTETS) throw new Error("Photo trop lourde, même réduite : 3 Mo au maximum.");
@@ -475,7 +535,7 @@ export const envoyerFichierOnde = async (numeroId: string, file: File, sorte: "i
   const form = new FormData();
   form.append("numero_id", numeroId);
   form.append("sorte", sorte);
-  form.append("file", contenu, sorte === "image" ? "photo.jpg" : "audio.mp3");
+  form.append("file", contenu, sorte === "image" ? (contenu.type === "image/png" ? "photo.png" : "photo.jpg") : "audio.mp3");
   const r = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/onde-fichier`, {
     method: "POST",
     headers: { apikey: import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY, Authorization: `Bearer ${session.access_token}` },

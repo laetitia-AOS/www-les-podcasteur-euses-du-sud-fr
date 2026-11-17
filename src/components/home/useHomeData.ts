@@ -159,7 +159,7 @@ export const sansOrganisateur = (e: Pick<HomeEvent, "origine" | "propose_par_nom
 export const estRendezVousPds = (e: Pick<HomeEvent, "origine" | "propose_par_nom" | "organisateur_exterieur">) =>
   isOrganizedByPds(e) && !sansOrganisateur(e);
 
-// « apero_ecoute » est le code du rendez-vous mensuel, désormais appelé « Atelier-écoute »
+// le code interne « apero_ecoute » (figé en base) désigne le rendez-vous mensuel, désormais appelé « Atelier-écoute »
 export const EVENT_TYPES = [
   { value: "apero_ecoute", label: "Atelier-écoute" },
   { value: "atelier", label: "Atelier" },
