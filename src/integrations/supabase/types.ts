@@ -742,6 +742,7 @@ export type Database = {
           essais_depuis: string
           id: string
           jeton: string
+          nom: string | null
           prenom: string | null
           source: string
           statut: string
@@ -759,6 +760,7 @@ export type Database = {
           essais_depuis?: string
           id?: string
           jeton?: string
+          nom?: string | null
           prenom?: string | null
           source?: string
           statut?: string
@@ -776,6 +778,7 @@ export type Database = {
           essais_depuis?: string
           id?: string
           jeton?: string
+          nom?: string | null
           prenom?: string | null
           source?: string
           statut?: string
@@ -1703,6 +1706,7 @@ export type Database = {
           desinscrit_le: string
           email: string
           id: string
+          nom: string
           prenom: string
           source: string
           statut: string
@@ -1879,6 +1883,7 @@ export type Database = {
         Args: {
           _consentement: boolean
           _email: string
+          _nom?: string
           _prenom: string
           _source: string
         }

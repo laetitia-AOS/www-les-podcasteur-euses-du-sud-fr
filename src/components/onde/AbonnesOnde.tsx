@@ -16,7 +16,7 @@ import { LIBELLE_SOURCE_ABONNE, LIBELLE_STATUT_ABONNE, NOM_ONDE, type SourceAbon
 import { btnIcone, dateHeure, messageOnde } from "@/components/onde/adminOnde";
 
 type Abonne = {
-  id: string; email: string; prenom: string | null; source: SourceAbonne; statut: StatutAbonne;
+  id: string; email: string; prenom: string | null; nom: string | null; source: SourceAbonne; statut: StatutAbonne;
   consentement_le: string | null; consentement_texte: string | null; confirme_le: string | null;
   desinscrit_le: string | null; created_at: string; adherent: boolean;
 };
@@ -61,7 +61,7 @@ const AbonnesOnde = () => {
 
   const visibles = useMemo(() => {
     const t = sansAccents(q.trim());
-    return liste.filter((a) => (filtre === "tous" || a.statut === filtre) && (!t || sansAccents(`${a.prenom || ""} ${a.email}`).includes(t)));
+    return liste.filter((a) => (filtre === "tous" || a.statut === filtre) && (!t || sansAccents(`${a.prenom || ""} ${a.nom || ""} ${a.email}`).includes(t)));
   }, [liste, q, filtre]);
 
   const supprimer = useMutation({
@@ -80,9 +80,9 @@ const AbonnesOnde = () => {
   });
 
   const exporter = () => {
-    const entetes = ["Prénom", "E-mail", "Statut", "Source", "Adhérent·e à jour", "Inscrit·e le", "Consentement le", "Texte du consentement", "Confirmé le", "Désinscrit·e le"];
+    const entetes = ["Prénom", "Nom", "E-mail", "Statut", "Source", "Adhérent·e à jour", "Inscrit·e le", "Consentement le", "Texte du consentement", "Confirmé le", "Désinscrit·e le"];
     const lignes = visibles.map((a) => [
-      a.prenom || "", a.email, LIBELLE_STATUT_ABONNE[a.statut], LIBELLE_SOURCE_ABONNE[a.source], a.adherent ? "oui" : "non",
+      a.prenom || "", a.nom || "", a.email, LIBELLE_STATUT_ABONNE[a.statut], LIBELLE_SOURCE_ABONNE[a.source], a.adherent ? "oui" : "non",
       dateHeure(a.created_at), dateHeure(a.consentement_le), a.consentement_texte || "", dateHeure(a.confirme_le), dateHeure(a.desinscrit_le),
     ]);
     const blob = new Blob(["\uFEFF" + toCsv([entetes, ...lignes])], { type: "text/csv;charset=utf-8;" });
@@ -164,7 +164,7 @@ const AbonnesOnde = () => {
               {visibles.map((a) => (
                 <li key={a.id} className="flex flex-wrap items-start justify-between gap-3 py-3">
                   <div className="min-w-0">
-                    <p className="font-bold">{a.prenom ? formatName(a.prenom) : <span className="text-muted-foreground font-normal">Sans prénom</span>}</p>
+                    <p className="font-bold">{a.prenom || a.nom ? formatName([a.prenom, a.nom].filter(Boolean).join(" ")) : <span className="text-muted-foreground font-normal">Sans nom</span>}</p>
                     <p className="text-sm break-all">{a.email}</p>
                     <p className="mt-1.5 flex flex-wrap items-center gap-2">
                       <Badge plein={a.statut === "actif"}>{LIBELLE_STATUT_ABONNE[a.statut]}</Badge>

@@ -525,9 +525,9 @@ export const lienDesinscriptionOnde = (jeton: string) => `${SITE_URL}${ONDE_DESI
  * Inscription : même réponse que l'adresse soit nouvelle ou déjà abonnée.
  * Le serveur (fonction « onde-inscription ») enregistre la demande puis envoie l'e-mail de confirmation.
  */
-export const inscrireOnde = async (prenom: string | null, email: string, source: "onde" | "evenement"): Promise<{ error: { code?: string; message?: string } | null }> => {
+export const inscrireOnde = async (prenom: string | null, email: string, source: "onde" | "evenement", nom?: string | null): Promise<{ error: { code?: string; message?: string } | null }> => {
   const { error } = await supabase.functions.invoke("onde-inscription", {
-    body: { prenom: prenom ?? "", email: email.trim(), consentement: true, source },
+    body: { prenom: prenom ?? "", nom: nom ?? "", email: email.trim(), consentement: true, source },
   });
   if (!error) return { error: null };
   const corps = error instanceof FunctionsHttpError ? await error.context.json().catch(() => ({})) : {};

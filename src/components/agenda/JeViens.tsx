@@ -58,7 +58,7 @@ const JeViens = ({ evenementId, places }: { evenementId: string; places: number 
     const [prenom, ...reste] = nom.trim().split(/\s+/);
     const { error } = await supabase.from("evenement_inscriptions").insert({ evenement_id: evenementId, prenom, nom: reste.join(" "), email, telephone: telephone?.trim() || null });
     // Case « Je veux aussi recevoir L'Onde du Sud » : demande enregistrée à part, sans jamais bloquer la réponse à l'événement
-    if (onde && (!error || error.code === "23505")) inscrireOnde(prenom, email, "evenement").then(() => {}, () => {});
+    if (onde && (!error || error.code === "23505")) inscrireOnde(prenom, email, "evenement", reste.join(" ")).then(() => {}, () => {});
     if (error) {
       setMsg(error.code === "23505" ? "Vous êtes déjà noté·e pour cet événement." : messageServeur(error, "Ça n'a pas marché. Réessayez dans un instant."));
       setState(error.code === "23505" ? "ok" : "error");

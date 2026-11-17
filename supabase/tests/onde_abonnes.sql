@@ -27,7 +27,10 @@ BEGIN
   IF NOT ok THEN RAISE EXCEPTION 'ECHEC : adresse invalide acceptée'; END IF;
 
   -- Inscription : en attente de confirmation, texte du consentement gardé
-  PERFORM public.onde_inscrire('Test', 'onde-ab-1@exemple.invalid', true, 'onde');
+  PERFORM public.onde_inscrire('Test', 'onde-ab-1@exemple.invalid', true, 'onde', 'Fictif');
+  IF NOT EXISTS (SELECT 1 FROM public.onde_abonnes WHERE email = 'onde-ab-1@exemple.invalid' AND nom = 'Fictif') THEN
+    RAISE EXCEPTION 'ECHEC : nom non enregistré';
+  END IF;
   SELECT a.statut, a.jeton INTO s, j FROM public.onde_abonnes a WHERE a.email = 'onde-ab-1@exemple.invalid';
   IF s IS DISTINCT FROM 'en_attente' THEN RAISE EXCEPTION 'ECHEC : statut % au lieu de en_attente', s; END IF;
   IF NOT EXISTS (SELECT 1 FROM public.onde_abonnes WHERE email = 'onde-ab-1@exemple.invalid' AND consentement_le IS NOT NULL

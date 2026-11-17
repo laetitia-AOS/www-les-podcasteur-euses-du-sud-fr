@@ -6,7 +6,7 @@ import { useEtatLecteur } from "@/lib/ondePied";
 
 const AbonnementOnde = () => {
   const { data: lecteur } = useEtatLecteur();
-  return lecteur === "membre" || lecteur === "membre_desinscrit" ? <MessageMembreOnde etat={lecteur} /> : <FormulaireOnde ligne />;
+  return lecteur === "membre" || lecteur === "membre_desinscrit" ? <MessageMembreOnde etat={lecteur} depot /> : <FormulaireOnde ligne />;
 };
 
 export default AbonnementOnde;

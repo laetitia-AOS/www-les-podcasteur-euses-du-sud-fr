@@ -18,12 +18,13 @@ Deno.serve(async (req) => {
   const body = await req.json().catch(() => null);
   const email = typeof body?.email === "string" ? body.email.trim() : "";
   const prenom = typeof body?.prenom === "string" ? body.prenom.slice(0, 200) : "";
+  const nom = typeof body?.nom === "string" ? body.nom.slice(0, 200) : "";
   const source = body?.source === "evenement" ? "evenement" : body?.source === "onde" ? "onde" : "";
   if (!email || email.length > 255 || !source) return json({ code: "P0001", error: "Adresse e-mail invalide." }, 400);
   if (body?.consentement !== true) return json({ code: "P0001", error: "Cochez la case pour accepter de recevoir L'Onde du Sud." }, 400);
 
   const admin = createClient(Deno.env.get("SUPABASE_URL")!, Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!);
-  const { error } = await admin.rpc("onde_inscrire", { _prenom: prenom, _email: email, _consentement: true, _source: source });
+  const { error } = await admin.rpc("onde_inscrire", { _prenom: prenom, _email: email, _consentement: true, _source: source, _nom: nom });
   if (error) {
     if (error.code === "P0001") return json({ code: "P0001", error: error.message }, 400);
     console.error("inscription", error.code, error.message);

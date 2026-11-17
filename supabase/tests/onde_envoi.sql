@@ -21,7 +21,7 @@ BEGIN
      OR has_function_privilege('anon', 'public.onde_envoi_demarrer(uuid, uuid, text, integer, text)', 'EXECUTE')
      OR has_function_privilege('authenticated', 'public.onde_envoi_reserver(uuid, integer)', 'EXECUTE')
      OR has_function_privilege('authenticated', 'public.onde_envoi_bilan(uuid, boolean)', 'EXECUTE')
-     OR has_function_privilege('anon', 'public.onde_inscrire(text, text, boolean, text)', 'EXECUTE')
+     OR has_function_privilege('anon', 'public.onde_inscrire(text, text, boolean, text, text)', 'EXECUTE')
      OR has_function_privilege('authenticated', 'public.onde_destinataires_nombre()', 'EXECUTE') THEN
     RAISE EXCEPTION 'ECHEC : un visiteur ou un membre peut déclencher un envoi';
   END IF;
