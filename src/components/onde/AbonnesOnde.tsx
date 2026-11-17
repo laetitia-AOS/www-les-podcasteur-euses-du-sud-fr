@@ -127,7 +127,7 @@ const AbonnesOnde = () => {
           <Label htmlFor="onde-abonnes-recherche">Rechercher</Label>
           <div className="relative">
             <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" aria-hidden />
-            <Input id="onde-abonnes-recherche" value={q} onChange={(e) => setQ(e.target.value)} placeholder="Prénom ou e-mail" className="pl-9" />
+            <Input id="onde-abonnes-recherche" value={q} onChange={(e) => setQ(e.target.value)} placeholder="Prénom, nom ou e-mail" className="pl-9" />
           </div>
         </div>
         <div className="flex flex-wrap gap-2" role="group" aria-label="Filtrer par statut">
