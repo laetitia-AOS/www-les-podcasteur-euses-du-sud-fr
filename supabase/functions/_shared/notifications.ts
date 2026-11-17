@@ -3,7 +3,8 @@
 import { sendTemplateEmail } from './transactional-email-templates/send-email.ts'
 
 export async function envoyer(template: string, to: string | null | undefined, data: Record<string, unknown>, cle: string, repondreA?: string): Promise<boolean> {
-  if (!to || !/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(to) || to.endsWith('@invalid')) return false
+  // Domaines réservés aux essais (« .invalid », example.com…), jamais distribuables : rien ne part
+  if (!to || !/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(to) || to.endsWith('@invalid') || /(\.invalid|@example\.(com|org|net))$/i.test(to)) return false
   try {
     const r = await sendTemplateEmail(template, to, { templateData: data, idempotencyKey: cle, replyTo: repondreA || undefined })
     return r.sent

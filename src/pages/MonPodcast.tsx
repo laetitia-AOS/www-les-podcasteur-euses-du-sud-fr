@@ -12,6 +12,7 @@ import { FICHE_COLUMNS, cardCls, sectionTitle, type FicheMembre } from "@/compon
 import { anneeEnCours, formatLongDate, ilYA, libelleValidite, lienRenouveler, periodeRenouvellement, publicProfilePath, type EtatServeur } from "@/lib/espaceMembre";
 import SupprimerDonnees from "@/components/espace-membre/SupprimerDonnees";
 import DeposerOnde from "@/components/espace-membre/DeposerOnde";
+import AccueilMembre from "@/components/accueil/AccueilMembre";
 import { ANCRE_DEPOT } from "@/lib/ondeDepots";
 import { readableTitle } from "@/lib/events";
 import { btnPrimary, btnSecondary, formatName, linkUnderline } from "@/lib/pds";
@@ -30,6 +31,7 @@ const TYPE_DEMANDE: Record<string, { label: string; sujet: string }> = {
 
 const SECTIONS = [
   { id: "tableau", label: "Tableau de bord" },
+  { id: "whatsapp", label: "Groupe WhatsApp" },
   { id: "profil", label: "Mon profil" },
   { id: "podcasts", label: "Mes podcasts" },
   { id: "demandes", label: "Demandes reçues" },
@@ -330,6 +332,11 @@ const MonEspace = () => {
             <p className="mt-2 text-xs text-muted-foreground">
               Écoutes : clics sur les boutons d'écoute du site et lectures dans le lecteur, une fois par jour et par personne. Comptage anonyme, sans cookie.
             </p>
+          </section>
+
+          {/* Groupe WhatsApp du département (département demandé s'il est inconnu) */}
+          <section id="whatsapp" aria-labelledby="whatsapp-title" className="scroll-mt-6">
+            <AccueilMembre variante="espace" />
           </section>
 
           {/* Mon profil */}

@@ -11,6 +11,7 @@ import { template as t8 } from './fiche-a-creer.tsx'
 import { template as t9 } from './renouvellement.tsx'
 import { template as t10 } from './rapport-semaine.tsx'
 import { template as t11 } from './question-studio.tsx'
+import { template as t12 } from './bienvenue-membre.tsx'
 
 export interface TemplateEntry {
   component: ComponentType<any>
@@ -42,4 +43,5 @@ export const TEMPLATES: Record<string, TemplateEntry> = {
   'question-studio': t11,
   'renouvellement': t9,
   'rapport-semaine': t10,
+  'bienvenue-membre': t12,
 }

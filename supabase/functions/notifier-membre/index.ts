@@ -3,6 +3,7 @@
 // Le serveur relit tout en base : la page n'envoie qu'un identifiant.
 import { createClient } from "npm:@supabase/supabase-js@2.45.0";
 import { dateLongue, envoyer, premierPrenom } from "../_shared/notifications.ts";
+import { envoyerConfirmationAdhesion } from "../_shared/confirmation-adhesion.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -32,9 +33,7 @@ Deno.serve(async (req) => {
   if (body?.type === "adhesion") {
     const { data: a } = await admin.from("adhesions").select("id, email, prenom, statut, annee, formule, montant").eq("id", id).maybeSingle();
     if (!a || a.statut !== "active") return json({ sent: false, reason: "adhesion_inactive" });
-    const sent = await envoyer("adhesion-confirmee", a.email, {
-      prenom: premierPrenom(a.prenom), annee: a.annee, formule: a.formule, montant: a.montant,
-    }, `adhesion-confirmee-${a.id}`);
+    const sent = await envoyerConfirmationAdhesion(admin, a);
     return json({ sent });
   }
 

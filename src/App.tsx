@@ -38,6 +38,9 @@ const Adhesion = lazy(() => import("./pages/Adhesion"));
 const Annuaire = lazy(() => import("./pages/Annuaire"));
 const ProfilMembre = lazy(() => import("./pages/ProfilMembre"));
 const Bienvenue = lazy(() => import("./pages/Bienvenue"));
+const BienvenueJeton = lazy(() => import("./pages/BienvenueJeton"));
+const AdminWhatsapp = lazy(() => import("./pages/AdminWhatsapp"));
+const AdminWhatsappAffiche = lazy(() => import("./pages/AdminWhatsappAffiche"));
 const Formulaire = lazy(() => import("./pages/Formulaire"));
 const StudioProfile = lazy(() => import("./pages/StudioProfile"));
 const StructureEcoProfile = lazy(() => import("./pages/StructureEcoProfile"));
@@ -115,6 +118,9 @@ const App = () => (
             <Route path="/o/:numero/:bloc" element={<OndeLienCourt />} />
             <Route path="/proposer-evenement-podcast" element={<ProposerEvenement />} />
             <Route path="/bienvenue" element={<Bienvenue />} />
+            <Route path="/bienvenue/accueil" element={<Bienvenue apresPaiement={false} />} />
+            <Route path="/bienvenue/rejoint" element={<BienvenueJeton usage="rejoint" />} />
+            <Route path="/bienvenue/relances" element={<BienvenueJeton usage="stop" />} />
             <Route path="/referencer-mon-podcast" element={<Formulaire />} />
             {/* Anciennes adresses : redirection vers l'adresse actuelle (adresse, paramètres et ancre conservés) */}
             <Route path="/podcasts" element={<KeepRedirect to="/ecouter" />} />
@@ -140,6 +146,8 @@ const App = () => (
             <Route path="/admin/agenda" element={<AdminEvenements />} />
             <Route path="/admin/messages" element={<AdminContacts />} />
             <Route path="/admin/partenaires" element={<AdminPartenaires />} />
+            <Route path="/admin/whatsapp" element={<AdminWhatsapp />} />
+            <Route path="/admin/whatsapp/affiche/:id" element={<AdminWhatsappAffiche />} />
             <Route path="/admin/onde" element={<AdminOnde />} />
             <Route path="/admin/onde/:id" element={<AdminOndeNumero />} />
             <Route path="/admin/onde/:id/apercu" element={<AdminOndeApercu />} />

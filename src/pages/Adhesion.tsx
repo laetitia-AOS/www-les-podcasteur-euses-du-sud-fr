@@ -8,6 +8,8 @@ import ProfilStep, { type ProfilResult } from "@/components/adherer/ProfilStep";
 import PodcastsStep from "@/components/adherer/PodcastsStep";
 import { btnPrimary, btnSecondary, container, h1Ligne, linkUnderline } from "@/lib/pds";
 import { anneeEnCours, libelleValidite, periodeRenouvellement } from "@/lib/espaceMembre";
+import AccueilMembre from "@/components/accueil/AccueilMembre";
+import { supabase } from "@/integrations/supabase/client";
 import { FORMULES_HELLOASSO, HELLOASSO_WIDGET, PHRASE_ADHESION, TARIFS, TYPES_PROFIL, formulePourType, profilColumns, type TypeProfil } from "@/lib/inscription";
 
 type StepKey = "profil" | "podcasts" | "adhesion" | "paiement";
@@ -77,6 +79,29 @@ const Adhesion = () => {
   const [podcastCount, setPodcastCount] = useState(0);
   const sectionRef = useRef<HTMLElement>(null);
   const firstRender = useRef(true);
+
+  // E-mail de bienvenue (une seule fois par personne ; le serveur vérifie que la fiche vient d'être créée)
+  const bienvenueEnvoyee = useRef(false);
+  const emailEnAttente = useRef<string | null>(null);
+  const envoyerBienvenue = (email: string, enQuittant = false) => {
+    if (bienvenueEnvoyee.current || !email) return;
+    bienvenueEnvoyee.current = true;
+    emailEnAttente.current = null;
+    const corps = JSON.stringify({ email });
+    if (enQuittant && navigator.sendBeacon) {
+      navigator.sendBeacon(`https://${import.meta.env.VITE_SUPABASE_PROJECT_ID}.supabase.co/functions/v1/bienvenue-membre`, new Blob([corps], { type: "text/plain" }));
+    } else {
+      supabase.functions.invoke("bienvenue-membre", { body: { email } }).catch(() => undefined);
+    }
+  };
+  useEffect(() => {
+    if (step !== "profil" && step !== "podcasts" && emailEnAttente.current) envoyerBienvenue(emailEnAttente.current);
+  }, [step]);
+  useEffect(() => {
+    const partir = () => { if (emailEnAttente.current) envoyerBienvenue(emailEnAttente.current, true); };
+    window.addEventListener("pagehide", partir);
+    return () => window.removeEventListener("pagehide", partir);
+  }, []);
 
   const steps: StepKey[] = type === "podcasteur" ? ["profil", "podcasts", "adhesion", "paiement"] : ["profil", "adhesion", "paiement"];
   const current = steps.indexOf(step);
@@ -206,6 +231,9 @@ const Adhesion = () => {
                 onTypeChange={setType}
                 onDone={(r) => {
                   setResult(r);
+                  // Bienvenue tout de suite, sauf pour un·e podcasteur·euse : après ses podcasts (ou en quittant la page)
+                  if (r.type === "podcasteur") emailEnAttente.current = r.email;
+                  else envoyerBienvenue(r.email);
                   setStep(r.type === "podcasteur" ? "podcasts" : "adhesion");
                 }}
               />
@@ -278,6 +306,19 @@ const Adhesion = () => {
                   )}
                   <button type="button" onClick={() => setStep("paiement")} className={`${btnPrimary} px-8`}>Continuer vers le paiement</button>
                 </div>
+                {(result?.saved || podcastCount > 0) && (
+                  <section aria-labelledby="bienvenue-inscription" className="mt-14 pt-10 border-t-2 border-encre">
+                    <h2 id="bienvenue-inscription" className="title-section text-[32px] sm:text-[40px]">Bienvenue chez les Podcasteur·euses du Sud</h2>
+                    <p className="mt-3 mb-8 text-[17px] max-w-[62ch]">
+                      Un e-mail de bienvenue part vers {result?.email ? <strong className="break-all">{result.email}</strong> : "ton adresse"} : il contient le lien du groupe WhatsApp de ton département et ton message de présentation.
+                    </p>
+                    <AccueilMembre variante="compact" fichesFormulaire={result?.profil ? [{
+                      prenom: result.profil.prenom, type_profil: result.profil.typeProfil, metier_principal: result.profil.metierPrincipal,
+                      city_name: result.profil.city?.city_name, cherche_choix: result.profil.cherche, apporte_choix: result.profil.apporte,
+                      cherche_precision: result.profil.cherchePrecision, apporte_precision: result.profil.apportePrecision,
+                    }] : undefined} />
+                  </section>
+                )}
               </div>
             )}
 

@@ -14,6 +14,60 @@ export type Database = {
   }
   public: {
     Tables: {
+      accueil_invitations: {
+        Row: {
+          envoyes: number
+          erreurs: number
+          id: string
+          lancee_le: string
+          lancee_par: string | null
+          message: string | null
+          terminee_le: string | null
+        }
+        Insert: {
+          envoyes?: number
+          erreurs?: number
+          id?: string
+          lancee_le?: string
+          lancee_par?: string | null
+          message?: string | null
+          terminee_le?: string | null
+        }
+        Update: {
+          envoyes?: number
+          erreurs?: number
+          id?: string
+          lancee_le?: string
+          lancee_par?: string | null
+          message?: string | null
+          terminee_le?: string | null
+        }
+        Relationships: []
+      }
+      accueil_jetons: {
+        Row: {
+          created_at: string
+          email: string
+          empreinte: string
+          usage: string
+          utilise_le: string | null
+        }
+        Insert: {
+          created_at?: string
+          email: string
+          empreinte: string
+          usage: string
+          utilise_le?: string | null
+        }
+        Update: {
+          created_at?: string
+          email?: string
+          empreinte?: string
+          usage?: string
+          utilise_le?: string | null
+        }
+        Relationships: []
+      }
       adhesion_rattachements: {
         Row: {
           adhesion_id: string
@@ -726,6 +780,45 @@ export type Database = {
           taille?: number
           traite_at?: string | null
           type_mime?: string
+        }
+        Relationships: []
+      }
+      membres_accueil: {
+        Row: {
+          bienvenue_le: string | null
+          bienvenue_motif: string | null
+          created_at: string
+          departement: string | null
+          email: string
+          invitation_le: string | null
+          relance_le: string | null
+          relances_refusees_le: string | null
+          updated_at: string
+          whatsapp_rejoint_le: string | null
+        }
+        Insert: {
+          bienvenue_le?: string | null
+          bienvenue_motif?: string | null
+          created_at?: string
+          departement?: string | null
+          email: string
+          invitation_le?: string | null
+          relance_le?: string | null
+          relances_refusees_le?: string | null
+          updated_at?: string
+          whatsapp_rejoint_le?: string | null
+        }
+        Update: {
+          bienvenue_le?: string | null
+          bienvenue_motif?: string | null
+          created_at?: string
+          departement?: string | null
+          email?: string
+          invitation_le?: string | null
+          relance_le?: string | null
+          relances_refusees_le?: string | null
+          updated_at?: string
+          whatsapp_rejoint_le?: string | null
         }
         Relationships: []
       }
@@ -1492,11 +1585,84 @@ export type Database = {
         }
         Relationships: []
       }
+      whatsapp_groupes: {
+        Row: {
+          created_at: string
+          departements: string[]
+          id: string
+          lien: string
+          nom: string
+          ordre: number
+          par_defaut: boolean
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          departements?: string[]
+          id?: string
+          lien: string
+          nom: string
+          ordre?: number
+          par_defaut?: boolean
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          departements?: string[]
+          id?: string
+          lien?: string
+          nom?: string
+          ordre?: number
+          par_defaut?: boolean
+          updated_at?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
+      accueil_bienvenue_annuler: {
+        Args: { _email: string }
+        Returns: undefined
+      }
+      accueil_bienvenue_reserver: {
+        Args: { _email: string; _motif: string }
+        Returns: boolean
+      }
+      accueil_departement_de: { Args: { _email: string }; Returns: string }
+      accueil_departement_valide: { Args: { _d: string }; Returns: boolean }
+      accueil_groupe_du_departement: {
+        Args: { _dep: string }
+        Returns: {
+          groupe_id: string
+          lien: string
+          nom: string
+        }[]
+      }
+      accueil_invitation_cibles: {
+        Args: never
+        Returns: {
+          email: string
+        }[]
+      }
+      accueil_jeton_creer: {
+        Args: { _email: string; _usage: string }
+        Returns: string
+      }
+      accueil_jeton_utiliser: { Args: { _jeton: string }; Returns: string }
+      accueil_marquer: {
+        Args: { _email: string; _quoi: string }
+        Returns: undefined
+      }
+      accueil_personne_connue: { Args: { _email: string }; Returns: boolean }
+      accueil_relances_dues: {
+        Args: never
+        Returns: {
+          email: string
+        }[]
+      }
       admin_a_traiter: {
         Args: never
         Returns: {
@@ -1510,6 +1676,23 @@ export type Database = {
           propositions: number
         }[]
       }
+      admin_accueil: {
+        Args: never
+        Returns: {
+          bienvenue_le: string
+          departement: string
+          departement_choisi: boolean
+          email: string
+          etat: string
+          groupe_nom: string
+          invitation_le: string
+          nom: string
+          relance_le: string
+          relances_refusees_le: string
+          whatsapp_rejoint_le: string
+        }[]
+      }
+      admin_accueil_invitation_nombre: { Args: never; Returns: number }
       admin_flux: {
         Args: never
         Returns: {
@@ -1581,6 +1764,10 @@ export type Database = {
         Args: { _decision: string; _podcast_id: string }
         Returns: boolean
       }
+      definir_mon_departement: {
+        Args: { _departement: string }
+        Returns: undefined
+      }
       demarrer_sync_episodes: { Args: never; Returns: number }
       effacer_donnees_membre: { Args: { _email: string }; Returns: string[] }
       episodes_visibles: { Args: { _podcast_id: string }; Returns: boolean }
@@ -1591,6 +1778,7 @@ export type Database = {
         }
         Returns: boolean
       }
+      j_ai_rejoint_whatsapp: { Args: never; Returns: string }
       je_viens_deja: { Args: { _evenement_id: string }; Returns: boolean }
       lieu_visible: { Args: { _id: string }; Returns: boolean }
       marquer_demande_lue: { Args: { _id: string }; Returns: boolean }
@@ -1677,6 +1865,15 @@ export type Database = {
         }[]
       }
       mon_abonnement_onde: { Args: never; Returns: Json }
+      mon_accueil: {
+        Args: never
+        Returns: {
+          departement: string
+          groupe_lien: string
+          groupe_nom: string
+          whatsapp_rejoint_le: string
+        }[]
+      }
       mon_adhesion: {
         Args: never
         Returns: {

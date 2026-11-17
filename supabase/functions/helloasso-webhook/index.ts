@@ -1,6 +1,6 @@
 import { createClient } from "npm:@supabase/supabase-js@2";
 import { checkOrder, ORG_SLUG } from "../_shared/helloasso.ts";
-import { envoyer, premierPrenom } from "../_shared/notifications.ts";
+import { envoyerConfirmationAdhesion } from "../_shared/confirmation-adhesion.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -111,11 +111,8 @@ Deno.serve(async (req) => {
       return json({ error: "Insert failed" }, 500);
     }
     // Paiement confirmé par HelloAsso : e-mail de bienvenue (« Valable jusqu'au 31 décembre »)
-    if (verified && cree) {
-      await envoyer("adhesion-confirmee", cree.email, {
-        prenom: premierPrenom(cree.prenom), annee: cree.annee, formule: cree.formule, montant: cree.montant,
-      }, `adhesion-confirmee-${cree.id}`);
-    }
+    // Première cotisation : la confirmation contient aussi l'accueil (groupe WhatsApp du département…)
+    if (verified && cree) await envoyerConfirmationAdhesion(supabase, cree);
     return json({ success: true, verified });
   } catch (err) {
     console.error("Webhook error:", err instanceof Error ? err.message : "unknown");

@@ -8,10 +8,11 @@ import StudioFormSection from "@/components/StudioFormSection";
 import StructureEcoFormSection from "@/components/StructureEcoFormSection";
 import { btnPrimary } from "@/lib/pds";
 import {
-  COLLAB_CHOIX, COLLAB_CHOIX_APPORTE, DEPARTEMENTS, DISPONIBILITES, LIEN_SANS_PODCAST, SERVICES, TYPES_PROFIL,
+  COLLAB_CHOIX, COLLAB_CHOIX_APPORTE, DEPARTEMENTS_INSCRIPTION, DISPONIBILITES, LIEN_SANS_PODCAST, SERVICES, TYPES_PROFIL,
   isHttpsUrl, profilColumns, uploadImage, type ProfilData, type TypeProfil,
 } from "@/lib/inscription";
 import { ChoiceList, CollabField, ImagePicker, Req, field, hintCls, labelCls } from "./fields";
+import { villeLibre } from "@/lib/accueil";
 
 export type ProfilResult = { type: TypeProfil; email: string; saved: boolean; profil?: ProfilData };
 
@@ -58,7 +59,10 @@ const ProfilStep = ({
     if (p.lienPrincipal && !isHttpsUrl(p.lienPrincipal)) return fail("Le lien du site doit commencer par https://");
     if (type === "pro_podcast" && !p.metierPrincipal) return fail("Choisissez votre métier principal.");
     if (!p.departementCode) return fail("Choisissez votre département.");
-    if (!p.city?.city_insee_code) { setCityError("Choisissez une ville dans la liste."); return fail("Choisissez une ville dans la liste."); }
+    if (villeLibre(p.departementCode) ? !p.city?.city_name?.trim() : !p.city?.city_insee_code) {
+      const m = villeLibre(p.departementCode) ? "Indiquez votre ville." : "Choisissez une ville dans la liste.";
+      setCityError(m); return fail(m);
+    }
     if (!consentCGU) return fail("Acceptez les conditions d'utilisation et la politique de confidentialité.");
     if (!consentAnnuaire) return fail("Acceptez d'apparaître dans l'annuaire.");
     if (!p.consentContact) return fail("Acceptez d'être contacté·e par l'association.");
@@ -223,11 +227,20 @@ const ProfilStep = ({
               required
             >
               <option value="">Choisir</option>
-              {DEPARTEMENTS.map((d) => <option key={d.code} value={d.code}>{d.label}</option>)}
+              {DEPARTEMENTS_INSCRIPTION.map((d) => <option key={d.code} value={d.code}>{d.label}</option>)}
             </select>
+            <p className={hintCls}>Il donne aussi le groupe WhatsApp du collectif à rejoindre.</p>
           </div>
           <div>
-            {p.departementCode ? (
+            {villeLibre(p.departementCode) ? (
+              <>
+                <label htmlFor="pf-ville" className={labelCls}>Ville<Req /></label>
+                <input id="pf-ville" value={p.city?.city_name || ""} maxLength={100} autoComplete="address-level2"
+                  onChange={(e) => { set("city", { city_name: e.target.value, city_insee_code: "", city_postcode: "" }); setCityError(""); }}
+                  className={field} required aria-invalid={!!cityError} />
+                {cityError && <p className="mt-1.5 text-sm font-semibold">{cityError}</p>}
+              </>
+            ) : p.departementCode ? (
               <CityAutocomplete
                 departmentCode={p.departementCode}
                 value={p.city}

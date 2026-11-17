@@ -140,3 +140,14 @@
 - [x] 3. Couverture générée depuis l'audio (1080×1350, 1200×630, image de partage, titres/descriptions uniques)
 - [x] 4. « Créer le visuel (Instagram et LinkedIn) » + légende LinkedIn, logo en haut à gauche
 - [x] Sécurité serveur, tests, essai écran sur numéro de test effacé, scan
+
+## Accueil des nouvelles personnes et groupes WhatsApp (17/11/2026)
+- [x] Département (formulaire d'inscription, espace membre, encart si inconnu)
+- [x] Groupes WhatsApp réglables dans l'admin (2 groupes de départ), liens jamais publics
+- [x] E-mail de bienvenue unique (création de profil ou 1re cotisation), avec groupe, QR, message de présentation
+- [x] Page de confirmation (Bienvenue + fin d'inscription) : 4 étapes, groupe, message à copier, « J'ai rejoint »
+- [x] Suivi « J'ai rejoint » (page, e-mail par jeton, espace membre), liste admin + filtre
+- [x] Relance unique à J+7 et invitation de rattrapage (aperçu, nombre, confirmation, reprise le lendemain), lien « ne plus recevoir »
+- [x] Affiche A5 imprimable par groupe
+- [x] Tests fictifs effacés, scan de sécurité, version enregistrée, pas de publication
+- [ ] Relance J+7 et invitations de rattrapage : en attente de la clé d'envoi (même service que L'Onde du Sud)

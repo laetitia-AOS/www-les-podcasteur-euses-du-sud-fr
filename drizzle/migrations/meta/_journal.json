@@ -407,6 +407,20 @@
       "when": 1794952121263,
       "tag": "0057_onde_ce_qui_bouge",
       "breakpoints": true
+    },
+    {
+      "idx": 58,
+      "version": "7",
+      "when": 1794957462585,
+      "tag": "0058_accueil_whatsapp",
+      "breakpoints": true
+    },
+    {
+      "idx": 59,
+      "version": "7",
+      "when": 1794958618801,
+      "tag": "0059_accueil_invitation_cibles_rattachements",
+      "breakpoints": true
     }
   ]
 }

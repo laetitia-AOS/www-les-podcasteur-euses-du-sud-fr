@@ -4,7 +4,8 @@ import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import CityAutocomplete, { type CityResult } from "@/components/CityAutocomplete";
 import { ChoiceList, CollabField, ImagePicker, field, hintCls, labelCls } from "@/components/adherer/fields";
-import { COLLAB_CHOIX, COLLAB_CHOIX_APPORTE, DEPARTEMENTS, SERVICES, uploadImage } from "@/lib/inscription";
+import { COLLAB_CHOIX, COLLAB_CHOIX_APPORTE, DEPARTEMENTS_INSCRIPTION, SERVICES, uploadImage } from "@/lib/inscription";
+import { villeLibre } from "@/lib/accueil";
 import { roleLabel } from "@/lib/espaceMembre";
 import { btnPrimary, formatName } from "@/lib/pds";
 import { cardCls, sectionTitle, type FicheMembre } from "./types";
@@ -47,7 +48,7 @@ const ProfilCard = ({ profil, fiches, onSaved }: Props) => {
     try {
       let photoUrl = photo;
       if (photoFile) photoUrl = await uploadImage(photoFile);
-      const deptInfo = DEPARTEMENTS.find((d) => d.code === dept);
+      const deptInfo = DEPARTEMENTS_INSCRIPTION.find((d) => d.code === dept);
       // Infos de profil : identiques sur toutes les fiches de la personne.
       const commun: Partial<FicheMembre> = {
         prenom: formatName(prenom),
@@ -66,7 +67,7 @@ const ProfilCard = ({ profil, fiches, onSaved }: Props) => {
         city_name: city?.city_name || null,
         city_insee_code: city?.city_insee_code || null,
         city_postcode: city?.city_postcode || null,
-        ville: city ? `${city.city_name}, ${deptInfo?.label || dept}` : null,
+        ville: city?.city_name ? `${city.city_name}, ${deptInfo?.label || dept}` : null,
       };
       const { error } = await supabase.from("podcasts").update(commun).in("id", fiches.map((f) => f.id));
       if (error) throw error;
@@ -127,11 +128,16 @@ const ProfilCard = ({ profil, fiches, onSaved }: Props) => {
           <label htmlFor="em-dept" className={labelCls}>Département</label>
           <select id="em-dept" value={dept} onChange={(e) => { setDept(e.target.value); setCity(null); }} className={field}>
             <option value="">Choisir</option>
-            {DEPARTEMENTS.map((d) => <option key={d.code} value={d.code}>{d.label}</option>)}
+            {DEPARTEMENTS_INSCRIPTION.map((d) => <option key={d.code} value={d.code}>{d.label}</option>)}
           </select>
         </div>
         <div>
-          {dept ? (
+          {villeLibre(dept) ? (
+            <>
+              <label htmlFor="em-ville" className={labelCls}>Ville</label>
+              <input id="em-ville" value={city?.city_name || ""} maxLength={100} onChange={(e) => setCity({ city_name: e.target.value, city_insee_code: "", city_postcode: "" })} className={field} />
+            </>
+          ) : dept ? (
             <CityAutocomplete departmentCode={dept} value={city} onChange={setCity} inputClass={field} labelClass={labelCls} />
           ) : (
             <>

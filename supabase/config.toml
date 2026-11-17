@@ -56,3 +56,9 @@ verify_jwt = false
 
 [functions.onde-depot]
 verify_jwt = false
+
+[functions.bienvenue-membre]
+verify_jwt = false
+
+[functions.accueil-whatsapp]
+verify_jwt = false

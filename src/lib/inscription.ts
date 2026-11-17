@@ -2,6 +2,10 @@
 import { supabase } from "@/integrations/supabase/client";
 import { formatName } from "@/lib/pds";
 import type { CityResult } from "@/components/CityAutocomplete";
+import { DEPARTEMENTS_ACCUEIL } from "@/lib/accueil";
+
+/** Départements proposés à l'inscription et dans l'espace membre (Région Sud, Corse, Monaco, autre). */
+export const DEPARTEMENTS_INSCRIPTION = DEPARTEMENTS_ACCUEIL;
 
 export const DEPARTEMENTS = [
   { code: "04", label: "04 — Alpes-de-Haute-Provence" },
@@ -261,7 +265,7 @@ export type ProfilData = {
 
 /** Colonnes communes à toutes les lignes d'une même personne (fiche annuaire). */
 export const profilColumns = (p: ProfilData) => {
-  const dept = DEPARTEMENTS.find((d) => d.code === p.departementCode);
+  const dept = DEPARTEMENTS_INSCRIPTION.find((d) => d.code === p.departementCode);
   return {
     prenom: formatName(p.prenom),
     nom: formatName(p.nom),

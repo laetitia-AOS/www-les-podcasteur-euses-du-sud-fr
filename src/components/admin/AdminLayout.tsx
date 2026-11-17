@@ -1,6 +1,6 @@
 import { useState, type ReactNode } from "react";
 import { Link, Navigate, NavLink, useLocation } from "react-router-dom";
-import { BookOpen, CalendarDays, ExternalLink, Handshake, Inbox, Loader2, LogOut, Mail, Menu, Radio, Users, X } from "lucide-react";
+import { BookOpen, CalendarDays, ExternalLink, Handshake, Inbox, Loader2, LogOut, Mail, Menu, MessageCircle, Radio, Users, X } from "lucide-react";
 import { useAdminAuth } from "@/hooks/useAdminAuth";
 import SEOHead from "@/components/SEOHead";
 import { useATraiter, totalRubrique } from "@/components/admin/useATraiter";
@@ -8,6 +8,7 @@ import { useATraiter, totalRubrique } from "@/components/admin/useATraiter";
 export const RUBRIQUES = [
   { id: "a-traiter", label: "À traiter", to: "/admin", icon: Inbox },
   { id: "membres", label: "Membres", to: "/admin/membres", icon: Users },
+  { id: "whatsapp", label: "Groupes WhatsApp", to: "/admin/whatsapp", icon: MessageCircle },
   { id: "annuaire", label: "Annuaire", to: "/admin/annuaire", icon: BookOpen },
   { id: "agenda", label: "Agenda", to: "/admin/agenda", icon: CalendarDays },
   { id: "messages", label: "Messages", to: "/admin/messages", icon: Mail },
