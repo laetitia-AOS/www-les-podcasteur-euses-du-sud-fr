@@ -421,6 +421,20 @@
       "when": 1794958618801,
       "tag": "0059_accueil_invitation_cibles_rattachements",
       "breakpoints": true
+    },
+    {
+      "idx": 60,
+      "version": "7",
+      "when": 1794990164462,
+      "tag": "0060_telephone_non_bloquant",
+      "breakpoints": true
+    },
+    {
+      "idx": 61,
+      "version": "7",
+      "when": 1794990179942,
+      "tag": "0061_telephone_parentheses_vides",
+      "breakpoints": true
     }
   ]
 }
