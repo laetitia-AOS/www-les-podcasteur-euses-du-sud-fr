@@ -32,6 +32,9 @@ const FormationPodcast = () => {
     staleTime: 5 * 60 * 1000,
   });
   const liste = useMemo(() => formateurs(fiches), [fiches]);
+  // Le plan de données envoyé à Google reste classé de A à Z : l'ordre affiché, lui, est
+  // tiré au hasard à chaque ouverture de la page.
+  const listeSeo = useMemo(() => [...liste].sort((a, b) => a.nom.localeCompare(b.nom, "fr")), [liste]);
 
   const jsonLd = [
     {
@@ -43,7 +46,7 @@ const FormationPodcast = () => {
       inLanguage: "fr",
       mainEntity: {
         "@type": "ItemList",
-        itemListElement: liste.map((f, i) => ({
+        itemListElement: listeSeo.map((f, i) => ({
           "@type": "ListItem",
           position: i + 1,
           url: `${SITE_URL}${hrefFormateur(f)}`,

@@ -74,6 +74,19 @@ export const formatClock = (seconds: number): string => {
   return h ? `${h}:${mm}:${ss}` : `${mm}:${ss}`;
 };
 
+/**
+ * Mélange une liste (Fisher-Yates) sans modifier l'originale : ordre différent à chaque
+ * ouverture de page, pour que personne ne reste fixé en tête.
+ */
+export function melanger<T>(liste: readonly T[], rand: () => number = Math.random): T[] {
+  const copie = [...liste];
+  for (let i = copie.length - 1; i > 0; i--) {
+    const j = Math.floor(rand() * (i + 1));
+    [copie[i], copie[j]] = [copie[j], copie[i]];
+  }
+  return copie;
+}
+
 export const formatShortDate = (iso?: string | null): string => {
   if (!iso) return "";
   const d = new Date(iso);

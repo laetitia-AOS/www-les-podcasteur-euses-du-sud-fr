@@ -26,4 +26,18 @@ describe("membres qui forment au podcast", () => {
     expect(liste[0].podcasts).toEqual(["Podcast A", "Podcast B"]);
     expect(liste[0].ville).toBe("Marseille");
   });
+
+  it("les membres sont mélangés à chaque tirage, jamais classés de A à Z, et personne n'est perdu", () => {
+    const prenoms = ["Zoe", "Adam", "Marine", "Bastien", "Lila", "Karim"];
+    const fiches = prenoms.map((prenom) => fiche({ prenom }));
+    const t1 = formateurs(fiches, () => 0).map((f) => f.nom);
+    const t2 = formateurs(fiches, () => 0.99).map((f) => f.nom);
+    const alpha = [...t1].sort((a, b) => a.localeCompare(b, "fr"));
+    expect(t1).not.toEqual(alpha);
+    expect(t2).not.toEqual(alpha);
+    expect(t2).not.toEqual(t1);
+    // Un tirage « maison » comme un tirage par défaut gardent tous les membres, une fois chacun.
+    expect([...t1].sort()).toEqual(alpha);
+    expect(formateurs(fiches).map((f) => f.nom).sort()).toEqual(alpha);
+  });
 });

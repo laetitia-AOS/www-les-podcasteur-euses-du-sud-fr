@@ -1,6 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { formatName } from "@/lib/pds";
+import { formatName, melanger } from "@/lib/pds";
 
 export type HomeProfile = {
   id: string;
@@ -56,11 +56,7 @@ export const piocherMur = <T extends Pick<HomeProfile, "type_profil" | "vignette
   profiles: T[], n = 5, rand = Math.random,
 ): T[] => {
   const melange = profiles.filter((p) => p.type_profil === "podcasteur" && p.nom_podcast !== "—" && !!p.vignette_url);
-  for (let i = melange.length - 1; i > 0; i--) {
-    const j = Math.floor(rand() * (i + 1));
-    [melange[i], melange[j]] = [melange[j], melange[i]];
-  }
-  return melange.slice(0, n);
+  return melanger(melange, rand).slice(0, n);
 };
 
 /**
@@ -84,11 +80,7 @@ export const piocherQuiCherche = <T extends Pick<HomeProfile, "type_profil" | "c
     if (!actuel || (actuel.nom_podcast === "—" && p.nom_podcast !== "—")) parPersonne.set(cle, p);
   }
   const melange = [...parPersonne.values()];
-  for (let i = melange.length - 1; i > 0; i--) {
-    const j = Math.floor(rand() * (i + 1));
-    [melange[i], melange[j]] = [melange[j], melange[i]];
-  }
-  return melange.slice(0, n);
+  return melanger(melange, rand).slice(0, n);
 };
 
 export type HomeEvent = {

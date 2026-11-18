@@ -3,7 +3,7 @@
 Certains dossiers ont leur propre `AGENTS.md` (par exemple `supabase/functions/`, `src/components/agenda/`) : lisez-le avant de modifier un fichier de ce dossier.
 
 - **Couleurs et polices :** uniquement via les variables de `src/index.css` (préfixe `--pds-`) et `tailwind.config.ts`. Les anciennes variables (tc, bleu, ink…) sont des alias, à garder tant que des pages non refondues les utilisent.
-- **Styles partagés :** boutons, conteneur et mises en forme (noms, villes, durées, dates) sont dans `src/lib/pds.ts`. Réutilisez-les plutôt que de les recopier.
+- **Styles partagés :** boutons, conteneur, mises en forme (noms, villes, durées, dates), tirage au hasard (`melanger`) : `src/lib/pds.ts`, à réutiliser.
 - **Épisodes :** le site les lit via `src/lib/episodes.ts`. Ils ne sont publics que si le flux est confirmé (`episodes_visibles`). Les messages sur l'état d'un flux viennent de `messageFlux` (`src/lib/flux.ts`).
 - **Lecteur audio :** `PlayerProvider` dans App, barre `PlayerBar` hors des routes (l'écoute continue en naviguant), toujours visible sur les pages publiques, vide tant qu'aucun épisode n'est lancé. La section « Épisodes » d'une fiche n'apparaît que si la base renvoie des épisodes.
 - **Accueil :** les sections sont dans `src/components/home/`, chacune autonome et alimentée par `useHomeData.ts`.
