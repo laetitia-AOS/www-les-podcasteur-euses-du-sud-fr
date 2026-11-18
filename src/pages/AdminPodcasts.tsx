@@ -3,6 +3,7 @@ import LieuEditor from "@/components/studios/LieuEditor";
 import { CollabField } from "@/components/adherer/fields";
 import { verifierFlux } from "@/lib/episodes";
 import { toCsv } from "@/lib/csv";
+import { fichesARetirer } from "@/lib/fichesPersonne";
 import { formatName, fullName, titreFiche } from "@/lib/pds";
 import AdminImagesEnAttente, { traiterImages } from "@/components/AdminImagesEnAttente";
 import { useState } from "react";
@@ -73,16 +74,20 @@ const AdminPodcasts = () => {
 
   const toggleValide = useMutation({
     mutationFn: async ({ id, valide }: { id: string; valide: boolean }) => {
-      const { error } = await supabase.from("podcasts").update({ valide }).eq("id", id);
+      // Retirer une fiche retire aussi les podcasts et le studio de la même personne (même adresse e-mail)
+      const fiche = podcasts?.find((p) => p.id === id);
+      const ids = !valide && fiche ? fichesARetirer(podcasts ?? [], fiche) : [id];
+      const { error } = await supabase.from("podcasts").update({ valide }).in("id", ids);
       if (error) throw error;
       // Valider la fiche valide aussi les images envoyées sans connexion qu'elle utilise
       if (valide) await traiterImages({ podcast_id: id, action: "valider" }).catch(() => null);
+      return ids.length;
     },
-    onSuccess: (_, { valide }) => {
+    onSuccess: (n, { valide }) => {
       queryClient.invalidateQueries({ queryKey: ["admin-podcasts"] });
       queryClient.invalidateQueries({ queryKey: ["images-en-attente"] });
       queryClient.invalidateQueries({ queryKey: ["admin-a-traiter"] });
-      toast.success(valide ? "Fiche activée dans le flux" : "Fiche retirée du flux");
+      toast.success(valide ? "Fiche activée dans le flux" : n > 1 ? `${n} fiches de cette personne retirées (profil, podcasts, studio)` : "Fiche retirée du flux");
     },
     onError: (err: any) => toast.error("Erreur : " + (err.message || "Erreur inconnue")),
   });
