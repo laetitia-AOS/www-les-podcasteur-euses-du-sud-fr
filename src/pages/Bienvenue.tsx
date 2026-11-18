@@ -70,7 +70,7 @@ const Bienvenue = ({ apresPaiement = true }: { apresPaiement?: boolean }) => {
             <div className="border-2 border-filet bg-surface p-6 max-w-[680px]">
               <h2 className="title-section text-[28px]">Ta fiche</h2>
               <p className="mt-3 text-[17px]">
-                Déjà une fiche avec la même adresse e-mail ? Elle sera visible après la relecture de l'équipe, sous 48 à 72 heures. Pas encore de fiche ? Crée-la maintenant.
+                Déjà une fiche avec la même adresse e-mail ? L'équipe la relit sous 48 à 72 heures. Pas encore de fiche ? Crée-la maintenant.
               </p>
               <div className="mt-5 flex flex-wrap gap-3">
                 <Link to="/mon-espace" className={btnSecondary}>Mon espace membre</Link>

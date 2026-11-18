@@ -44,6 +44,10 @@ export const regleGroupes = (groupes: GroupeWhatsapp[]): string => {
   return parties.join(" ; ");
 };
 
+/** Phrase sobre sur la cotisation (sous le bouton de paiement et dans l'e-mail de bienvenue) : un soutien, pas un achat. */
+export const PHRASE_SOUTIEN =
+  "Ta cotisation soutient le projet associatif des Podcasteur·euses du Sud. Les outils mis à disposition des membres (site, annuaire, lettre…) le sont sans engagement de durée ; ton adhésion reste valable quoi qu'il arrive.";
+
 export const ATELIERS_RYTHME =
   "un atelier d'écoute le 9 de chaque mois, de 18h30 à 21h30 (le 6 quand le 9 tombe un week-end), ouvert à toutes et tous";
 

@@ -33,13 +33,14 @@ const AdhesionConfirmee = ({ prenom, annee, formule, montant, accueil }: Props) 
     <Layout preview={`C'est officiel : vous êtes membre ${a}. Valable jusqu'au 31 décembre ${a}.`} kicker={`Adhésion ${a}`} titre={`${prenom ? `${prenom}, c` : 'C'}'est officiel : vous êtes membre ${a} !`}>
       <Text style={s.text}>
         Votre paiement est bien arrivé, et toute l'équipe est ravie de vous compter parmi les podcasteur·euses
-        du Sud. Merci : votre adhésion fait vivre les rencontres, l'annuaire et les écoutes partagées.
+        du Sud. Merci : votre cotisation soutient le projet associatif des Podcasteur·euses du Sud.
       </Text>
       {recap}
       <Text style={s.text}>
-        <span style={s.strong}>Et maintenant ?</span> Votre fiche et vos podcasts deviennent visibles dans
-        l'annuaire et dans « Écouter ». Soignez votre photo, dites ce que vous cherchez et ce que vous
-        apportez : c'est comme ça que les collabs se font.
+        <span style={s.strong}>Et maintenant ?</span> L'annuaire, « Écouter » et « Qui cherche quoi » sont mis
+        à disposition des membres, tant que l'association les propose : votre fiche y apparaît une fois relue par
+        l'équipe. Soignez votre photo, dites ce que vous cherchez et ce que vous apportez : c'est comme ça que les
+        collabs se font.
       </Text>
       <Bouton href={`${SITE}/mon-espace`}>Ouvrir mon espace membre</Bouton>
     </Layout>

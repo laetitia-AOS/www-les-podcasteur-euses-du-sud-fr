@@ -40,7 +40,7 @@ export function emailAccueil(d: DonneesAccueil, type: TypeAccueil): { objet: str
     : "Rejoins le groupe WhatsApp de ton département";
   const intro = type === "relance"
     ? "La semaine dernière, on t'a écrit pour t'accueillir chez les Podcasteur·euses du Sud. Si ce n'est pas encore fait, voici le groupe WhatsApp de ton département : c'est là que circulent les ateliers d'écoute, les appels à création et les propositions du moment."
-    : "Le collectif a maintenant un groupe WhatsApp par département. C'est là que circulent les ateliers d'écoute, les appels à création, les passages radio avec Maritima et les propositions du moment. Être membre, c'est aussi s'y retrouver.";
+    : "Le collectif met à disposition de ses membres un groupe WhatsApp par département, tant que l'association le propose. C'est là que circulent les ateliers d'écoute, les appels à création et les propositions du moment.";
 
   const groupeHtml = d.groupe
     ? p(`Le groupe de ton département : <strong style="color:${ENCRE}">${echapper(d.groupe.nom)}</strong>.`) +

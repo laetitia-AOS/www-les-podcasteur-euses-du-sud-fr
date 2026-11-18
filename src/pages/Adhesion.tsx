@@ -9,6 +9,7 @@ import PodcastsStep from "@/components/adherer/PodcastsStep";
 import { btnPrimary, btnSecondary, container, h1Ligne, linkUnderline } from "@/lib/pds";
 import { anneeEnCours, libelleValidite, periodeRenouvellement } from "@/lib/espaceMembre";
 import AccueilMembre from "@/components/accueil/AccueilMembre";
+import { PHRASE_SOUTIEN } from "@/lib/accueil";
 import { supabase } from "@/integrations/supabase/client";
 import { FORMULES_HELLOASSO, HELLOASSO_WIDGET, PHRASE_ADHESION, TARIFS, TYPES_PROFIL, formulePourType, profilColumns, type TypeProfil } from "@/lib/inscription";
 
@@ -306,6 +307,7 @@ const Adhesion = () => {
                   )}
                   <button type="button" onClick={() => setStep("paiement")} className={`${btnPrimary} px-8`}>Continuer vers le paiement</button>
                 </div>
+                <p className="mt-3 text-[14px] text-muted-foreground max-w-[62ch] sm:ml-auto sm:text-right">{PHRASE_SOUTIEN}</p>
                 {(result?.saved || podcastCount > 0) && (
                   <section aria-labelledby="bienvenue-inscription" className="mt-14 pt-10 border-t-2 border-encre">
                     <h2 id="bienvenue-inscription" className="title-section text-[32px] sm:text-[40px]">Bienvenue chez les Podcasteur·euses du Sud</h2>
@@ -335,6 +337,7 @@ const Adhesion = () => {
                   style={{ width: "100%", border: "none", minHeight: 800 }}
                   title="Formulaire d'adhésion HelloAsso"
                 />
+                <p className="mt-3 text-[14px] text-muted-foreground max-w-[62ch]">{PHRASE_SOUTIEN}</p>
                 <button type="button" onClick={() => setStep("adhesion")} className={`${btnSecondary} mt-4`}>Revenir aux tarifs</button>
               </div>
             )}

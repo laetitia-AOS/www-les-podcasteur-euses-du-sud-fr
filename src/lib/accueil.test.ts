@@ -64,3 +64,10 @@ describe("cohérence avec le site", () => {
     expect(plagesQr(m).map((r) => r.reduce((n, p) => n + p.n, 0))).toEqual([3, 3]);
   });
 });
+
+import { PHRASE_SOUTIEN } from "./accueil";
+describe("phrase sur la cotisation", () => {
+  it("présente la cotisation comme un soutien, sans engagement de durée sur les outils", () => {
+    expect(PHRASE_SOUTIEN).toBe("Ta cotisation soutient le projet associatif des Podcasteur·euses du Sud. Les outils mis à disposition des membres (site, annuaire, lettre…) le sont sans engagement de durée ; ton adhésion reste valable quoi qu'il arrive.");
+  });
+});

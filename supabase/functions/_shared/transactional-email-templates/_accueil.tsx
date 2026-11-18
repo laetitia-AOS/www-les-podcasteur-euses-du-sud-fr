@@ -4,7 +4,7 @@
 import * as React from 'npm:react@18.3.1'
 import { Link, Section, Text } from 'npm:@react-email/components@0.0.22'
 import { Bouton, C, Fiche, SITE, s } from './_layout.tsx'
-import { ATELIERS_RYTHME, CONTACT_ACCUEIL, INSTAGRAM_PDS, LINKEDIN_PDS, plagesQr } from '../accueil.ts'
+import { ATELIERS_RYTHME, CONTACT_ACCUEIL, INSTAGRAM_PDS, LINKEDIN_PDS, PHRASE_SOUTIEN, plagesQr } from '../accueil.ts'
 import { matriceQr } from '../accueil-qr.ts'
 import type { DonneesAccueil } from '../accueil-donnees.ts'
 
@@ -45,9 +45,13 @@ export const AccueilSections = ({ d, annee }: { d: DonneesAccueil; annee?: numbe
 
     <Text style={h2}>Ce qui se passe dans le collectif</Text>
     <Text style={item}>— {ATELIERS_RYTHME.charAt(0).toUpperCase() + ATELIERS_RYTHME.slice(1)}.</Text>
-    <Text style={item}>— L'Onde du Sud, la lettre du collectif, le 1er de chaque mois, faite avec les dépôts des membres (avant le 25).</Text>
+    <Text style={item}>— L'Onde du Sud, la lettre du collectif, le 1er de chaque mois.</Text>
+
+    <Text style={h2}>Ce que le collectif met à disposition de ses membres</Text>
+    <Text style={{ ...s.text, margin: '0 0 12px' }}>Réservé aux membres, tant que l'association le propose :</Text>
     <Text style={item}>— L'annuaire et « Qui cherche quoi », pour se trouver entre membres.</Text>
-    <Text style={item}>— Les propositions du moment : passages radio avec Maritima, appels à création… Elles circulent dans le groupe et dans L'Onde.</Text>
+    <Text style={item}>— Les dépôts dans L'Onde du Sud (avant le 25 de chaque mois).</Text>
+    <Text style={item}>— Les propositions du moment, comme les passages radio avec Maritima ou les appels à création. Elles circulent dans le groupe et dans L'Onde.</Text>
 
     <Text style={h2}>Comment participer</Text>
     <Text style={item}><span style={s.strong}>1.</span> <Link href={`${SITE}/mon-espace#profil`} style={lien}>Complète ta fiche</Link> (photo, ce que tu cherches, ce que tu apportes).</Text>
@@ -87,6 +91,7 @@ export const AccueilSections = ({ d, annee }: { d: DonneesAccueil; annee?: numbe
     <Text style={s.text}>Copie-le, complète ce qui est entre crochets, et envoie-le dans le groupe :</Text>
     <Fiche><Text style={s.quote}>{d.presentation}</Text></Fiche>
 
+    <Text style={{ ...s.text, fontSize: '14px' }}>{PHRASE_SOUTIEN}</Text>
     <Text style={{ ...s.text, fontSize: '14px' }}>
       {annee ? <>Ton adhésion court jusqu'au 31 décembre {annee}. </> : null}
       Une question ? Écris-nous : <Link href={`mailto:${CONTACT_ACCUEIL}`} style={lien}>{CONTACT_ACCUEIL}</Link>.
