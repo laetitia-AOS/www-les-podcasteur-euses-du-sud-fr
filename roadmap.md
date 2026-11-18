@@ -161,4 +161,5 @@
 
 ## Novembre 2026
 - [x] Messages reçus : bouton « Répondre » avec Gmail, messagerie ou copie de l'adresse (admin Messages et espace membre)
-- [ ] Page « Formation podcast » (annonce 2027 et/ou membres qui forment) — en attente du choix et des informations de Laetitia
+- [x] Page « Formation podcast » : annonce 2027 + membres qui forment
+- [ ] Détails des formations 2027 (sujets, villes, période, public, prix) — en attente des informations de Laetitia

@@ -48,6 +48,7 @@ export const LIENS_LOCAUX = [
   { to: PAGES.podcastMarseille, label: "Podcasts à Marseille" },
   { to: PAGES.podcastCoteAzur, label: "Podcasts à Nice et sur la Côte d'Azur" },
   { to: PAGES.studiosMarseille, label: "Studios podcast à Marseille" },
+  { to: PAGES.formation, label: "Formation podcast" },
 ];
 
 /** Un événement sur place est-il dans la zone ? (ville et département lus dans son adresse) */

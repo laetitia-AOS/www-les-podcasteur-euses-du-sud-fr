@@ -62,6 +62,7 @@ const AdminOndePdf = lazy(() => import("./pages/AdminOndePdf"));
 const OndeLienCourt = lazy(() => import("./pages/OndeLienCourt"));
 const PodcastsVille = lazy(() => import("./pages/PodcastsVille"));
 const StudiosVille = lazy(() => import("./pages/StudiosVille"));
+const FormationPodcast = lazy(() => import("./pages/FormationPodcast"));
 
 const queryClient = new QueryClient();
 
@@ -110,6 +111,7 @@ const App = () => (
             <Route path="/studios/:slug" element={<StudioProfile />} />
             {PAGES_PODCASTS_LOCALES.map((pl) => <Route key={pl.chemin} path={pl.chemin} element={<PodcastsVille page={pl} />} />)}
             <Route path={PAGE_STUDIOS_MARSEILLE.chemin} element={<StudiosVille />} />
+            <Route path="/formation-podcast" element={<FormationPodcast />} />
             <Route path="/structures/:slug" element={<StructureEcoProfile />} />
             <Route path="/adherer" element={<Adhesion />} />
             <Route path="/partenaires" element={<Partenaires />} />

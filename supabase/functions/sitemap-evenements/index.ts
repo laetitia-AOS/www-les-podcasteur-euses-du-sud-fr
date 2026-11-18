@@ -31,6 +31,7 @@ Deno.serve(async (req) => {
     ["/podcast-marseille", "weekly", "0.8"],
     ["/podcast-nice-cote-d-azur", "weekly", "0.8"],
     ["/studio-podcast-marseille", "weekly", "0.8"],
+    ["/formation-podcast", "weekly", "0.7"],
     ["/adherer", "monthly", "0.8"],
     ["/proposer-evenement-podcast", "monthly", "0.5"],
     ["/partenaires", "monthly", "0.5"],

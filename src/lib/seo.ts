@@ -18,6 +18,7 @@ export const PAGES = {
   podcastMarseille: "/podcast-marseille",
   podcastCoteAzur: "/podcast-nice-cote-d-azur",
   studiosMarseille: "/studio-podcast-marseille",
+  formation: "/formation-podcast",
 } as const;
 
 type FicheLien = { id: string; slug?: string | null; type_profil?: string | null; nom_podcast?: string | null };
@@ -111,6 +112,11 @@ export const PAGES_SEO = {
     title: titreSeo("Studios podcast à Marseille"),
     description:
       "Studios podcast à Marseille : services, tarifs et accès des studios membres, puis une seule demande de devis envoyée à tous les studios qui correspondent.",
+  },
+  formation: {
+    title: titreSeo("Formation podcast à Marseille et en Région Sud"),
+    description:
+      "Formation podcast à Marseille et en Région Sud : les formations que l'association prépare pour 2027, et les membres qui forment déjà au podcast dans la région.",
   },
   accueil: {
     title: "Podcasts à Marseille et en Région Sud | Les Podcasteur·euses du Sud",
