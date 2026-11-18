@@ -1,4 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
+import RepondreMenu from "@/components/RepondreMenu";
+import { citer } from "@/lib/repondre";
 import MesEvenements, { type MonEvenement } from "@/components/espace-membre/MesEvenements";
 import LieuEditor from "@/components/studios/LieuEditor";
 import { Link, useNavigate } from "react-router-dom";
@@ -411,13 +413,14 @@ const MonEspace = () => {
                         </p>
                         <div className="flex items-center gap-4">
                           <span className="font-mono text-xs text-muted-foreground">{ilYA(d.created_at)}</span>
-                          <a
-                            href={`mailto:${encodeURIComponent(d.sender_email)}?subject=${encodeURIComponent(t.sujet)}`}
-                            onClick={() => marquerLue(d.id)}
-                            className={`${linkUnderline} text-sm min-h-[44px] inline-flex items-center`}
-                          >
-                            Répondre<span className="sr-only"> à {formatName(d.sender_name)}</span>
-                          </a>
+                          <RepondreMenu
+                            to={d.sender_email}
+                            sujet={t.sujet}
+                            corps={`Bonjour ${formatName(d.sender_name)},${citer(d.message, d.created_at)}`}
+                            precision={`à ${formatName(d.sender_name)}`}
+                            onChoisi={() => marquerLue(d.id)}
+                            className={`${linkUnderline} text-sm min-h-[44px] inline-flex items-center gap-1.5 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-encre`}
+                          />
                         </div>
                       </div>
                       <details className="mt-1 group" onToggle={(e) => { if ((e.currentTarget as HTMLDetailsElement).open) marquerLue(d.id); }}>

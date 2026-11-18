@@ -158,3 +158,7 @@
 - [x] Page « Studio podcast à Marseille » (/studio-podcast-marseille)
 - [x] Pages « Podcasts à [ville] » : Marseille, Nice et Côte d'Azur (seules villes avec assez de podcasts membres)
 - [x] Titres des grandes pages : « podcast » + ville en tête
+
+## Novembre 2026
+- [x] Messages reçus : bouton « Répondre » avec Gmail, messagerie ou copie de l'adresse (admin Messages et espace membre)
+- [ ] Page « Formation podcast » (annonce 2027 et/ou membres qui forment) — en attente du choix et des informations de Laetitia

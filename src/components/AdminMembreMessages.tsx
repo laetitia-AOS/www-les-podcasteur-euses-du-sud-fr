@@ -2,9 +2,11 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Mail, Trash2 } from "lucide-react";
+import { Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import { formatName, fullName } from "@/lib/pds";
+import RepondreMenu from "@/components/RepondreMenu";
+import { COMPTE_EQUIPE } from "@/lib/repondre";
 
 const STATUS: Record<string, string> = { pending: "À transmettre", transmis: "Transmis", archive: "Archivé" };
 
@@ -51,13 +53,21 @@ const AdminMembreMessages = () => {
     onError: (err: any) => toast.error("Erreur : " + (err.message || "inconnue")),
   });
 
-  const forwardHref = (m: any) => {
+  const transfert = (m: any) => {
     const r = m.podcasts || {};
-    const subject = `Message de ${m.sender_name} via Les Podcasteur·euses du Sud`;
-    const body =
-      `Bonjour ${r.prenom || ""},\n\n${m.sender_name} (${m.sender_email}) vous a écrit depuis votre fiche${r.nom_podcast ? ` « ${r.nom_podcast} »` : ""} :\n\n` +
-      `${m.message}\n\nPour lui répondre, écrivez directement à ${m.sender_email}.\n\nL'équipe des Podcasteur·euses du Sud`;
-    return `mailto:${encodeURIComponent(r.email || "")}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+    const sujet = `Message de ${m.sender_name} via Les Podcasteur·euses du Sud`;
+    const corps =
+      `Bonjour ${r.prenom || ""},
+
+${m.sender_name} (${m.sender_email}) vous a écrit depuis votre fiche${r.nom_podcast ? ` « ${r.nom_podcast} »` : ""} :
+
+` +
+      `${m.message}
+
+Pour lui répondre, écrivez directement à ${m.sender_email}.
+
+L'équipe des Podcasteur·euses du Sud`;
+    return { to: (r.email || "") as string, sujet, corps };
   };
 
   const pending = messages?.filter((m) => m.status === "pending").length ?? 0;
@@ -85,7 +95,7 @@ const AdminMembreMessages = () => {
                 <TableHead>De</TableHead>
                 <TableHead>Message</TableHead>
                 <TableHead>Statut</TableHead>
-                <TableHead className="w-[200px]">Actions</TableHead>
+                <TableHead className="w-[300px]">Actions</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -115,9 +125,20 @@ const AdminMembreMessages = () => {
                     </TableCell>
                     <TableCell>
                       <div className="flex items-center gap-1">
-                        <a href={forwardHref(m)} onClick={() => m.status === "pending" && setStatus.mutate({ id: m.id, status: "transmis" })}>
-                          <Button size="sm"><Mail className="w-4 h-4 mr-1" /> Transmettre</Button>
-                        </a>
+                        <RepondreMenu
+                          {...transfert(m)}
+                          libelle="Transmettre"
+                          precision={`à ${fullName(r.prenom, r.nom)}`}
+                          compteGmail={COMPTE_EQUIPE}
+                          onChoisi={() => m.status === "pending" && setStatus.mutate({ id: m.id, status: "transmis" })}
+                        />
+                        <RepondreMenu
+                          to={m.sender_email}
+                          sujet="Re : votre message via Les Podcasteur·euses du Sud"
+                          precision={`à ${formatName(m.sender_name)}`}
+                          compteGmail={COMPTE_EQUIPE}
+                          className="inline-flex items-center gap-1.5 min-h-[36px] px-3 border-2 border-encre text-sm font-bold hover:bg-encre hover:text-surface focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-encre"
+                        />
                         <Button
                           variant="ghost"
                           size="icon"

@@ -13,6 +13,8 @@ import { useAdminAuth } from "@/hooks/useAdminAuth";
 import { toast } from "sonner";
 import { useState } from "react";
 import AdminMembreMessages from "@/components/AdminMembreMessages";
+import RepondreMenu from "@/components/RepondreMenu";
+import { COMPTE_EQUIPE, citer } from "@/lib/repondre";
 import {
   Dialog,
   DialogContent,
@@ -84,6 +86,16 @@ const AdminContacts = () => {
     URL.revokeObjectURL(url);
   };
 
+  const reponse = (c: any) => ({
+    to: c.email as string,
+    sujet: `Re : ${c.objet}`,
+    corps: `Bonjour ${c.prenom ?? ""},${citer(c.message, c.created_at)}`,
+    compteGmail: COMPTE_EQUIPE,
+    precision: `à ${fullName(c.prenom, c.nom)}`,
+    // Répondre fait passer un message « Nouveau » en « En cours ».
+    onChoisi: () => c.statut === "Nouveau" && updateStatut.mutate({ id: c.id, statut: "En cours" }),
+  });
+
   const newCount = contacts?.filter(c => c.statut === "Nouveau").length ?? 0;
 
   const onglets = [
@@ -125,7 +137,7 @@ const AdminContacts = () => {
                   <TableHead>Objet</TableHead>
                   <TableHead>Message</TableHead>
                   <TableHead>Statut</TableHead>
-                  <TableHead className="w-[100px]">Actions</TableHead>
+                  <TableHead className="w-[190px]">Actions</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -153,7 +165,8 @@ const AdminContacts = () => {
                     </TableCell>
                     <TableCell>
                       <div className="flex items-center gap-1">
-                        <Button variant="ghost" size="icon" onClick={() => setSelectedContact(c)} title="Voir le message">
+                        <RepondreMenu {...reponse(c)} />
+                        <Button variant="ghost" size="icon" onClick={() => setSelectedContact(c)} title="Voir le message" aria-label="Voir le message">
                           <Eye className="w-4 h-4" />
                         </Button>
                         <Button
@@ -238,11 +251,15 @@ const AdminContacts = () => {
                   >
                     <Trash2 className="w-4 h-4 mr-1" /> Supprimer
                   </Button>
-                  <a href={`mailto:${selectedContact.email}?subject=Re: ${selectedContact.objet}`}>
-                    <Button size="sm">
-                      <Mail className="w-4 h-4 mr-1" /> Répondre
-                    </Button>
-                  </a>
+                  <RepondreMenu
+                    {...reponse(selectedContact)}
+                    onChoisi={() => {
+                      if (selectedContact.statut === "Nouveau") {
+                        updateStatut.mutate({ id: selectedContact.id, statut: "En cours" });
+                        setSelectedContact({ ...selectedContact, statut: "En cours" });
+                      }
+                    }}
+                  />
                 </div>
               </div>
             </>
