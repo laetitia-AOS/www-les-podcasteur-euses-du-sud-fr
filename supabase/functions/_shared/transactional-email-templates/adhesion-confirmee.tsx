@@ -30,17 +30,15 @@ const AdhesionConfirmee = ({ prenom, annee, formule, montant, accueil }: Props) 
     )
   }
   return (
-    <Layout preview={`C'est officiel : vous êtes membre ${a}. Valable jusqu'au 31 décembre ${a}.`} kicker={`Adhésion ${a}`} titre={`${prenom ? `${prenom}, c` : 'C'}'est officiel : vous êtes membre ${a} !`}>
+    <Layout preview={`C'est officiel : tu es membre ${a}. Valable jusqu'au 31 décembre ${a}.`} kicker={`Adhésion ${a}`} titre={`${prenom ? `${prenom}, c` : 'C'}'est officiel : tu es membre ${a} !`}>
       <Text style={s.text}>
-        Votre paiement est bien arrivé, et toute l'équipe est ravie de vous compter parmi les podcasteur·euses
-        du Sud. Merci : votre cotisation soutient le projet associatif des Podcasteur·euses du Sud.
+        Ton paiement est bien arrivé. Merci : ta cotisation soutient le projet associatif des Podcasteur·euses
+        du Sud et fait de toi un·e membre pour {a}.
       </Text>
       {recap}
       <Text style={s.text}>
-        <span style={s.strong}>Et maintenant ?</span> L'annuaire, « Écouter » et « Qui cherche quoi » sont mis
-        à disposition des membres, tant que l'association les propose : votre fiche y apparaît une fois relue par
-        l'équipe. Soignez votre photo, dites ce que vous cherchez et ce que vous apportez : c'est comme ça que les
-        collabs se font.
+        Toute l'équipe te remercie. On se retrouve aux ateliers d'écoute, dans le groupe de ton département
+        et dans L'Onde du Sud.
       </Text>
       <Bouton href={`${SITE}/mon-espace`}>Ouvrir mon espace membre</Bouton>
     </Layout>

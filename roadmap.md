@@ -163,3 +163,12 @@
 - [x] Messages reçus : bouton « Répondre » avec Gmail, messagerie ou copie de l'adresse (admin Messages et espace membre)
 - [x] Page « Formation podcast » : annonce 2027 + membres qui forment
 - [x] Formations 2027 : deux pistes (club débutant·es, coaching podcasts lancés) affichées ; dates, lieux, prix à ajouter quand ils seront arrêtés
+
+## Accueil + WhatsApp — ton de l'adhésion (18/11)
+- [x] Bienvenue : Maritima retiré, « Les outils du collectif » reformulé, phrase de soutien (e-mail redéployé)
+- [x] Invitation de rattrapage sans Maritima
+- [x] Confirmation de cotisation au « tu », soutien + remerciement
+- [x] Page de bienvenue : « L'équipe relit chaque fiche avant de la mettre en ligne »
+- [x] Phrase de soutien sous le paiement (Adhérer) et dans la bienvenue
+- [ ] Reformulations hors chantier (accueil, tableau Adhérer, pied de L'Onde, espace membre, relance « sursis ») — en attente de validation de Laetitia
+- [ ] L'Onde : en-tête noir, bloc adhésion orange (page, e-mail, PDF) — en attente de feu vert

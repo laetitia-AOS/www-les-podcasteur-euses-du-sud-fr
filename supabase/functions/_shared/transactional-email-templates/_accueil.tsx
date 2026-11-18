@@ -47,11 +47,10 @@ export const AccueilSections = ({ d, annee }: { d: DonneesAccueil; annee?: numbe
     <Text style={item}>— {ATELIERS_RYTHME.charAt(0).toUpperCase() + ATELIERS_RYTHME.slice(1)}.</Text>
     <Text style={item}>— L'Onde du Sud, la lettre du collectif, le 1er de chaque mois.</Text>
 
-    <Text style={h2}>Ce que le collectif met à disposition de ses membres</Text>
-    <Text style={{ ...s.text, margin: '0 0 12px' }}>Réservé aux membres, tant que l'association le propose :</Text>
-    <Text style={item}>— L'annuaire et « Qui cherche quoi », pour se trouver entre membres.</Text>
+    <Text style={h2}>Les outils du collectif</Text>
+    <Text style={{ ...s.text, margin: '0 0 12px' }}>Mis à disposition des membres, tant que l'association les propose :</Text>
+    <Text style={item}>— L'annuaire et « Qui cherche quoi », pour se repérer entre membres et monter des projets ensemble.</Text>
     <Text style={item}>— Les dépôts dans L'Onde du Sud (avant le 25 de chaque mois).</Text>
-    <Text style={item}>— Les propositions du moment, comme les passages radio avec Maritima ou les appels à création. Elles circulent dans le groupe et dans L'Onde.</Text>
 
     <Text style={h2}>Comment participer</Text>
     <Text style={item}><span style={s.strong}>1.</span> <Link href={`${SITE}/mon-espace#profil`} style={lien}>Complète ta fiche</Link> (photo, ce que tu cherches, ce que tu apportes).</Text>
