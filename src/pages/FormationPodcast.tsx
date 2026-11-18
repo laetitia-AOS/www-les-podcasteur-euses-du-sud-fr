@@ -80,10 +80,20 @@ const FormationPodcast = () => {
               <p className="font-mono text-sm font-bold uppercase tracking-wider text-primary">En préparation</p>
               <h2 id="formations-2027" className="title-section text-[36px] sm:text-[48px] mt-2">Nos formations en 2027</h2>
               <p className="mt-4 text-[17px] max-w-[56ch]">
-                Les Podcasteur·euses du Sud lancent des formations au podcast en 2027. Le programme, les dates, les lieux et les conditions seront publiés sur cette page dès qu'ils seront arrêtés.
+                Les Podcasteur·euses du Sud préparent des formations au podcast pour 2027. Deux pistes sont à l'étude :
               </p>
-              <p className="mt-3 text-[17px] max-w-[56ch]">
-                Pour être prévenu·e dès l'ouverture, recevez L'Onde du Sud, notre lettre mensuelle : les formations y seront annoncées.
+              <ul className="mt-5 space-y-4 max-w-[56ch]">
+                <li className="border-t-2 border-encre pt-3">
+                  <h3 className="font-bold text-[20px] leading-tight">Un club pour débuter</h3>
+                  <p className="mt-1 text-[16px]">Pour celles et ceux qui veulent lancer leur premier podcast et apprendre en groupe.</p>
+                </li>
+                <li className="border-t-2 border-encre pt-3">
+                  <h3 className="font-bold text-[20px] leading-tight">Du coaching pour les podcasts déjà lancés</h3>
+                  <p className="mt-1 text-[16px]">Pour améliorer un podcast qui existe déjà, avec un accompagnement.</p>
+                </li>
+              </ul>
+              <p className="mt-5 text-[17px] max-w-[56ch]">
+                Le programme, les dates, les lieux et les conditions seront publiés ici dès qu'ils seront arrêtés. Pour être prévenu·e, recevez L'Onde du Sud, notre lettre mensuelle : les formations y seront annoncées.
               </p>
             </div>
             <InscriptionOnde mention="Formations 2027" />

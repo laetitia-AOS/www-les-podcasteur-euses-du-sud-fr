@@ -162,4 +162,4 @@
 ## Novembre 2026
 - [x] Messages reçus : bouton « Répondre » avec Gmail, messagerie ou copie de l'adresse (admin Messages et espace membre)
 - [x] Page « Formation podcast » : annonce 2027 + membres qui forment
-- [ ] Détails des formations 2027 (sujets, villes, période, public, prix) — en attente des informations de Laetitia
+- [x] Formations 2027 : deux pistes (club débutant·es, coaching podcasts lancés) affichées ; dates, lieux, prix à ajouter quand ils seront arrêtés
