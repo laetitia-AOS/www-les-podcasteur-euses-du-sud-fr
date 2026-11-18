@@ -25,7 +25,7 @@ export const useHomeProfiles = () =>
     queryKey: ["home-profiles"],
     queryFn: async () => {
       const { data, error } = await supabase
-        .from("podcasts")
+        .from("podcasts_publics")
         .select("id, slug, nom_podcast, prenom, nom, city_name, vignette_url, photo_profil_url, type_profil, department_code, cherche_choix, apporte_choix, lien_ecoute, created_at, visible_sans_adhesion")
         .eq("valide", true)
         .order("created_at", { ascending: false });

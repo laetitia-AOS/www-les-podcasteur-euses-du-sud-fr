@@ -72,7 +72,7 @@ const Annuaire = () => {
     queryKey: ["annuaire-profiles"],
     queryFn: async () => {
       const { data, error } = await supabase
-        .from("podcasts")
+        .from("podcasts_publics")
         .select("id, slug, prenom, nom, type_profil, city_name, department_code, department_label, bio_750, nom_podcast, metier_principal, services_3, thematique, vignette_url, photo_profil_url, cherche_choix, apporte_choix, cherche_precision, apporte_precision, created_at")
         .eq("valide", true)
         .in("type_profil", ["podcasteur", "pro_podcast", "soutien"])

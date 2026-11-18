@@ -35,7 +35,7 @@ const CouvertureOnde = ({ n, resoudre, onCouverture }: {
       const ids = n.blocs.slice(0, 4).flatMap((b) => (b.type === "podcast" && b.podcast_id ? [b.podcast_id] : []));
       const noms: Record<string, string> = {};
       if (ids.length) {
-        const { data } = await supabase.from("podcasts").select("id, nom_podcast, prenom, nom").in("id", ids);
+        const { data } = await supabase.from("podcasts_publics").select("id, nom_podcast, prenom, nom").in("id", ids);
         (data || []).forEach((p) => { noms[p.id] = titreFiche(p); });
       }
       const info = { numero: n.numero, mois: n.mois, titres: titresDansCeNumero(n.blocs, noms), niveaux };

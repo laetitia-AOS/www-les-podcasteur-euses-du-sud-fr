@@ -84,7 +84,7 @@ const ProfilMembre = () => {
     queryKey: ["profil-membre", slug],
     enabled: !!slug,
     queryFn: async () => {
-      let query = supabase.from("podcasts").select(PUBLIC_FIELDS).eq("valide", true);
+      let query = supabase.from("podcasts_publics").select(PUBLIC_FIELDS).eq("valide", true);
       const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(slug!);
       query = isUuid ? query.eq("id", slug!) : query.eq("slug", slug!);
       const { data, error } = await query.maybeSingle();

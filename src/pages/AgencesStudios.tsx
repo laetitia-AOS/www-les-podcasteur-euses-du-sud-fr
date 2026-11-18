@@ -83,7 +83,7 @@ const AgencesStudios = () => {
     queryKey: ["studios-structures"],
     queryFn: async () => {
       const { data, error } = await supabase
-        .from("podcasts")
+        .from("podcasts_publics")
         .select("id, slug, type_profil, city_name, department_code, bio_750, description, nom_podcast, metier_principal, services_3, vignette_url, consent_contact, studio_data")
         .eq("valide", true)
         .in("type_profil", ["studio", "structure_eco"])

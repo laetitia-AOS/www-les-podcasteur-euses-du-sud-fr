@@ -43,7 +43,7 @@ export const useLieu = (type: "studio" | "structure_eco", slug?: string) =>
   useQuery({
     queryKey: ["lieu", type, slug],
     queryFn: async () => {
-      let q = supabase.from("podcasts").select(LIEU_COLUMNS).eq("valide", true).eq("type_profil", type);
+      let q = supabase.from("podcasts_publics").select(LIEU_COLUMNS).eq("valide", true).eq("type_profil", type);
       q = UUID_RE.test(slug!) ? q.eq("id", slug!) : q.eq("slug", slug!);
       const { data, error } = await q.maybeSingle();
       if (error) throw error;
@@ -58,7 +58,7 @@ export const usePodcastsLies = (lies: PodcastLie[]) =>
     queryKey: ["podcasts-lies", lies.map((l) => l.id).join(",")],
     queryFn: async () => {
       const { data } = await supabase
-        .from("podcasts")
+        .from("podcasts_publics")
         .select("id, slug, nom_podcast, prenom, nom, vignette_url, photo_profil_url, type_profil")
         .in("id", lies.map((l) => l.id))
         .eq("valide", true);

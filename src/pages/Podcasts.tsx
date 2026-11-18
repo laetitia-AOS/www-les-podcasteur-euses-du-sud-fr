@@ -66,7 +66,7 @@ const Podcasts = () => {
     queryKey: ["ecouter-podcasts"],
     queryFn: async () => {
       const { data, error } = await supabase
-        .from("podcasts")
+        .from("podcasts_publics")
         .select("id, slug, nom_podcast, description, thematique, lien_ecoute, vignette_url, created_at, prenom, nom, city_name, ville, department_code, department_label")
         .eq("valide", true)
         .eq("type_profil", "podcasteur")

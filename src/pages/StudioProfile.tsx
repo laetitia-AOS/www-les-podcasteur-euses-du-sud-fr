@@ -38,7 +38,7 @@ const StudioProfile = () => {
   const { data: voisins = [] } = useQuery({
     queryKey: ["studios-voisins", studio?.id, studio?.city_name],
     queryFn: async () => {
-      const { data } = await supabase.from("podcasts").select(LIEU_COLUMNS).eq("valide", true).eq("type_profil", "studio")
+      const { data } = await supabase.from("podcasts_publics").select(LIEU_COLUMNS).eq("valide", true).eq("type_profil", "studio")
         .eq("city_name", studio!.city_name!).neq("id", studio!.id).limit(3);
       return (data || []) as unknown as LieuRow[];
     },

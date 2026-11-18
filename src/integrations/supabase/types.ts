@@ -202,6 +202,13 @@ export type Database = {
             referencedRelation: "podcasts"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "avis_podcast_id_fkey"
+            columns: ["podcast_id"]
+            isOneToOne: false
+            referencedRelation: "podcasts_publics"
+            referencedColumns: ["id"]
+          },
         ]
       }
       contact_requests: {
@@ -254,6 +261,13 @@ export type Database = {
             columns: ["recipient_id"]
             isOneToOne: false
             referencedRelation: "podcasts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "contact_requests_recipient_id_fkey"
+            columns: ["recipient_id"]
+            isOneToOne: false
+            referencedRelation: "podcasts_publics"
             referencedColumns: ["id"]
           },
         ]
@@ -345,6 +359,13 @@ export type Database = {
             referencedRelation: "podcasts"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "demandes_devis_studio_vise_fkey"
+            columns: ["studio_vise"]
+            isOneToOne: false
+            referencedRelation: "podcasts_publics"
+            referencedColumns: ["id"]
+          },
         ]
       }
       episodes: {
@@ -393,6 +414,13 @@ export type Database = {
             columns: ["podcast_id"]
             isOneToOne: false
             referencedRelation: "podcasts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "episodes_podcast_id_fkey"
+            columns: ["podcast_id"]
+            isOneToOne: false
+            referencedRelation: "podcasts_publics"
             referencedColumns: ["id"]
           },
         ]
@@ -547,10 +575,24 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
+            foreignKeyName: "evenements_propose_par_fkey"
+            columns: ["propose_par"]
+            isOneToOne: false
+            referencedRelation: "podcasts_publics"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "evenements_structure_id_fkey"
             columns: ["structure_id"]
             isOneToOne: false
             referencedRelation: "podcasts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "evenements_structure_id_fkey"
+            columns: ["structure_id"]
+            isOneToOne: false
+            referencedRelation: "podcasts_publics"
             referencedColumns: ["id"]
           },
         ]
@@ -613,6 +655,13 @@ export type Database = {
             columns: ["podcast_id"]
             isOneToOne: false
             referencedRelation: "podcasts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "evenements_proposeurs_podcast_id_fkey"
+            columns: ["podcast_id"]
+            isOneToOne: false
+            referencedRelation: "podcasts_publics"
             referencedColumns: ["id"]
           },
         ]
@@ -689,6 +738,13 @@ export type Database = {
             referencedRelation: "podcasts"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "fiches_lieux_podcast_id_fkey"
+            columns: ["podcast_id"]
+            isOneToOne: true
+            referencedRelation: "podcasts_publics"
+            referencedColumns: ["id"]
+          },
         ]
       }
       flux_etat: {
@@ -740,6 +796,13 @@ export type Database = {
             columns: ["podcast_id"]
             isOneToOne: true
             referencedRelation: "podcasts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "flux_etat_podcast_id_fkey"
+            columns: ["podcast_id"]
+            isOneToOne: true
+            referencedRelation: "podcasts_publics"
             referencedColumns: ["id"]
           },
         ]
@@ -953,6 +1016,13 @@ export type Database = {
             columns: ["podcast_id"]
             isOneToOne: false
             referencedRelation: "podcasts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "onde_depots_podcast_id_fkey"
+            columns: ["podcast_id"]
+            isOneToOne: false
+            referencedRelation: "podcasts_publics"
             referencedColumns: ["id"]
           },
         ]
@@ -1422,6 +1492,13 @@ export type Database = {
             referencedRelation: "podcasts"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "stats_empreintes_podcast_id_fkey"
+            columns: ["podcast_id"]
+            isOneToOne: false
+            referencedRelation: "podcasts_publics"
+            referencedColumns: ["id"]
+          },
         ]
       }
       stats_fiches_jour: {
@@ -1449,6 +1526,13 @@ export type Database = {
             columns: ["podcast_id"]
             isOneToOne: false
             referencedRelation: "podcasts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "stats_fiches_jour_podcast_id_fkey"
+            columns: ["podcast_id"]
+            isOneToOne: false
+            referencedRelation: "podcasts_publics"
             referencedColumns: ["id"]
           },
         ]
@@ -1620,7 +1704,171 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      podcasts_publics: {
+        Row: {
+          apporte_choix: string[] | null
+          apporte_precision: string | null
+          besoin: string | null
+          besoins_podcast: string[] | null
+          bio_750: string | null
+          cherche_choix: string[] | null
+          cherche_collaboration: string[] | null
+          cherche_precision: string | null
+          city_insee_code: string | null
+          city_name: string | null
+          city_postcode: string | null
+          consent_contact: boolean | null
+          consent_mise_en_relation: boolean | null
+          created_at: string | null
+          department_code: string | null
+          department_label: string | null
+          description: string | null
+          disponibilite: string | null
+          email: string | null
+          flux_rss: string | null
+          format_collaboration: string | null
+          frequence_publication: string | null
+          id: string | null
+          lien_ecoute: string | null
+          lien_linkedin: string | null
+          lien_principal: string | null
+          metier_principal: string | null
+          monetise: string | null
+          niveau_avancement: string | null
+          nom: string | null
+          nom_podcast: string | null
+          peut_apporter: string[] | null
+          photo_profil_url: string | null
+          prenom: string | null
+          priorite_actuelle: string | null
+          score_dynamique: number | null
+          score_fiche: number | null
+          score_global: number | null
+          score_opportunite: number | null
+          segment_pds: string | null
+          services_3: string[] | null
+          slug: string | null
+          structure: string | null
+          studio_data: Json | null
+          telephone: string | null
+          thematique: string | null
+          type_podcast: string | null
+          type_profil: string | null
+          valide: boolean | null
+          vignette_url: string | null
+          ville: string | null
+          visible_sans_adhesion: boolean | null
+        }
+        Insert: {
+          apporte_choix?: string[] | null
+          apporte_precision?: string | null
+          besoin?: string | null
+          besoins_podcast?: string[] | null
+          bio_750?: string | null
+          cherche_choix?: string[] | null
+          cherche_collaboration?: string[] | null
+          cherche_precision?: string | null
+          city_insee_code?: string | null
+          city_name?: string | null
+          city_postcode?: string | null
+          consent_contact?: boolean | null
+          consent_mise_en_relation?: boolean | null
+          created_at?: string | null
+          department_code?: string | null
+          department_label?: string | null
+          description?: string | null
+          disponibilite?: string | null
+          email?: string | null
+          flux_rss?: string | null
+          format_collaboration?: string | null
+          frequence_publication?: string | null
+          id?: string | null
+          lien_ecoute?: string | null
+          lien_linkedin?: string | null
+          lien_principal?: string | null
+          metier_principal?: string | null
+          monetise?: string | null
+          niveau_avancement?: string | null
+          nom?: string | null
+          nom_podcast?: string | null
+          peut_apporter?: string[] | null
+          photo_profil_url?: string | null
+          prenom?: string | null
+          priorite_actuelle?: string | null
+          score_dynamique?: number | null
+          score_fiche?: number | null
+          score_global?: number | null
+          score_opportunite?: number | null
+          segment_pds?: string | null
+          services_3?: string[] | null
+          slug?: string | null
+          structure?: string | null
+          studio_data?: Json | null
+          telephone?: string | null
+          thematique?: string | null
+          type_podcast?: string | null
+          type_profil?: string | null
+          valide?: boolean | null
+          vignette_url?: string | null
+          ville?: string | null
+          visible_sans_adhesion?: boolean | null
+        }
+        Update: {
+          apporte_choix?: string[] | null
+          apporte_precision?: string | null
+          besoin?: string | null
+          besoins_podcast?: string[] | null
+          bio_750?: string | null
+          cherche_choix?: string[] | null
+          cherche_collaboration?: string[] | null
+          cherche_precision?: string | null
+          city_insee_code?: string | null
+          city_name?: string | null
+          city_postcode?: string | null
+          consent_contact?: boolean | null
+          consent_mise_en_relation?: boolean | null
+          created_at?: string | null
+          department_code?: string | null
+          department_label?: string | null
+          description?: string | null
+          disponibilite?: string | null
+          email?: string | null
+          flux_rss?: string | null
+          format_collaboration?: string | null
+          frequence_publication?: string | null
+          id?: string | null
+          lien_ecoute?: string | null
+          lien_linkedin?: string | null
+          lien_principal?: string | null
+          metier_principal?: string | null
+          monetise?: string | null
+          niveau_avancement?: string | null
+          nom?: string | null
+          nom_podcast?: string | null
+          peut_apporter?: string[] | null
+          photo_profil_url?: string | null
+          prenom?: string | null
+          priorite_actuelle?: string | null
+          score_dynamique?: number | null
+          score_fiche?: number | null
+          score_global?: number | null
+          score_opportunite?: number | null
+          segment_pds?: string | null
+          services_3?: string[] | null
+          slug?: string | null
+          structure?: string | null
+          studio_data?: Json | null
+          telephone?: string | null
+          thematique?: string | null
+          type_podcast?: string | null
+          type_profil?: string | null
+          valide?: boolean | null
+          vignette_url?: string | null
+          ville?: string | null
+          visible_sans_adhesion?: boolean | null
+        }
+        Relationships: []
+      }
     }
     Functions: {
       accueil_bienvenue_annuler: {

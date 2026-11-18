@@ -78,7 +78,7 @@ export const usePodcastsAnnuaire = () =>
     staleTime: 5 * 60 * 1000,
     queryFn: async (): Promise<PodcastOnde[]> => {
       const { data, error } = await supabase
-        .from("podcasts")
+        .from("podcasts_publics")
         .select(PODCAST_COLONNES)
         .eq("valide", true)
         .eq("type_profil", "podcasteur")
@@ -95,7 +95,7 @@ export const usePodcastChoisi = (id?: string) =>
     enabled: !!id,
     staleTime: 60 * 1000,
     queryFn: async (): Promise<PodcastOnde | null> => {
-      const { data, error } = await supabase.from("podcasts").select(PODCAST_COLONNES).eq("id", id!).maybeSingle();
+      const { data, error } = await supabase.from("podcasts_publics").select(PODCAST_COLONNES).eq("id", id!).maybeSingle();
       if (error) throw error;
       return (data as PodcastOnde) ?? null;
     },
