@@ -15,6 +15,9 @@ export const PAGES = {
   adherer: "/adherer",
   partenaires: "/partenaires",
   onde: "/onde",
+  podcastMarseille: "/podcast-marseille",
+  podcastCoteAzur: "/podcast-nice-cote-d-azur",
+  studiosMarseille: "/studio-podcast-marseille",
 } as const;
 
 type FicheLien = { id: string; slug?: string | null; type_profil?: string | null; nom_podcast?: string | null };
@@ -94,28 +97,43 @@ export const faqLd = (faq: Array<{ q: string; a: string }>) =>
 
 /** Titres et descriptions des pages générales (uniques, 140 à 160 caractères). */
 export const PAGES_SEO = {
+  podcastMarseille: {
+    title: titreSeo("Podcasts à Marseille"),
+    description:
+      "Les podcasts faits à Marseille par les membres des Podcasteur·euses du Sud : écoutez-les ici, voyez qui les fait et où enregistrer le vôtre en ville.",
+  },
+  podcastCoteAzur: {
+    title: titreSeo("Podcasts à Nice et sur la Côte d'Azur"),
+    description:
+      "Les podcasts faits à Nice, Antibes et dans les Alpes-Maritimes par les membres des Podcasteur·euses du Sud, à écouter ici, avec les rendez-vous podcast.",
+  },
+  studiosMarseille: {
+    title: titreSeo("Studios podcast à Marseille"),
+    description:
+      "Studios podcast à Marseille : services, tarifs et accès des studios membres, puis une seule demande de devis envoyée à tous les studios qui correspondent.",
+  },
   accueil: {
-    title: "Les Podcasteur·euses du Sud — podcasts, créateur·ices et studios en Région Sud",
+    title: "Podcasts à Marseille et en Région Sud | Les Podcasteur·euses du Sud",
     description:
       "Écoutez les podcasts faits à Marseille et en Région Sud, trouvez qui les fait, un studio où enregistrer et les prochains ateliers d'écoute près de chez vous.",
   },
   ecouter: {
-    title: titreSeo("Écouter les podcasts de Marseille et de Région Sud"),
+    title: titreSeo("Podcasts de Marseille et de Région Sud à écouter"),
     description:
       "Les podcasts de Marseille et de Région Sud à écouter ici : derniers épisodes, recherche par thème ou département, et un lecteur qui suit votre navigation.",
   },
   annuaire: {
-    title: titreSeo("Annuaire des podcasteur·euses et pros de l'audio en Région Sud"),
+    title: titreSeo("Annuaire podcast : créateur·ices et pros de l'audio en Région Sud"),
     description:
       "Podcasteur·euses, monteur·euses, voix off et pros de l'audio à Marseille et en Région Sud. Dites ce que vous cherchez, l'annuaire montre qui l'apporte.",
   },
   studios: {
-    title: titreSeo("Studios podcast et agences en Région Sud"),
+    title: titreSeo("Studios podcast à Marseille et en Région Sud"),
     description:
       "Studios d'enregistrement, plateaux vidéo et agences podcast à Marseille et en Région Sud. Comparez services et tarifs, puis demandez un devis en une fois.",
   },
   agenda: {
-    title: titreSeo("Agenda des événements podcast en Région Sud"),
+    title: titreSeo("Événements podcast à Marseille et en Région Sud"),
     description:
       "Ateliers d'écoute, lives, rencontres et ateliers podcast à Marseille, en Région Sud et en ligne. Ajoutez-les à votre agenda, ou proposez votre événement.",
   },

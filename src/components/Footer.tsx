@@ -2,6 +2,7 @@ import { Link, useLocation } from "react-router-dom";
 import { container, linkUnderline } from "@/lib/pds";
 import AbonnementOnde from "@/components/onde/AbonnementOnde";
 import { PAGES } from "@/lib/seo";
+import { LIENS_LOCAUX } from "@/lib/pagesLocales";
 
 /**
  * Abonnement à L'Onde du Sud en tête du pied de page, sauf dans l'administration et sur les pages de L'Onde,
@@ -53,6 +54,11 @@ const Footer = () => {
             </li>
           </ul>
         </div>
+        <ul aria-label="Podcast dans le Sud" className="flex flex-wrap gap-x-6 text-[15px] border-t border-filet pt-3">
+          {LIENS_LOCAUX.map((l) => (
+            <li key={l.to}><Link to={l.to} className="inline-flex min-h-[44px] items-center underline underline-offset-4">{l.label}</Link></li>
+          ))}
+        </ul>
         <ul className="flex flex-wrap gap-x-5 text-sm text-muted-foreground border-t border-filet pt-3">
           <li><Link to="/mentions-legales" className="inline-flex min-h-[44px] items-center hover:text-foreground">Mentions légales</Link></li>
           <li><Link to="/politique-de-confidentialite" className="inline-flex min-h-[44px] items-center hover:text-foreground">Confidentialité</Link></li>

@@ -1,17 +1,16 @@
 import { useMemo, useState, useEffect } from "react";
-import { compterStat } from "@/lib/stats";
 import { Link } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
-import { ExternalLink, Pause, Play } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import Navbar from "@/components/Navbar";
 import FiltresRepliables from "@/components/FiltresRepliables";
 import Footer from "@/components/Footer";
 import SEOHead from "@/components/SEOHead";
 import { PAGES_SEO } from "@/lib/seo";
-import { usePlayer } from "@/contexts/PlayerContext";
 import { useLatestEpisodes, type Episode } from "@/lib/episodes";
-import { aUnPodcast, btnPrimary, btnSecondary, cleanCity, container, h1Ligne, formatShortDate, fullName } from "@/lib/pds";
+import { aUnPodcast, btnPrimary, btnSecondary, container, h1Ligne, linkUnderline } from "@/lib/pds";
+import PodcastCarte from "@/components/listes/PodcastCarte";
+import { LIENS_LOCAUX } from "@/lib/pagesLocales";
 
 interface Podcast {
   id: string;
@@ -55,7 +54,6 @@ const jsonLd = {
 const norm = (s: string) => s.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
 
 const Podcasts = () => {
-  const { play, isCurrent, playing } = usePlayer();
   const [visible, setVisible] = useState(INITIAL_COUNT);
   const [search, setSearch] = useState("");
   const [dept, setDept] = useState("");
@@ -154,6 +152,11 @@ const Podcasts = () => {
           <p className="mt-3 md:mt-4 text-[17px] md:text-lg max-w-[52ch]">
             {podcasts.length > 0 ? `${podcasts.length} podcasts à lancer ici.` : "Lancez un épisode ici."} Il continue pendant que vous naviguez d'une page à l'autre.
           </p>
+          <p className="mt-2 text-[15px] flex flex-wrap gap-x-5">
+            {LIENS_LOCAUX.filter((l) => l.to.startsWith("/podcast-")).map((l) => (
+              <Link key={l.to} to={l.to} className={`${linkUnderline} inline-flex min-h-[44px] items-center`}>{l.label}</Link>
+            ))}
+          </p>
 
           {/* Thèmes : une bande qui défile sur téléphone, sur plusieurs lignes au-delà */}
           <div role="group" aria-label="Filtrer par thème" className="mt-5 md:mt-6 -mx-5 px-5 sm:-mx-8 sm:px-8 md:mx-0 md:px-0 flex flex-nowrap md:flex-wrap gap-2 overflow-x-auto md:overflow-visible pb-2 md:pb-0 [scrollbar-width:thin]">
@@ -208,55 +211,7 @@ const Podcasts = () => {
             <p className="py-16 text-lg">Aucun podcast ne correspond à cette recherche. Essayez un autre mot ou un autre thème.</p>
           ) : (
             <ul className="mt-4 grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-x-4 sm:gap-x-6 gap-y-10">
-              {filtered.slice(0, visible).map((p) => {
-                const ep = episodeByPodcast.get(p.id);
-                const active = ep ? isCurrent(ep) && playing : false;
-                const author = fullName(p.prenom, p.nom);
-                const city = cleanCity(p.city_name || p.ville);
-                const href = `/ecouter/${p.slug || p.id}`;
-                return (
-                  <li key={p.id} className="flex flex-col">
-                    <Link to={href} className="block aspect-square bg-muted overflow-hidden" tabIndex={-1} aria-hidden>
-                      {p.vignette_url ? (
-                        <img src={p.vignette_url} alt={`Pochette du podcast ${p.nom_podcast}`} className="w-full h-full object-cover" loading="lazy" />
-                      ) : (
-                        <span className="flex w-full h-full items-center justify-center bg-primary text-primary-foreground title-section text-2xl p-4 text-center">{p.nom_podcast}</span>
-                      )}
-                    </Link>
-                    <div className="mt-3 flex items-start justify-between gap-2">
-                      <div className="min-w-0">
-                        <Link to={href} className="block font-bold text-[17px] leading-tight hover:underline underline-offset-4">
-                          {p.nom_podcast}
-                        </Link>
-                        <p className="text-sm text-muted-foreground mt-0.5">{[author, city].filter(Boolean).join(" · ")}</p>
-                      </div>
-                      {ep ? (
-                        <button
-                          onClick={() => play(ep)}
-                          className={`shrink-0 w-11 h-11 rounded-full border-2 border-primary inline-flex items-center justify-center ${active ? "bg-primary text-primary-foreground" : "text-primary hover:bg-primary hover:text-primary-foreground"}`}
-                          aria-label={`${active ? "Mettre en pause" : "Écouter le dernier épisode de"} ${p.nom_podcast}`}
-                        >
-                          {active ? <Pause className="w-4 h-4" fill="currentColor" /> : <Play className="w-4 h-4 ml-0.5" fill="currentColor" />}
-                        </button>
-                      ) : (
-                        <a
-                          href={p.lien_ecoute}
-                          onClick={() => compterStat(p.id, "ecoute")}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="shrink-0 w-11 h-11 rounded-full border-2 border-primary text-primary inline-flex items-center justify-center hover:bg-primary hover:text-primary-foreground"
-                          aria-label={`Écouter ${p.nom_podcast} (nouvel onglet)`}
-                        >
-                          <ExternalLink className="w-4 h-4" />
-                        </a>
-                      )}
-                    </div>
-                    {ep?.date && (
-                      <p className="mt-2 font-mono text-xs text-muted-foreground">Dernier épisode · {formatShortDate(ep.date)}</p>
-                    )}
-                  </li>
-                );
-              })}
+              {filtered.slice(0, visible).map((p) => <PodcastCarte key={p.id} p={p} ep={episodeByPodcast.get(p.id)} />)}
             </ul>
           )}
 

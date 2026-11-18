@@ -6,10 +6,11 @@ import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import SEOHead from "@/components/SEOHead";
 import { PAGES, PAGES_SEO, SITE_URL, ficheHref } from "@/lib/seo";
-import { btnListen, btnPrimary, btnSecondary, cleanCity, container, h1Ligne } from "@/lib/pds";
+import { btnListen, btnSecondary, cleanCity, container, h1Ligne, linkUnderline } from "@/lib/pds";
 import DevisForm from "@/components/studios/DevisForm";
 import { LogoLieu } from "@/components/studios/LieuParts";
-import { SERVICES_STUDIO, accrocheLieu, formatCapacite, serviceLabel, tarifAffiche, useFichesLieux } from "@/lib/lieux";
+import { SERVICES_STUDIO, useFichesLieux } from "@/lib/lieux";
+import StudioCarte, { sdOf, type StudioListe } from "@/components/studios/StudioCarte";
 
 const DEPARTEMENTS = [
   { code: "04", label: "Alpes-de-Haute-Provence" },
@@ -30,18 +31,6 @@ const TYPES_STUDIO = [
   "Lieu événementiel avec captation possible",
 ];
 
-type StudioData = {
-  type_lieu?: string;
-  accroche?: string;
-  phrase_accroche?: string;
-  indication_tarifaire?: string;
-  capacite?: string;
-  accessibilite?: string[];
-  services_studio?: string[];
-  usages?: string[];
-  galerie_urls?: string[];
-};
-
 interface Profile {
   id: string;
   slug: string | null;
@@ -55,14 +44,8 @@ interface Profile {
   services_3: string[] | null;
   vignette_url: string | null;
   consent_contact: boolean;
-  studio_data: StudioData | string | null;
+  studio_data: StudioListe["studio_data"];
 }
-
-const sdOf = (p: Profile): StudioData => {
-  if (!p.studio_data) return {};
-  if (typeof p.studio_data === "string") { try { return JSON.parse(p.studio_data); } catch { return {}; } }
-  return p.studio_data;
-};
 
 /** Type affiché d'une structure (« Festival », « Radio »…), et « Partenaire » quand elle n'est pas membre. */
 const typeStructure = (p: Profile) => {
@@ -146,6 +129,7 @@ const AgencesStudios = () => {
               <p className="mt-4 text-lg max-w-[52ch]">
                 Où enregistrer, avec qui produire, qui peut monter ou réaliser votre podcast près de chez vous.
               </p>
+              <Link to={PAGES.studiosMarseille} className={`${linkUnderline} mt-2 inline-flex min-h-[44px] items-center`}>Les studios podcast à Marseille<span aria-hidden>&nbsp;→</span></Link>
             </div>
             <button onClick={() => openDevis(null)} className={`${btnListen} px-6 self-start md:self-auto`}>Je cherche un studio</button>
           </div>
@@ -192,55 +176,7 @@ const AgencesStudios = () => {
           )}
 
           <ul className="mt-4 grid md:grid-cols-2 gap-6">
-            {filtered.map((p) => {
-              const sd = sdOf(p);
-              const f = fiches[p.id];
-              const services = (f?.services || []).map(serviceLabel);
-              const photo = f?.photos?.[0] || sd.galerie_urls?.[0] || p.vignette_url;
-              const href = ficheHref(p);
-              const accroche = accrocheLieu(f, sd);
-              const meta = [
-                { k: "Tarif", v: tarifAffiche(f) },
-                { k: "Capacité", v: formatCapacite(f?.capacite_voix) },
-                { k: "Accès", v: f?.acces_transports },
-              ].filter((m) => m.v);
-              return (
-                <li key={p.id} className="bg-surface border border-filet flex flex-col">
-                  <Link to={href} tabIndex={-1} aria-hidden className="block aspect-[16/9] bg-muted overflow-hidden">
-                    {photo && <img src={photo} alt={`Photo du studio ${p.nom_podcast}`} className="w-full h-full object-cover" loading="lazy" />}
-                  </Link>
-                  <div className="p-5 sm:p-6 flex flex-col flex-1">
-                    {sd.type_lieu && <p className="text-sm font-bold text-primary">{sd.type_lieu}</p>}
-                    <h2 className="title-section text-[30px] sm:text-[34px] mt-1">
-                      <Link to={href} className="hover:underline underline-offset-4">{p.nom_podcast}</Link>
-                    </h2>
-                    {p.city_name && <p className="text-[15px] text-muted-foreground">{cleanCity(p.city_name)}</p>}
-                    {accroche && <p className="mt-3 text-[17px] line-clamp-3">{accroche}</p>}
-                    {meta.length > 0 && (
-                      <dl className="mt-4 grid grid-cols-1 min-[480px]:grid-cols-3 gap-3 border-y border-filet py-3">
-                        {meta.map((m) => (
-                          <div key={m.k} className="min-w-0">
-                            <dt className="text-xs text-muted-foreground">{m.k}</dt>
-                            <dd className="font-mono text-sm break-words">{m.v}</dd>
-                          </div>
-                        ))}
-                      </dl>
-                    )}
-                    {services.length > 0 && (
-                      <ul className="mt-3 flex flex-wrap gap-x-4 gap-y-1 text-[15px]">
-                        {services.slice(0, 5).map((s) => <li key={s}>{s}</li>)}
-                      </ul>
-                    )}
-                    <div className="mt-auto pt-5 flex flex-wrap gap-3">
-                      {p.consent_contact && (
-                        <button onClick={() => openDevis(p.id)} className={btnPrimary} aria-label={`Demander un devis à ${p.nom_podcast}`}>Demander un devis</button>
-                      )}
-                      <Link to={href} className={btnSecondary} aria-label={`Voir la fiche de ${p.nom_podcast}`}>Voir la fiche</Link>
-                    </div>
-                  </div>
-                </li>
-              );
-            })}
+            {filtered.map((p) => <StudioCarte key={p.id} p={p} fiche={fiches[p.id]} onDevis={openDevis} />)}
           </ul>
         </div>
 

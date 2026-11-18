@@ -151,3 +151,10 @@
 - [x] Affiche A5 imprimable par groupe
 - [x] Tests fictifs effacés, scan de sécurité, version enregistrée, pas de publication
 - [ ] Relance J+7 et invitations de rattrapage : en attente de la clé d'envoi (même service que L'Onde du Sud)
+
+## Référencement (novembre 2026)
+- [x] Search Console : état réel lu (déjà reliée)
+- [ ] Renvoyer le plan du site à Google — en attente de la publication du site
+- [x] Page « Studio podcast à Marseille » (/studio-podcast-marseille)
+- [x] Pages « Podcasts à [ville] » : Marseille, Nice et Côte d'Azur (seules villes avec assez de podcasts membres)
+- [x] Titres des grandes pages : « podcast » + ville en tête
